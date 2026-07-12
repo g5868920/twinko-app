@@ -31,6 +31,17 @@ Twinko 仍處於 **pre-build consolidation / product definition**，但 source-o
 - Twinko 是 AI-Native PM Workflow 的 first real dogfooding case。
 - Immediate dogfood scope 是一個 bounded **Discovery-to-Decision** slice，而不是 full engineering automation。
 
+## Company Execution Status（Amendment — 2026-07-12）
+
+> 這是一則 additive amendment，不變更、不刪除下方 Completed / In Progress / Not Started / Next Milestone 等既有內容。既有的 Discovery-first product-gating 邏輯（primary wedge、primary first-value moment、safety boundaries、Discovery-to-Decision、D-047、D-051）仍然有效，只是目前在 company-level 執行排序上被延後（deferred），不是被推翻或取代。
+
+- **Repository canonical migration：已完成。** Twinko product truth（Operating Brief、Current Status、Decision Log）、strategy supplement 與 reconciliation history 已從 Studio 遷移到 `twinko-app`，`twinko-app` 現為 canonical owner。
+- **Current product stage：仍為 pre-build。** 目前沒有 active 的 SwiftUI implementation milestone，也沒有 active 的 Discovery-to-Decision sprint。下方 Completed / In Progress / Not Started 描述的是 product-definition 階段既有的事實，依然成立，只是尚未被目前的 company priority 排入執行。
+- **Current company execution priority：deferred。** 依據 Studio Decision 0006（Fast-Track Product Delivery）與 Decision 0007（One-Person Company OS v1.0 Reprioritization），Twinko UI prototype 與 Twinko Discovery-to-Decision 目前都是 deferred，不是 rejected 或 superseded。One-Person Company OS v1.0 目前是 primary active company milestone。
+- **Next proposed product milestone：Product Definition Sprint。** 只有在 company 或 venture 層級出現新的、明確的 milestone authorization 之後，才可以重新啟動。下方「Next Milestone：Discovery-to-Decision Gate v1」是既有 product 邏輯下的既定目標，尚未變更，但目前不是 active 的執行對象。
+
+Basis：`decisions/approvals/0006-fast-track-product-delivery.md`、`decisions/approvals/0007-one-person-company-os-v1-reprioritization.md`。
+
 ## Completed
 
 ### Product concept

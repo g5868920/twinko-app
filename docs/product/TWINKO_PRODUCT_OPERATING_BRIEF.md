@@ -1718,3 +1718,17 @@ Build vertical slices in the order determined by the selected first-value flow�
 - If one progression mechanic is tested, evaluate it separately and do not infer causality from app opens alone。
 - Decide whether to widen beta, narrow scope or change wedge。
 - Pricing and complex gamification remain post-evidence decisions。
+
+## 21. Sequencing Amendment — 2026-07-12
+
+> This is an additive amendment. §16 (AI-Native PM Workflow Dogfooding Plan) and §20 (Immediate Execution Sequence) above remain unchanged and continue to describe valid product-gating logic and build-readiness guidance. This section records how company-level execution sequencing has changed since those sections were written; it does not alter product truth。
+
+The original Discovery-first gating logic in §16 and §20 — primary user wedge validation, primary first-value moment validation, safety boundaries, and the Discovery-to-Decision PM Workflow slice — remains valid product strategy and build-readiness guidance。It has not been rejected, invalidated, or superseded as product logic。
+
+**Studio Decision 0006** (Fast-Track Product Delivery, Chairwoman Approved, 2026-07-12) temporarily reprioritized active company execution：PM Workflow Control Tower became the primary active priority, the Twinko iOS UI prototype became the secondary active priority, and Twinko Discovery-to-Decision together with PM Workflow dogfooding were deferred until both prototypes are ready。Decision 0006 was explicit that this is a sequencing decision, not a rejection of Twinko's product-gating logic, and that it does not decide wedge, first-value moment, naming, or scope freeze。
+
+**Studio Decision 0007** (One-Person Company OS v1.0 Reprioritization, Chairwoman Approved, 2026-07-12) later superseded only the active-priority sequencing in Decision 0006 §§1–2。One-Person Company OS v1.0 is now the primary active company milestone。PM Workflow Control Tower work is paused, after preservation, rather than continued。The Twinko UI prototype remains deferred until the One-Person Company OS v1.0 milestone is complete。Twinko Discovery-to-Decision and PM Workflow dogfooding remain deferred, not rejected or superseded。
+
+**Current status**：Twinko implementation and discovery work are currently deferred at the company-execution level。Deferred does not mean rejected, invalidated, or superseded — the product-gating logic above remains the standing guidance for when work resumes。The Product Definition Sprint, and any resumption of Discovery-to-Decision, may begin only after an explicit new company- or venture-level milestone authorization is recorded in Studio governance。
+
+Basis：Studio Decision 0006 (`decisions/approvals/0006-fast-track-product-delivery.md`) and Decision 0007 (`decisions/approvals/0007-one-person-company-os-v1-reprioritization.md`)。

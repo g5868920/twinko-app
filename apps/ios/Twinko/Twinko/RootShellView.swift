@@ -1,35 +1,28 @@
 import SwiftUI
 
-/// The minimal P0 shell: the Twinko character, the temporary working
-/// label "Twinko," and a single path into Chat. See
-/// docs/prototype/TWINKO_P0_APP_SHELL_MOCK_CHAT_SPEC.md §2.1 — no other
-/// screen, mode, or menu belongs here.
+/// Interim shell: the Twinko character, the temporary working label
+/// "Twinko," and a single path into Chat. Replaced by the app router +
+/// Home Menu in the onboarding phase of the D-054 milestone.
 struct RootShellView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                LinearGradient(
-                    colors: [
-                        Color(red: 0.55, green: 0.42, blue: 0.75),
-                        Color(red: 0.95, green: 0.7, blue: 0.5)
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .ignoresSafeArea()
+                TwinkoBackground.sky.ignoresSafeArea()
+                StarFieldView()
 
-                VStack(spacing: 20) {
+                VStack(spacing: TwinkoSpacing.m) {
                     Spacer()
 
-                    TwinkoCharacterView(size: 200)
+                    TwinkoCharacterView(mood: .happy, size: 210)
 
                     Text("Twinko")
-                        .font(.system(size: 40, weight: .bold, design: .rounded))
+                        .font(.twinkoLargeTitle)
                         .foregroundStyle(.white)
+                        .shadow(color: .black.opacity(0.2), radius: 3, y: 1)
 
                     Text("A quiet place to talk.")
-                        .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.85))
+                        .font(.twinkoBody)
+                        .foregroundStyle(.white.opacity(0.9))
 
                     Spacer()
 
@@ -37,12 +30,8 @@ struct RootShellView: View {
                         ChatView()
                     } label: {
                         Text("Chat with Twinko")
-                            .font(.headline)
-                            .foregroundStyle(.white)
-                            .padding(.vertical, 14)
-                            .padding(.horizontal, 32)
-                            .background(Color.black.opacity(0.25), in: Capsule())
                     }
+                    .buttonStyle(.twinkoPrimary)
                     .padding(.bottom, 48)
                     .accessibilityIdentifier("chatEntryButton")
                 }

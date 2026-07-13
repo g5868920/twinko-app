@@ -9,7 +9,10 @@
 /* Begin PBXBuildFile section */
 		2ACB519F8D8D2F9DB5E0F13D /* TwinkoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2335623A74610D184A2C493D /* TwinkoApp.swift */; };
 		ACCD810DBFAF66437872EC9E /* RootShellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C3F1B702FEE37DFF3D1FFD0 /* RootShellView.swift */; };
-		4BB85EE629ABBE547F857F7E /* TwinkoCharacterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2A6445681D68E4CDC740B6 /* TwinkoCharacterView.swift */; };
+		84C8D2AF284B67F34BFF73A9 /* TwinkoTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FCEE6E05DA837DEC46D0A2A /* TwinkoTheme.swift */; };
+		A1E1F1A13D31D5D33644A362 /* TwinkoComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA675190F8FC6A3EB7A89BBF /* TwinkoComponents.swift */; };
+		4E07BD3D0661A9D70DBE8519 /* TwinkoStar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C28B60D3F5CE4428D34C91C /* TwinkoStar.swift */; };
+		E66FE230DBB4A7FE02D94AFF /* TwinkoCharacterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CEFD704B3A60BF4E1E122 /* TwinkoCharacterView.swift */; };
 		08DBD8DE79C03092D70BE2C8 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3977084055B601B38042C00 /* ChatView.swift */; };
 		D1E21C108E0D923662A835DA /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D6C8D0A3C82FA29E72F4F87 /* ChatViewModel.swift */; };
 		4DE261B62E9A7D6F66363388 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BFFFEA0570BA6492F3696D7 /* Message.swift */; };
@@ -32,7 +35,10 @@
 /* Begin PBXFileReference section */
 		2335623A74610D184A2C493D /* TwinkoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoApp.swift; sourceTree = "<group>"; };
 		2C3F1B702FEE37DFF3D1FFD0 /* RootShellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootShellView.swift; sourceTree = "<group>"; };
-		1A2A6445681D68E4CDC740B6 /* TwinkoCharacterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoCharacterView.swift; sourceTree = "<group>"; };
+		9FCEE6E05DA837DEC46D0A2A /* TwinkoTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoTheme.swift; sourceTree = "<group>"; };
+		AA675190F8FC6A3EB7A89BBF /* TwinkoComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoComponents.swift; sourceTree = "<group>"; };
+		8C28B60D3F5CE4428D34C91C /* TwinkoStar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoStar.swift; sourceTree = "<group>"; };
+		846CEFD704B3A60BF4E1E122 /* TwinkoCharacterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoCharacterView.swift; sourceTree = "<group>"; };
 		A3977084055B601B38042C00 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
 		1D6C8D0A3C82FA29E72F4F87 /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
 		5BFFFEA0570BA6492F3696D7 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
@@ -85,11 +91,30 @@
 			children = (
 				2335623A74610D184A2C493D /* TwinkoApp.swift */,
 				2C3F1B702FEE37DFF3D1FFD0 /* RootShellView.swift */,
-				1A2A6445681D68E4CDC740B6 /* TwinkoCharacterView.swift */,
+				C36A9EDA1F6B61486E959016 /* DesignSystem */,
+				B797F37DDF4F359586EC89A8 /* Character */,
 				716A0549A4A2AD1BFE7230ED /* Chat */,
 				F9F2531A0ADC09B7F99AA6BF /* Assets.xcassets */,
 			);
 			path = Twinko;
+			sourceTree = "<group>";
+		};
+		C36A9EDA1F6B61486E959016 /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				9FCEE6E05DA837DEC46D0A2A /* TwinkoTheme.swift */,
+				AA675190F8FC6A3EB7A89BBF /* TwinkoComponents.swift */,
+			);
+			path = DesignSystem;
+			sourceTree = "<group>";
+		};
+		B797F37DDF4F359586EC89A8 /* Character */ = {
+			isa = PBXGroup;
+			children = (
+				8C28B60D3F5CE4428D34C91C /* TwinkoStar.swift */,
+				846CEFD704B3A60BF4E1E122 /* TwinkoCharacterView.swift */,
+			);
+			path = Character;
 			sourceTree = "<group>";
 		};
 		716A0549A4A2AD1BFE7230ED /* Chat */ = {
@@ -205,7 +230,10 @@
 			files = (
 				2ACB519F8D8D2F9DB5E0F13D /* TwinkoApp.swift in Sources */,
 				ACCD810DBFAF66437872EC9E /* RootShellView.swift in Sources */,
-				4BB85EE629ABBE547F857F7E /* TwinkoCharacterView.swift in Sources */,
+				84C8D2AF284B67F34BFF73A9 /* TwinkoTheme.swift in Sources */,
+				A1E1F1A13D31D5D33644A362 /* TwinkoComponents.swift in Sources */,
+				4E07BD3D0661A9D70DBE8519 /* TwinkoStar.swift in Sources */,
+				E66FE230DBB4A7FE02D94AFF /* TwinkoCharacterView.swift in Sources */,
 				08DBD8DE79C03092D70BE2C8 /* ChatView.swift in Sources */,
 				D1E21C108E0D923662A835DA /* ChatViewModel.swift in Sources */,
 				4DE261B62E9A7D6F66363388 /* Message.swift in Sources */,

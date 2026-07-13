@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// The P0 Mock Chat screen: empty state, local input, deterministic
-/// loading/success/fallback states, in-memory-only messages. See
-/// docs/prototype/TWINKO_P0_APP_SHELL_MOCK_CHAT_SPEC.md §2.2–§3.
+/// The Mock Chat screen: empty state, local input, deterministic
+/// loading/success/fallback states, in-memory-only messages. Visual
+/// direction: warm night room (Brand Guide §6 Chat).
 struct ChatView: View {
     @StateObject private var viewModel: ChatViewModel
     @FocusState private var isInputFocused: Bool
@@ -16,9 +16,17 @@ struct ChatView: View {
             messageList
             composer
         }
-        .background(Color(red: 0.99, green: 0.94, blue: 0.86).ignoresSafeArea())
+        .background {
+            ZStack {
+                TwinkoBackground.night.ignoresSafeArea()
+                StarFieldView(tint: .twinkoGold.opacity(0.7))
+            }
+        }
         .navigationTitle("Twinko")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarColorScheme(.dark, for: .navigationBar)
+        .toolbarBackground(Color.midnightNavy.opacity(0.6), for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
     }
 
     private var messageList: some View {
@@ -59,17 +67,19 @@ struct ChatView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 8) {
-            TwinkoCharacterView(size: 72)
+        VStack(spacing: TwinkoSpacing.s) {
+            TwinkoCharacterView(mood: .listening, size: 96)
+                .padding(.bottom, TwinkoSpacing.s)
             Text("Say hello to Twinko")
-                .font(.headline)
+                .font(.twinkoHeadline)
+                .foregroundStyle(.white)
             Text("This is a quiet place to talk. Type anything below to start.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .font(.twinkoBody)
+                .foregroundStyle(.white.opacity(0.75))
                 .multilineTextAlignment(.center)
             Text("Tip: type \"error test\" to see how Twinko responds when it isn't sure.")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
+                .font(.twinkoCaption)
+                .foregroundStyle(.white.opacity(0.5))
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
@@ -79,21 +89,26 @@ struct ChatView: View {
 
     private var loadingBubble: some View {
         HStack {
-            HStack(spacing: 8) {
-                TwinkoCharacterView(size: 24)
-                ProgressView()
+            HStack(spacing: TwinkoSpacing.s) {
+                TwinkoCharacterView(mood: .thinking, size: 30)
+                ThinkingDotsView(tint: .softWhite)
             }
-            .padding(10)
-            .background(Color.white.opacity(0.7), in: RoundedRectangle(cornerRadius: 14))
+            .padding(12)
+            .background(Color.white.opacity(0.12), in: RoundedRectangle(cornerRadius: TwinkoRadius.bubble))
             Spacer()
         }
         .accessibilityIdentifier("chatLoadingState")
     }
 
     private var composer: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: TwinkoSpacing.s) {
             TextField("Type a message...", text: $viewModel.draftText, axis: .vertical)
-                .textFieldStyle(.roundedBorder)
+                .font(.twinkoBody)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(Color.white.opacity(0.14), in: RoundedRectangle(cornerRadius: TwinkoRadius.bubble))
+                .foregroundStyle(.white)
+                .tint(.twinkoGold)
                 .focused($isInputFocused)
                 .lineLimit(1...4)
                 .onSubmit { viewModel.send() }
@@ -103,13 +118,18 @@ struct ChatView: View {
                 viewModel.send()
             } label: {
                 Image(systemName: "arrow.up.circle.fill")
-                    .font(.system(size: 30))
+                    .font(.system(size: 32))
+                    .foregroundStyle(
+                        LinearGradient(colors: [.twinkoGold, .warmOrange],
+                                       startPoint: .top, endPoint: .bottom)
+                    )
             }
             .disabled(viewModel.draftText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .accessibilityLabel(Text("送出"))
             .accessibilityIdentifier("chatSendButton")
         }
         .padding()
-        .background(.ultraThinMaterial)
+        .background(Color.midnightNavy.opacity(0.85))
     }
 }
 
@@ -121,16 +141,24 @@ private struct MessageBubble: View {
             if message.sender == .user { Spacer(minLength: 40) }
 
             Text(message.text)
-                .padding(10)
-                .background(bubbleColor, in: RoundedRectangle(cornerRadius: 14))
-                .foregroundStyle(message.sender == .user ? .white : .primary)
+                .font(.twinkoBody)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(bubbleBackground, in: RoundedRectangle(cornerRadius: TwinkoRadius.bubble))
+                .foregroundStyle(message.sender == .user ? Color.inkNavy : .white)
 
             if message.sender == .twinko { Spacer(minLength: 40) }
         }
     }
 
-    private var bubbleColor: Color {
-        message.sender == .user ? Color.accentColor : Color.white.opacity(0.85)
+    private var bubbleBackground: some ShapeStyle {
+        if message.sender == .user {
+            return AnyShapeStyle(
+                LinearGradient(colors: [.twinkoGold, Color(red: 1.0, green: 0.72, blue: 0.35)],
+                               startPoint: .top, endPoint: .bottom)
+            )
+        }
+        return AnyShapeStyle(Color.white.opacity(0.14))
     }
 }
 

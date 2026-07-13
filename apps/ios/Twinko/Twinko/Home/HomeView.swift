@@ -11,7 +11,7 @@ struct HomeView: View {
     /// flip on as their milestone phases land.
     var chatEnabled = true
     var tarotEnabled = true
-    var astrologyEnabled = false
+    var astrologyEnabled = true
 
     private var greeting: String {
         let hour = Calendar.current.component(.hour, from: .now)
@@ -60,7 +60,7 @@ struct HomeView: View {
                                  enabled: tarotEnabled) { TarotFlowView() }
                         modeTile("每日星座", icon: "sparkles",
                                  colors: [.warmOrange, .cheekOrange],
-                                 enabled: astrologyEnabled) { EmptyView() }
+                                 enabled: astrologyEnabled) { AstrologyView() }
                     }
                     HStack(alignment: .top, spacing: TwinkoSpacing.l) {
                         FeatureTile(title: "冥想", systemImage: "figure.mind.and.body",

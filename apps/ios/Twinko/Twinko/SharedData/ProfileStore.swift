@@ -8,7 +8,7 @@ final class ProfileStore: ObservableObject {
     @Published private(set) var profile: UserProfile?
 
     private let store: JSONStore
-    private static let fileName = "profile"
+    private nonisolated static let fileName = "profile"
 
     nonisolated init(store: JSONStore = JSONStore()) {
         self.store = store

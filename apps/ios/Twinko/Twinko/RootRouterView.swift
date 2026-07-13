@@ -4,6 +4,7 @@ import SwiftUI
 /// Home for returning users (PRD Flow A / Flow B).
 struct RootRouterView: View {
     @StateObject private var profileStore = ProfileStore()
+    @StateObject private var chatStore = ChatStore()
     @State private var showingSetup = false
 
     var body: some View {
@@ -29,6 +30,7 @@ struct RootRouterView: View {
             .animation(.easeInOut(duration: TwinkoMotion.standard), value: profileStore.profile == nil)
         }
         .environmentObject(profileStore)
+        .environmentObject(chatStore)
     }
 }
 

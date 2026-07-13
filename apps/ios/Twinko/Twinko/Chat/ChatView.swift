@@ -1,14 +1,16 @@
 import SwiftUI
 
-/// The Mock Chat screen: empty state, local input, deterministic
-/// loading/success/fallback states, in-memory-only messages. Visual
-/// direction: warm night room (Brand Guide §6 Chat).
+/// The Chat screen: warm night room, Traditional Chinese, deterministic
+/// loading/success/fallback states, locally persisted session.
 struct ChatView: View {
+    @EnvironmentObject private var chatStore: ChatStore
     @StateObject private var viewModel: ChatViewModel
     @FocusState private var isInputFocused: Bool
 
-    init(viewModel: ChatViewModel = ChatViewModel()) {
-        _viewModel = StateObject(wrappedValue: viewModel)
+    /// Opens a fresh session by default, or continues an existing one
+    /// from Chat History.
+    init(session: ChatSession = ChatSession()) {
+        _viewModel = StateObject(wrappedValue: ChatViewModel(session: session))
     }
 
     var body: some View {
@@ -22,11 +24,23 @@ struct ChatView: View {
                 StarFieldView(tint: .twinkoGold.opacity(0.7))
             }
         }
-        .navigationTitle("Twinko")
+        .navigationTitle("聊聊天")
         .navigationBarTitleDisplayMode(.inline)
         .toolbarColorScheme(.dark, for: .navigationBar)
         .toolbarBackground(Color.midnightNavy.opacity(0.6), for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                NavigationLink {
+                    ChatHistoryView()
+                } label: {
+                    Image(systemName: "clock.arrow.circlepath")
+                        .foregroundStyle(Color.twinkoGold)
+                }
+                .accessibilityLabel(Text("聊天紀錄"))
+            }
+        }
+        .onAppear { viewModel.store = chatStore }
     }
 
     private var messageList: some View {
@@ -53,6 +67,7 @@ struct ChatView: View {
             .onChange(of: viewModel.state) { _, _ in
                 scrollToBottom(proxy: proxy)
             }
+            .onAppear { scrollToBottom(proxy: proxy) }
         }
     }
 
@@ -70,16 +85,12 @@ struct ChatView: View {
         VStack(spacing: TwinkoSpacing.s) {
             TwinkoCharacterView(mood: .listening, size: 96)
                 .padding(.bottom, TwinkoSpacing.s)
-            Text("Say hello to Twinko")
+            Text("跟 Twinko 說說話吧")
                 .font(.twinkoHeadline)
                 .foregroundStyle(.white)
-            Text("This is a quiet place to talk. Type anything below to start.")
+            Text("這裡是屬於你的安靜角落，\n開心的、悶悶的，都可以慢慢說。")
                 .font(.twinkoBody)
                 .foregroundStyle(.white.opacity(0.75))
-                .multilineTextAlignment(.center)
-            Text("Tip: type \"error test\" to see how Twinko responds when it isn't sure.")
-                .font(.twinkoCaption)
-                .foregroundStyle(.white.opacity(0.5))
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
@@ -102,7 +113,7 @@ struct ChatView: View {
 
     private var composer: some View {
         HStack(spacing: TwinkoSpacing.s) {
-            TextField("Type a message...", text: $viewModel.draftText, axis: .vertical)
+            TextField("想說什麼都可以⋯⋯", text: $viewModel.draftText, axis: .vertical)
                 .font(.twinkoBody)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
@@ -165,5 +176,7 @@ private struct MessageBubble: View {
 #Preview {
     NavigationStack {
         ChatView()
+            .environmentObject(ChatStore())
     }
+    .environment(\.locale, Locale(identifier: "zh-Hant"))
 }

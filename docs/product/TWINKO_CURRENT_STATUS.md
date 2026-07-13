@@ -42,6 +42,23 @@ Twinko 仍處於 **pre-build consolidation / product definition**，但 source-o
 
 Basis：`decisions/approvals/0006-fast-track-product-delivery.md`、`decisions/approvals/0007-one-person-company-os-v1-reprioritization.md`。
 
+## Bounded Milestone Authorization（Amendment — 2026-07-13）
+
+> 這是一則 additive amendment，疊加在上方「Company Execution Status（Amendment — 2026-07-12）」之上，不變更、不刪除該段落或下方 Completed / In Progress / Not Started / Next Milestone 等既有內容。D-052 所記錄的一般性 deferred 狀態，在本次授權範圍之外，依然完整有效。
+
+- **Canonical repository migration：已完成。**（與上方一致，未變更。）
+- **先前的執行狀態：deferred under D-052。** 在本次授權之前，Twinko implementation 與 discovery 在 company-level 上維持 deferred（見 D-052、上方 2026-07-12 amendment）。
+- **目前的 bounded milestone：已授權。** 依據 D-053（見 `docs/product/TWINKO_DECISION_LOG.md`），"Twinko P0 Technical Foundation + First SwiftUI Prototype" 是一個 one-time, scope-limited exception，疊加在 D-052 的 deferred 狀態之上，不取代、不推翻 D-052。
+- **目前的 product stage：pre-product-validation technical prototype。** 這不是 product-validation 或 market-validation 階段；這是在 product decision（尤其是 D-047）尚未解決之前的技術性 foundation 驗證。
+- **Active scope：P0 technical foundation + App Shell + Mock Chat。** 僅限建立最小 Xcode/SwiftUI app shell、驗證 local build 與 iOS Simulator 執行、並實作一個 fully-mocked Chat flow。
+- **Mock Chat 的角色：technical prototype vehicle only。** Mock Chat 用來驗證 navigation、state management 與 mock-service architecture；這不是「Chat 是 primary wedge / primary first-value moment」的決定，且不得被引用為這樣的決定。
+- **尚未解決的 product decision：D-047。** Primary user wedge 與 primary first-value moment 依然 pending，未因本次技術授權而改變或預先決定。
+- **Live services：prohibited。** 本次授權不包含任何 backend、Supabase、authentication、live LLM、API keys、cloud sync、analytics/crash-reporting SDK、TestFlight/App Store 作業、payments 或 PM Workflow integration。
+- **Production infrastructure：prohibited。** 不建立任何 production persistence 或 production infrastructure；僅限 in-memory 或 bundled mock data。
+- **Next gate：milestone Definition of Done，其後為 Chairwoman review。** Implementation 必須在 milestone 的 Definition of Done（見 D-053 與 Chairwoman Decision Request §5）停止；任何超出此範圍的後續工作，都需要新的、明確的 milestone authorization。
+
+Basis：`docs/product/TWINKO_DECISION_LOG.md`（D-053）、Chairwoman Decision Request — Twinko P0 Technical Foundation + First SwiftUI Prototype（2026-07-12）。
+
 ## Completed
 
 ### Product concept

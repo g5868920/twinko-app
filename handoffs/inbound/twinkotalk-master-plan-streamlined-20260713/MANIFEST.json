@@ -1,0 +1,183 @@
+{
+  "package": "TwinkoTalk_Master_Plan_Streamlined_20260713",
+  "status_date": "2026-07-13",
+  "architecture": "streamlined_by_use",
+  "active_source_rule": "00_START + 01_CANONICAL + 02_PRODUCT_EXECUTION + 03_TRUST_GOVERNANCE",
+  "file_count": 30,
+  "files": [
+    {
+      "path": "00_TWINKO_START_HERE.md",
+      "bytes": 7189,
+      "sha256": "7128a75b53263ba08a632a213ba214d5e3fa5c55b6b9a841225099e96808e3fe",
+      "status": "active"
+    },
+    {
+      "path": "01_CANONICAL/TWINKO_CURRENT_STATUS.md",
+      "bytes": 9955,
+      "sha256": "ac5d8702051ac59e82d47e63ca32d214ed8d45bffac16dc19d00ced3ffa0fb53",
+      "status": "active"
+    },
+    {
+      "path": "01_CANONICAL/TWINKO_DECISION_LOG.md",
+      "bytes": 16289,
+      "sha256": "806737c2f91436c59c46c4aa04585da053569c3374486c96cccb27652168db0e",
+      "status": "active"
+    },
+    {
+      "path": "01_CANONICAL/TWINKO_PRODUCT_OPERATING_BRIEF.md",
+      "bytes": 36315,
+      "sha256": "1cf242a73532bad078cd285bba1737a1ea72378cea4979d4273203eee5b228d6",
+      "status": "active"
+    },
+    {
+      "path": "01_CANONICAL/TWINKO_VENTURE_STUDIO_HANDOFF.md",
+      "bytes": 4270,
+      "sha256": "90ff2620bd6a822687bc49af31952a4a61a0626334fc6121f077fcc873a6b27b",
+      "status": "active"
+    },
+    {
+      "path": "02_PRODUCT_EXECUTION/TWINKOTALK_BRAND_CHARACTER_GUIDE.md",
+      "bytes": 3952,
+      "sha256": "d09a633eb18b40d52fadd78354fb30de7428b1fb1c578524d0902bef2d04c17c",
+      "status": "active"
+    },
+    {
+      "path": "02_PRODUCT_EXECUTION/TWINKOTALK_CONTENT_SPEC.md",
+      "bytes": 4660,
+      "sha256": "c39b8a1d2ff206759831bc178442926a84a6a41f03138bbac053bffe8bf48275",
+      "status": "active"
+    },
+    {
+      "path": "02_PRODUCT_EXECUTION/TWINKOTALK_FEATURE_BACKLOG.md",
+      "bytes": 6668,
+      "sha256": "7ee89f0cbd23fbcc9326a6d2b53ae6b8992644bf0117ccbac49210e84e646854",
+      "status": "active"
+    },
+    {
+      "path": "02_PRODUCT_EXECUTION/TWINKOTALK_PROTOTYPE_PRD.md",
+      "bytes": 7241,
+      "sha256": "5515c44ae0d87edd8d26c164fce27fbf48c705319b4b92a3ccffba88dd1e44c8",
+      "status": "active"
+    },
+    {
+      "path": "02_PRODUCT_EXECUTION/TWINKOTALK_PROTOTYPE_QA_CHECKLIST.md",
+      "bytes": 2979,
+      "sha256": "a77cbf792bf0950eba64ed077a15ec1f1b973aeffa82d8c7e70fdf9a66cccd5c",
+      "status": "active"
+    },
+    {
+      "path": "02_PRODUCT_EXECUTION/TWINKOTALK_SCREEN_INVENTORY.md",
+      "bytes": 2651,
+      "sha256": "75b93584ab15bfef17b4c0d8b5c3d8005f4f3ad47d881836752dd9df7b1dff69",
+      "status": "active"
+    },
+    {
+      "path": "03_TRUST_GOVERNANCE/TWINKOTALK_TRUST_SAFETY_LEGAL_GOVERNANCE.md",
+      "bytes": 4744,
+      "sha256": "82a9912382f56123b4148a74cb1f921d22e65500e6b4e471f207d305a2f39750",
+      "status": "active"
+    },
+    {
+      "path": "04_REFERENCES/TWINKO_REFERENCE_SOURCE_INDEX.md",
+      "bytes": 1534,
+      "sha256": "806c07f8a90eacdfdb9f5cf6e729543822a7ff015bbe5e4382949024bfb14b4e",
+      "status": "reference_only"
+    },
+    {
+      "path": "04_REFERENCES/archived_generated_domain_drafts/TWINKOTALK_GAMIFICATION_STRATEGY.md",
+      "bytes": 4061,
+      "sha256": "452ff12b7c819a2ada5b7aec25ea1b364e00cbeecbda455d1435856162f92adf",
+      "status": "reference_only"
+    },
+    {
+      "path": "04_REFERENCES/archived_generated_domain_drafts/TWINKOTALK_PRODUCT_EXPERIENCE_STRATEGY.md",
+      "bytes": 3561,
+      "sha256": "cac2e0f9c8e8d24cd5af28ccf665e97a8a10563ef2b39980d611cbc2baa66f53",
+      "status": "reference_only"
+    },
+    {
+      "path": "04_REFERENCES/archived_generated_domain_drafts/TWINKOTALK_PRODUCT_OPERATIONS.md",
+      "bytes": 2413,
+      "sha256": "d09c3840841a70692925f777629b0c555decfedaabbb62b8368078de5c71a71a",
+      "status": "reference_only"
+    },
+    {
+      "path": "04_REFERENCES/archived_generated_domain_drafts/TWINKO_BUSINESS_MODEL_AND_VENTURE_STRATEGY.md",
+      "bytes": 7033,
+      "sha256": "723f591684300a74894761c94eaa340dd01228c95a3be7de5d9c2cdaedd31f4d",
+      "status": "reference_only"
+    },
+    {
+      "path": "04_REFERENCES/archived_generated_domain_drafts/TWINKO_MARKET_BRAND_AND_GROWTH.md",
+      "bytes": 5781,
+      "sha256": "c3b45a3a684133ca15a6be0ecd6f14a817128d7fb9e36b8c7487d0e96496fda0",
+      "status": "reference_only"
+    },
+    {
+      "path": "04_REFERENCES/historical_governance/TWINKOTALK_STREAMLINING_AND_INTEGRATION_AUDIT.md",
+      "bytes": 2881,
+      "sha256": "3a33c25a8620b6798e86929f43393c87d8283f83fccd2e455558b71936a9b216",
+      "status": "reference_only"
+    },
+    {
+      "path": "04_REFERENCES/historical_governance/TWINKO_CROSS_CHAT_DISCREPANCY_REPORT.md",
+      "bytes": 3745,
+      "sha256": "eaaf2318ed4cec390128301db2a0f9b03596aaaf4d463ddd61b8c008026f1f4d",
+      "status": "reference_only"
+    },
+    {
+      "path": "04_REFERENCES/historical_governance/TWINKO_INCREMENTAL_UPDATE_SUMMARY.md",
+      "bytes": 2104,
+      "sha256": "d67f35140860192e278e3881b2fd6d1eb2c4a523a7d975494d18263f5515e0b2",
+      "status": "reference_only"
+    },
+    {
+      "path": "04_REFERENCES/historical_governance/TWINKO_INFORMATION_ARCHITECTURE_AND_FILE_PLAN.md",
+      "bytes": 2031,
+      "sha256": "bc58e4cbf28d994ff5bc0cc4115d44eb8790f94a8976397a2c391b01166ddda4",
+      "status": "reference_only"
+    },
+    {
+      "path": "04_REFERENCES/source_summaries/TWINKO_MARKET_BUSINESS_GAMIFICATION_CONSOLIDATION_REFERENCE.md",
+      "bytes": 38901,
+      "sha256": "16003c5b537dbba6140f86c8fcfc283c950133b8f8abdfb229f4bcae03389c12",
+      "status": "reference_only"
+    },
+    {
+      "path": "04_REFERENCES/source_summaries/TwinkoTalk_Business_Model_SOURCE.txt",
+      "bytes": 15377,
+      "sha256": "c2f3b4d796f7586ab845a0dbae67e732dc52e1004e952c5db2a027f594e1047e",
+      "status": "reference_only"
+    },
+    {
+      "path": "04_REFERENCES/source_summaries/TwinkoTalk_Gamification_SOURCE.txt",
+      "bytes": 17116,
+      "sha256": "0c171f3fde69422c0b3a5003570030b3d0435df4ccbf6af5f36604215885fc41",
+      "status": "reference_only"
+    },
+    {
+      "path": "04_REFERENCES/source_summaries/TwinkoTalk_Market_Analysis_SOURCE.txt",
+      "bytes": 22426,
+      "sha256": "c092d67787bde476bbb9d7e9b5a7955ae05af9b8f22d97d4f668b63864f30734",
+      "status": "reference_only"
+    },
+    {
+      "path": "04_REFERENCES/visual_references/TWINKO_VISUAL_REFERENCE_INDEX.md",
+      "bytes": 784,
+      "sha256": "4334aa5861f66129079e64d960c3ac7553d5acfd2a5dbdfe6ce2a906761c7f0f",
+      "status": "reference_only"
+    },
+    {
+      "path": "04_REFERENCES/visual_references/tarot_card_style_reference.png",
+      "bytes": 2976877,
+      "sha256": "7add2d21b7bc234a38adfa7ba2abb22c1b5761ff823d9036ec977d182de3f3fa",
+      "status": "reference_only"
+    },
+    {
+      "path": "04_REFERENCES/visual_references/twinko_master_visual_reference.png",
+      "bytes": 3632001,
+      "sha256": "936cef118afb37521808b13e758f3624159b5689b326e014b886dca087245001",
+      "status": "reference_only"
+    }
+  ]
+}

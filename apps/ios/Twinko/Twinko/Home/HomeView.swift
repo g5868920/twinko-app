@@ -10,7 +10,7 @@ struct HomeView: View {
     /// Modes whose flows are implemented so far. Tarot and Astrology
     /// flip on as their milestone phases land.
     var chatEnabled = true
-    var tarotEnabled = false
+    var tarotEnabled = true
     var astrologyEnabled = false
 
     private var greeting: String {
@@ -57,7 +57,7 @@ struct HomeView: View {
                                  enabled: chatEnabled) { ChatView() }
                         modeTile("塔羅", icon: "rectangle.portrait.on.rectangle.portrait.angled.fill",
                                  colors: [.skyPurple, .cosmicPurple],
-                                 enabled: tarotEnabled) { EmptyView() }
+                                 enabled: tarotEnabled) { TarotFlowView() }
                         modeTile("每日星座", icon: "sparkles",
                                  colors: [.warmOrange, .cheekOrange],
                                  enabled: astrologyEnabled) { EmptyView() }

@@ -34,6 +34,20 @@
                ReferencedContainer = "container:Twinko.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "C197F5EC8B745EBA4AC95268"
+               BuildableName = "TwinkoUITests.xctest"
+               BlueprintName = "TwinkoUITests"
+               ReferencedContainer = "container:Twinko.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -49,6 +63,16 @@
                BlueprintIdentifier = "18DE8AAF97CE322E1E4CD636"
                BuildableName = "TwinkoTests.xctest"
                BlueprintName = "TwinkoTests"
+               ReferencedContainer = "container:Twinko.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "C197F5EC8B745EBA4AC95268"
+               BuildableName = "TwinkoUITests.xctest"
+               BlueprintName = "TwinkoUITests"
                ReferencedContainer = "container:Twinko.xcodeproj">
             </BuildableReference>
          </TestableReference>

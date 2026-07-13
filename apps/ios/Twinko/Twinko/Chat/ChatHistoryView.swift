@@ -87,7 +87,9 @@ struct ChatHistoryView: View {
                     .font(.twinkoHeadline)
                     .foregroundStyle(.white)
                     .lineLimit(1)
-                Text(session.updatedAt.formatted(.relative(presentation: .named))
+                Text(session.updatedAt.formatted(
+                        .relative(presentation: .named)
+                        .locale(Locale(identifier: "zh-Hant")))
                      + "・\(session.messages.count) 則訊息")
                     .font(.twinkoCaption)
                     .foregroundStyle(.white.opacity(0.6))

@@ -57,7 +57,9 @@ struct AstrologyView: View {
             Text("\(sign.symbol) \(sign.rawValue)")
                 .font(.twinkoLargeTitle)
                 .foregroundStyle(.white)
-            Text(Date.now.formatted(date: .complete, time: .omitted))
+            Text(Date.now.formatted(
+                Date.FormatStyle(locale: Locale(identifier: "zh-Hant"))
+                    .year().month().day().weekday(.wide)))
                 .font(.twinkoCaption)
                 .foregroundStyle(.white.opacity(0.7))
         }

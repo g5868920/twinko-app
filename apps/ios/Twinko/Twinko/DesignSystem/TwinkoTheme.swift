@@ -73,7 +73,7 @@ enum TwinkoMotion {
 // falls back cleanly for Traditional Chinese glyphs.
 
 extension Font {
-    static let twinkoLargeTitle = Font.system(size: 38, weight: .bold, design: .rounded)
+    static let twinkoLargeTitle = Font.system(.largeTitle, design: .rounded).weight(.bold)
     static let twinkoTitle = Font.system(.title2, design: .rounded).weight(.bold)
     static let twinkoHeadline = Font.system(.headline, design: .rounded)
     static let twinkoBody = Font.system(.body, design: .rounded)

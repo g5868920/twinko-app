@@ -307,4 +307,25 @@ The subsequent major milestone remains **Build Readiness Gate v1**。
 - **Data sensitivity**：chat、birth data and interview notes require deliberate access, retention and deletion choices。
 - **Business-model uncertainty**：pricing、WTP、retention and gross margin are unvalidated。
 - **Partnership distraction**：do not create broad partnership dependencies before product evidence。
+
+## Active Implementation Milestone（Amendment — 2026-07-13）
+
+> 這是一則 additive amendment，疊加在上方「Bounded Milestone Authorization（Amendment — 2026-07-13）」之上，不變更、不刪除該段落或其上任何既有段落。D-052 所記錄的一般性 deferred 狀態，在本次授權範圍之外，依然完整有效；D-047 依然 unresolved。
+
+- **P0 engineering baseline：已完成並保留。** 依據 D-053 建立的最小 Xcode/SwiftUI app shell 與 fully-mocked Chat flow — build 與 unit tests 通過、無 network/persistence/secret/external SDK — 是既定的技術基礎，本次里程碑對其進行擴充，而非重建或取代。
+- **目前的 active implementation milestone：`Twinko Full Interactive Local Prototype`。** 依據 D-054（見 `docs/product/TWINKO_DECISION_LOG.md`），此為疊加在 D-052 deferred 狀態之上的 bounded exception，僅在 D-054 所列範圍內取代 D-053 作為 *active implementation scope*；D-053 本身作為已完成的 P0 baseline 記錄維持 historically intact，不被改寫。
+- **Current stage：local interactive prototype。** 範圍涵蓋 Welcome、Profile Setup（preferred name、birthday、gender）、Home Menu、Chat（含本地持久化的 Chat History：儲存、列表、重新開啟、刪除、新增 session）、Tarot（single-card 與 three-card，三張牌位置為「情境」「洞察」「建議」）、以及本地「每日星座」畫面（love、career、finance、lucky number、lucky color、lucky zodiac sign、lucky item）。Meditation 與 Music 僅以已停用的「即將推出」tile 呈現，無功能實作。
+- **Primary implementation model：Fable。** Sonnet 可用於後續的測試、除錯或清理工作，但 Fable 為此里程碑的主要 implementation model。
+- **Implementation method：擴充既有 SwiftUI baseline。** 保留既有 Xcode project、SwiftUI app target、Chat state-machine pattern，以及 View → ObservableObject/ViewModel → protocol service 架構；`RootShellView`、`TwinkoCharacterView`、視覺樣式、本地 Chat 內容與 navigation shell 允許 contained redesign 或 replacement。不引入 Clean Architecture、通用 repository 框架、dependency container、外部套件或推測性抽象。
+- **Local persistence：Codable JSON in Application Support。** 僅限 local profile、local Chat sessions/messages、與 minimal prototype preferences；本地、可檢視、可刪除，不含雲端同步、不宣稱加密或正式產品等級的資料持久性、不存取任何外部 provider。不使用 SwiftData、Core Data、遠端資料庫，或以 UserDefaults 儲存對話紀錄。
+- **Active modes：Chat、Tarot、Astrology。** 三者皆為 active，並依循現有 trust/safety 文件的 framing 規則。
+- **Disabled prototype modes：Meditation、Music。** 於 Home Menu 中可見，標示為「即將推出」，無功能實作。
+- **Naming：`Twinko` 為暫時性 prototype working label。** 不得於畫面中宣稱 `TwinkoTalk` 為核准的最終產品名稱。
+- **Language：Traditional Chinese first。** English localization deferred。
+- **Live services：prohibited。** 本次授權不包含任何 live LLM、backend、authentication、cloud sync、external API、analytics、crash-reporting SDK、payments、subscriptions、TestFlight，或 App Store 作業。
+- **Production infrastructure：prohibited。** 不建立任何 production infrastructure 或正式產品等級的資料持久性；僅限 D-054 所授權的 local、deterministic、Codable JSON 內容與 persistence。
+- **D-047：unresolved。** 本次里程碑作為 experience-evaluation vehicle，不決定 primary user wedge 或 primary first-value moment，也不因 Home Menu 中 Chat、Tarot、Astrology 的並列呈現而賦予其相等的策略優先性。
+- **Next gate：本次里程碑的 Definition of Done，其後為 Chairwoman review。** Implementation 必須在 D-054 所定義的 Definition of Done 停止；任何超出此範圍的後續工作（live AI、beta 或 release 相關），都需要新的、明確的里程碑授權。
+
+Basis：`docs/product/TWINKO_DECISION_LOG.md`（D-054）、Chairwoman Decision Request — Twinko Full Interactive Local Prototype（2026-07-13）。
 - **Dogfooding distraction**：PM Workflow must prove value in a bounded Discovery-to-Decision slice before expanding。

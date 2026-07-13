@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Edit(apps/ios/**)",
+      "Write(apps/ios/**)",
+      "Edit(docs/prototype/**)",
+      "Write(docs/prototype/**)",
+      "Edit(docs/safety/**)",
+      "Write(docs/safety/**)",
+      "Bash(mkdir -p apps/ios/*)",
+      "Bash(git status)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git add apps/ios/*)",
+      "Bash(git add docs/prototype/*)",
+      "Bash(git add docs/safety/*)",
+      "Bash(git commit:*)",
+      "Bash(xcodebuild:*)",
+      "Bash(xcrun simctl:*)"
+    ]
+  }
+}

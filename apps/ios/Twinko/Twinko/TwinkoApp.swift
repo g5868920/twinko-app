@@ -4,7 +4,10 @@ import SwiftUI
 struct TwinkoApp: App {
     var body: some Scene {
         WindowGroup {
-            RootShellView()
+            RootRouterView()
+                // Traditional Chinese first (D-054); English localization
+                // is deferred, so the prototype pins its locale.
+                .environment(\.locale, Locale(identifier: "zh-Hant"))
         }
     }
 }

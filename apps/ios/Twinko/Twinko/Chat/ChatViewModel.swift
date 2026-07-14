@@ -22,6 +22,7 @@ final class ChatViewModel: ObservableObject {
 
     private let service: MockChatServicing
     private let loadingDelayNanoseconds: UInt64
+    private let titleGenerator: ChatTitleGenerating = LocalChatTitleGenerator()
     private var session: ChatSession
 
     nonisolated init(session: ChatSession = ChatSession(),
@@ -58,12 +59,43 @@ final class ChatViewModel: ObservableObject {
             append(ChatMessage(sender: .twinko, text: text))
             state = .error
         }
+        maybeGenerateTitle()
+    }
+
+    /// Resets this view model to a brand-new empty conversation; all
+    /// previous conversations remain persisted untouched.
+    func startNewSession() {
+        session = ChatSession()
+        messages = []
+        draftText = ""
+        state = .idle
+    }
+
+    /// Automatic topic title once the first exchange exists. Only ever
+    /// writes while the title is auto-owned and still empty — a manual
+    /// rename (titleSource == .user) is never overwritten.
+    private func maybeGenerateTitle() {
+        syncTitleFromStore()
+        guard session.titleSource == .auto, session.title.isEmpty,
+              let generated = titleGenerator.title(for: messages) else { return }
+        session.title = generated
+        store?.upsert(session)
     }
 
     private func append(_ message: ChatMessage) {
         messages.append(message)
+        syncTitleFromStore()
         session.messages = messages
         session.updatedAt = .now
         store?.upsert(session)
+    }
+
+    /// The store owns rename state; refresh before persisting so a
+    /// stale local copy never clobbers a user-set title.
+    private func syncTitleFromStore() {
+        if let stored = store?.session(with: session.id) {
+            session.title = stored.title
+            session.titleSource = stored.titleSource
+        }
     }
 }

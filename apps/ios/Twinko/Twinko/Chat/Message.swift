@@ -19,30 +19,55 @@ struct ChatMessage: Identifiable, Equatable, Codable {
     }
 }
 
+/// Whether a conversation title was generated automatically or set by
+/// the user. Automatic generation may only ever overwrite `auto`.
+enum TitleSource: String, Codable {
+    case auto
+    case user
+}
+
 /// One locally persisted conversation (D-054 Chat History).
 struct ChatSession: Identifiable, Equatable, Codable {
     let id: UUID
     var createdAt: Date
     var updatedAt: Date
     var messages: [ChatMessage]
+    /// Stored topic title; empty means "no title yet" and the UI shows
+    /// the localized temporary title instead.
+    var title: String
+    var titleSource: TitleSource
 
     init(id: UUID = UUID(), createdAt: Date = .now, updatedAt: Date = .now,
-         messages: [ChatMessage] = []) {
+         messages: [ChatMessage] = [], title: String = "",
+         titleSource: TitleSource = .auto) {
         self.id = id
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.messages = messages
+        self.title = title
+        self.titleSource = titleSource
     }
 
-    /// Deterministic title rule: the first meaningful user message,
-    /// truncated safely; falls back to a generic label.
-    var title: String {
-        guard let first = messages.first(where: {
-            $0.sender == .user &&
-            !$0.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        }) else { return "新的對話" }
-        let text = first.text.trimmingCharacters(in: .whitespacesAndNewlines)
-        if text.count <= 14 { return text }
-        return String(text.prefix(14)) + "…"
+    /// Backward-compatible decoding: sessions saved before titles were
+    /// stored load with an empty auto title.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        createdAt = try container.decode(Date.self, forKey: .createdAt)
+        updatedAt = try container.decode(Date.self, forKey: .updatedAt)
+        messages = try container.decode([ChatMessage].self, forKey: .messages)
+        title = try container.decodeIfPresent(String.self, forKey: .title) ?? ""
+        titleSource = try container.decodeIfPresent(TitleSource.self, forKey: .titleSource) ?? .auto
+    }
+
+    /// Title for display: the stored title, or the localized temporary
+    /// title when none has been generated yet.
+    func displayTitle(for lang: AppLanguage) -> String {
+        title.isEmpty ? ChatStrings.temporaryTitle(lang) : title
+    }
+
+    /// Last message text, for history previews.
+    var lastMessagePreview: String {
+        messages.last?.text ?? ""
     }
 }

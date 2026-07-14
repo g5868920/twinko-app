@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		08DBD8DE79C03092D70BE2C8 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3977084055B601B38042C00 /* ChatView.swift */; };
 		186B1C482DCE2E9FB5FECF9D /* ChatStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C869FED0EE7DF16E701A0D0C /* ChatStore.swift */; };
+		599F5DAD125B8E7B5324504B /* ChatSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 121D89EB8BEFC6F8D34F7F97 /* ChatSupport.swift */; };
 		1988BA20BF5756D36E14A93A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F9F2531A0ADC09B7F99AA6BF /* Assets.xcassets */; };
 		1B4BF31E7C419B3C0FA25040 /* PlaceholderViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2629A099DF1889B93EEE8C5 /* PlaceholderViews.swift */; };
 		20C21DEECF754405CCB5F1EA /* TarotRitualView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3641EB51286DE81AF9FFA94D /* TarotRitualView.swift */; };
@@ -103,6 +104,7 @@
 		AA675190F8FC6A3EB7A89BBF /* TwinkoComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoComponents.swift; sourceTree = "<group>"; };
 		BFE37BF80B16B65650AA928F /* RootRouterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootRouterView.swift; sourceTree = "<group>"; };
 		C869FED0EE7DF16E701A0D0C /* ChatStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatStore.swift; sourceTree = "<group>"; };
+		121D89EB8BEFC6F8D34F7F97 /* ChatSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSupport.swift; sourceTree = "<group>"; };
 		CA0D85EC3CDEFF74FEE91DAB /* PrefsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrefsStore.swift; sourceTree = "<group>"; };
 		DD539F2BEE4D6FB93BB5538A /* MockChatServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockChatServiceTests.swift; sourceTree = "<group>"; };
 		EDE41C14D0A91E9A647D5899 /* TarotContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotContent.swift; sourceTree = "<group>"; };
@@ -239,6 +241,7 @@
 				4BB43C2476421D337EB1C137 /* ChatHistoryView.swift */,
 				1D6C8D0A3C82FA29E72F4F87 /* ChatViewModel.swift */,
 				C869FED0EE7DF16E701A0D0C /* ChatStore.swift */,
+				121D89EB8BEFC6F8D34F7F97 /* ChatSupport.swift */,
 				5BFFFEA0570BA6492F3696D7 /* Message.swift */,
 				8F858C155845D7B7FD3D9859 /* MockChatService.swift */,
 			);
@@ -415,6 +418,7 @@
 				08DBD8DE79C03092D70BE2C8 /* ChatView.swift in Sources */,
 				E7A8AB1992D3381EFFF04806 /* ChatHistoryView.swift in Sources */,
 				186B1C482DCE2E9FB5FECF9D /* ChatStore.swift in Sources */,
+				599F5DAD125B8E7B5324504B /* ChatSupport.swift in Sources */,
 				DD24CA585715BD360B4865B0 /* TarotContent.swift in Sources */,
 				753CB66BC70E83715E1E9063 /* TarotCardView.swift in Sources */,
 				5F39D360CEEF011E5FDC2ED6 /* TarotFlowView.swift in Sources */,

@@ -64,18 +64,88 @@ final class ChatStoreTests: XCTestCase {
         store.upsert(older)
         store.upsert(newer)
 
-        XCTAssertEqual(store.sessions.first?.title, "新的")
+        XCTAssertEqual(store.sessions.first?.messages.first?.text, "新的")
     }
 
-    func testTitleRuleTruncatesSafely() {
-        let long = ChatSession(messages: [
-            ChatMessage(sender: .user, text: "這是一段非常非常長的訊息應該要被截斷才對喔")
-        ])
-        XCTAssertTrue(long.title.hasSuffix("…"))
-        XCTAssertLessThanOrEqual(long.title.count, 15)
-
+    func testDisplayTitleFallsBackToTemporaryTitle() {
         let empty = ChatSession()
-        XCTAssertEqual(empty.title, "新的對話")
+        XCTAssertEqual(empty.displayTitle(for: .traditionalChinese), "新對話")
+        XCTAssertEqual(empty.displayTitle(for: .english), "New Conversation")
+
+        var named = ChatSession()
+        named.title = "工作壓力"
+        XCTAssertEqual(named.displayTitle(for: .english), "工作壓力")
+    }
+
+    func testRenameSetsUserSourceAndPersists() {
+        let store = ChatStore(store: jsonStore)
+        let session = makeSession(text: "今天有點累")
+        store.upsert(session)
+
+        store.rename(session.id, to: "  我的對話  ")
+        XCTAssertEqual(store.session(with: session.id)?.title, "我的對話")
+        XCTAssertEqual(store.session(with: session.id)?.titleSource, .user)
+
+        // Empty rename is rejected.
+        store.rename(session.id, to: "   ")
+        XCTAssertEqual(store.session(with: session.id)?.title, "我的對話")
+
+        let reloaded = ChatStore(store: jsonStore)
+        XCTAssertEqual(reloaded.session(with: session.id)?.title, "我的對話")
+        XCTAssertEqual(reloaded.session(with: session.id)?.titleSource, .user)
+    }
+
+    func testAutoTitleGeneratedAfterFirstExchange() async {
+        let store = ChatStore(store: jsonStore)
+        let viewModel = ChatViewModel(service: MockChatService(), loadingDelayNanoseconds: 1_000_000)
+        viewModel.store = store
+        viewModel.draftText = "我想聊聊今天發生的事，工作好累"
+        viewModel.send()
+        try? await Task.sleep(nanoseconds: 100_000_000)
+
+        let saved = store.session(with: viewModel.sessionID)
+        XCTAssertNotNil(saved)
+        let title = saved!.title
+        XCTAssertFalse(title.isEmpty, "A topic title should be generated after the first exchange")
+        XCTAssertEqual(saved!.titleSource, .auto)
+        XCTAssertFalse(title.contains("我想聊聊"), "Greeting/filler prefix should be stripped")
+        XCTAssertLessThanOrEqual(title.count, 14)
+    }
+
+    func testAutoTitleNeverOverwritesUserRename() async {
+        let store = ChatStore(store: jsonStore)
+        let viewModel = ChatViewModel(service: MockChatService(), loadingDelayNanoseconds: 1_000_000)
+        viewModel.store = store
+        viewModel.draftText = "嗨"
+        viewModel.send()
+        try? await Task.sleep(nanoseconds: 100_000_000)
+
+        store.rename(viewModel.sessionID, to: "自訂標題")
+        viewModel.draftText = "工作壓力好大"
+        viewModel.send()
+        try? await Task.sleep(nanoseconds: 100_000_000)
+
+        XCTAssertEqual(store.session(with: viewModel.sessionID)?.title, "自訂標題")
+        XCTAssertEqual(store.session(with: viewModel.sessionID)?.titleSource, .user)
+    }
+
+    func testTitleGeneratorRules() {
+        let generator = LocalChatTitleGenerator()
+        func gen(_ user: String) -> String? {
+            generator.title(for: [ChatMessage(sender: .user, text: user),
+                                  ChatMessage(sender: .twinko, text: "回覆")])
+        }
+        // Needs a Twinko response before generating.
+        XCTAssertNil(generator.title(for: [ChatMessage(sender: .user, text: "hi")]))
+        // Strips emoji, quotes, and trailing punctuation.
+        let title = gen("我最近有點喘不過氣 😮‍💨！")
+        XCTAssertNotNil(title)
+        XCTAssertFalse(title!.contains("😮‍💨"))
+        XCTAssertFalse(title!.hasSuffix("！"))
+        // Latin truncation ~30 chars.
+        let long = gen("This is a very long sentence about my extremely busy work schedule")
+        XCTAssertNotNil(long)
+        XCTAssertLessThanOrEqual(long!.count, 30)
     }
 
     func testMalformedFileLoadsAsEmpty() throws {

@@ -28,6 +28,21 @@ final class ChatStore: ObservableObject {
         persist()
     }
 
+    /// Manual rename: sets the title and locks it as user-owned so
+    /// automatic generation never overwrites it. Empty titles are
+    /// rejected at the call site.
+    func rename(_ id: UUID, to newTitle: String) {
+        let trimmed = newTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, var session = session(with: id) else { return }
+        session.title = trimmed
+        session.titleSource = .user
+        upsert(session)
+    }
+
+    func contains(_ id: UUID) -> Bool {
+        sessions.contains { $0.id == id }
+    }
+
     func session(with id: UUID) -> ChatSession? {
         sessions.first { $0.id == id }
     }

@@ -21,6 +21,46 @@ extension Color {
     static let inkNavy = Color(red: 0.13, green: 0.14, blue: 0.25)
 }
 
+// MARK: - DESIGN.md global tokens
+// Canonical values from the root DESIGN.md (v1.0). Views must consume
+// these semantic tokens rather than hardcoding hex values.
+
+extension Color {
+    // Brand
+    static let brandPurple = Color(hex: 0xA88BFE)
+    static let brandPurpleDeep = Color(hex: 0x7B65D1)
+    static let brandPurpleMuted = Color(hex: 0x8E7AE6)
+    static let accentGold = Color(hex: 0xD9A441)
+    static let accentGoldPressed = Color(hex: 0xC28E32)
+    // Neutrals and surfaces
+    static let deepSpace = Color(hex: 0x151326)
+    static let deepPlum = Color(hex: 0x2C2347)
+    static let menuDeep = Color(hex: 0x3E2C73)
+    static let surfacePrimary = Color(hex: 0xFFFDF8)
+    static let surfaceSecondary = Color(hex: 0xF7F1FC)
+    static let surfaceInput = Color(hex: 0xFEFBF7)
+    static let borderSoft = Color(hex: 0xDCCAF2)
+    // Text
+    static let textPrimaryToken = Color(hex: 0x2C2347)
+    static let textSecondaryToken = Color(hex: 0x6F6385)
+    static let textMutedToken = Color(hex: 0x8F7FA8)
+    static let textInverseToken = Color(hex: 0xFFFDF8)
+    static let linkPurple = Color(hex: 0x6D5CC8)
+    // Semantic
+    static let destructiveToken = Color(hex: 0xC95F68)
+    // Chat components (DESIGN.md §15)
+    static let twinkoBubble = Color(hex: 0xFFFBF6)
+    static let twinkoBubbleBorder = Color(hex: 0xE9DCF7)
+    static let userBubbleSolid = Color(hex: 0x7460CC)
+    static let userBubbleTop = Color(hex: 0x8E7AE6)
+
+    init(hex: UInt32) {
+        self.init(red: Double((hex >> 16) & 0xFF) / 255,
+                  green: Double((hex >> 8) & 0xFF) / 255,
+                  blue: Double(hex & 0xFF) / 255)
+    }
+}
+
 // MARK: - Mode environments
 
 enum TwinkoBackground {

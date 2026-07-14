@@ -48,10 +48,11 @@ final class TwinkoUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["Coming Soon"].exists)
         attach(name: "03-home-zh")
 
-        // MARK: Chat — success and error states
+        // MARK: Chat — empty state, success and error states
         chatTile.tap()
         let input = app.textFields["chatInputField"]
         XCTAssertTrue(input.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["chatStarter-0"].exists, "Empty state shows conversation starters")
         attach(name: "04-chat-empty")
 
         input.tap()
@@ -69,15 +70,21 @@ final class TwinkoUITests: XCTestCase {
         XCTAssertTrue(fallback.waitForExistence(timeout: 8), "Fallback/error response should appear")
         attach(name: "05-chat-conversation")
 
-        // MARK: Chat History
-        app.buttons["聊天紀錄"].tap()
+        // MARK: Star quick menu and Chat History
+        app.buttons["chatMenuButton"].tap()
+        let historyRowButton = app.buttons["menuHistoryRow"]
+        XCTAssertTrue(historyRowButton.waitForExistence(timeout: 5), "Quick menu should open")
+        XCTAssertTrue(app.buttons["menuNewChatRow"].exists)
+        attach(name: "05b-quick-menu")
+        historyRowButton.tap()
+
         let historyRow = app.staticTexts.matching(
-            NSPredicate(format: "label CONTAINS %@", "我今天有點難過")).firstMatch
-        XCTAssertTrue(historyRow.waitForExistence(timeout: 5), "Saved session should be listed by its title")
+            NSPredicate(format: "label CONTAINS %@", "難過")).firstMatch
+        XCTAssertTrue(historyRow.waitForExistence(timeout: 5), "Saved session should be listed")
         attach(name: "06-chat-history")
 
-        goBack(app) // pop history
-        goBack(app) // pop chat
+        app.buttons["historyBackButton"].tap() // pop history
+        app.buttons["chatBackButton"].tap() // pop chat
         XCTAssertTrue(chatTile.waitForExistence(timeout: 5))
 
         // MARK: Tarot — single card
@@ -325,6 +332,87 @@ final class TwinkoUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Prefer not to say"].exists,
                       "Gender chips must be localized in English mode")
         attach(name: "R9-edit-profile-en")
+    }
+
+    /// Focused Chat experience validation: day/night empty states,
+    /// active conversation, quick menu with dimmed backdrop, history,
+    /// rename, and delete confirmation.
+    func testChatExperienceStates() {
+        // Day empty state
+        var app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile", "-uiTestForceDay"]
+        app.launch()
+        let chatTile = app.buttons["homeTile-chat"]
+        XCTAssertTrue(chatTile.waitForExistence(timeout: 10))
+        chatTile.tap()
+        XCTAssertTrue(app.buttons["chatStarter-0"].waitForExistence(timeout: 5))
+        attach(name: "C1-chat-empty-day")
+
+        // Starter inserts text without auto-sending
+        app.buttons["chatStarter-0"].tap()
+        let input = app.textFields["chatInputField"]
+        XCTAssertTrue(input.waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["chatStarter-1"].exists,
+                      "Starter tap must not auto-send (still in empty state)")
+
+        // Active conversation
+        app.buttons["chatSendButton"].tap()
+        let reply = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "陪")).firstMatch
+        XCTAssertTrue(reply.waitForExistence(timeout: 8))
+        attach(name: "C3-chat-active")
+
+        // Quick menu with dimmed backdrop
+        app.buttons["chatMenuButton"].tap()
+        XCTAssertTrue(app.buttons["menuNewChatRow"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["menuHistoryRow"].exists)
+        attach(name: "C4-quick-menu")
+
+        // History via menu
+        app.buttons["menuHistoryRow"].tap()
+        let moreButton = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "更多選項")).firstMatch
+        XCTAssertTrue(moreButton.waitForExistence(timeout: 5), "History row should exist")
+        attach(name: "C5-history")
+
+        // Rename flow
+        moreButton.tap()
+        let renameItem = app.buttons["重新命名"]
+        XCTAssertTrue(renameItem.waitForExistence(timeout: 5))
+        renameItem.tap()
+        let renameField = app.textFields.firstMatch
+        XCTAssertTrue(renameField.waitForExistence(timeout: 5))
+        attach(name: "C6-rename")
+        renameField.tap()
+        renameField.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 20))
+        renameField.typeText("我的小標題")
+        app.buttons["儲存"].tap()
+        XCTAssertTrue(app.staticTexts["我的小標題"].waitForExistence(timeout: 5),
+                      "Rename should persist and display")
+
+        // Delete confirmation
+        moreButton.tap()
+        let deleteItem = app.buttons["刪除"]
+        XCTAssertTrue(deleteItem.waitForExistence(timeout: 5))
+        deleteItem.tap()
+        let confirmBody = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "無法復原")).firstMatch
+        XCTAssertTrue(confirmBody.waitForExistence(timeout: 5),
+                      "Delete must require confirmation stating it cannot be undone")
+        attach(name: "C7-delete-confirm")
+        app.buttons["刪除"].firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["還沒有聊天紀錄"].waitForExistence(timeout: 5),
+                      "Deleted conversation should leave history empty")
+
+        // Night empty state (fresh launch)
+        app.terminate()
+        app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile", "-uiTestForceNight"]
+        app.launch()
+        XCTAssertTrue(app.buttons["homeTile-chat"].waitForExistence(timeout: 10))
+        app.buttons["homeTile-chat"].tap()
+        XCTAssertTrue(app.buttons["chatStarter-0"].waitForExistence(timeout: 5))
+        attach(name: "C2-chat-empty-night")
     }
 
     // MARK: Helpers

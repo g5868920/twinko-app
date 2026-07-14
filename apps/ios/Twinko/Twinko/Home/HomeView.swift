@@ -25,17 +25,19 @@ struct HomeView: View {
             let h = geo.size.height + geo.safeAreaInsets.top + geo.safeAreaInsets.bottom
             let topInset = geo.safeAreaInsets.top
             let compact = w < 380
-            let iconDiameter: CGFloat = compact ? 62 : 68
-            let twinkoSize: CGFloat = compact ? 128 : 152
+            let iconDiameter: CGFloat = compact ? 68 : 74
+            let twinkoSize: CGFloat = compact ? 150 : 178
             let twinkoCenter = CGPoint(x: w * 0.5, y: h * 0.44)
-            // Cluster offsets from Twinko's center, in points, keeping
-            // the tightened Twinko-edge-to-icon distances (Chat/Tarot
-            // ≈28pt, Zodiac/Meditate ≈24pt from the visible star edge)
-            // with Music tucked ~22pt below the lower pair's labels.
+            // Cluster offsets from Twinko's center, expressed as
+            // fractions of screen height so the cluster's vertical span
+            // scales consistently across devices (~65-72% of usable
+            // height on standard iPhones). Chat/Tarot sit higher and
+            // wider than Zodiac/Meditate; Music is tucked further below
+            // the lower pair, keeping the whole group visually joined.
             let scale: CGFloat = compact ? 0.92 : 1.0
-            let upper = CGVector(dx: 91 * scale, dy: 91 * scale)
-            let lower = CGVector(dx: 88 * scale, dy: 88 * scale)
-            let musicDrop: CGFloat = 205 * scale
+            let upper = CGVector(dx: h * 0.145 * scale, dy: h * 0.175 * scale)
+            let lower = CGVector(dx: h * 0.128 * scale, dy: h * 0.163 * scale)
+            let musicDrop: CGFloat = h * 0.37 * scale
 
             ZStack {
                 // Approved fixed background — aspect fill, edge to edge,

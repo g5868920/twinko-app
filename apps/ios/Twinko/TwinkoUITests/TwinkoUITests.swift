@@ -238,29 +238,42 @@ final class TwinkoUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["即將推出"].exists)
         attach(name: "R1-home-zh")
 
+        // Profile sheet: minimal header (planet + name only), no Edit,
+        // no zodiac summary, no Log Out.
         app.buttons["homeProfileButton"].tap()
-        XCTAssertTrue(app.buttons["sheetEditButton"].waitForExistence(timeout: 5))
+        let profileRow = app.buttons["sheetProfileRow"]
+        XCTAssertTrue(profileRow.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["sheetEditButton"].exists,
+                       "Edit must not be reachable from the sheet root")
         XCTAssertFalse(app.staticTexts["登出"].exists)
         attach(name: "R2-profile-sheet")
 
+        // Edit lives only inside Profile detail, top-right.
+        profileRow.tap()
+        let editButton = app.buttons["sheetEditButton"]
+        XCTAssertTrue(editButton.waitForExistence(timeout: 5),
+                      "Edit should be reachable from Profile detail's nav bar")
+        attach(name: "R3-profile-detail-zh")
+
         // Discard path
-        app.buttons["sheetEditButton"].tap()
+        editButton.tap()
         let nameEdit = app.textFields["editNameField"]
         XCTAssertTrue(nameEdit.waitForExistence(timeout: 5))
-        attach(name: "R3-edit-profile")
+        XCTAssertTrue(app.staticTexts["editZodiacValue"].exists)
+        attach(name: "R4-edit-profile-zh")
         nameEdit.tap()
         nameEdit.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 8))
         nameEdit.typeText("小小")
         app.buttons["editBackButton"].tap()
         XCTAssertTrue(app.buttons["繼續編輯"].waitForExistence(timeout: 5),
                       "Back with unsaved changes must confirm")
-        attach(name: "R4-discard-confirm")
+        attach(name: "R5-discard-confirm")
         app.buttons["放棄變更"].tap()
         XCTAssertTrue(app.staticTexts["小雅"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.staticTexts["小小"].exists, "Discarded edits must not appear")
 
         // Save path
-        app.buttons["sheetEditButton"].tap()
+        editButton.tap()
         XCTAssertTrue(nameEdit.waitForExistence(timeout: 5))
         nameEdit.tap()
         nameEdit.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 8))
@@ -268,14 +281,50 @@ final class TwinkoUITests: XCTestCase {
         app.buttons["editSaveButton"].tap()
         XCTAssertTrue(app.staticTexts["小星"].waitForExistence(timeout: 6),
                       "Saved name must appear in the profile summary")
-        attach(name: "R5-profile-after-save")
+        attach(name: "R6-profile-after-save")
 
         // No-changes back returns immediately (no dialog)
-        app.buttons["sheetEditButton"].tap()
+        editButton.tap()
         XCTAssertTrue(nameEdit.waitForExistence(timeout: 5))
         app.buttons["editBackButton"].tap()
-        XCTAssertTrue(app.buttons["sheetEditButton"].waitForExistence(timeout: 5),
+        XCTAssertTrue(editButton.waitForExistence(timeout: 5),
                       "Back without changes should return without a dialog")
+
+        // Switch to English via Settings and verify no mixed-language
+        // values anywhere: Home labels, Zodiac, and Gender.
+        app.navigationBars.buttons.element(boundBy: 0).tap() // back to sheet root
+        app.buttons["sheetSettingsRow"].tap()
+        let english = app.buttons["language-en"]
+        XCTAssertTrue(english.waitForExistence(timeout: 5))
+        english.tap()
+        app.navigationBars.buttons.element(boundBy: 0).tap() // back to sheet root
+        dismissSheet(app)
+
+        XCTAssertTrue(app.staticTexts["Chat"].waitForExistence(timeout: 5),
+                      "Home should switch to English labels")
+        XCTAssertFalse(app.staticTexts["聊天"].exists, "No mixed-language Home labels")
+        attach(name: "R7-home-en")
+
+        app.buttons["homeProfileButton"].tap()
+        app.buttons["sheetProfileRow"].tap()
+        XCTAssertTrue(app.buttons["sheetEditButton"].waitForExistence(timeout: 5))
+        let zodiacCard = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS[c] %@", "Capricorn")).firstMatch
+        XCTAssertTrue(zodiacCard.waitForExistence(timeout: 5),
+                      "English mode must show the English zodiac name, not 摩羯座")
+        let genderCard = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS[c] %@", "Prefer not to say")).firstMatch
+        XCTAssertTrue(genderCard.exists,
+                      "English mode must show the English gender value, not 不方便透露")
+        attach(name: "R8-profile-detail-en")
+
+        app.buttons["sheetEditButton"].tap()
+        XCTAssertTrue(nameEdit.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS[c] %@", "Capricorn")).firstMatch.exists)
+        XCTAssertTrue(app.buttons["Prefer not to say"].exists,
+                      "Gender chips must be localized in English mode")
+        attach(name: "R9-edit-profile-en")
     }
 
     // MARK: Helpers

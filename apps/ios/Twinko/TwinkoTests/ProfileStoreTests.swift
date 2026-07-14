@@ -51,4 +51,20 @@ final class ProfileStoreTests: XCTestCase {
         let loaded = ProfileStore(store: store)
         XCTAssertNil(loaded.profile)
     }
+
+    /// A profile persisted before Non-binary was removed from the
+    /// active Gender option set must still load safely, mapping the
+    /// legacy "非二元" value to `.other` rather than losing the profile.
+    func testLegacyNonBinaryGenderMapsToOther() throws {
+        try FileManager.default.createDirectory(at: tempDirectory, withIntermediateDirectories: true)
+        let encoder = JSONEncoder()
+        var json = String(data: try encoder.encode(sampleProfile), encoding: .utf8)!
+        XCTAssertTrue(json.contains("不方便透露"), "Precondition: sample profile encodes preferNotToSay")
+        json = json.replacingOccurrences(of: "不方便透露", with: "非二元")
+        try Data(json.utf8).write(to: tempDirectory.appendingPathComponent("profile.json"))
+
+        let loaded = ProfileStore(store: store)
+        XCTAssertEqual(loaded.profile?.gender, .other)
+        XCTAssertEqual(loaded.profile?.preferredName, sampleProfile.preferredName)
+    }
 }

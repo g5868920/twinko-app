@@ -76,6 +76,14 @@ private extension View {
     func dreamyCard() -> some View { modifier(DreamyCard()) }
 }
 
+/// Drives the sheet's presentation height per screen (content-aware
+/// sizing: menu/Settings/Privacy stay compact, Edit Profile gets room
+/// to breathe). Shared across the sheet's NavigationStack via
+/// environment so pushed destinations can report their own height.
+private final class ProfileSheetHeight: ObservableObject {
+    @Published var fraction: CGFloat = 0.50
+}
+
 private func sectionHeader(_ text: String) -> some View {
     Text(text)
         .font(.system(.caption, design: .rounded).weight(.semibold))
@@ -87,12 +95,14 @@ private func sectionHeader(_ text: String) -> some View {
 // MARK: - Branded profile sheet
 
 /// Branded Profile bottom sheet (D-055 refinement): dreamy Twinko-world
-/// surface, header with planet / name / zodiac / Edit, and custom
-/// rounded rows for Profile, Settings (Language only), and Privacy.
-/// No Log Out — no authentication or account system exists.
+/// surface, a minimal header (planet + name only), and custom rounded
+/// rows for Profile, Settings (Language only), and Privacy. Editing
+/// lives only inside the Profile detail screen. No Log Out — no
+/// authentication or account system exists.
 struct ProfileSheetView: View {
     @EnvironmentObject private var profileStore: ProfileStore
     @EnvironmentObject private var prefs: PrefsStore
+    @StateObject private var sheetHeight = ProfileSheetHeight()
 
     private var lang: AppLanguage { prefs.language }
 
@@ -115,12 +125,17 @@ struct ProfileSheetView: View {
                         }
                         .padding(.horizontal, TwinkoSpacing.m)
                     }
-                    .padding(.bottom, TwinkoSpacing.xl)
+                    .padding(.bottom, TwinkoSpacing.l)
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
+            .onAppear { sheetHeight.fraction = 0.50 }
         }
-        .presentationDetents([.fraction(0.74)])
+        .environmentObject(sheetHeight)
+        // Content-aware height per screen: the menu is compact; deeper
+        // screens (set via ProfileSheetHeight from within each
+        // destination) grow only as much as their content needs.
+        .presentationDetents([.fraction(sheetHeight.fraction)])
         .presentationCornerRadius(28)
         .presentationDragIndicator(.visible)
         .presentationBackground {
@@ -129,7 +144,7 @@ struct ProfileSheetView: View {
         .tint(.warmOrange)
     }
 
-    // MARK: Header
+    // MARK: Header (planet + name only)
 
     private var header: some View {
         VStack(spacing: TwinkoSpacing.s) {
@@ -137,27 +152,6 @@ struct ProfileSheetView: View {
             Text(profileStore.profile?.preferredName ?? (lang == .english ? "Friend" : "朋友"))
                 .font(.system(size: 24, weight: .bold, design: .rounded))
                 .foregroundStyle(Color.inkNavy)
-            if let birthday = profileStore.profile?.birthday {
-                let sign = ZodiacSign.from(date: birthday)
-                Text("\(sign.symbol) \(sign.rawValue)")
-                    .font(.twinkoBody)
-                    .foregroundStyle(Color.inkNavy.opacity(0.6))
-            }
-            NavigationLink {
-                EditProfileView()
-            } label: {
-                Text(lang == .english ? "Edit" : "編輯")
-                    .font(.twinkoHeadline)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, TwinkoSpacing.l)
-                    .padding(.vertical, 8)
-                    .background(
-                        LinearGradient(colors: [.twinkoGold, .warmOrange],
-                                       startPoint: .top, endPoint: .bottom),
-                        in: Capsule()
-                    )
-            }
-            .accessibilityIdentifier("sheetEditButton")
         }
     }
 
@@ -209,7 +203,7 @@ struct ProfileSheetView: View {
         .accessibilityElement(children: .combine)
     }
 
-    // MARK: Profile detail (read-only cards)
+    // MARK: Profile detail (read-only cards; Edit lives here only)
 
     private var profileDetail: some View {
         ZStack {
@@ -226,16 +220,11 @@ struct ProfileSheetView: View {
                             infoCard(lang == .english ? "Birthday" : "生日",
                                      profile.birthday.formatted(
                                         Date.FormatStyle(locale: prefs.locale).year().month().day()))
-                            infoCard(lang == .english ? "Zodiac" : "星座", "\(sign.symbol) \(sign.rawValue)")
-                            infoCard(lang == .english ? "Gender" : "性別", profile.gender.rawValue)
+                            infoCard(lang == .english ? "Zodiac" : "星座",
+                                     "\(sign.symbol) \(sign.displayName(for: lang))")
+                            infoCard(lang == .english ? "Gender" : "性別",
+                                     profile.gender.displayName(for: lang))
                         }
-                        NavigationLink {
-                            EditProfileView()
-                        } label: {
-                            Text(lang == .english ? "Edit" : "編輯")
-                                .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.twinkoPrimary)
                     } else {
                         Text(lang == .english ? "No local profile yet." : "還沒有本機資料。")
                             .font(.twinkoBody)
@@ -248,6 +237,19 @@ struct ProfileSheetView: View {
         .navigationTitle(HomeStrings.profile(lang))
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                NavigationLink {
+                    EditProfileView()
+                } label: {
+                    Text(lang == .english ? "Edit" : "編輯")
+                        .font(.twinkoHeadline)
+                        .foregroundStyle(Color.warmOrange)
+                }
+                .accessibilityIdentifier("sheetEditButton")
+            }
+        }
+        .onAppear { sheetHeight.fraction = 0.58 }
     }
 
     // MARK: Settings (Language only)
@@ -287,6 +289,7 @@ struct ProfileSheetView: View {
         .navigationTitle(HomeStrings.settings(lang))
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
+        .onAppear { sheetHeight.fraction = 0.55 }
     }
 
     // MARK: Privacy
@@ -316,6 +319,7 @@ struct ProfileSheetView: View {
         .navigationTitle(HomeStrings.privacy(lang))
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
+        .onAppear { sheetHeight.fraction = 0.60 }
     }
 }
 
@@ -328,6 +332,7 @@ struct ProfileSheetView: View {
 struct EditProfileView: View {
     @EnvironmentObject private var profileStore: ProfileStore
     @EnvironmentObject private var prefs: PrefsStore
+    @EnvironmentObject private var sheetHeight: ProfileSheetHeight
     @Environment(\.dismiss) private var dismiss
 
     @State private var name: String = ""
@@ -384,7 +389,7 @@ struct EditProfileView: View {
 
                     fieldCard(lang == .english ? "Zodiac (auto)" : "星座（自動計算）") {
                         let sign = ZodiacSign.from(date: birthday)
-                        Text("\(sign.symbol) \(sign.rawValue)")
+                        Text("\(sign.symbol) \(sign.displayName(for: lang))")
                             .font(.twinkoHeadline)
                             .foregroundStyle(Color.inkNavy.opacity(0.75))
                             .accessibilityIdentifier("editZodiacValue")
@@ -397,7 +402,7 @@ struct EditProfileView: View {
                                 Button {
                                     gender = option
                                 } label: {
-                                    Text(option.rawValue)
+                                    Text(option.displayName(for: lang))
                                         .font(.twinkoBody)
                                         .padding(.horizontal, 13)
                                         .padding(.vertical, 8)
@@ -480,6 +485,7 @@ struct EditProfileView: View {
         .scrollDismissesKeyboard(.interactively)
         .interactiveDismissDisabled(hasUnsavedChanges)
         .onAppear {
+            sheetHeight.fraction = 0.80
             guard !loaded else { return }
             loaded = true
             if let profile = profileStore.profile {

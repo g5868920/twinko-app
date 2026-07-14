@@ -56,4 +56,32 @@ enum ZodiacSign: String, CaseIterable, Codable {
         let parts = calendar.dateComponents([.month, .day], from: date)
         return from(month: parts.month ?? 1, day: parts.day ?? 1)
     }
+
+    /// Localized display name for Profile-surface UI. `rawValue` (the
+    /// Traditional Chinese name) remains the source of truth used by
+    /// inner feature flows (Astrology, etc.), which stay
+    /// Traditional-Chinese-first per D-054.
+    func displayName(for lang: AppLanguage) -> String {
+        switch lang {
+        case .traditionalChinese: return rawValue
+        case .english: return englishName
+        }
+    }
+
+    private var englishName: String {
+        switch self {
+        case .aries: return "Aries"
+        case .taurus: return "Taurus"
+        case .gemini: return "Gemini"
+        case .cancer: return "Cancer"
+        case .leo: return "Leo"
+        case .virgo: return "Virgo"
+        case .libra: return "Libra"
+        case .scorpio: return "Scorpio"
+        case .sagittarius: return "Sagittarius"
+        case .capricorn: return "Capricorn"
+        case .aquarius: return "Aquarius"
+        case .pisces: return "Pisces"
+        }
+    }
 }

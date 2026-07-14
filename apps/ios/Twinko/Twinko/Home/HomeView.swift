@@ -26,15 +26,16 @@ struct HomeView: View {
             let topInset = geo.safeAreaInsets.top
             let compact = w < 380
             let iconDiameter: CGFloat = compact ? 62 : 68
-            let twinkoSize: CGFloat = compact ? 118 : 136
+            let twinkoSize: CGFloat = compact ? 128 : 152
             let twinkoCenter = CGPoint(x: w * 0.5, y: h * 0.44)
-            // Cluster offsets from Twinko's center, in points, so the
-            // Twinko-edge-to-icon distances stay in the approved ranges
-            // (Chat/Tarot ≈40pt, Zodiac/Meditate ≈32pt from the edge).
+            // Cluster offsets from Twinko's center, in points, keeping
+            // the tightened Twinko-edge-to-icon distances (Chat/Tarot
+            // ≈28pt, Zodiac/Meditate ≈24pt from the visible star edge)
+            // with Music tucked ~22pt below the lower pair's labels.
             let scale: CGFloat = compact ? 0.92 : 1.0
-            let upper = CGVector(dx: 101 * scale, dy: 101 * scale)
-            let lower = CGVector(dx: 96 * scale, dy: 96 * scale)
-            let musicDrop: CGFloat = 172 * scale
+            let upper = CGVector(dx: 91 * scale, dy: 91 * scale)
+            let lower = CGVector(dx: 88 * scale, dy: 88 * scale)
+            let musicDrop: CGFloat = 205 * scale
 
             ZStack {
                 // Approved fixed background — aspect fill, edge to edge,
@@ -46,32 +47,39 @@ struct HomeView: View {
                     .clipped()
                     .accessibilityHidden(true)
 
-                // Layered glow behind Twinko (separate UI layers, spec
-                // refinement): warm creamy inner glow + soft
-                // pink-lavender outer aura, breathing gently.
+                // Layered glow behind Twinko (separate UI layers): warm
+                // creamy inner glow + soft pink-lavender outer aura,
+                // breathing gently.
                 Circle()
-                    .fill(Color(red: 0.72, green: 0.60, blue: 0.90))
-                    .frame(width: twinkoSize * 1.24, height: twinkoSize * 1.24)
-                    .blur(radius: 36)
-                    .opacity(reduceMotion ? 0.14 : (breathing ? 0.17 : 0.11))
+                    .fill(Color(red: 0.76, green: 0.62, blue: 0.92))
+                    .frame(width: twinkoSize * 1.26, height: twinkoSize * 1.26)
+                    .blur(radius: 38)
+                    .opacity(reduceMotion ? 0.16 : (breathing ? 0.20 : 0.12))
                     .position(twinkoCenter)
                     .allowsHitTesting(false)
                     .accessibilityHidden(true)
                 Circle()
-                    .fill(Color(red: 1.0, green: 0.96, blue: 0.86))
+                    .fill(Color(red: 1.0, green: 0.97, blue: 0.88))
                     .frame(width: twinkoSize * 1.10, height: twinkoSize * 1.10)
-                    .blur(radius: 21)
-                    .opacity(reduceMotion ? 0.22 : (breathing ? 0.27 : 0.19))
+                    .blur(radius: 22)
+                    .opacity(reduceMotion ? 0.25 : (breathing ? 0.30 : 0.20))
                     .position(twinkoCenter)
                     .allowsHitTesting(false)
                     .accessibilityHidden(true)
 
-                // Central Twinko (procedural component — temporary for
-                // Home until a transparent character export exists).
-                TwinkoCharacterView(mood: .happy, size: twinkoSize)
-                    .scaleEffect(reduceMotion ? 1 : (breathing ? 1.012 : 1.0))
-                    .offset(y: reduceMotion ? 0 : (floating ? -5 : 5))
+                // Central Twinko — the approved character image, via a
+                // derived transparent runtime asset (external baked
+                // checkerboard removed; artwork pixels untouched). The
+                // procedural TwinkoCharacterView is no longer used on
+                // Home but remains available to other screens.
+                Image("twinko_default_smile_v1_transparent")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: twinkoSize, height: twinkoSize)
+                    .scaleEffect(reduceMotion ? 1 : (breathing ? 1.015 : 1.0))
+                    .offset(y: reduceMotion ? 0 : (floating ? -6 : 6))
                     .position(twinkoCenter)
+                    .accessibilityLabel(Text("Twinko"))
 
                 // 2–2–1 orbit, clustered around Twinko.
                 modeTile(.chat, diameter: iconDiameter) { ChatView() }

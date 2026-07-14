@@ -170,7 +170,8 @@ final class TwinkoUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["Log Out"].exists)
         attach(name: "13-profile-sheet")
 
-        // Edit Profile: rename and save; header must update immediately.
+        // Edit Profile: Back with unsaved changes must confirm, and a
+        // discard must not leak into the profile summary.
         app.buttons["sheetEditButton"].tap()
         let nameEdit = app.textFields["editNameField"]
         XCTAssertTrue(nameEdit.waitForExistence(timeout: 5))
@@ -178,15 +179,36 @@ final class TwinkoUITests: XCTestCase {
         attach(name: "14-edit-profile")
         nameEdit.tap()
         nameEdit.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 8))
+        nameEdit.typeText("小小")
+        app.buttons["editBackButton"].tap()
+        let continueEditing = app.buttons["繼續編輯"]
+        XCTAssertTrue(continueEditing.waitForExistence(timeout: 5),
+                      "Back with unsaved changes must show the discard confirmation")
+        attach(name: "15-discard-confirm")
+        continueEditing.tap()
+        XCTAssertTrue(nameEdit.waitForExistence(timeout: 5), "Continue Editing stays in the editor")
+        app.buttons["editBackButton"].tap()
+        XCTAssertTrue(app.buttons["放棄變更"].waitForExistence(timeout: 5))
+        app.buttons["放棄變更"].tap()
+        XCTAssertTrue(app.staticTexts["小雅"].waitForExistence(timeout: 5),
+                      "Discarded edits must not appear in the profile summary")
+        XCTAssertFalse(app.staticTexts["小小"].exists)
+
+        // Edit Profile: Save persists and returns; summary updates.
+        app.buttons["sheetEditButton"].tap()
+        XCTAssertTrue(nameEdit.waitForExistence(timeout: 5))
+        nameEdit.tap()
+        nameEdit.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 8))
         nameEdit.typeText("小星")
         app.buttons["editSaveButton"].tap()
-        XCTAssertTrue(app.staticTexts["小星"].waitForExistence(timeout: 5),
-                      "Profile summary should update immediately after save")
+        XCTAssertTrue(app.staticTexts["小星"].waitForExistence(timeout: 6),
+                      "Profile summary should update after save")
+        attach(name: "16-profile-after-save")
 
         settingsRow.tap()
         let english = app.buttons["language-en"]
         XCTAssertTrue(english.waitForExistence(timeout: 5))
-        attach(name: "15-settings")
+        attach(name: "17-settings")
         english.tap()
         dismissSheet(app)
 
@@ -198,7 +220,62 @@ final class TwinkoUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Meditate"].exists)
         XCTAssertTrue(app.staticTexts["Music"].exists)
         XCTAssertFalse(app.staticTexts["Coming Soon"].exists)
-        attach(name: "16-home-en-after-edit")
+        attach(name: "18-home-en-after-edit")
+    }
+
+    /// Focused Home + Profile validation (seeded profile, no feature
+    /// walkthrough): image Twinko on Home, profile sheet, edit
+    /// save/discard behavior, and screenshots.
+    func testHomeAndProfileRefinement() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile"]
+        app.launch()
+
+        let chatTile = app.buttons["homeTile-chat"]
+        XCTAssertTrue(chatTile.waitForExistence(timeout: 10), "Seeded launch should land on Home")
+        XCTAssertTrue(app.images["twinko_default_smile_v1_transparent"].exists,
+                      "Home must render the derived transparent Twinko image")
+        XCTAssertFalse(app.staticTexts["即將推出"].exists)
+        attach(name: "R1-home-zh")
+
+        app.buttons["homeProfileButton"].tap()
+        XCTAssertTrue(app.buttons["sheetEditButton"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.staticTexts["登出"].exists)
+        attach(name: "R2-profile-sheet")
+
+        // Discard path
+        app.buttons["sheetEditButton"].tap()
+        let nameEdit = app.textFields["editNameField"]
+        XCTAssertTrue(nameEdit.waitForExistence(timeout: 5))
+        attach(name: "R3-edit-profile")
+        nameEdit.tap()
+        nameEdit.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 8))
+        nameEdit.typeText("小小")
+        app.buttons["editBackButton"].tap()
+        XCTAssertTrue(app.buttons["繼續編輯"].waitForExistence(timeout: 5),
+                      "Back with unsaved changes must confirm")
+        attach(name: "R4-discard-confirm")
+        app.buttons["放棄變更"].tap()
+        XCTAssertTrue(app.staticTexts["小雅"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.staticTexts["小小"].exists, "Discarded edits must not appear")
+
+        // Save path
+        app.buttons["sheetEditButton"].tap()
+        XCTAssertTrue(nameEdit.waitForExistence(timeout: 5))
+        nameEdit.tap()
+        nameEdit.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 8))
+        nameEdit.typeText("小星")
+        app.buttons["editSaveButton"].tap()
+        XCTAssertTrue(app.staticTexts["小星"].waitForExistence(timeout: 6),
+                      "Saved name must appear in the profile summary")
+        attach(name: "R5-profile-after-save")
+
+        // No-changes back returns immediately (no dialog)
+        app.buttons["sheetEditButton"].tap()
+        XCTAssertTrue(nameEdit.waitForExistence(timeout: 5))
+        app.buttons["editBackButton"].tap()
+        XCTAssertTrue(app.buttons["sheetEditButton"].waitForExistence(timeout: 5),
+                      "Back without changes should return without a dialog")
     }
 
     // MARK: Helpers

@@ -42,3 +42,7 @@ No automatic modification of `gina-ai-native-venture-studio` or `pm-workflow-cop
 ## Gate boundary
 
 No SwiftUI implementation, live-LLM integration, backend, schema, PM Workflow adapter, or any Gate 1+ work proceeds without an explicitly approved milestone.
+
+## Desing
+
+For all UI implementation, read and follow `/DESIGN.md` before screen-specific specs.

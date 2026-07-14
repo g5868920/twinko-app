@@ -7,46 +7,46 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2ACB519F8D8D2F9DB5E0F13D /* TwinkoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2335623A74610D184A2C493D /* TwinkoApp.swift */; };
-		5246BFA81F1696E0BF40B513 /* RootRouterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE37BF80B16B65650AA928F /* RootRouterView.swift */; };
-		DDCEDEA3C845836D61062F94 /* JSONStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00E1ED1CF029A5982B85E8DF /* JSONStore.swift */; };
-		CADA65851B2648D9C88F33F7 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A62975F8E2A08908ECEBDF /* UserProfile.swift */; };
-		8DDC7BD09479108E91F9A3B8 /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CEB49807F53B42319B7B855 /* ProfileStore.swift */; };
-		3F2FF620CCA6E8285BAA5621 /* ZodiacSign.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73B4022443AD037682D77526 /* ZodiacSign.swift */; };
-		A6A6F3234F4A5F16627D71E8 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B54A5296B263EEC25CE166 /* WelcomeView.swift */; };
-		CDCFE1CC5551CDB86DD7EEE9 /* ProfileSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63682DB4699C8D0516D6234B /* ProfileSetupView.swift */; };
-		4CD4E5B313CF46C1EAB5B1CC /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE017F9A8111F4496A2D821F /* HomeView.swift */; };
+		08DBD8DE79C03092D70BE2C8 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3977084055B601B38042C00 /* ChatView.swift */; };
 		186B1C482DCE2E9FB5FECF9D /* ChatStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C869FED0EE7DF16E701A0D0C /* ChatStore.swift */; };
-		DD24CA585715BD360B4865B0 /* TarotContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE41C14D0A91E9A647D5899 /* TarotContent.swift */; };
-		753CB66BC70E83715E1E9063 /* TarotCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC9F51DE4B64FCFA48A714E /* TarotCardView.swift */; };
-		5F39D360CEEF011E5FDC2ED6 /* TarotFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 774B7FB08AAFFED77278F2C1 /* TarotFlowView.swift */; };
-		20C21DEECF754405CCB5F1EA /* TarotRitualView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3641EB51286DE81AF9FFA94D /* TarotRitualView.swift */; };
-		9D6D707A287714E51AA577A4 /* TarotResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E298F3D429266D6C304720 /* TarotResultView.swift */; };
-		8B72E5E940672C66AF38C06E /* TarotDrawTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60378483018DCB13C98FED8F /* TarotDrawTests.swift */; };
-		34F6128C29C231A40958E5E8 /* AstrologyContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A84F7814FDFC6A13B8761A /* AstrologyContent.swift */; };
-		6F05F72DBFD392DDA35F1839 /* HomeModeIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96056CDCE220CF3815E46C77 /* HomeModeIcon.swift */; };
-		51E9677557A8B45D34243176 /* ProfileSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3643A992548A02C0B45B0DFF /* ProfileSheetView.swift */; };
+		1988BA20BF5756D36E14A93A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F9F2531A0ADC09B7F99AA6BF /* Assets.xcassets */; };
 		1B4BF31E7C419B3C0FA25040 /* PlaceholderViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2629A099DF1889B93EEE8C5 /* PlaceholderViews.swift */; };
-		84D6A89AD7223C9DEB95ED9F /* PrefsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA0D85EC3CDEFF74FEE91DAB /* PrefsStore.swift */; };
-		BCA2FE3D9D34F29F4D106FC5 /* PrefsStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8407D12EF8F41951B8F2C0D8 /* PrefsStoreTests.swift */; };
+		20C21DEECF754405CCB5F1EA /* TarotRitualView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3641EB51286DE81AF9FFA94D /* TarotRitualView.swift */; };
+		23B7321C2B2D3357056DA42F /* ChatViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78BC53AC2DD1EC16E1F7C6B7 /* ChatViewModelTests.swift */; };
 		25F79AF11D23EB551011531D /* AstrologyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F65F17635BDE428762AF73C /* AstrologyView.swift */; };
-		C858977026DDEEF066A60F3C /* AstrologyContentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036B82F9F2049ABFBCE6F0D1 /* AstrologyContentTests.swift */; };
-		E7A8AB1992D3381EFFF04806 /* ChatHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BB43C2476421D337EB1C137 /* ChatHistoryView.swift */; };
+		2ACB519F8D8D2F9DB5E0F13D /* TwinkoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2335623A74610D184A2C493D /* TwinkoApp.swift */; };
 		330D57744BD39094D2FB3AB0 /* ChatStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C3894A03FC2F03F44A9499 /* ChatStoreTests.swift */; };
 		346BB136960D9D4A04D632A6 /* ZodiacSignTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2641A69011EF85C697CF3524 /* ZodiacSignTests.swift */; };
-		A0431E3214BF86544C2BFD93 /* ProfileStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AB9ADFEDC86900F8F9C16C9 /* ProfileStoreTests.swift */; };
-		84C8D2AF284B67F34BFF73A9 /* TwinkoTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FCEE6E05DA837DEC46D0A2A /* TwinkoTheme.swift */; };
-		A1E1F1A13D31D5D33644A362 /* TwinkoComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA675190F8FC6A3EB7A89BBF /* TwinkoComponents.swift */; };
-		4E07BD3D0661A9D70DBE8519 /* TwinkoStar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C28B60D3F5CE4428D34C91C /* TwinkoStar.swift */; };
-		E66FE230DBB4A7FE02D94AFF /* TwinkoCharacterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CEFD704B3A60BF4E1E122 /* TwinkoCharacterView.swift */; };
-		08DBD8DE79C03092D70BE2C8 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3977084055B601B38042C00 /* ChatView.swift */; };
-		D1E21C108E0D923662A835DA /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D6C8D0A3C82FA29E72F4F87 /* ChatViewModel.swift */; };
+		34F6128C29C231A40958E5E8 /* AstrologyContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A84F7814FDFC6A13B8761A /* AstrologyContent.swift */; };
+		3F2FF620CCA6E8285BAA5621 /* ZodiacSign.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73B4022443AD037682D77526 /* ZodiacSign.swift */; };
+		4CD4E5B313CF46C1EAB5B1CC /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE017F9A8111F4496A2D821F /* HomeView.swift */; };
 		4DE261B62E9A7D6F66363388 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BFFFEA0570BA6492F3696D7 /* Message.swift */; };
-		C9DA3CD18CD59ED211CFDDBD /* MockChatService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F858C155845D7B7FD3D9859 /* MockChatService.swift */; };
-		1988BA20BF5756D36E14A93A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F9F2531A0ADC09B7F99AA6BF /* Assets.xcassets */; };
-		E0BB26F16BF188E01D242BBF /* MockChatServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD539F2BEE4D6FB93BB5538A /* MockChatServiceTests.swift */; };
-		23B7321C2B2D3357056DA42F /* ChatViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78BC53AC2DD1EC16E1F7C6B7 /* ChatViewModelTests.swift */; };
+		4E07BD3D0661A9D70DBE8519 /* TwinkoStar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C28B60D3F5CE4428D34C91C /* TwinkoStar.swift */; };
+		51E9677557A8B45D34243176 /* ProfileSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3643A992548A02C0B45B0DFF /* ProfileSheetView.swift */; };
+		5246BFA81F1696E0BF40B513 /* RootRouterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE37BF80B16B65650AA928F /* RootRouterView.swift */; };
+		5F39D360CEEF011E5FDC2ED6 /* TarotFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 774B7FB08AAFFED77278F2C1 /* TarotFlowView.swift */; };
+		6F05F72DBFD392DDA35F1839 /* HomeModeIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96056CDCE220CF3815E46C77 /* HomeModeIcon.swift */; };
+		753CB66BC70E83715E1E9063 /* TarotCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC9F51DE4B64FCFA48A714E /* TarotCardView.swift */; };
+		84C8D2AF284B67F34BFF73A9 /* TwinkoTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FCEE6E05DA837DEC46D0A2A /* TwinkoTheme.swift */; };
+		84D6A89AD7223C9DEB95ED9F /* PrefsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA0D85EC3CDEFF74FEE91DAB /* PrefsStore.swift */; };
 		857639E6CAF39D2FFA7C0362 /* TwinkoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9228AF25B41DF28D12B85613 /* TwinkoUITests.swift */; };
+		8B72E5E940672C66AF38C06E /* TarotDrawTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60378483018DCB13C98FED8F /* TarotDrawTests.swift */; };
+		8DDC7BD09479108E91F9A3B8 /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CEB49807F53B42319B7B855 /* ProfileStore.swift */; };
+		9D6D707A287714E51AA577A4 /* TarotResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E298F3D429266D6C304720 /* TarotResultView.swift */; };
+		A0431E3214BF86544C2BFD93 /* ProfileStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AB9ADFEDC86900F8F9C16C9 /* ProfileStoreTests.swift */; };
+		A1E1F1A13D31D5D33644A362 /* TwinkoComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA675190F8FC6A3EB7A89BBF /* TwinkoComponents.swift */; };
+		A6A6F3234F4A5F16627D71E8 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B54A5296B263EEC25CE166 /* WelcomeView.swift */; };
+		BCA2FE3D9D34F29F4D106FC5 /* PrefsStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8407D12EF8F41951B8F2C0D8 /* PrefsStoreTests.swift */; };
+		C858977026DDEEF066A60F3C /* AstrologyContentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036B82F9F2049ABFBCE6F0D1 /* AstrologyContentTests.swift */; };
+		C9DA3CD18CD59ED211CFDDBD /* MockChatService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F858C155845D7B7FD3D9859 /* MockChatService.swift */; };
+		CADA65851B2648D9C88F33F7 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A62975F8E2A08908ECEBDF /* UserProfile.swift */; };
+		CDCFE1CC5551CDB86DD7EEE9 /* ProfileSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63682DB4699C8D0516D6234B /* ProfileSetupView.swift */; };
+		D1E21C108E0D923662A835DA /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D6C8D0A3C82FA29E72F4F87 /* ChatViewModel.swift */; };
+		DD24CA585715BD360B4865B0 /* TarotContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE41C14D0A91E9A647D5899 /* TarotContent.swift */; };
+		DDCEDEA3C845836D61062F94 /* JSONStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00E1ED1CF029A5982B85E8DF /* JSONStore.swift */; };
+		E0BB26F16BF188E01D242BBF /* MockChatServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD539F2BEE4D6FB93BB5538A /* MockChatServiceTests.swift */; };
+		E66FE230DBB4A7FE02D94AFF /* TwinkoCharacterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CEFD704B3A60BF4E1E122 /* TwinkoCharacterView.swift */; };
+		E7A8AB1992D3381EFFF04806 /* ChatHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BB43C2476421D337EB1C137 /* ChatHistoryView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,60 +67,60 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		2335623A74610D184A2C493D /* TwinkoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoApp.swift; sourceTree = "<group>"; };
-		BFE37BF80B16B65650AA928F /* RootRouterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootRouterView.swift; sourceTree = "<group>"; };
 		00E1ED1CF029A5982B85E8DF /* JSONStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONStore.swift; sourceTree = "<group>"; };
-		F4A62975F8E2A08908ECEBDF /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
-		9CEB49807F53B42319B7B855 /* ProfileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStore.swift; sourceTree = "<group>"; };
-		73B4022443AD037682D77526 /* ZodiacSign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZodiacSign.swift; sourceTree = "<group>"; };
-		85B54A5296B263EEC25CE166 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
-		63682DB4699C8D0516D6234B /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
-		FE017F9A8111F4496A2D821F /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
-		C869FED0EE7DF16E701A0D0C /* ChatStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatStore.swift; sourceTree = "<group>"; };
-		EDE41C14D0A91E9A647D5899 /* TarotContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotContent.swift; sourceTree = "<group>"; };
-		8EC9F51DE4B64FCFA48A714E /* TarotCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotCardView.swift; sourceTree = "<group>"; };
-		774B7FB08AAFFED77278F2C1 /* TarotFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotFlowView.swift; sourceTree = "<group>"; };
-		3641EB51286DE81AF9FFA94D /* TarotRitualView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotRitualView.swift; sourceTree = "<group>"; };
-		99E298F3D429266D6C304720 /* TarotResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotResultView.swift; sourceTree = "<group>"; };
-		60378483018DCB13C98FED8F /* TarotDrawTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotDrawTests.swift; sourceTree = "<group>"; };
-		22A84F7814FDFC6A13B8761A /* AstrologyContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AstrologyContent.swift; sourceTree = "<group>"; };
-		96056CDCE220CF3815E46C77 /* HomeModeIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeModeIcon.swift; sourceTree = "<group>"; };
-		3643A992548A02C0B45B0DFF /* ProfileSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSheetView.swift; sourceTree = "<group>"; };
-		A2629A099DF1889B93EEE8C5 /* PlaceholderViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderViews.swift; sourceTree = "<group>"; };
-		CA0D85EC3CDEFF74FEE91DAB /* PrefsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrefsStore.swift; sourceTree = "<group>"; };
-		8407D12EF8F41951B8F2C0D8 /* PrefsStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrefsStoreTests.swift; sourceTree = "<group>"; };
-		8F65F17635BDE428762AF73C /* AstrologyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AstrologyView.swift; sourceTree = "<group>"; };
 		036B82F9F2049ABFBCE6F0D1 /* AstrologyContentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AstrologyContentTests.swift; sourceTree = "<group>"; };
-		4BB43C2476421D337EB1C137 /* ChatHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatHistoryView.swift; sourceTree = "<group>"; };
-		74C3894A03FC2F03F44A9499 /* ChatStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatStoreTests.swift; sourceTree = "<group>"; };
+		1D6C8D0A3C82FA29E72F4F87 /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
+		22A84F7814FDFC6A13B8761A /* AstrologyContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AstrologyContent.swift; sourceTree = "<group>"; };
+		2335623A74610D184A2C493D /* TwinkoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoApp.swift; sourceTree = "<group>"; };
 		2641A69011EF85C697CF3524 /* ZodiacSignTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZodiacSignTests.swift; sourceTree = "<group>"; };
 		2AB9ADFEDC86900F8F9C16C9 /* ProfileStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStoreTests.swift; sourceTree = "<group>"; };
-		9FCEE6E05DA837DEC46D0A2A /* TwinkoTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoTheme.swift; sourceTree = "<group>"; };
-		AA675190F8FC6A3EB7A89BBF /* TwinkoComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoComponents.swift; sourceTree = "<group>"; };
-		8C28B60D3F5CE4428D34C91C /* TwinkoStar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoStar.swift; sourceTree = "<group>"; };
-		846CEFD704B3A60BF4E1E122 /* TwinkoCharacterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoCharacterView.swift; sourceTree = "<group>"; };
-		A3977084055B601B38042C00 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
-		1D6C8D0A3C82FA29E72F4F87 /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
-		5BFFFEA0570BA6492F3696D7 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
-		8F858C155845D7B7FD3D9859 /* MockChatService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockChatService.swift; sourceTree = "<group>"; };
-		F9F2531A0ADC09B7F99AA6BF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		DD539F2BEE4D6FB93BB5538A /* MockChatServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockChatServiceTests.swift; sourceTree = "<group>"; };
-		78BC53AC2DD1EC16E1F7C6B7 /* ChatViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModelTests.swift; sourceTree = "<group>"; };
+		3641EB51286DE81AF9FFA94D /* TarotRitualView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotRitualView.swift; sourceTree = "<group>"; };
+		3643A992548A02C0B45B0DFF /* ProfileSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSheetView.swift; sourceTree = "<group>"; };
 		36E813A31EA3BCE632273FBC /* Twinko.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Twinko.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		99124220FAABF1F2624B5C9B /* TwinkoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TwinkoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		F5099A053EA7E83DC6D7D771 /* TwinkoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TwinkoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4BB43C2476421D337EB1C137 /* ChatHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatHistoryView.swift; sourceTree = "<group>"; };
+		5BFFFEA0570BA6492F3696D7 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
+		60378483018DCB13C98FED8F /* TarotDrawTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotDrawTests.swift; sourceTree = "<group>"; };
+		63682DB4699C8D0516D6234B /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
+		73B4022443AD037682D77526 /* ZodiacSign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZodiacSign.swift; sourceTree = "<group>"; };
+		74C3894A03FC2F03F44A9499 /* ChatStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatStoreTests.swift; sourceTree = "<group>"; };
+		774B7FB08AAFFED77278F2C1 /* TarotFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotFlowView.swift; sourceTree = "<group>"; };
+		78BC53AC2DD1EC16E1F7C6B7 /* ChatViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModelTests.swift; sourceTree = "<group>"; };
+		8407D12EF8F41951B8F2C0D8 /* PrefsStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrefsStoreTests.swift; sourceTree = "<group>"; };
+		846CEFD704B3A60BF4E1E122 /* TwinkoCharacterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoCharacterView.swift; sourceTree = "<group>"; };
+		85B54A5296B263EEC25CE166 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		8C28B60D3F5CE4428D34C91C /* TwinkoStar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoStar.swift; sourceTree = "<group>"; };
+		8EC9F51DE4B64FCFA48A714E /* TarotCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotCardView.swift; sourceTree = "<group>"; };
+		8F65F17635BDE428762AF73C /* AstrologyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AstrologyView.swift; sourceTree = "<group>"; };
+		8F858C155845D7B7FD3D9859 /* MockChatService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockChatService.swift; sourceTree = "<group>"; };
 		9228AF25B41DF28D12B85613 /* TwinkoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoUITests.swift; sourceTree = "<group>"; };
+		96056CDCE220CF3815E46C77 /* HomeModeIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeModeIcon.swift; sourceTree = "<group>"; };
+		99124220FAABF1F2624B5C9B /* TwinkoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TwinkoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		99E298F3D429266D6C304720 /* TarotResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotResultView.swift; sourceTree = "<group>"; };
+		9CEB49807F53B42319B7B855 /* ProfileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStore.swift; sourceTree = "<group>"; };
+		9FCEE6E05DA837DEC46D0A2A /* TwinkoTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoTheme.swift; sourceTree = "<group>"; };
+		A2629A099DF1889B93EEE8C5 /* PlaceholderViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderViews.swift; sourceTree = "<group>"; };
+		A3977084055B601B38042C00 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+		AA675190F8FC6A3EB7A89BBF /* TwinkoComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoComponents.swift; sourceTree = "<group>"; };
+		BFE37BF80B16B65650AA928F /* RootRouterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootRouterView.swift; sourceTree = "<group>"; };
+		C869FED0EE7DF16E701A0D0C /* ChatStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatStore.swift; sourceTree = "<group>"; };
+		CA0D85EC3CDEFF74FEE91DAB /* PrefsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrefsStore.swift; sourceTree = "<group>"; };
+		DD539F2BEE4D6FB93BB5538A /* MockChatServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockChatServiceTests.swift; sourceTree = "<group>"; };
+		EDE41C14D0A91E9A647D5899 /* TarotContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotContent.swift; sourceTree = "<group>"; };
+		F4A62975F8E2A08908ECEBDF /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
+		F5099A053EA7E83DC6D7D771 /* TwinkoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TwinkoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F9F2531A0ADC09B7F99AA6BF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		FE017F9A8111F4496A2D821F /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		434CAAE91505D8034192CC6E /* Frameworks */ = {
+		40D9061BE5ED7A2281776D67 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		40D9061BE5ED7A2281776D67 /* Frameworks */ = {
+		434CAAE91505D8034192CC6E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -147,42 +147,6 @@
 			);
 			sourceTree = "<group>";
 		};
-		253C9848A828DCAF3A40439B /* TwinkoUITests */ = {
-			isa = PBXGroup;
-			children = (
-				9228AF25B41DF28D12B85613 /* TwinkoUITests.swift */,
-			);
-			path = TwinkoUITests;
-			sourceTree = "<group>";
-		};
-		A299C4A10F4806FFDD94B587 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				36E813A31EA3BCE632273FBC /* Twinko.app */,
-				99124220FAABF1F2624B5C9B /* TwinkoTests.xctest */,
-				F5099A053EA7E83DC6D7D771 /* TwinkoUITests.xctest */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		3E371B59B677BFBE0E5D2936 /* Twinko */ = {
-			isa = PBXGroup;
-			children = (
-				2335623A74610D184A2C493D /* TwinkoApp.swift */,
-				BFE37BF80B16B65650AA928F /* RootRouterView.swift */,
-				C36A9EDA1F6B61486E959016 /* DesignSystem */,
-				B797F37DDF4F359586EC89A8 /* Character */,
-				18C826CF90061567C4048EFC /* SharedData */,
-				24522A5E04B2562DA5A9F04E /* Onboarding */,
-				444F0AF54ECE7C4A3FD8296E /* Home */,
-				716A0549A4A2AD1BFE7230ED /* Chat */,
-				62C4BA24BD7EB8421812D479 /* Tarot */,
-				FA88EE72450DCDDD08E36FFB /* Astrology */,
-				F9F2531A0ADC09B7F99AA6BF /* Assets.xcassets */,
-			);
-			path = Twinko;
-			sourceTree = "<group>";
-		};
 		18C826CF90061567C4048EFC /* SharedData */ = {
 			isa = PBXGroup;
 			children = (
@@ -204,67 +168,12 @@
 			path = Onboarding;
 			sourceTree = "<group>";
 		};
-		444F0AF54ECE7C4A3FD8296E /* Home */ = {
+		253C9848A828DCAF3A40439B /* TwinkoUITests */ = {
 			isa = PBXGroup;
 			children = (
-				FE017F9A8111F4496A2D821F /* HomeView.swift */,
-				96056CDCE220CF3815E46C77 /* HomeModeIcon.swift */,
-				3643A992548A02C0B45B0DFF /* ProfileSheetView.swift */,
-				A2629A099DF1889B93EEE8C5 /* PlaceholderViews.swift */,
+				9228AF25B41DF28D12B85613 /* TwinkoUITests.swift */,
 			);
-			path = Home;
-			sourceTree = "<group>";
-		};
-		FA88EE72450DCDDD08E36FFB /* Astrology */ = {
-			isa = PBXGroup;
-			children = (
-				22A84F7814FDFC6A13B8761A /* AstrologyContent.swift */,
-				8F65F17635BDE428762AF73C /* AstrologyView.swift */,
-			);
-			path = Astrology;
-			sourceTree = "<group>";
-		};
-		62C4BA24BD7EB8421812D479 /* Tarot */ = {
-			isa = PBXGroup;
-			children = (
-				EDE41C14D0A91E9A647D5899 /* TarotContent.swift */,
-				8EC9F51DE4B64FCFA48A714E /* TarotCardView.swift */,
-				774B7FB08AAFFED77278F2C1 /* TarotFlowView.swift */,
-				3641EB51286DE81AF9FFA94D /* TarotRitualView.swift */,
-				99E298F3D429266D6C304720 /* TarotResultView.swift */,
-			);
-			path = Tarot;
-			sourceTree = "<group>";
-		};
-		C36A9EDA1F6B61486E959016 /* DesignSystem */ = {
-			isa = PBXGroup;
-			children = (
-				9FCEE6E05DA837DEC46D0A2A /* TwinkoTheme.swift */,
-				AA675190F8FC6A3EB7A89BBF /* TwinkoComponents.swift */,
-			);
-			path = DesignSystem;
-			sourceTree = "<group>";
-		};
-		B797F37DDF4F359586EC89A8 /* Character */ = {
-			isa = PBXGroup;
-			children = (
-				8C28B60D3F5CE4428D34C91C /* TwinkoStar.swift */,
-				846CEFD704B3A60BF4E1E122 /* TwinkoCharacterView.swift */,
-			);
-			path = Character;
-			sourceTree = "<group>";
-		};
-		716A0549A4A2AD1BFE7230ED /* Chat */ = {
-			isa = PBXGroup;
-			children = (
-				A3977084055B601B38042C00 /* ChatView.swift */,
-				4BB43C2476421D337EB1C137 /* ChatHistoryView.swift */,
-				1D6C8D0A3C82FA29E72F4F87 /* ChatViewModel.swift */,
-				C869FED0EE7DF16E701A0D0C /* ChatStore.swift */,
-				5BFFFEA0570BA6492F3696D7 /* Message.swift */,
-				8F858C155845D7B7FD3D9859 /* MockChatService.swift */,
-			);
-			path = Chat;
+			path = TwinkoUITests;
 			sourceTree = "<group>";
 		};
 		28E11A2AB95AA21C80B04BFE /* TwinkoTests */ = {
@@ -282,26 +191,100 @@
 			path = TwinkoTests;
 			sourceTree = "<group>";
 		};
+		3E371B59B677BFBE0E5D2936 /* Twinko */ = {
+			isa = PBXGroup;
+			children = (
+				2335623A74610D184A2C493D /* TwinkoApp.swift */,
+				BFE37BF80B16B65650AA928F /* RootRouterView.swift */,
+				C36A9EDA1F6B61486E959016 /* DesignSystem */,
+				B797F37DDF4F359586EC89A8 /* Character */,
+				18C826CF90061567C4048EFC /* SharedData */,
+				24522A5E04B2562DA5A9F04E /* Onboarding */,
+				444F0AF54ECE7C4A3FD8296E /* Home */,
+				716A0549A4A2AD1BFE7230ED /* Chat */,
+				62C4BA24BD7EB8421812D479 /* Tarot */,
+				FA88EE72450DCDDD08E36FFB /* Astrology */,
+				F9F2531A0ADC09B7F99AA6BF /* Assets.xcassets */,
+			);
+			path = Twinko;
+			sourceTree = "<group>";
+		};
+		444F0AF54ECE7C4A3FD8296E /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				FE017F9A8111F4496A2D821F /* HomeView.swift */,
+				96056CDCE220CF3815E46C77 /* HomeModeIcon.swift */,
+				3643A992548A02C0B45B0DFF /* ProfileSheetView.swift */,
+				A2629A099DF1889B93EEE8C5 /* PlaceholderViews.swift */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		62C4BA24BD7EB8421812D479 /* Tarot */ = {
+			isa = PBXGroup;
+			children = (
+				EDE41C14D0A91E9A647D5899 /* TarotContent.swift */,
+				8EC9F51DE4B64FCFA48A714E /* TarotCardView.swift */,
+				774B7FB08AAFFED77278F2C1 /* TarotFlowView.swift */,
+				3641EB51286DE81AF9FFA94D /* TarotRitualView.swift */,
+				99E298F3D429266D6C304720 /* TarotResultView.swift */,
+			);
+			path = Tarot;
+			sourceTree = "<group>";
+		};
+		716A0549A4A2AD1BFE7230ED /* Chat */ = {
+			isa = PBXGroup;
+			children = (
+				A3977084055B601B38042C00 /* ChatView.swift */,
+				4BB43C2476421D337EB1C137 /* ChatHistoryView.swift */,
+				1D6C8D0A3C82FA29E72F4F87 /* ChatViewModel.swift */,
+				C869FED0EE7DF16E701A0D0C /* ChatStore.swift */,
+				5BFFFEA0570BA6492F3696D7 /* Message.swift */,
+				8F858C155845D7B7FD3D9859 /* MockChatService.swift */,
+			);
+			path = Chat;
+			sourceTree = "<group>";
+		};
+		A299C4A10F4806FFDD94B587 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				36E813A31EA3BCE632273FBC /* Twinko.app */,
+				99124220FAABF1F2624B5C9B /* TwinkoTests.xctest */,
+				F5099A053EA7E83DC6D7D771 /* TwinkoUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B797F37DDF4F359586EC89A8 /* Character */ = {
+			isa = PBXGroup;
+			children = (
+				8C28B60D3F5CE4428D34C91C /* TwinkoStar.swift */,
+				846CEFD704B3A60BF4E1E122 /* TwinkoCharacterView.swift */,
+			);
+			path = Character;
+			sourceTree = "<group>";
+		};
+		C36A9EDA1F6B61486E959016 /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				9FCEE6E05DA837DEC46D0A2A /* TwinkoTheme.swift */,
+				AA675190F8FC6A3EB7A89BBF /* TwinkoComponents.swift */,
+			);
+			path = DesignSystem;
+			sourceTree = "<group>";
+		};
+		FA88EE72450DCDDD08E36FFB /* Astrology */ = {
+			isa = PBXGroup;
+			children = (
+				22A84F7814FDFC6A13B8761A /* AstrologyContent.swift */,
+				8F65F17635BDE428762AF73C /* AstrologyView.swift */,
+			);
+			path = Astrology;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		5718AFFADA1522865FEEAC03 /* Twinko */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 2EE7FCF0FE64D121BDB2DF34 /* Build configuration list for PBXNativeTarget "Twinko" */;
-			buildPhases = (
-				139838A005594261DF2FFE64 /* Sources */,
-				434CAAE91505D8034192CC6E /* Frameworks */,
-				4CC4DFF2B367DDE5F86C3BB7 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = Twinko;
-			productName = Twinko;
-			productReference = 36E813A31EA3BCE632273FBC /* Twinko.app */;
-			productType = "com.apple.product-type.application";
-		};
 		18DE8AAF97CE322E1E4CD636 /* TwinkoTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0348AA3016286F4136227193 /* Build configuration list for PBXNativeTarget "TwinkoTests" */;
@@ -318,6 +301,23 @@
 			productName = TwinkoTests;
 			productReference = 99124220FAABF1F2624B5C9B /* TwinkoTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		5718AFFADA1522865FEEAC03 /* Twinko */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2EE7FCF0FE64D121BDB2DF34 /* Build configuration list for PBXNativeTarget "Twinko" */;
+			buildPhases = (
+				139838A005594261DF2FFE64 /* Sources */,
+				434CAAE91505D8034192CC6E /* Frameworks */,
+				4CC4DFF2B367DDE5F86C3BB7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Twinko;
+			productName = Twinko;
+			productReference = 36E813A31EA3BCE632273FBC /* Twinko.app */;
+			productType = "com.apple.product-type.application";
 		};
 		C197F5EC8B745EBA4AC95268 /* TwinkoUITests */ = {
 			isa = PBXNativeTarget;
@@ -346,12 +346,12 @@
 				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
-					5718AFFADA1522865FEEAC03 = {
-						CreatedOnToolsVersion = 16.2;
-					};
 					18DE8AAF97CE322E1E4CD636 = {
 						CreatedOnToolsVersion = 16.2;
 						TestTargetID = 5718AFFADA1522865FEEAC03;
+					};
+					5718AFFADA1522865FEEAC03 = {
+						CreatedOnToolsVersion = 16.2;
 					};
 					C197F5EC8B745EBA4AC95268 = {
 						CreatedOnToolsVersion = 16.2;
@@ -454,19 +454,70 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		51ACDFD7E729A7A9B8D423E7 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 5718AFFADA1522865FEEAC03 /* Twinko */;
-			targetProxy = 8F7DD32096199F35D5A44457 /* PBXContainerItemProxy */;
-		};
 		0923ECF881CF3D98A05BFD34 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 5718AFFADA1522865FEEAC03 /* Twinko */;
 			targetProxy = B5F1A6D3AD76B2D708610253 /* PBXContainerItemProxy */;
 		};
+		51ACDFD7E729A7A9B8D423E7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5718AFFADA1522865FEEAC03 /* Twinko */;
+			targetProxy = 8F7DD32096199F35D5A44457 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		2A74497FA0F13B141E8E8822 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = studio.gina.twinko.prototype.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Twinko.app/Twinko";
+			};
+			name = Debug;
+		};
+		3A8642D38FB629AE4D51276C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = Q8NT9386L4;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = studio.gina.twinko.prototype;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
 		7473B11F3DA2FF77770C9933 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -500,6 +551,74 @@
 			};
 			name = Debug;
 		};
+		845A65B2CA53555CA43AA76D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = studio.gina.twinko.prototype.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = Twinko;
+			};
+			name = Release;
+		};
+		C3E3A03C01340500F2F00110 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = Q8NT9386L4;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = studio.gina.twinko.prototype;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		CD971D13A6DD29AB10523CE2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = studio.gina.twinko.prototype.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = Twinko;
+			};
+			name = Debug;
+		};
 		F03EE0F894E17DF6CAA89AAA /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -526,87 +645,6 @@
 			};
 			name = Release;
 		};
-		3A8642D38FB629AE4D51276C /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "";
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = studio.gina.twinko.prototype;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Debug;
-		};
-		C3E3A03C01340500F2F00110 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "";
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = studio.gina.twinko.prototype;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Release;
-		};
-		2A74497FA0F13B141E8E8822 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = studio.gina.twinko.prototype.tests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Twinko.app/Twinko";
-			};
-			name = Debug;
-		};
 		F8C77E7D1DEF0FFA8A73E59E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -626,50 +664,14 @@
 			};
 			name = Release;
 		};
-		CD971D13A6DD29AB10523CE2 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = studio.gina.twinko.prototype.uitests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-				TEST_TARGET_NAME = Twinko;
-			};
-			name = Debug;
-		};
-		845A65B2CA53555CA43AA76D /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = studio.gina.twinko.prototype.uitests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-				TEST_TARGET_NAME = Twinko;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		C2F4FB56B3637F3538346604 /* Build configuration list for PBXProject "Twinko" */ = {
+		0348AA3016286F4136227193 /* Build configuration list for PBXNativeTarget "TwinkoTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				7473B11F3DA2FF77770C9933 /* Debug */,
-				F03EE0F894E17DF6CAA89AAA /* Release */,
+				2A74497FA0F13B141E8E8822 /* Debug */,
+				F8C77E7D1DEF0FFA8A73E59E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -683,20 +685,20 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		0348AA3016286F4136227193 /* Build configuration list for PBXNativeTarget "TwinkoTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				2A74497FA0F13B141E8E8822 /* Debug */,
-				F8C77E7D1DEF0FFA8A73E59E /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		4FBFDC9BB36ADC19E31A380D /* Build configuration list for PBXNativeTarget "TwinkoUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CD971D13A6DD29AB10523CE2 /* Debug */,
 				845A65B2CA53555CA43AA76D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C2F4FB56B3637F3538346604 /* Build configuration list for PBXProject "Twinko" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7473B11F3DA2FF77770C9933 /* Debug */,
+				F03EE0F894E17DF6CAA89AAA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

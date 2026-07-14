@@ -158,20 +158,35 @@ final class TwinkoUITests: XCTestCase {
         attach(name: "12-music-placeholder")
         goBack(app)
 
-        // MARK: Profile sheet (no Log Out) and language switch
+        // MARK: Profile sheet (no Log Out), edit flow, language switch
         XCTAssertTrue(chatTile.waitForExistence(timeout: 5))
         app.buttons["homeProfileButton"].tap()
         let settingsRow = app.buttons["sheetSettingsRow"]
         XCTAssertTrue(settingsRow.waitForExistence(timeout: 5), "Profile sheet should open")
         XCTAssertTrue(app.buttons["sheetProfileRow"].exists)
         XCTAssertTrue(app.buttons["sheetPrivacyRow"].exists)
+        XCTAssertTrue(app.staticTexts["小雅"].exists, "Header should show the profile name")
         XCTAssertFalse(app.staticTexts["登出"].exists, "Log Out must not exist (D-055)")
         XCTAssertFalse(app.staticTexts["Log Out"].exists)
         attach(name: "13-profile-sheet")
 
+        // Edit Profile: rename and save; header must update immediately.
+        app.buttons["sheetEditButton"].tap()
+        let nameEdit = app.textFields["editNameField"]
+        XCTAssertTrue(nameEdit.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["editZodiacValue"].exists, "Zodiac shows as auto-calculated")
+        attach(name: "14-edit-profile")
+        nameEdit.tap()
+        nameEdit.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 8))
+        nameEdit.typeText("小星")
+        app.buttons["editSaveButton"].tap()
+        XCTAssertTrue(app.staticTexts["小星"].waitForExistence(timeout: 5),
+                      "Profile summary should update immediately after save")
+
         settingsRow.tap()
         let english = app.buttons["language-en"]
         XCTAssertTrue(english.waitForExistence(timeout: 5))
+        attach(name: "15-settings")
         english.tap()
         dismissSheet(app)
 
@@ -183,7 +198,7 @@ final class TwinkoUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Meditate"].exists)
         XCTAssertTrue(app.staticTexts["Music"].exists)
         XCTAssertFalse(app.staticTexts["Coming Soon"].exists)
-        attach(name: "14-home-en")
+        attach(name: "16-home-en-after-edit")
     }
 
     // MARK: Helpers
@@ -193,8 +208,8 @@ final class TwinkoUITests: XCTestCase {
     }
 
     private func dismissSheet(_ app: XCUIApplication) {
-        // Drag the sheet down from near its top edge to dismiss.
-        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.48))
+        // Drag the sheet down from its grabber area to dismiss.
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.285))
         let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.99))
         start.press(forDuration: 0.05, thenDragTo: end)
     }

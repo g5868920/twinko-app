@@ -24,6 +24,11 @@
 		9D6D707A287714E51AA577A4 /* TarotResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E298F3D429266D6C304720 /* TarotResultView.swift */; };
 		8B72E5E940672C66AF38C06E /* TarotDrawTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60378483018DCB13C98FED8F /* TarotDrawTests.swift */; };
 		34F6128C29C231A40958E5E8 /* AstrologyContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A84F7814FDFC6A13B8761A /* AstrologyContent.swift */; };
+		6F05F72DBFD392DDA35F1839 /* HomeModeIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96056CDCE220CF3815E46C77 /* HomeModeIcon.swift */; };
+		51E9677557A8B45D34243176 /* ProfileSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3643A992548A02C0B45B0DFF /* ProfileSheetView.swift */; };
+		1B4BF31E7C419B3C0FA25040 /* PlaceholderViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2629A099DF1889B93EEE8C5 /* PlaceholderViews.swift */; };
+		84D6A89AD7223C9DEB95ED9F /* PrefsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA0D85EC3CDEFF74FEE91DAB /* PrefsStore.swift */; };
+		BCA2FE3D9D34F29F4D106FC5 /* PrefsStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8407D12EF8F41951B8F2C0D8 /* PrefsStoreTests.swift */; };
 		25F79AF11D23EB551011531D /* AstrologyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F65F17635BDE428762AF73C /* AstrologyView.swift */; };
 		C858977026DDEEF066A60F3C /* AstrologyContentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036B82F9F2049ABFBCE6F0D1 /* AstrologyContentTests.swift */; };
 		E7A8AB1992D3381EFFF04806 /* ChatHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BB43C2476421D337EB1C137 /* ChatHistoryView.swift */; };
@@ -79,6 +84,11 @@
 		99E298F3D429266D6C304720 /* TarotResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotResultView.swift; sourceTree = "<group>"; };
 		60378483018DCB13C98FED8F /* TarotDrawTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotDrawTests.swift; sourceTree = "<group>"; };
 		22A84F7814FDFC6A13B8761A /* AstrologyContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AstrologyContent.swift; sourceTree = "<group>"; };
+		96056CDCE220CF3815E46C77 /* HomeModeIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeModeIcon.swift; sourceTree = "<group>"; };
+		3643A992548A02C0B45B0DFF /* ProfileSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSheetView.swift; sourceTree = "<group>"; };
+		A2629A099DF1889B93EEE8C5 /* PlaceholderViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderViews.swift; sourceTree = "<group>"; };
+		CA0D85EC3CDEFF74FEE91DAB /* PrefsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrefsStore.swift; sourceTree = "<group>"; };
+		8407D12EF8F41951B8F2C0D8 /* PrefsStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrefsStoreTests.swift; sourceTree = "<group>"; };
 		8F65F17635BDE428762AF73C /* AstrologyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AstrologyView.swift; sourceTree = "<group>"; };
 		036B82F9F2049ABFBCE6F0D1 /* AstrologyContentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AstrologyContentTests.swift; sourceTree = "<group>"; };
 		4BB43C2476421D337EB1C137 /* ChatHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatHistoryView.swift; sourceTree = "<group>"; };
@@ -180,6 +190,7 @@
 				F4A62975F8E2A08908ECEBDF /* UserProfile.swift */,
 				9CEB49807F53B42319B7B855 /* ProfileStore.swift */,
 				73B4022443AD037682D77526 /* ZodiacSign.swift */,
+				CA0D85EC3CDEFF74FEE91DAB /* PrefsStore.swift */,
 			);
 			path = SharedData;
 			sourceTree = "<group>";
@@ -197,6 +208,9 @@
 			isa = PBXGroup;
 			children = (
 				FE017F9A8111F4496A2D821F /* HomeView.swift */,
+				96056CDCE220CF3815E46C77 /* HomeModeIcon.swift */,
+				3643A992548A02C0B45B0DFF /* ProfileSheetView.swift */,
+				A2629A099DF1889B93EEE8C5 /* PlaceholderViews.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -263,6 +277,7 @@
 				74C3894A03FC2F03F44A9499 /* ChatStoreTests.swift */,
 				60378483018DCB13C98FED8F /* TarotDrawTests.swift */,
 				036B82F9F2049ABFBCE6F0D1 /* AstrologyContentTests.swift */,
+				8407D12EF8F41951B8F2C0D8 /* PrefsStoreTests.swift */,
 			);
 			path = TwinkoTests;
 			sourceTree = "<group>";
@@ -389,6 +404,10 @@
 				A6A6F3234F4A5F16627D71E8 /* WelcomeView.swift in Sources */,
 				CDCFE1CC5551CDB86DD7EEE9 /* ProfileSetupView.swift in Sources */,
 				4CD4E5B313CF46C1EAB5B1CC /* HomeView.swift in Sources */,
+				6F05F72DBFD392DDA35F1839 /* HomeModeIcon.swift in Sources */,
+				51E9677557A8B45D34243176 /* ProfileSheetView.swift in Sources */,
+				1B4BF31E7C419B3C0FA25040 /* PlaceholderViews.swift in Sources */,
+				84D6A89AD7223C9DEB95ED9F /* PrefsStore.swift in Sources */,
 				84C8D2AF284B67F34BFF73A9 /* TwinkoTheme.swift in Sources */,
 				A1E1F1A13D31D5D33644A362 /* TwinkoComponents.swift in Sources */,
 				4E07BD3D0661A9D70DBE8519 /* TwinkoStar.swift in Sources */,
@@ -420,6 +439,7 @@
 				330D57744BD39094D2FB3AB0 /* ChatStoreTests.swift in Sources */,
 				8B72E5E940672C66AF38C06E /* TarotDrawTests.swift in Sources */,
 				C858977026DDEEF066A60F3C /* AstrologyContentTests.swift in Sources */,
+				BCA2FE3D9D34F29F4D106FC5 /* PrefsStoreTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

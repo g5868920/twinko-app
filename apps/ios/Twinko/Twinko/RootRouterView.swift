@@ -5,6 +5,7 @@ import SwiftUI
 struct RootRouterView: View {
     @StateObject private var profileStore = ProfileStore()
     @StateObject private var chatStore = ChatStore()
+    @StateObject private var prefs = PrefsStore()
     @State private var showingSetup = false
 
     var body: some View {
@@ -31,6 +32,10 @@ struct RootRouterView: View {
         }
         .environmentObject(profileStore)
         .environmentObject(chatStore)
+        .environmentObject(prefs)
+        // Language preference drives the SwiftUI locale (D-055 bilingual
+        // Home); inner flows remain Traditional-Chinese-first per D-054.
+        .environment(\.locale, prefs.locale)
     }
 }
 

@@ -1,5 +1,7 @@
 # TWINKO_P0_APP_SHELL_MOCK_CHAT_SPEC
 
+> **Status amendment — 2026-07-14 (D-055):** This document is the historical D-053 bounded P0 implementation specification. It remains useful as engineering-baseline provenance (it documents the original app-shell + Mock-Chat scope that D-053 authorized and that the current codebase was built on and still preserves). It **no longer controls Home implementation**: `docs/ux/TWINKO_HOME_SCREEN_SPEC_V1.md` and `docs/ux/TWINKO_HOME_ASSET_MANIFEST_V1.md` do, under D-055. D-054 (Twinko Full Interactive Local Prototype) and D-055 (Home Screen refinement) control the current interactive prototype. The original body below is preserved unchanged and continues to describe the D-053 milestone only.
+>
 > Status date: 2026-07-13
 > Governing authorization: `docs/product/TWINKO_DECISION_LOG.md` D-053 ("Twinko P0 Technical Foundation + First SwiftUI Prototype")
 > This is the single active implementation specification for D-053. It supersedes no canonical file and does not expand the milestone's scope.

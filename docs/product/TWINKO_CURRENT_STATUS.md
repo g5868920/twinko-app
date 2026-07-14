@@ -328,4 +328,30 @@ The subsequent major milestone remains **Build Readiness Gate v1**。
 - **Next gate：本次里程碑的 Definition of Done，其後為 Chairwoman review。** Implementation 必須在 D-054 所定義的 Definition of Done 停止；任何超出此範圍的後續工作（live AI、beta 或 release 相關），都需要新的、明確的里程碑授權。
 
 Basis：`docs/product/TWINKO_DECISION_LOG.md`（D-054）、Chairwoman Decision Request — Twinko Full Interactive Local Prototype（2026-07-13）。
+
+## Home Screen Refinement（Amendment — 2026-07-14）
+
+> 這是一則 additive amendment，疊加在上方「Active Implementation Milestone（Amendment — 2026-07-13）」之上，不變更、不刪除該段落或其上任何既有段落。
+
+- **D-054 full local prototype baseline：已存在。** Welcome、Profile Setup、Home Menu、Chat（含 Chat History）、Tarot、每日星座 的完整本地互動原型已依 D-054 建置完成（見上方 2026-07-13 amendment）。
+- **目前的 active implementation scope：D-055 Home refinement。** 依據 D-055（見 `docs/product/TWINKO_DECISION_LOG.md`），founder-approved 的 Home Screen Specification 與 Asset Manifest（`docs/ux/TWINKO_HOME_SCREEN_SPEC_V1.md`、`docs/ux/TWINKO_HOME_ASSET_MANIFEST_V1.md`）現為 Home 畫面的 controlling specification，`Log Out` 除外。
+- **Home 使用 fixed approved image assets。** 背景 `home_screen_v1.png`、中央角色 `twinko_default_smile_v1.png`、五個 mode icons，皆已 byte-identical 方式 promote 至 `assets/home/` 與 `assets/twinko/`，不得 redraw、recolor、reshape 或 regenerate。
+- **English 與 Traditional Chinese Home 實作為 active 且並行開發。** 兩種語言版本需並行開發與測試，UI 佈局在兩種語言下皆不得 clipping 或 overlap。
+- **Meditate 與 Music 使用 minimal local placeholder navigation。** 兩者皆為可點擊，開啟保留現有視覺世界、具備可運作返回導覽的 placeholder 頁面；不含假功能、不含音訊播放器、不含 mock service。
+- **不使用「Coming Soon」／「即將推出」狀態。** 不使用 disabled opacity 或 disabled interaction treatment；此規則取代 D-054 amendment 中 Meditation／Music 標示「即將推出」的敘述，僅限 Home 畫面範圍。
+- **Profile sheet 包含 Profile、Settings、Privacy。** Settings 內含 Language。Traditional Chinese：個人資料、設定、隱私、語言。
+- **Log Out：排除於 active scope 之外。** 因目前無 authentication 或 account system，`Log Out`／「登出」不得出現在 Home 或 Profile sheet 的任何實作中。
+- **Naming：仍未解決。** Home 不得顯示 `Twinko`、`TwinkoTalk` 或任何其他 product wordmark。
+- **D-047：作為最終產品策略與 v1 決策的有效指引，但不再阻擋 integrated interactive prototype 的實作或評估。** Chat、Tarot、Zodiac、Meditate、Music 在 prototype 中並列呈現，不構成 primary wedge、market validation、對等 strategic priority、retention 或 final v1 scope 的證明。
+- **Live services 與 production infrastructure：仍然 prohibited。** 本次授權不包含任何 live AI、backend、authentication、cloud、analytics、payment、beta、release 或 production infrastructure。
+- **Next gate：Home implementation、視覺驗收（對照核准的 specification）、build/test validation，其後為 Chairwoman review。**
+
+Basis：`docs/product/TWINKO_DECISION_LOG.md`（D-055）、Chairwoman Decision Request — Twinko Home UI v1（2026-07-14）、`docs/ux/TWINKO_HOME_SCREEN_SPEC_V1.md`、`docs/ux/TWINKO_HOME_ASSET_MANIFEST_V1.md`。
+
+### Temporary vector-icon exception（additive note — 2026-07-14）
+
+- **交付的 icon 與 Twinko PNG 目前缺少真正的 alpha channel**（棋盤格為烘焙進不透明像素的圖樣），已於 asset 驗證中確認，暫時無法直接在 app 中使用。
+- **D-055 授權一項 founder-approved 暫時例外**：五個 Home mode icons 以原生 SwiftUI vector views 暫時實作（以交付的 PNG 為視覺參照，不在 runtime 使用該等 PNG）；Home 中央角色暫時沿用既有的 procedural `TwinkoCharacterView`。`home_screen_v1.png` 為刻意不透明的背景，直接使用。
+- **此例外不取代 founder-approved visual target**：待真正透明的 source assets 交付並通過 alpha 驗證後，應以 PNG assets 取代暫時的 SwiftUI drawings。
+- **不改變任何 product scope、naming、language、navigation 或 feature 決策。**
 - **Dogfooding distraction**：PM Workflow must prove value in a bounded Discovery-to-Decision slice before expanding。

@@ -48,6 +48,8 @@ extension Color {
     static let linkPurple = Color(hex: 0x6D5CC8)
     // Semantic
     static let destructiveToken = Color(hex: 0xC95F68)
+    static let warningCoral = Color(hex: 0xE9777E)
+    static let warningCoralPressed = Color(hex: 0xD96871)
     // Chat components (DESIGN.md §15)
     static let twinkoBubble = Color(hex: 0xFFFBF6)
     static let twinkoBubbleBorder = Color(hex: 0xE9DCF7)
@@ -75,6 +77,10 @@ extension View {
     /// `shadowFloating`: 0 12 32 rgba(15,17,37,0.16) — elevated menus/modals.
     func shadowFloating() -> some View {
         shadow(color: Color(red: 0.06, green: 0.07, blue: 0.15).opacity(0.16), radius: 32, y: 12)
+    }
+    /// `shadowMedium`: 0 6 20 rgba(15,17,37,0.12) — compact popovers.
+    func shadowMedium() -> some View {
+        shadow(color: Color(red: 0.06, green: 0.07, blue: 0.15).opacity(0.12), radius: 10, y: 6)
     }
 }
 

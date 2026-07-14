@@ -31,6 +31,7 @@
 		753CB66BC70E83715E1E9063 /* TarotCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC9F51DE4B64FCFA48A714E /* TarotCardView.swift */; };
 		84C8D2AF284B67F34BFF73A9 /* TwinkoTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FCEE6E05DA837DEC46D0A2A /* TwinkoTheme.swift */; };
 		EDD952713936C139D49E83FE /* BrandedModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31CF6A79089091B71DD9385C /* BrandedModal.swift */; };
+		2E346086A99DFED44ADBB65B /* BrandedActionPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D8B8160D8C7C289308214D3 /* BrandedActionPopover.swift */; };
 		84D6A89AD7223C9DEB95ED9F /* PrefsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA0D85EC3CDEFF74FEE91DAB /* PrefsStore.swift */; };
 		857639E6CAF39D2FFA7C0362 /* TwinkoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9228AF25B41DF28D12B85613 /* TwinkoUITests.swift */; };
 		8B72E5E940672C66AF38C06E /* TarotDrawTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60378483018DCB13C98FED8F /* TarotDrawTests.swift */; };
@@ -102,6 +103,7 @@
 		9CEB49807F53B42319B7B855 /* ProfileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStore.swift; sourceTree = "<group>"; };
 		9FCEE6E05DA837DEC46D0A2A /* TwinkoTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoTheme.swift; sourceTree = "<group>"; };
 		31CF6A79089091B71DD9385C /* BrandedModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandedModal.swift; sourceTree = "<group>"; };
+		5D8B8160D8C7C289308214D3 /* BrandedActionPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandedActionPopover.swift; sourceTree = "<group>"; };
 		A2629A099DF1889B93EEE8C5 /* PlaceholderViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderViews.swift; sourceTree = "<group>"; };
 		A3977084055B601B38042C00 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
 		AA675190F8FC6A3EB7A89BBF /* TwinkoComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoComponents.swift; sourceTree = "<group>"; };
@@ -277,6 +279,7 @@
 			children = (
 				9FCEE6E05DA837DEC46D0A2A /* TwinkoTheme.swift */,
 				31CF6A79089091B71DD9385C /* BrandedModal.swift */,
+				5D8B8160D8C7C289308214D3 /* BrandedActionPopover.swift */,
 				AA675190F8FC6A3EB7A89BBF /* TwinkoComponents.swift */,
 			);
 			path = DesignSystem;
@@ -419,6 +422,7 @@
 				84D6A89AD7223C9DEB95ED9F /* PrefsStore.swift in Sources */,
 				84C8D2AF284B67F34BFF73A9 /* TwinkoTheme.swift in Sources */,
 				EDD952713936C139D49E83FE /* BrandedModal.swift in Sources */,
+				2E346086A99DFED44ADBB65B /* BrandedActionPopover.swift in Sources */,
 				A1E1F1A13D31D5D33644A362 /* TwinkoComponents.swift in Sources */,
 				4E07BD3D0661A9D70DBE8519 /* TwinkoStar.swift in Sources */,
 				E66FE230DBB4A7FE02D94AFF /* TwinkoCharacterView.swift in Sources */,

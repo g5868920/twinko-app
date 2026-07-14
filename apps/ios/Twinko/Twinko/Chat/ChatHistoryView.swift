@@ -11,6 +11,8 @@ struct ChatHistoryView: View {
     @State private var renameTarget: ChatSession?
     @State private var renameText = ""
     @State private var deleteTarget: ChatSession?
+    @State private var actionMenuTarget: ChatSession?
+    @State private var moreButtonFrames: [UUID: CGRect] = [:]
 
     private var lang: AppLanguage { prefs.language }
 
@@ -27,6 +29,9 @@ struct ChatHistoryView: View {
                 }
             }
 
+            if let target = actionMenuTarget, let anchor = moreButtonFrames[target.id] {
+                actionPopover(target, anchor: anchor)
+            }
             if let target = renameTarget {
                 renameModal(target)
             }
@@ -34,10 +39,33 @@ struct ChatHistoryView: View {
                 deleteModal(target)
             }
         }
+        .coordinateSpace(name: "historyRoot")
+        .onPreferenceChange(MoreButtonFrameKey.self) { moreButtonFrames = $0 }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
+        .animation(.easeOut(duration: 0.15), value: actionMenuTarget != nil)
         .animation(.easeOut(duration: 0.2), value: renameTarget != nil)
         .animation(.easeOut(duration: 0.2), value: deleteTarget != nil)
+    }
+
+    // MARK: Branded action popover (DESIGN.md §27 — replaces native Menu)
+
+    private func actionPopover(_ target: ChatSession, anchor: CGRect) -> some View {
+        BrandedActionPopover(
+            anchor: anchor,
+            rows: [
+                BrandedActionPopoverRow(icon: "pencil", label: ChatStrings.rename(lang),
+                                         tint: .textInverseToken) {
+                    renameTarget = target
+                    renameText = target.displayTitle(for: lang)
+                },
+                BrandedActionPopoverRow(icon: "trash", label: ChatStrings.delete(lang),
+                                         tint: .warningCoral) {
+                    deleteTarget = target
+                }
+            ],
+            onDismiss: { actionMenuTarget = nil }
+        )
     }
 
     // MARK: Branded modals (DESIGN.md §26 — replaces native Alert / confirmationDialog)
@@ -170,18 +198,8 @@ struct ChatHistoryView: View {
             }
             .buttonStyle(.plain)
 
-            Menu {
-                Button {
-                    renameTarget = session
-                    renameText = session.displayTitle(for: lang)
-                } label: {
-                    Label(ChatStrings.rename(lang), systemImage: "pencil")
-                }
-                Button(role: .destructive) {
-                    deleteTarget = session
-                } label: {
-                    Label(ChatStrings.delete(lang), systemImage: "trash")
-                }
+            Button {
+                actionMenuTarget = session
             } label: {
                 Image(systemName: "ellipsis")
                     .font(.system(size: 15, weight: .semibold))
@@ -189,6 +207,14 @@ struct ChatHistoryView: View {
                     .frame(width: 44, height: 44)
                     .contentShape(Rectangle())
             }
+            .background(
+                GeometryReader { geo in
+                    Color.clear.preference(
+                        key: MoreButtonFrameKey.self,
+                        value: [session.id: geo.frame(in: .named("historyRoot"))]
+                    )
+                }
+            )
             .accessibilityLabel(Text(lang == .english
                 ? "More options for \(session.displayTitle(for: lang))"
                 : "「\(session.displayTitle(for: lang))」的更多選項"))
@@ -225,6 +251,13 @@ struct ChatHistoryView: View {
             Spacer()
             Spacer()
         }
+    }
+}
+
+private struct MoreButtonFrameKey: PreferenceKey {
+    static var defaultValue: [UUID: CGRect] = [:]
+    static func reduce(value: inout [UUID: CGRect], nextValue: () -> [UUID: CGRect]) {
+        value.merge(nextValue(), uniquingKeysWith: { $1 })
     }
 }
 

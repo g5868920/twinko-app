@@ -348,6 +348,14 @@ Basis：`docs/product/TWINKO_DECISION_LOG.md`（D-054）、Chairwoman Decision R
 
 Basis：`docs/product/TWINKO_DECISION_LOG.md`（D-055）、Chairwoman Decision Request — Twinko Home UI v1（2026-07-14）、`docs/ux/TWINKO_HOME_SCREEN_SPEC_V1.md`、`docs/ux/TWINKO_HOME_ASSET_MANIFEST_V1.md`。
 
+### Home 與 Profile refinement（additive note — 2026-07-14）
+
+- **Home 與 Profile refinement：已授權並實作。** Home Twinko 加大（預設 136pt）並加入分層 glow 與 idle motion（Reduce Motion 時停用位移與縮放）；2–2–1 orbit 收攏為以 Twinko 為中心的緊湊 cluster。
+- **Profile planet：founder-approved 暫時性 SwiftUI asset。** 右上角 Profile 控制項改為原生繪製的小行星圖示（無 PNG asset），取代先前的文字縮寫按鈕。
+- **Profile 使用 branded bottom sheet。** 含 header（planet、稱呼、星座摘要、編輯）與自訂圓角列：個人資料／設定／隱私；設定僅含「語言」；Log Out 仍排除於 prototype scope。
+- **Edit Profile：本機持久化。** 稱呼、生日、性別可編輯；星座由生日自動計算（唯讀）；儲存後立即更新並於重啟後保留。
+- **暫時性 vector icons 與 procedural Twinko 維持不變**，直到有效的透明 assets 交付；不改變任何 product naming、live AI、backend、auth、cloud、analytics、payment、beta 或 release 決策。
+
 ### Temporary vector-icon exception（additive note — 2026-07-14）
 
 - **交付的 icon 與 Twinko PNG 目前缺少真正的 alpha channel**（棋盤格為烘焙進不透明像素的圖樣），已於 asset 驗證中確認，暫時無法直接在 app 中使用。

@@ -12,6 +12,8 @@ asset_integrity_note: Verified via `sips -g hasAlpha` on 2026-07-14: none of the
 # TwinkoTalk Home Asset Manifest
 
 > **Temporary implementation amendment — 2026-07-14 (additive; founder-approved D-055 exception):**
+> **Profile planet note — 2026-07-14 (additive):** No PNG asset exists for the Home Profile control. A founder-approved temporary native-SwiftUI planet icon (small ringed planet, lavender-purple/pale-blue, no face or letters) is drawn in code (`ProfileSheetView.swift`, marked `TEMPORARY PROFILE PLANET`). It is one level smaller than the five mode icons and may be replaced by a delivered asset later.
+>
 > The six character/icon PNGs in §2–§3 currently lack a real alpha channel (see the asset-integrity note in the promotion metadata). Until corrected transparent exports are delivered and pass alpha validation, D-055 authorizes a temporary exception: the five Home mode icons are implemented as original native SwiftUI vector views (`apps/ios/Twinko/Twinko/Home/HomeModeIcon.swift`) using the delivered PNGs solely as visual references, and the central Home character continues to use the existing procedural `TwinkoCharacterView`. The delivered PNGs are not rendered at runtime. `home_screen_v1.png` (intentionally opaque) IS used directly as the Home background. The PNG files in this manifest remain the intended visual target and should replace the temporary drawings once real transparent exports exist. No product scope, naming, language, navigation, or feature decision is changed.
 
 **Status:** Finalized for Home implementation

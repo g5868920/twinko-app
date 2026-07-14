@@ -244,13 +244,9 @@ struct ChatView: View {
         if message.sender == .twinko {
             HStack(alignment: .top, spacing: 8) {
                 if showsAvatar {
-                    Image(twinkoAsset)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 30, height: 30)
-                        .accessibilityHidden(true)
+                    TwinkoChatAvatar(assetName: twinkoAsset)
                 } else {
-                    Color.clear.frame(width: 30, height: 1)
+                    Color.clear.frame(width: 38, height: 1)
                 }
                 twinkoBubble { Text(message.text) }
                 Spacer(minLength: 50)
@@ -292,13 +288,9 @@ struct ChatView: View {
     private var typingRow: some View {
         HStack(alignment: .top, spacing: 8) {
             if viewModel.messages.last?.sender != .twinko {
-                Image(twinkoAsset)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 30, height: 30)
-                    .accessibilityHidden(true)
+                TwinkoChatAvatar(assetName: twinkoAsset)
             } else {
-                Color.clear.frame(width: 30, height: 1)
+                Color.clear.frame(width: 38, height: 1)
             }
             twinkoBubble { ThinkingDotsView(tint: .textSecondaryToken) }
             Spacer()
@@ -345,8 +337,11 @@ struct ChatView: View {
                     .font(.system(size: 17, weight: .semibold))
                     .foregroundStyle(Color.textInverseToken)
                     .frame(width: 44, height: 44)
-                    .background(canSend ? Color.accentGold : Color(hex: 0xD9D2E8),
+                    .background(canSend ? Color.sendEnabled : Color.sendDisabled.opacity(0.6),
                                 in: Circle())
+                    .shadow(color: canSend
+                            ? Color(red: 0.06, green: 0.07, blue: 0.15).opacity(0.08) : .clear,
+                            radius: 4, y: 2)
             }
             .buttonStyle(GoldPressStyle(enabled: canSend))
             .disabled(!canSend)
@@ -434,9 +429,6 @@ struct ChatView: View {
                     .font(.system(.body, design: .rounded).weight(.medium))
                     .foregroundStyle(Color.textInverseToken)
                 Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(Color.textInverseToken.opacity(0.5))
             }
             .padding(.horizontal, 16)
             .frame(height: 54)
@@ -457,7 +449,7 @@ struct ChatView: View {
     }
 }
 
-/// Gold send-button press treatment (DESIGN.md §9.4).
+/// Gold send-button press treatment (DESIGN.md §26 Composer States).
 private struct GoldPressStyle: ButtonStyle {
     let enabled: Bool
 
@@ -466,9 +458,9 @@ private struct GoldPressStyle: ButtonStyle {
             .background(
                 Circle()
                     .fill(configuration.isPressed && enabled
-                          ? Color.accentGoldPressed : Color.clear)
+                          ? Color.sendPressed : Color.clear)
             )
-            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .scaleEffect(configuration.isPressed && enabled ? 0.95 : 1.0)
             .animation(.easeOut(duration: 0.14), value: configuration.isPressed)
     }
 }

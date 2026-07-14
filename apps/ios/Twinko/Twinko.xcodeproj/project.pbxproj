@@ -10,6 +10,7 @@
 		08DBD8DE79C03092D70BE2C8 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3977084055B601B38042C00 /* ChatView.swift */; };
 		186B1C482DCE2E9FB5FECF9D /* ChatStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C869FED0EE7DF16E701A0D0C /* ChatStore.swift */; };
 		599F5DAD125B8E7B5324504B /* ChatSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 121D89EB8BEFC6F8D34F7F97 /* ChatSupport.swift */; };
+		0ED72326FC8E6E7498B20E89 /* TwinkoChatAvatar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8394D4DDF8E56A4575BAB0 /* TwinkoChatAvatar.swift */; };
 		1988BA20BF5756D36E14A93A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F9F2531A0ADC09B7F99AA6BF /* Assets.xcassets */; };
 		1B4BF31E7C419B3C0FA25040 /* PlaceholderViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2629A099DF1889B93EEE8C5 /* PlaceholderViews.swift */; };
 		20C21DEECF754405CCB5F1EA /* TarotRitualView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3641EB51286DE81AF9FFA94D /* TarotRitualView.swift */; };
@@ -29,6 +30,7 @@
 		6F05F72DBFD392DDA35F1839 /* HomeModeIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96056CDCE220CF3815E46C77 /* HomeModeIcon.swift */; };
 		753CB66BC70E83715E1E9063 /* TarotCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC9F51DE4B64FCFA48A714E /* TarotCardView.swift */; };
 		84C8D2AF284B67F34BFF73A9 /* TwinkoTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FCEE6E05DA837DEC46D0A2A /* TwinkoTheme.swift */; };
+		EDD952713936C139D49E83FE /* BrandedModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31CF6A79089091B71DD9385C /* BrandedModal.swift */; };
 		84D6A89AD7223C9DEB95ED9F /* PrefsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA0D85EC3CDEFF74FEE91DAB /* PrefsStore.swift */; };
 		857639E6CAF39D2FFA7C0362 /* TwinkoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9228AF25B41DF28D12B85613 /* TwinkoUITests.swift */; };
 		8B72E5E940672C66AF38C06E /* TarotDrawTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60378483018DCB13C98FED8F /* TarotDrawTests.swift */; };
@@ -99,12 +101,14 @@
 		99E298F3D429266D6C304720 /* TarotResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotResultView.swift; sourceTree = "<group>"; };
 		9CEB49807F53B42319B7B855 /* ProfileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStore.swift; sourceTree = "<group>"; };
 		9FCEE6E05DA837DEC46D0A2A /* TwinkoTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoTheme.swift; sourceTree = "<group>"; };
+		31CF6A79089091B71DD9385C /* BrandedModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandedModal.swift; sourceTree = "<group>"; };
 		A2629A099DF1889B93EEE8C5 /* PlaceholderViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderViews.swift; sourceTree = "<group>"; };
 		A3977084055B601B38042C00 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
 		AA675190F8FC6A3EB7A89BBF /* TwinkoComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoComponents.swift; sourceTree = "<group>"; };
 		BFE37BF80B16B65650AA928F /* RootRouterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootRouterView.swift; sourceTree = "<group>"; };
 		C869FED0EE7DF16E701A0D0C /* ChatStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatStore.swift; sourceTree = "<group>"; };
 		121D89EB8BEFC6F8D34F7F97 /* ChatSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSupport.swift; sourceTree = "<group>"; };
+		2B8394D4DDF8E56A4575BAB0 /* TwinkoChatAvatar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoChatAvatar.swift; sourceTree = "<group>"; };
 		CA0D85EC3CDEFF74FEE91DAB /* PrefsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrefsStore.swift; sourceTree = "<group>"; };
 		DD539F2BEE4D6FB93BB5538A /* MockChatServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockChatServiceTests.swift; sourceTree = "<group>"; };
 		EDE41C14D0A91E9A647D5899 /* TarotContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotContent.swift; sourceTree = "<group>"; };
@@ -242,6 +246,7 @@
 				1D6C8D0A3C82FA29E72F4F87 /* ChatViewModel.swift */,
 				C869FED0EE7DF16E701A0D0C /* ChatStore.swift */,
 				121D89EB8BEFC6F8D34F7F97 /* ChatSupport.swift */,
+				2B8394D4DDF8E56A4575BAB0 /* TwinkoChatAvatar.swift */,
 				5BFFFEA0570BA6492F3696D7 /* Message.swift */,
 				8F858C155845D7B7FD3D9859 /* MockChatService.swift */,
 			);
@@ -271,6 +276,7 @@
 			isa = PBXGroup;
 			children = (
 				9FCEE6E05DA837DEC46D0A2A /* TwinkoTheme.swift */,
+				31CF6A79089091B71DD9385C /* BrandedModal.swift */,
 				AA675190F8FC6A3EB7A89BBF /* TwinkoComponents.swift */,
 			);
 			path = DesignSystem;
@@ -412,6 +418,7 @@
 				1B4BF31E7C419B3C0FA25040 /* PlaceholderViews.swift in Sources */,
 				84D6A89AD7223C9DEB95ED9F /* PrefsStore.swift in Sources */,
 				84C8D2AF284B67F34BFF73A9 /* TwinkoTheme.swift in Sources */,
+				EDD952713936C139D49E83FE /* BrandedModal.swift in Sources */,
 				A1E1F1A13D31D5D33644A362 /* TwinkoComponents.swift in Sources */,
 				4E07BD3D0661A9D70DBE8519 /* TwinkoStar.swift in Sources */,
 				E66FE230DBB4A7FE02D94AFF /* TwinkoCharacterView.swift in Sources */,
@@ -419,6 +426,7 @@
 				E7A8AB1992D3381EFFF04806 /* ChatHistoryView.swift in Sources */,
 				186B1C482DCE2E9FB5FECF9D /* ChatStore.swift in Sources */,
 				599F5DAD125B8E7B5324504B /* ChatSupport.swift in Sources */,
+				0ED72326FC8E6E7498B20E89 /* TwinkoChatAvatar.swift in Sources */,
 				DD24CA585715BD360B4865B0 /* TarotContent.swift in Sources */,
 				753CB66BC70E83715E1E9063 /* TarotCardView.swift in Sources */,
 				5F39D360CEEF011E5FDC2ED6 /* TarotFlowView.swift in Sources */,

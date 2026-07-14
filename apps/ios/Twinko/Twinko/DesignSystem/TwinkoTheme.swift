@@ -53,11 +53,28 @@ extension Color {
     static let twinkoBubbleBorder = Color(hex: 0xE9DCF7)
     static let userBubbleSolid = Color(hex: 0x7460CC)
     static let userBubbleTop = Color(hex: 0x8E7AE6)
+    // Composer send button (DESIGN.md §26)
+    static let sendDisabled = Color(hex: 0xE8D6A7)
+    static let sendEnabled = Color(hex: 0xD9A441)
+    static let sendPressed = Color(hex: 0xC28E32)
 
     init(hex: UInt32) {
         self.init(red: Double((hex >> 16) & 0xFF) / 255,
                   green: Double((hex >> 8) & 0xFF) / 255,
                   blue: Double(hex & 0xFF) / 255)
+    }
+}
+
+// MARK: - Neutral shadow (DESIGN.md §7)
+
+extension View {
+    /// `shadowSmall`: 0 2 8 rgba(15,17,37,0.08) — neutral, not purple.
+    func shadowSmall() -> some View {
+        shadow(color: Color(red: 0.06, green: 0.07, blue: 0.15).opacity(0.08), radius: 4, y: 2)
+    }
+    /// `shadowFloating`: 0 12 32 rgba(15,17,37,0.16) — elevated menus/modals.
+    func shadowFloating() -> some View {
+        shadow(color: Color(red: 0.06, green: 0.07, blue: 0.15).opacity(0.16), radius: 32, y: 12)
     }
 }
 

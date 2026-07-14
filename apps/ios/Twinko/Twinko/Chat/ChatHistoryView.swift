@@ -26,46 +26,72 @@ struct ChatHistoryView: View {
                     sessionList
                 }
             }
+
+            if let target = renameTarget {
+                renameModal(target)
+            }
+            if let target = deleteTarget {
+                deleteModal(target)
+            }
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
-        .alert(ChatStrings.rename(lang), isPresented: renameBinding) {
-            TextField("", text: $renameText)
-            Button(ChatStrings.save(lang)) {
-                if let target = renameTarget,
-                   !renameText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    chatStore.rename(target.id, to: renameText)
-                }
-                renameTarget = nil
-            }
-            Button(ChatStrings.cancel(lang), role: .cancel) { renameTarget = nil }
-        } message: {
-            Text(ChatStrings.renameEmptyError(lang))
-        }
-        .confirmationDialog(
-            ChatStrings.deleteConfirmTitle(lang),
-            isPresented: deleteBinding,
-            titleVisibility: .visible
-        ) {
-            Button(ChatStrings.delete(lang), role: .destructive) {
-                if let target = deleteTarget {
-                    chatStore.delete(target.id)
-                }
-                deleteTarget = nil
-            }
-            Button(ChatStrings.cancel(lang), role: .cancel) { deleteTarget = nil }
-        } message: {
-            Text(ChatStrings.deleteConfirmBody(lang))
-        }
+        .animation(.easeOut(duration: 0.2), value: renameTarget != nil)
+        .animation(.easeOut(duration: 0.2), value: deleteTarget != nil)
     }
 
-    private var renameBinding: Binding<Bool> {
-        Binding(get: { renameTarget != nil },
-                set: { if !$0 { renameTarget = nil } })
+    // MARK: Branded modals (DESIGN.md §26 — replaces native Alert / confirmationDialog)
+
+    private func renameModal(_ target: ChatSession) -> some View {
+        BrandedModal(
+            title: ChatStrings.rename(lang),
+            content: {
+                TextField("", text: $renameText)
+                    .font(.system(.body, design: .rounded))
+                    .foregroundStyle(Color.textPrimaryToken)
+                    .tint(.linkPurple)
+                    .padding(.horizontal, 16)
+                    .frame(height: 48)
+                    .background(Color.surfaceInput, in: RoundedRectangle(cornerRadius: 16))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .strokeBorder(Color.borderSoft, lineWidth: 1)
+                    )
+                    .accessibilityIdentifier("renameTitleField")
+            },
+            cancelTitle: ChatStrings.cancel(lang),
+            confirmTitle: ChatStrings.save(lang),
+            confirmDisabled: renameText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+            onCancel: { renameTarget = nil },
+            onConfirm: {
+                chatStore.rename(target.id, to: renameText)
+                renameTarget = nil
+            }
+        )
+        .transition(.opacity)
     }
-    private var deleteBinding: Binding<Bool> {
-        Binding(get: { deleteTarget != nil },
-                set: { if !$0 { deleteTarget = nil } })
+
+    private func deleteModal(_ target: ChatSession) -> some View {
+        BrandedModal(
+            icon: "exclamationmark.triangle.fill",
+            iconColor: .destructiveToken,
+            title: ChatStrings.deleteConfirmTitle(lang),
+            content: {
+                Text(ChatStrings.deleteConfirmBody(lang))
+                    .font(.system(.body, design: .rounded))
+                    .foregroundStyle(Color.textSecondaryToken)
+                    .multilineTextAlignment(.center)
+            },
+            cancelTitle: ChatStrings.cancel(lang),
+            confirmTitle: ChatStrings.delete(lang),
+            isDestructive: true,
+            onCancel: { deleteTarget = nil },
+            onConfirm: {
+                chatStore.delete(target.id)
+                deleteTarget = nil
+            }
+        )
+        .transition(.opacity)
     }
 
     // MARK: Header
@@ -124,6 +150,7 @@ struct ChatHistoryView: View {
                             .font(.system(.body, design: .rounded).weight(.semibold))
                             .foregroundStyle(Color.deepPlum)
                             .lineLimit(1)
+                            .layoutPriority(1)
                         Text(session.lastMessagePreview)
                             .font(.system(.subheadline, design: .rounded))
                             .foregroundStyle(Color.textSecondaryToken)
@@ -136,6 +163,8 @@ struct ChatHistoryView: View {
                         .font(.system(.caption, design: .rounded))
                         .foregroundStyle(Color.textMutedToken)
                         .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
+                        .layoutPriority(-1)
                 }
                 .contentShape(Rectangle())
             }

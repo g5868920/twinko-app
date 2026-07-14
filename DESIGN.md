@@ -854,3 +854,136 @@ TWINKOTALK_CHAT_SCREEN_SPEC.md
 ```
 
 Future screen specs should reference this file rather than redefining global colors, typography, radii, shadow, glow, and motion.
+
+---
+
+# 26. Chat Polish Components (v1.1)
+
+Appended after the Chat visual-polish pass (2026-07-15). These are
+canonical component rules, additive to the sections above — nothing
+prior is removed or superseded except where explicitly noted.
+
+## 26.1 Avatar Container
+
+A shared circular frame used everywhere a chat avatar appears against
+an illustrated background, so the character never blends into the art.
+
+```text
+Container size:   36–40 pt (default 38 pt)
+Shape:            perfect circle
+Background:       surfacePrimary (#FFFDF8)
+Border:           1 pt borderSoft (#DCCAF2)
+Shadow:           shadowSmall
+Glow:              none
+Badge / ring:      none
+Inner asset size: 28–32 pt, centered, aspect preserved, never cropped
+```
+
+Component: `TwinkoChatAvatar`. Shown only on the first message of a
+consecutive Twinko message group — never repeated per message.
+
+## 26.2 Chat Avatar Rules
+
+- Twinko's chat avatar is always wrapped in the Avatar Container (26.1).
+- One canonical smiling Day/Night expression per MVP; no animated or
+  alternate expressions while Twinko wears an outfit (existing
+  expression library assumes no clothing — mixing the two breaks
+  consistency). Revisit once outfit-specific expressions exist.
+- Active Chat header carries no persistent avatar and no online
+  indicator — only Back, title, and the star quick-menu control.
+
+## 26.3 Branded Modal
+
+Shared shell for every popup that needs confirmation or input —
+Rename, Delete, and future confirmations (profile editing, etc.).
+Replaces native `UIAlertController` / SwiftUI `Alert` /
+`confirmationDialog` chrome everywhere in Chat.
+
+```text
+Scrim:      deepSpace, opacity 35–45%
+Layout:     centered, floating above content
+Width:      84–88% of screen width
+Surface:    surfacePrimary
+Radius:     28 pt
+Padding:    20–24 pt
+Shadow:     shadowFloating
+Optional icon: 52 pt circle, semantic tint background at 14% opacity
+Buttons:    Cancel (ghost / surfaceSecondary) + Confirm (primary or destructive)
+```
+
+Component: `BrandedModal`. Every dialog, sheet, and floating menu in
+the app should converge on this component family rather than
+introducing a new popup style per screen.
+
+## 26.4 Rename Modal
+
+Uses Branded Modal (26.3) with no icon.
+
+```text
+Title:   "Rename Conversation" / 「重新命名對話」
+Input:   surfaceInput background, 1 pt borderSoft border, prefilled
+         with the current title
+Cancel:  ghost / secondary
+Save:    primary purple gradient (brandPurple → brandPurpleDeep)
+         disabled while the trimmed input is empty (inline validation
+         only — no separate error alert)
+```
+
+## 26.5 Delete Modal
+
+Reuses the exact same Branded Modal shell as Rename — no separate
+dialog style.
+
+```text
+Icon:    exclamationmark.triangle.fill, destructive tint, 14% tint background
+Title:   deleteConfirmTitle ("Delete this conversation?" / 「刪除這段對話？」)
+Body:    deleteConfirmBody ("This can't be undone." / 「刪除後無法復原。」)
+Cancel:  ghost / secondary
+Delete:  destructive (#C95F68), no gradient
+```
+
+## 26.6 Composer States
+
+Send button, circular, 44×44 pt tap target:
+
+```text
+Disabled:
+  Background: #E8D6A7, opacity 55–65%
+  Icon:       #FFFDF8
+  Shadow:     none
+
+Enabled:
+  Background: #D9A441
+  Icon:       #FFFDF8
+  Shadow:     shadowSmall
+
+Pressed:
+  Background: #C28E32
+  Scale:      0.95
+  Animation:  120–160 ms ease-out
+```
+
+State updates immediately as composer text changes (no debounce).
+
+## 26.7 Star Menu
+
+The existing quick-menu treatment is canonical — carried forward
+unchanged, documented here for reference:
+
+```text
+Overlay:    deepSpace, opacity 35–45%, blocks background interaction
+Surface:    menuDeep, floating, rounded corners, shadowFloating
+Contents:   exactly two rows — New Chat, History — icon + title only,
+            no subtitles or extra descriptions
+Close:      circular control below the panel, or tap the scrim
+```
+
+## 26.8 Chat History Row
+
+- Title takes layout priority over the trailing relative-time label so
+  it can display roughly 12–14 Traditional Chinese characters (or the
+  Latin equivalent) before truncating, matching the auto-title
+  generator's own truncation limit.
+- Three-dot overflow menu keeps a 44×44 pt touch target regardless of
+  visual icon size.
+- No decorative filler content in empty rows.

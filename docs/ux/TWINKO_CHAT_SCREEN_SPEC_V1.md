@@ -38,3 +38,11 @@ When sources conflict, follow:
 - Persistence: existing ChatStore Codable-JSON architecture, extended backward-compatibly (older sessions decode with an empty auto title).
 - Localization: all Chat/History/menu/dialog copy via `ChatStrings`, driven by the persisted app language; never bilingual simultaneously.
 - Known limitation: the local deterministic mock service cannot fail, so the send-failure/retry state defined above is not reachable in this prototype.
+
+## Implemented behavior — v1.1 visual polish (2026-07-15)
+
+- Twinko chat avatar now sits inside a shared `TwinkoChatAvatar` container (36–40 pt, warm-ivory disc, `borderSoft` border, `shadowSmall`, no glow/badge) so it stays legible against the illustrated background; still shown only on the first message of each Twinko group. See DESIGN.md §26.1–26.2.
+- Rename and Delete no longer use native `Alert` / `confirmationDialog`. Both share a new `BrandedModal` component (centered, 84–88% width, `surfacePrimary`, 28 pt radius, dimmed scrim) — Rename has no icon and a purple-gradient Save disabled while empty; Delete adds a coral warning icon and a destructive-red Delete button. See DESIGN.md §26.3–26.5.
+- Composer send button states now use explicit tokens: disabled `#E8D6A7` at 55–65% opacity with no shadow, enabled `#D9A441` with `shadowSmall`, pressed `#C28E32` at 0.95 scale. See DESIGN.md §26.6.
+- Star quick menu rows are icon + title only (trailing chevron removed) — visual design otherwise unchanged. See DESIGN.md §26.7.
+- History row gives the conversation title layout priority over the trailing relative-time label so ~12–14 CJK characters (or the Latin equivalent) can display before truncating. See DESIGN.md §26.8.

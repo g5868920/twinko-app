@@ -1,113 +1,230 @@
 import SwiftUI
 
-/// Result stage: each card with its (position-framed) interpretation,
-/// the three-card integrated summary, the reflection/entertainment
-/// disclaimer, and restart / home actions.
+/// Interpretation / result stage. Long reading text sits on warm-ivory
+/// surfaces (spec §9.4); each card gets a modular section with
+/// position badge, orientation, keywords, interpretation, and a
+/// reflection prompt. After a three-card reading the Guidance Card
+/// prompt appears; with a guidance card present the combined 3+1
+/// summary is shown. Share text and summary-card save live here.
 struct TarotResultStage: View {
-    let draw: TarotDraw
+    @Binding var session: TarotReadingSession
+    let provider: TarotInterpretationProviding
+    let onDrawGuidance: () -> Void
     let onRestart: () -> Void
     let onHome: () -> Void
+
+    @EnvironmentObject private var prefs: PrefsStore
+    @State private var showingSummaryCard = false
+
+    private var lang: AppLanguage { prefs.language }
 
     var body: some View {
         ScrollView {
             VStack(spacing: TwinkoSpacing.m) {
-                TwinkoCharacterView(mood: .tarot, size: 100)
+                Image("twinko_tarot_interpreting_v1_transparent")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 96, height: 96)
                     .padding(.top, TwinkoSpacing.s)
+                    .accessibilityHidden(true)
 
-                Text(draw.question)
-                    .font(.twinkoHeadline)
-                    .foregroundStyle(.white.opacity(0.9))
+                if !session.trimmedQuestion.isEmpty {
+                    Text(session.trimmedQuestion)
+                        .font(.system(.headline, design: .rounded))
+                        .foregroundStyle(Color.textInverseToken.opacity(0.9))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, TwinkoSpacing.l)
+                }
+
+                ForEach(session.allCards) { drawn in
+                    cardSection(drawn)
+                }
+
+                if session.spread == .three {
+                    synthesisSection
+                }
+
+                if session.spread == .three && session.guidanceCard == nil {
+                    guidancePromptSection
+                }
+
+                finalSummarySection
+
+                Text(TarotDisclaimer.text(lang))
+                    .font(.system(.caption, design: .rounded))
+                    .foregroundStyle(Color.textInverseToken.opacity(0.55))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, TwinkoSpacing.l)
 
-                ForEach(Array(draw.cards.enumerated()), id: \.element.id) { index, card in
-                    cardSection(card: card, index: index)
-                }
-
-                if let summary = TarotInterpreter.integratedSummary(for: draw) {
-                    TwinkoCard(tone: .dark) {
-                        VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
-                            Label("整體來看", systemImage: "sparkles")
-                                .font(.twinkoHeadline)
-                                .foregroundStyle(Color.twinkoGold)
-                            Text(summary)
-                                .font(.twinkoBody)
-                                .foregroundStyle(.white.opacity(0.92))
-                                .lineSpacing(4)
-                        }
-                    }
-                    .padding(.horizontal, TwinkoSpacing.m)
-                }
-
-                Text(TarotInterpreter.disclaimer)
-                    .font(.twinkoCaption)
-                    .foregroundStyle(.white.opacity(0.55))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, TwinkoSpacing.l)
-
-                VStack(spacing: TwinkoSpacing.s) {
-                    Button {
-                        onRestart()
-                    } label: {
-                        Text("再抽一次")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.twinkoPrimary)
-
-                    Button {
-                        onHome()
-                    } label: {
-                        Text("回到首頁")
-                            .font(.twinkoHeadline)
-                            .foregroundStyle(.white.opacity(0.85))
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                    }
-                }
-                .padding(.horizontal, TwinkoSpacing.m)
-                .padding(.bottom, TwinkoSpacing.xl)
+                actions
             }
+        }
+        .sheet(isPresented: $showingSummaryCard) {
+            TarotSummaryCardSheet(session: session, provider: provider)
         }
     }
 
-    @ViewBuilder
-    private func cardSection(card: TarotCard, index: Int) -> some View {
-        let position: TarotPosition? = draw.spread == .three
-            ? TarotPosition.allCases[index]
-            : nil
+    // MARK: Card section
 
-        VStack(spacing: TwinkoSpacing.s) {
-            HStack(spacing: TwinkoSpacing.m) {
-                TarotCardFace(card: card, width: 84)
-                VStack(alignment: .leading, spacing: 4) {
-                    if let position {
-                        Text(position.rawValue)
-                            .font(.twinkoCaption)
+    private func cardSection(_ drawn: TarotDrawnCard) -> some View {
+        let interp = provider.interpretation(for: drawn, in: session, lang: lang)
+        return VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
+            HStack(alignment: .top, spacing: TwinkoSpacing.m) {
+                TarotCardFace(drawn: drawn, width: 76)
+                VStack(alignment: .leading, spacing: 5) {
+                    if let position = drawn.position {
+                        Text(position.label(lang))
+                            .font(.system(.caption, design: .rounded).weight(.semibold))
                             .foregroundStyle(Color.inkNavy)
                             .padding(.horizontal, TwinkoSpacing.s)
                             .padding(.vertical, 3)
                             .background(Color.twinkoGold, in: Capsule())
                     }
-                    Text(card.name)
-                        .font(.twinkoTitle)
-                        .foregroundStyle(.white)
+                    Text(drawn.card.displayName(for: lang))
+                        .font(.system(.title3, design: .rounded).weight(.bold))
+                        .foregroundStyle(Color.deepPlum)
+                    Text(drawn.orientation.label(lang))
+                        .font(.system(.subheadline, design: .rounded))
+                        .foregroundStyle(Color.textSecondaryToken)
+                    Text(interp.keywords.joined(separator: " · "))
+                        .font(.system(.caption, design: .rounded))
+                        .foregroundStyle(Color.brandPurpleDeep)
                 }
-                Spacer()
+                Spacer(minLength: 0)
             }
 
-            TwinkoCard(tone: .dark) {
-                VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
-                    Text(TarotInterpreter.interpretation(for: card, topic: draw.topic,
-                                                         position: position))
-                        .font(.twinkoBody)
-                        .foregroundStyle(.white.opacity(0.92))
-                        .lineSpacing(4)
-                    Divider().overlay(Color.white.opacity(0.2))
-                    Label(card.gentleAction, systemImage: "hand.point.right.fill")
-                        .font(.twinkoCaption)
-                        .foregroundStyle(Color.twinkoGold)
-                }
+            Text(interp.body)
+                .font(.system(.body, design: .rounded))
+                .foregroundStyle(Color.textPrimaryToken)
+                .lineSpacing(4)
+
+            Divider().overlay(Color.borderSoft)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(TarotStrings.reflectionLabel(lang))
+                    .font(.system(.caption, design: .rounded).weight(.semibold))
+                    .foregroundStyle(Color.accentGold)
+                Text(interp.reflectionPrompt)
+                    .font(.system(.subheadline, design: .rounded))
+                    .foregroundStyle(Color.textSecondaryToken)
+            }
+        }
+        .padding(TwinkoSpacing.m)
+        .background(Color.surfacePrimary.opacity(0.96),
+                    in: RoundedRectangle(cornerRadius: TwinkoRadius.card))
+        .padding(.horizontal, TwinkoSpacing.m)
+    }
+
+    // MARK: Synthesis / guidance / summary
+
+    private var synthesisSection: some View {
+        VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
+            Label(TarotStrings.overallTitle(lang), systemImage: "sparkles")
+                .font(.system(.headline, design: .rounded))
+                .foregroundStyle(Color.twinkoGold)
+            Text(provider.synthesis(for: session, lang: lang))
+                .font(.system(.body, design: .rounded))
+                .foregroundStyle(Color.textInverseToken.opacity(0.92))
+                .lineSpacing(4)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(TwinkoSpacing.m)
+        .background(Color.deepSpace.opacity(0.5),
+                    in: RoundedRectangle(cornerRadius: TwinkoRadius.card))
+        .padding(.horizontal, TwinkoSpacing.m)
+    }
+
+    private var guidancePromptSection: some View {
+        VStack(spacing: TwinkoSpacing.s) {
+            Text(TarotStrings.guidancePrompt(lang))
+                .font(.system(.headline, design: .rounded))
+                .foregroundStyle(Color.textInverseToken)
+            Button {
+                onDrawGuidance()
+            } label: {
+                Text(TarotStrings.guidanceAccept(lang))
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.twinkoPrimary)
+            .accessibilityIdentifier("tarotGuidanceAccept")
+        }
+        .padding(TwinkoSpacing.m)
+        .background(Color.deepSpace.opacity(0.5),
+                    in: RoundedRectangle(cornerRadius: TwinkoRadius.card))
+        .overlay(
+            RoundedRectangle(cornerRadius: TwinkoRadius.card)
+                .strokeBorder(Color.accentGold.opacity(0.5), lineWidth: 1)
+        )
+        .padding(.horizontal, TwinkoSpacing.m)
+    }
+
+    private var finalSummarySection: some View {
+        VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
+            Label(TarotStrings.finalSummaryTitle(lang), systemImage: "moon.stars.fill")
+                .font(.system(.headline, design: .rounded))
+                .foregroundStyle(Color.accentGold)
+            Text(provider.combinedSummary(for: session, lang: lang))
+                .font(.system(.body, design: .rounded))
+                .foregroundStyle(Color.textPrimaryToken)
+                .lineSpacing(4)
+            Text(provider.closingLine(lang: lang))
+                .font(.system(.subheadline, design: .rounded))
+                .foregroundStyle(Color.textSecondaryToken)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(TwinkoSpacing.m)
+        .background(Color.surfacePrimary.opacity(0.96),
+                    in: RoundedRectangle(cornerRadius: TwinkoRadius.card))
+        .padding(.horizontal, TwinkoSpacing.m)
+    }
+
+    // MARK: Actions
+
+    private var actions: some View {
+        VStack(spacing: TwinkoSpacing.s) {
+            ShareLink(item: TarotShareFormatter.text(for: session, provider: provider,
+                                                     lang: lang)) {
+                Label(TarotStrings.shareText(lang), systemImage: "square.and.arrow.up")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.twinkoPrimary)
+            .accessibilityIdentifier("tarotShareButton")
+
+            Button {
+                showingSummaryCard = true
+            } label: {
+                Label(TarotStrings.saveCard(lang), systemImage: "photo.on.rectangle.angled")
+                    .font(.system(.headline, design: .rounded))
+                    .foregroundStyle(Color.twinkoGold)
+                    .frame(maxWidth: .infinity, minHeight: 48)
+                    .background(Color.deepSpace.opacity(0.5),
+                                in: RoundedRectangle(cornerRadius: 24))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 24)
+                            .strokeBorder(Color.accentGold.opacity(0.5), lineWidth: 1)
+                    )
+            }
+            .accessibilityIdentifier("tarotSaveCardButton")
+
+            Button {
+                onRestart()
+            } label: {
+                Text(TarotStrings.drawAgain(lang))
+                    .font(.system(.headline, design: .rounded))
+                    .foregroundStyle(Color.textInverseToken)
+                    .frame(maxWidth: .infinity, minHeight: 44)
+            }
+
+            Button {
+                onHome()
+            } label: {
+                Text(TarotStrings.backHome(lang))
+                    .font(.system(.headline, design: .rounded))
+                    .foregroundStyle(Color.textInverseToken.opacity(0.85))
+                    .frame(maxWidth: .infinity, minHeight: 44)
             }
         }
         .padding(.horizontal, TwinkoSpacing.m)
+        .padding(.bottom, TwinkoSpacing.xl)
     }
 }

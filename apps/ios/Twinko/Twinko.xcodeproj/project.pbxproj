@@ -29,6 +29,12 @@
 		5F39D360CEEF011E5FDC2ED6 /* TarotFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 774B7FB08AAFFED77278F2C1 /* TarotFlowView.swift */; };
 		6F05F72DBFD392DDA35F1839 /* HomeModeIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96056CDCE220CF3815E46C77 /* HomeModeIcon.swift */; };
 		753CB66BC70E83715E1E9063 /* TarotCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC9F51DE4B64FCFA48A714E /* TarotCardView.swift */; };
+		F21C2DACB145AE782504431A /* TarotRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90859D39AD666A69BDAA9B42 /* TarotRegistry.swift */; };
+		CBD44ED69E9F1DF6C07F27A5 /* TarotEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05A2B3A308CB1AC55C8FAF8C /* TarotEngine.swift */; };
+		0FE83029B0D40443E6EC61CB /* TarotInterpretation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F3A2D13F7C4FE056C4DF09 /* TarotInterpretation.swift */; };
+		7D6826F7D8C5E092AC9E523F /* TarotStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 179A31F99CC8D1219A0D8AC2 /* TarotStrings.swift */; };
+		7CF08A0E54E6C6B096825993 /* TarotSummaryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 682A5BC0C38F1E58C96236BF /* TarotSummaryCard.swift */; };
+		29C684E97D0615B5C18EF4F0 /* twinko_tarot_card_registry_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = 06E5AC2A3CC494729C11B32C /* twinko_tarot_card_registry_v1.json */; };
 		84C8D2AF284B67F34BFF73A9 /* TwinkoTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FCEE6E05DA837DEC46D0A2A /* TwinkoTheme.swift */; };
 		EDD952713936C139D49E83FE /* BrandedModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31CF6A79089091B71DD9385C /* BrandedModal.swift */; };
 		2E346086A99DFED44ADBB65B /* BrandedActionPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D8B8160D8C7C289308214D3 /* BrandedActionPopover.swift */; };
@@ -36,6 +42,7 @@
 		857639E6CAF39D2FFA7C0362 /* TwinkoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9228AF25B41DF28D12B85613 /* TwinkoUITests.swift */; };
 		8B72E5E940672C66AF38C06E /* TarotDrawTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60378483018DCB13C98FED8F /* TarotDrawTests.swift */; };
 		8DDC7BD09479108E91F9A3B8 /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CEB49807F53B42319B7B855 /* ProfileStore.swift */; };
+		DA52ABD844A82F762ADF82FA /* StableRandom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A74BE2C5F1945A81B22EC1D /* StableRandom.swift */; };
 		9D6D707A287714E51AA577A4 /* TarotResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E298F3D429266D6C304720 /* TarotResultView.swift */; };
 		A0431E3214BF86544C2BFD93 /* ProfileStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AB9ADFEDC86900F8F9C16C9 /* ProfileStoreTests.swift */; };
 		A1E1F1A13D31D5D33644A362 /* TwinkoComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA675190F8FC6A3EB7A89BBF /* TwinkoComponents.swift */; };
@@ -46,7 +53,6 @@
 		CADA65851B2648D9C88F33F7 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A62975F8E2A08908ECEBDF /* UserProfile.swift */; };
 		CDCFE1CC5551CDB86DD7EEE9 /* ProfileSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63682DB4699C8D0516D6234B /* ProfileSetupView.swift */; };
 		D1E21C108E0D923662A835DA /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D6C8D0A3C82FA29E72F4F87 /* ChatViewModel.swift */; };
-		DD24CA585715BD360B4865B0 /* TarotContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE41C14D0A91E9A647D5899 /* TarotContent.swift */; };
 		DDCEDEA3C845836D61062F94 /* JSONStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00E1ED1CF029A5982B85E8DF /* JSONStore.swift */; };
 		E0BB26F16BF188E01D242BBF /* MockChatServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD539F2BEE4D6FB93BB5538A /* MockChatServiceTests.swift */; };
 		E66FE230DBB4A7FE02D94AFF /* TwinkoCharacterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CEFD704B3A60BF4E1E122 /* TwinkoCharacterView.swift */; };
@@ -94,6 +100,12 @@
 		85B54A5296B263EEC25CE166 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		8C28B60D3F5CE4428D34C91C /* TwinkoStar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoStar.swift; sourceTree = "<group>"; };
 		8EC9F51DE4B64FCFA48A714E /* TarotCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotCardView.swift; sourceTree = "<group>"; };
+		90859D39AD666A69BDAA9B42 /* TarotRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotRegistry.swift; sourceTree = "<group>"; };
+		05A2B3A308CB1AC55C8FAF8C /* TarotEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotEngine.swift; sourceTree = "<group>"; };
+		88F3A2D13F7C4FE056C4DF09 /* TarotInterpretation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotInterpretation.swift; sourceTree = "<group>"; };
+		179A31F99CC8D1219A0D8AC2 /* TarotStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotStrings.swift; sourceTree = "<group>"; };
+		682A5BC0C38F1E58C96236BF /* TarotSummaryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotSummaryCard.swift; sourceTree = "<group>"; };
+		06E5AC2A3CC494729C11B32C /* twinko_tarot_card_registry_v1.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = twinko_tarot_card_registry_v1.json; sourceTree = "<group>"; };
 		8F65F17635BDE428762AF73C /* AstrologyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AstrologyView.swift; sourceTree = "<group>"; };
 		8F858C155845D7B7FD3D9859 /* MockChatService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockChatService.swift; sourceTree = "<group>"; };
 		9228AF25B41DF28D12B85613 /* TwinkoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoUITests.swift; sourceTree = "<group>"; };
@@ -101,6 +113,7 @@
 		99124220FAABF1F2624B5C9B /* TwinkoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TwinkoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		99E298F3D429266D6C304720 /* TarotResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotResultView.swift; sourceTree = "<group>"; };
 		9CEB49807F53B42319B7B855 /* ProfileStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStore.swift; sourceTree = "<group>"; };
+		4A74BE2C5F1945A81B22EC1D /* StableRandom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StableRandom.swift; sourceTree = "<group>"; };
 		9FCEE6E05DA837DEC46D0A2A /* TwinkoTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoTheme.swift; sourceTree = "<group>"; };
 		31CF6A79089091B71DD9385C /* BrandedModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandedModal.swift; sourceTree = "<group>"; };
 		5D8B8160D8C7C289308214D3 /* BrandedActionPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandedActionPopover.swift; sourceTree = "<group>"; };
@@ -113,7 +126,6 @@
 		2B8394D4DDF8E56A4575BAB0 /* TwinkoChatAvatar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoChatAvatar.swift; sourceTree = "<group>"; };
 		CA0D85EC3CDEFF74FEE91DAB /* PrefsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrefsStore.swift; sourceTree = "<group>"; };
 		DD539F2BEE4D6FB93BB5538A /* MockChatServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockChatServiceTests.swift; sourceTree = "<group>"; };
-		EDE41C14D0A91E9A647D5899 /* TarotContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotContent.swift; sourceTree = "<group>"; };
 		F4A62975F8E2A08908ECEBDF /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
 		F5099A053EA7E83DC6D7D771 /* TwinkoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TwinkoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9F2531A0ADC09B7F99AA6BF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -161,6 +173,7 @@
 				00E1ED1CF029A5982B85E8DF /* JSONStore.swift */,
 				F4A62975F8E2A08908ECEBDF /* UserProfile.swift */,
 				9CEB49807F53B42319B7B855 /* ProfileStore.swift */,
+				4A74BE2C5F1945A81B22EC1D /* StableRandom.swift */,
 				73B4022443AD037682D77526 /* ZodiacSign.swift */,
 				CA0D85EC3CDEFF74FEE91DAB /* PrefsStore.swift */,
 			);
@@ -231,8 +244,13 @@
 		62C4BA24BD7EB8421812D479 /* Tarot */ = {
 			isa = PBXGroup;
 			children = (
-				EDE41C14D0A91E9A647D5899 /* TarotContent.swift */,
 				8EC9F51DE4B64FCFA48A714E /* TarotCardView.swift */,
+				90859D39AD666A69BDAA9B42 /* TarotRegistry.swift */,
+				05A2B3A308CB1AC55C8FAF8C /* TarotEngine.swift */,
+				88F3A2D13F7C4FE056C4DF09 /* TarotInterpretation.swift */,
+				179A31F99CC8D1219A0D8AC2 /* TarotStrings.swift */,
+				682A5BC0C38F1E58C96236BF /* TarotSummaryCard.swift */,
+				06E5AC2A3CC494729C11B32C /* twinko_tarot_card_registry_v1.json */,
 				774B7FB08AAFFED77278F2C1 /* TarotFlowView.swift */,
 				3641EB51286DE81AF9FFA94D /* TarotRitualView.swift */,
 				99E298F3D429266D6C304720 /* TarotResultView.swift */,
@@ -397,6 +415,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1988BA20BF5756D36E14A93A /* Assets.xcassets in Resources */,
+				29C684E97D0615B5C18EF4F0 /* twinko_tarot_card_registry_v1.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -412,6 +431,7 @@
 				DDCEDEA3C845836D61062F94 /* JSONStore.swift in Sources */,
 				CADA65851B2648D9C88F33F7 /* UserProfile.swift in Sources */,
 				8DDC7BD09479108E91F9A3B8 /* ProfileStore.swift in Sources */,
+				DA52ABD844A82F762ADF82FA /* StableRandom.swift in Sources */,
 				3F2FF620CCA6E8285BAA5621 /* ZodiacSign.swift in Sources */,
 				A6A6F3234F4A5F16627D71E8 /* WelcomeView.swift in Sources */,
 				CDCFE1CC5551CDB86DD7EEE9 /* ProfileSetupView.swift in Sources */,
@@ -431,8 +451,12 @@
 				186B1C482DCE2E9FB5FECF9D /* ChatStore.swift in Sources */,
 				599F5DAD125B8E7B5324504B /* ChatSupport.swift in Sources */,
 				0ED72326FC8E6E7498B20E89 /* TwinkoChatAvatar.swift in Sources */,
-				DD24CA585715BD360B4865B0 /* TarotContent.swift in Sources */,
 				753CB66BC70E83715E1E9063 /* TarotCardView.swift in Sources */,
+				F21C2DACB145AE782504431A /* TarotRegistry.swift in Sources */,
+				CBD44ED69E9F1DF6C07F27A5 /* TarotEngine.swift in Sources */,
+				0FE83029B0D40443E6EC61CB /* TarotInterpretation.swift in Sources */,
+				7D6826F7D8C5E092AC9E523F /* TarotStrings.swift in Sources */,
+				7CF08A0E54E6C6B096825993 /* TarotSummaryCard.swift in Sources */,
 				5F39D360CEEF011E5FDC2ED6 /* TarotFlowView.swift in Sources */,
 				20C21DEECF754405CCB5F1EA /* TarotRitualView.swift in Sources */,
 				9D6D707A287714E51AA577A4 /* TarotResultView.swift in Sources */,

@@ -128,9 +128,11 @@ final class TwinkoUITests: XCTestCase {
         }
         XCTAssertTrue(seeResult.waitForExistence(timeout: 5))
         seeResult.tap()
-        let situation = app.staticTexts.matching(
-            NSPredicate(format: "label CONTAINS %@", "情境")).firstMatch
-        XCTAssertTrue(situation.waitForExistence(timeout: 5))
+        let pastBadge = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "過去")).firstMatch
+        XCTAssertTrue(pastBadge.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["tarotGuidanceAccept"].exists,
+                      "Three-card result should offer the optional Guidance Card")
         attach(name: "09-tarot-three-result")
 
         let home = app.buttons["回到首頁"]

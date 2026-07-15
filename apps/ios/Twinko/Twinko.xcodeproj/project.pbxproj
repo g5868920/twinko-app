@@ -15,11 +15,9 @@
 		1B4BF31E7C419B3C0FA25040 /* PlaceholderViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2629A099DF1889B93EEE8C5 /* PlaceholderViews.swift */; };
 		20C21DEECF754405CCB5F1EA /* TarotRitualView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3641EB51286DE81AF9FFA94D /* TarotRitualView.swift */; };
 		23B7321C2B2D3357056DA42F /* ChatViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78BC53AC2DD1EC16E1F7C6B7 /* ChatViewModelTests.swift */; };
-		25F79AF11D23EB551011531D /* AstrologyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F65F17635BDE428762AF73C /* AstrologyView.swift */; };
 		2ACB519F8D8D2F9DB5E0F13D /* TwinkoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2335623A74610D184A2C493D /* TwinkoApp.swift */; };
 		330D57744BD39094D2FB3AB0 /* ChatStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C3894A03FC2F03F44A9499 /* ChatStoreTests.swift */; };
 		346BB136960D9D4A04D632A6 /* ZodiacSignTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2641A69011EF85C697CF3524 /* ZodiacSignTests.swift */; };
-		34F6128C29C231A40958E5E8 /* AstrologyContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A84F7814FDFC6A13B8761A /* AstrologyContent.swift */; };
 		3F2FF620CCA6E8285BAA5621 /* ZodiacSign.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73B4022443AD037682D77526 /* ZodiacSign.swift */; };
 		4CD4E5B313CF46C1EAB5B1CC /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE017F9A8111F4496A2D821F /* HomeView.swift */; };
 		4DE261B62E9A7D6F66363388 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BFFFEA0570BA6492F3696D7 /* Message.swift */; };
@@ -30,6 +28,15 @@
 		6F05F72DBFD392DDA35F1839 /* HomeModeIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96056CDCE220CF3815E46C77 /* HomeModeIcon.swift */; };
 		753CB66BC70E83715E1E9063 /* TarotCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC9F51DE4B64FCFA48A714E /* TarotCardView.swift */; };
 		F21C2DACB145AE782504431A /* TarotRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90859D39AD666A69BDAA9B42 /* TarotRegistry.swift */; };
+		6B995659A0D197911472A2A8 /* HoroscopeModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0BA6AAEFEF9C5756DE011C5 /* HoroscopeModels.swift */; };
+		CEF27A757FDA03D6735C0326 /* HoroscopeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F0269AFE91F603D478DB5E /* HoroscopeProvider.swift */; };
+		181ED5A427D56B96B2EBE210 /* HoroscopeCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E08F0D78ADCCA5108B53758 /* HoroscopeCache.swift */; };
+		04C51EAC0BD3DDCCF5BF19BB /* HoroscopeStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A297C2367F0AF83A483139F /* HoroscopeStrings.swift */; };
+		186DDE0E87634E388CA7476F /* HoroscopeComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE3BCE993C9D82F39065BAF /* HoroscopeComponents.swift */; };
+		A320A0640D4B41DD7B414B14 /* ZodiacSelectorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32072622BE13CCBFECC823CF /* ZodiacSelectorSheet.swift */; };
+		DB60451E2AC27181EE3A839B /* HoroscopeTodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A979B38E24FB566BA7219F57 /* HoroscopeTodayView.swift */; };
+		272045C2ED7644D570A23005 /* HoroscopeSummaryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E19E699C5ACFEEB626157C68 /* HoroscopeSummaryCard.swift */; };
+		691212873AEB8D77DF457BFB /* HoroscopeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61BA6F763EEAE1B717A23676 /* HoroscopeTests.swift */; };
 		CBD44ED69E9F1DF6C07F27A5 /* TarotEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05A2B3A308CB1AC55C8FAF8C /* TarotEngine.swift */; };
 		0FE83029B0D40443E6EC61CB /* TarotInterpretation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88F3A2D13F7C4FE056C4DF09 /* TarotInterpretation.swift */; };
 		7D6826F7D8C5E092AC9E523F /* TarotStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 179A31F99CC8D1219A0D8AC2 /* TarotStrings.swift */; };
@@ -48,7 +55,6 @@
 		A1E1F1A13D31D5D33644A362 /* TwinkoComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA675190F8FC6A3EB7A89BBF /* TwinkoComponents.swift */; };
 		A6A6F3234F4A5F16627D71E8 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B54A5296B263EEC25CE166 /* WelcomeView.swift */; };
 		BCA2FE3D9D34F29F4D106FC5 /* PrefsStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8407D12EF8F41951B8F2C0D8 /* PrefsStoreTests.swift */; };
-		C858977026DDEEF066A60F3C /* AstrologyContentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036B82F9F2049ABFBCE6F0D1 /* AstrologyContentTests.swift */; };
 		C9DA3CD18CD59ED211CFDDBD /* MockChatService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F858C155845D7B7FD3D9859 /* MockChatService.swift */; };
 		CADA65851B2648D9C88F33F7 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A62975F8E2A08908ECEBDF /* UserProfile.swift */; };
 		CDCFE1CC5551CDB86DD7EEE9 /* ProfileSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63682DB4699C8D0516D6234B /* ProfileSetupView.swift */; };
@@ -78,9 +84,7 @@
 
 /* Begin PBXFileReference section */
 		00E1ED1CF029A5982B85E8DF /* JSONStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONStore.swift; sourceTree = "<group>"; };
-		036B82F9F2049ABFBCE6F0D1 /* AstrologyContentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AstrologyContentTests.swift; sourceTree = "<group>"; };
 		1D6C8D0A3C82FA29E72F4F87 /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
-		22A84F7814FDFC6A13B8761A /* AstrologyContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AstrologyContent.swift; sourceTree = "<group>"; };
 		2335623A74610D184A2C493D /* TwinkoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoApp.swift; sourceTree = "<group>"; };
 		2641A69011EF85C697CF3524 /* ZodiacSignTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZodiacSignTests.swift; sourceTree = "<group>"; };
 		2AB9ADFEDC86900F8F9C16C9 /* ProfileStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStoreTests.swift; sourceTree = "<group>"; };
@@ -101,12 +105,20 @@
 		8C28B60D3F5CE4428D34C91C /* TwinkoStar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoStar.swift; sourceTree = "<group>"; };
 		8EC9F51DE4B64FCFA48A714E /* TarotCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotCardView.swift; sourceTree = "<group>"; };
 		90859D39AD666A69BDAA9B42 /* TarotRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotRegistry.swift; sourceTree = "<group>"; };
+		D0BA6AAEFEF9C5756DE011C5 /* HoroscopeModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoroscopeModels.swift; sourceTree = "<group>"; };
+		75F0269AFE91F603D478DB5E /* HoroscopeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoroscopeProvider.swift; sourceTree = "<group>"; };
+		7E08F0D78ADCCA5108B53758 /* HoroscopeCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoroscopeCache.swift; sourceTree = "<group>"; };
+		5A297C2367F0AF83A483139F /* HoroscopeStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoroscopeStrings.swift; sourceTree = "<group>"; };
+		3AE3BCE993C9D82F39065BAF /* HoroscopeComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoroscopeComponents.swift; sourceTree = "<group>"; };
+		32072622BE13CCBFECC823CF /* ZodiacSelectorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZodiacSelectorSheet.swift; sourceTree = "<group>"; };
+		A979B38E24FB566BA7219F57 /* HoroscopeTodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoroscopeTodayView.swift; sourceTree = "<group>"; };
+		E19E699C5ACFEEB626157C68 /* HoroscopeSummaryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoroscopeSummaryCard.swift; sourceTree = "<group>"; };
+		61BA6F763EEAE1B717A23676 /* HoroscopeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoroscopeTests.swift; sourceTree = "<group>"; };
 		05A2B3A308CB1AC55C8FAF8C /* TarotEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotEngine.swift; sourceTree = "<group>"; };
 		88F3A2D13F7C4FE056C4DF09 /* TarotInterpretation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotInterpretation.swift; sourceTree = "<group>"; };
 		179A31F99CC8D1219A0D8AC2 /* TarotStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotStrings.swift; sourceTree = "<group>"; };
 		682A5BC0C38F1E58C96236BF /* TarotSummaryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotSummaryCard.swift; sourceTree = "<group>"; };
 		06E5AC2A3CC494729C11B32C /* twinko_tarot_card_registry_v1.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = twinko_tarot_card_registry_v1.json; sourceTree = "<group>"; };
-		8F65F17635BDE428762AF73C /* AstrologyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AstrologyView.swift; sourceTree = "<group>"; };
 		8F858C155845D7B7FD3D9859 /* MockChatService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockChatService.swift; sourceTree = "<group>"; };
 		9228AF25B41DF28D12B85613 /* TwinkoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoUITests.swift; sourceTree = "<group>"; };
 		96056CDCE220CF3815E46C77 /* HomeModeIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeModeIcon.swift; sourceTree = "<group>"; };
@@ -206,7 +218,7 @@
 				2AB9ADFEDC86900F8F9C16C9 /* ProfileStoreTests.swift */,
 				74C3894A03FC2F03F44A9499 /* ChatStoreTests.swift */,
 				60378483018DCB13C98FED8F /* TarotDrawTests.swift */,
-				036B82F9F2049ABFBCE6F0D1 /* AstrologyContentTests.swift */,
+				61BA6F763EEAE1B717A23676 /* HoroscopeTests.swift */,
 				8407D12EF8F41951B8F2C0D8 /* PrefsStoreTests.swift */,
 			);
 			path = TwinkoTests;
@@ -223,8 +235,8 @@
 				24522A5E04B2562DA5A9F04E /* Onboarding */,
 				444F0AF54ECE7C4A3FD8296E /* Home */,
 				716A0549A4A2AD1BFE7230ED /* Chat */,
+				FA88EE72450DCDDD08E36FFB /* Horoscope */,
 				62C4BA24BD7EB8421812D479 /* Tarot */,
-				FA88EE72450DCDDD08E36FFB /* Astrology */,
 				F9F2531A0ADC09B7F99AA6BF /* Assets.xcassets */,
 			);
 			path = Twinko;
@@ -239,6 +251,21 @@
 				A2629A099DF1889B93EEE8C5 /* PlaceholderViews.swift */,
 			);
 			path = Home;
+			sourceTree = "<group>";
+		};
+		FA88EE72450DCDDD08E36FFB /* Horoscope */ = {
+			isa = PBXGroup;
+			children = (
+				D0BA6AAEFEF9C5756DE011C5 /* HoroscopeModels.swift */,
+				75F0269AFE91F603D478DB5E /* HoroscopeProvider.swift */,
+				7E08F0D78ADCCA5108B53758 /* HoroscopeCache.swift */,
+				5A297C2367F0AF83A483139F /* HoroscopeStrings.swift */,
+				3AE3BCE993C9D82F39065BAF /* HoroscopeComponents.swift */,
+				32072622BE13CCBFECC823CF /* ZodiacSelectorSheet.swift */,
+				A979B38E24FB566BA7219F57 /* HoroscopeTodayView.swift */,
+				E19E699C5ACFEEB626157C68 /* HoroscopeSummaryCard.swift */,
+			);
+			path = Horoscope;
 			sourceTree = "<group>";
 		};
 		62C4BA24BD7EB8421812D479 /* Tarot */ = {
@@ -301,15 +328,6 @@
 				AA675190F8FC6A3EB7A89BBF /* TwinkoComponents.swift */,
 			);
 			path = DesignSystem;
-			sourceTree = "<group>";
-		};
-		FA88EE72450DCDDD08E36FFB /* Astrology */ = {
-			isa = PBXGroup;
-			children = (
-				22A84F7814FDFC6A13B8761A /* AstrologyContent.swift */,
-				8F65F17635BDE428762AF73C /* AstrologyView.swift */,
-			);
-			path = Astrology;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -453,6 +471,14 @@
 				0ED72326FC8E6E7498B20E89 /* TwinkoChatAvatar.swift in Sources */,
 				753CB66BC70E83715E1E9063 /* TarotCardView.swift in Sources */,
 				F21C2DACB145AE782504431A /* TarotRegistry.swift in Sources */,
+				6B995659A0D197911472A2A8 /* HoroscopeModels.swift in Sources */,
+				CEF27A757FDA03D6735C0326 /* HoroscopeProvider.swift in Sources */,
+				181ED5A427D56B96B2EBE210 /* HoroscopeCache.swift in Sources */,
+				04C51EAC0BD3DDCCF5BF19BB /* HoroscopeStrings.swift in Sources */,
+				186DDE0E87634E388CA7476F /* HoroscopeComponents.swift in Sources */,
+				A320A0640D4B41DD7B414B14 /* ZodiacSelectorSheet.swift in Sources */,
+				DB60451E2AC27181EE3A839B /* HoroscopeTodayView.swift in Sources */,
+				272045C2ED7644D570A23005 /* HoroscopeSummaryCard.swift in Sources */,
 				CBD44ED69E9F1DF6C07F27A5 /* TarotEngine.swift in Sources */,
 				0FE83029B0D40443E6EC61CB /* TarotInterpretation.swift in Sources */,
 				7D6826F7D8C5E092AC9E523F /* TarotStrings.swift in Sources */,
@@ -460,8 +486,6 @@
 				5F39D360CEEF011E5FDC2ED6 /* TarotFlowView.swift in Sources */,
 				20C21DEECF754405CCB5F1EA /* TarotRitualView.swift in Sources */,
 				9D6D707A287714E51AA577A4 /* TarotResultView.swift in Sources */,
-				34F6128C29C231A40958E5E8 /* AstrologyContent.swift in Sources */,
-				25F79AF11D23EB551011531D /* AstrologyView.swift in Sources */,
 				D1E21C108E0D923662A835DA /* ChatViewModel.swift in Sources */,
 				4DE261B62E9A7D6F66363388 /* Message.swift in Sources */,
 				C9DA3CD18CD59ED211CFDDBD /* MockChatService.swift in Sources */,
@@ -478,7 +502,7 @@
 				A0431E3214BF86544C2BFD93 /* ProfileStoreTests.swift in Sources */,
 				330D57744BD39094D2FB3AB0 /* ChatStoreTests.swift in Sources */,
 				8B72E5E940672C66AF38C06E /* TarotDrawTests.swift in Sources */,
-				C858977026DDEEF066A60F3C /* AstrologyContentTests.swift in Sources */,
+				691212873AEB8D77DF457BFB /* HoroscopeTests.swift in Sources */,
 				BCA2FE3D9D34F29F4D106FC5 /* PrefsStoreTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -537,6 +561,7 @@
 				DEVELOPMENT_TEAM = Q8NT9386L4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Twinko saves your Horoscope Summary Card to Photos only when you ask it to.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -620,6 +645,7 @@
 				DEVELOPMENT_TEAM = Q8NT9386L4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Twinko saves your Horoscope Summary Card to Photos only when you ask it to.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

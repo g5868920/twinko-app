@@ -13,6 +13,10 @@ struct HomeView: View {
     @State private var floating = false
     @State private var breathing = false
     @State private var showingProfileSheet = false
+    // Test-only deep route for manual Simulator verification (same
+    // pattern as -uiTestReset / -uiTestSeedProfile).
+    @State private var autoOpenHoroscope =
+        ProcessInfo.processInfo.arguments.contains("-uiTestOpenHoroscope")
 
     private var lang: AppLanguage { prefs.language }
 
@@ -88,7 +92,7 @@ struct HomeView: View {
                     .position(x: twinkoCenter.x - upper.dx, y: twinkoCenter.y - upper.dy)
                 modeTile(.tarot, diameter: iconDiameter) { TarotFlowView() }
                     .position(x: twinkoCenter.x + upper.dx, y: twinkoCenter.y - upper.dy)
-                modeTile(.zodiac, diameter: iconDiameter) { AstrologyView() }
+                modeTile(.zodiac, diameter: iconDiameter) { HoroscopeTodayView() }
                     .position(x: twinkoCenter.x - lower.dx, y: twinkoCenter.y + lower.dy)
                 modeTile(.meditate, diameter: iconDiameter) { MeditatePlaceholderView() }
                     .position(x: twinkoCenter.x + lower.dx, y: twinkoCenter.y + lower.dy)
@@ -107,6 +111,9 @@ struct HomeView: View {
         .navigationBarBackButtonHidden(true)
         .sheet(isPresented: $showingProfileSheet) {
             ProfileSheetView()
+        }
+        .navigationDestination(isPresented: $autoOpenHoroscope) {
+            HoroscopeTodayView()
         }
         .onAppear { startIdleMotion() }
     }

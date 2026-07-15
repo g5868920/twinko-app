@@ -1,0 +1,361 @@
+import SwiftUI
+
+/// Horoscope Today: cosmic hero (zodiac identity + Twinko + headline),
+/// four expandable dimension cards, lucky details, share and
+/// summary-card actions. The profile birthday determines "My Sign";
+/// viewing another sign never touches the profile. Daily results come
+/// from the provider through the daily cache — the same sign, date,
+/// and language always shows the same content.
+struct HoroscopeTodayView: View {
+    @EnvironmentObject private var profileStore: ProfileStore
+    @EnvironmentObject private var prefs: PrefsStore
+    @Environment(\.dismiss) private var dismiss
+
+    @StateObject private var cache = HoroscopeCache()
+    private let provider: HoroscopeProviding = MockHoroscopeProvider()
+
+    @State private var viewedSign: ZodiacSign?
+    @State private var horoscope: DailyHoroscope?
+    @State private var loadFailed = false
+    @State private var expandedKind: HoroscopeDimensionKind? = .overall
+    @State private var showingSelector = false
+    @State private var showingSummaryCard = false
+
+    private var lang: AppLanguage { prefs.language }
+
+    /// Sign derived from the profile birthday — "My Sign".
+    private var profileSign: ZodiacSign? {
+        profileStore.profile.map { ZodiacSign.from(date: $0.birthday) }
+    }
+
+    /// Manually chosen sign for users without a profile.
+    private var manualSign: ZodiacSign? {
+        prefs.prefs.horoscopeManualSignID.flatMap(ZodiacSign.init(canonicalID:))
+    }
+
+    private var defaultSign: ZodiacSign? { profileSign ?? manualSign }
+
+    var body: some View {
+        ZStack {
+            VStack(spacing: 0) {
+                header
+                content
+            }
+        }
+        .background {
+            GeometryReader { geo in
+                Image("bg_horoscope_cosmic_v1")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: geo.size.width, height: geo.size.height)
+                    .clipped()
+                    .accessibilityHidden(true)
+            }
+            .ignoresSafeArea()
+        }
+        .toolbar(.hidden, for: .navigationBar)
+        .navigationBarBackButtonHidden(true)
+        .sheet(isPresented: $showingSelector) {
+            ZodiacSelectorSheet(selected: viewedSign ?? defaultSign ?? .aries,
+                                mySign: profileSign) { sign in
+                if profileSign == nil {
+                    prefs.prefs.horoscopeManualSignID = sign.canonicalID
+                }
+                viewedSign = sign
+            }
+            .environmentObject(prefs)
+        }
+        .sheet(isPresented: $showingSummaryCard) {
+            if let horoscope, let sign = viewedSign {
+                HoroscopeSummaryCardPreviewSheet(horoscope: horoscope, sign: sign)
+                    .environmentObject(prefs)
+            }
+        }
+        .onAppear {
+            if viewedSign == nil { viewedSign = defaultSign }
+        }
+        .task(id: taskKey) { await load() }
+    }
+
+    private var taskKey: String {
+        "\(HoroscopeDateKey.key()):\(viewedSign?.canonicalID ?? "-"):\(lang.rawValue)"
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if let sign = viewedSign {
+            if let horoscope {
+                loadedContent(sign: sign, horoscope: horoscope)
+            } else if loadFailed {
+                HoroscopeEmptyStateView(lang: lang) {
+                    Task { await load(force: true) }
+                }
+            } else {
+                Spacer()
+                ProgressView().tint(.twinkoGold)
+                Spacer()
+            }
+        } else {
+            HoroscopeSetupStage(
+                onBirthday: { sign in
+                    prefs.prefs.horoscopeManualSignID = sign.canonicalID
+                    viewedSign = sign
+                },
+                onChooseManually: { showingSelector = true }
+            )
+        }
+    }
+
+    // MARK: Loading
+
+    private func load(force: Bool = false) async {
+        guard let sign = viewedSign else { return }
+        let dateKey = HoroscopeDateKey.key()
+        if !force, let cached = cache.cached(dateKey: dateKey, sign: sign, lang: lang) {
+            horoscope = cached
+            loadFailed = false
+            return
+        }
+        do {
+            let result = try await provider.daily(for: sign, on: .now, lang: lang)
+            guard result.isValid else {
+                horoscope = nil
+                loadFailed = true
+                return
+            }
+            cache.save(result, sign: sign, lang: lang)
+            horoscope = result
+            loadFailed = false
+        } catch {
+            // Offline / provider failure: keep any cached content.
+            if horoscope == nil { loadFailed = true }
+        }
+    }
+
+    // MARK: Header
+
+    private var header: some View {
+        ZStack {
+            Text(HoroscopeStrings.title(lang))
+                .font(.system(.headline, design: .rounded))
+                .foregroundStyle(Color.textInverseToken)
+            HStack {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "chevron.backward")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(Color.twinkoGold)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .accessibilityLabel(Text(lang == .english ? "Back" : "返回"))
+                .accessibilityIdentifier("horoscopeBackButton")
+                Spacer()
+            }
+        }
+        .padding(.horizontal, 8)
+        .frame(height: 48)
+    }
+
+    // MARK: Loaded content
+
+    private func loadedContent(sign: ZodiacSign, horoscope: DailyHoroscope) -> some View {
+        ScrollView {
+            VStack(spacing: TwinkoSpacing.m) {
+                hero(sign: sign, horoscope: horoscope)
+
+                TwinkoMessageBlock(message: horoscope.twinkoMessage, lang: lang)
+                    .padding(.horizontal, TwinkoSpacing.m)
+
+                VStack(spacing: TwinkoSpacing.s) {
+                    ForEach(HoroscopeDimensionKind.allCases, id: \.self) { kind in
+                        HoroscopeDimensionCard(kind: kind,
+                                               dimension: horoscope.dimension(kind),
+                                               lang: lang,
+                                               expandedKind: $expandedKind)
+                    }
+                }
+                .padding(.horizontal, TwinkoSpacing.m)
+
+                LuckyDetailsGrid(lucky: horoscope.lucky, lang: lang)
+                    .padding(.horizontal, TwinkoSpacing.m)
+
+                actions(sign: sign, horoscope: horoscope)
+
+                Text(HoroscopeStrings.disclaimer(lang))
+                    .font(.system(.caption2, design: .rounded))
+                    .foregroundStyle(Color.textInverseToken.opacity(0.5))
+                    .padding(.bottom, TwinkoSpacing.xl)
+            }
+        }
+    }
+
+    private func hero(sign: ZodiacSign, horoscope: DailyHoroscope) -> some View {
+        VStack(spacing: 8) {
+            Image(sign.symbolAssetName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 64, height: 64)
+                .accessibilityHidden(true)
+
+            HStack(spacing: 8) {
+                Text(sign.displayName(for: lang))
+                    .font(.system(.title2, design: .rounded).weight(.bold))
+                    .foregroundStyle(Color.textInverseToken)
+                if sign == profileSign {
+                    Text(HoroscopeStrings.mySign(lang))
+                        .font(.system(.caption2, design: .rounded).weight(.semibold))
+                        .foregroundStyle(Color.inkNavy)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(Color.twinkoGold, in: Capsule())
+                }
+            }
+
+            Text(Date.now.formatted(
+                Date.FormatStyle(locale: Locale(identifier: lang.rawValue))
+                    .year().month().day().weekday(.wide)))
+                .font(.system(.caption, design: .rounded))
+                .foregroundStyle(Color.textInverseToken.opacity(0.7))
+
+            Button {
+                showingSelector = true
+            } label: {
+                Label(HoroscopeStrings.changeSign(lang), systemImage: "arrow.triangle.2.circlepath")
+                    .font(.system(.caption, design: .rounded).weight(.medium))
+                    .foregroundStyle(Color.twinkoGold)
+                    .padding(.horizontal, 12)
+                    .frame(minHeight: 30)
+                    .background(Color.deepSpace.opacity(0.4), in: Capsule())
+                    .overlay(Capsule().strokeBorder(Color.twinkoGold.opacity(0.4), lineWidth: 1))
+                    .frame(minHeight: 44)
+                    .contentShape(Capsule())
+            }
+            .accessibilityIdentifier("horoscopeChangeSign")
+
+            Image("twinko_horoscope_default_v1_transparent")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 118, height: 118)
+                .accessibilityHidden(true)
+
+            Text(horoscope.headline)
+                .font(.system(.title3, design: .rounded).weight(.semibold))
+                .foregroundStyle(Color.textInverseToken)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, TwinkoSpacing.l)
+        }
+        .padding(.top, TwinkoSpacing.s)
+        .accessibilityElement(children: .contain)
+    }
+
+    private func actions(sign: ZodiacSign, horoscope: DailyHoroscope) -> some View {
+        VStack(spacing: TwinkoSpacing.s) {
+            Button {
+                showingSummaryCard = true
+            } label: {
+                Label(HoroscopeStrings.saveCard(lang), systemImage: "photo.on.rectangle.angled")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.twinkoPrimary)
+            .accessibilityIdentifier("horoscopeSaveCardButton")
+
+            ShareLink(item: HoroscopeShareFormatter.text(for: horoscope, sign: sign, lang: lang)) {
+                Label(HoroscopeStrings.share(lang), systemImage: "square.and.arrow.up")
+                    .font(.system(.headline, design: .rounded))
+                    .foregroundStyle(Color.twinkoGold)
+                    .frame(maxWidth: .infinity, minHeight: 48)
+                    .background(Color.deepSpace.opacity(0.5),
+                                in: RoundedRectangle(cornerRadius: 24))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 24)
+                            .strokeBorder(Color.twinkoGold.opacity(0.5), lineWidth: 1)
+                    )
+            }
+            .accessibilityIdentifier("horoscopeShareButton")
+        }
+        .padding(.horizontal, TwinkoSpacing.m)
+    }
+}
+
+// MARK: - Missing-profile setup state
+
+/// Lightweight Horoscope setup shown only when no profile sign exists:
+/// birthday input (date only) with a live sign confirmation, or manual
+/// zodiac selection. Never writes to the profile.
+private struct HoroscopeSetupStage: View {
+    let onBirthday: (ZodiacSign) -> Void
+    let onChooseManually: () -> Void
+
+    @EnvironmentObject private var prefs: PrefsStore
+    @State private var birthday = Calendar.current.date(
+        from: DateComponents(year: 2000, month: 1, day: 1)) ?? .now
+
+    private var lang: AppLanguage { prefs.language }
+    private var derivedSign: ZodiacSign { ZodiacSign.from(date: birthday) }
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: TwinkoSpacing.m) {
+                Image("twinko_horoscope_default_v1_transparent")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 120, height: 120)
+                    .padding(.top, TwinkoSpacing.l)
+                    .accessibilityHidden(true)
+
+                Text(HoroscopeStrings.setupExplainer(lang))
+                    .font(.system(.body, design: .rounded))
+                    .foregroundStyle(Color.textInverseToken.opacity(0.9))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, TwinkoSpacing.l)
+
+                DatePicker(lang == .english ? "Birthday" : "生日",
+                           selection: $birthday,
+                           in: ...Date.now,
+                           displayedComponents: .date)
+                    .datePickerStyle(.compact)
+                    .environment(\.locale, Locale(identifier: lang.rawValue))
+                    .font(.system(.body, design: .rounded))
+                    .foregroundStyle(Color.textInverseToken)
+                    .tint(.twinkoGold)
+                    .padding(TwinkoSpacing.m)
+                    .background(Color.deepSpace.opacity(0.45),
+                                in: RoundedRectangle(cornerRadius: TwinkoRadius.card))
+                    .padding(.horizontal, TwinkoSpacing.m)
+                    .colorScheme(.dark)
+
+                Text(HoroscopeStrings.youAre(derivedSign, lang))
+                    .font(.system(.headline, design: .rounded))
+                    .foregroundStyle(Color.twinkoGold)
+
+                Button {
+                    onBirthday(derivedSign)
+                } label: {
+                    Text(HoroscopeStrings.continueLabel(lang))
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.twinkoPrimary)
+                .padding(.horizontal, TwinkoSpacing.m)
+
+                Button {
+                    onChooseManually()
+                } label: {
+                    Text(HoroscopeStrings.chooseManually(lang))
+                        .font(.system(.subheadline, design: .rounded))
+                        .foregroundStyle(Color.textInverseToken.opacity(0.85))
+                        .frame(minHeight: 44)
+                }
+            }
+        }
+    }
+}
+
+#Preview {
+    NavigationStack {
+        HoroscopeTodayView()
+            .environmentObject(ProfileStore())
+            .environmentObject(PrefsStore())
+    }
+}

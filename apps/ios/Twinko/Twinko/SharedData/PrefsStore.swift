@@ -18,9 +18,13 @@ enum AppLanguage: String, Codable, CaseIterable, Identifiable {
 }
 
 /// Minimal prototype preferences (D-054 allows "minimal prototype
-/// preferences" in the local JSON store). Currently: UI language only.
+/// preferences" in the local JSON store): UI language, plus the
+/// manually chosen Horoscope sign (canonical English lowercase ID) for
+/// users without a profile birthday. Optional — decodes as nil from
+/// older prefs files.
 struct PrototypePrefs: Codable, Equatable {
     var language: AppLanguage = .traditionalChinese
+    var horoscopeManualSignID: String?
 }
 
 @MainActor

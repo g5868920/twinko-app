@@ -139,14 +139,21 @@ final class TwinkoUITests: XCTestCase {
         XCTAssertTrue(home.waitForExistence(timeout: 5))
         home.tap()
 
-        // MARK: Zodiac (Astrology)
+        // MARK: Zodiac (Horoscope)
         XCTAssertTrue(chatTile.waitForExistence(timeout: 5))
         app.buttons["homeTile-zodiac"].tap()
-        let lucky = app.staticTexts.matching(
+        XCTAssertTrue(app.buttons["horoscopeDimension-overall"].waitForExistence(timeout: 8),
+                      "Horoscope Today should render dimension cards")
+        let lucky = app.descendants(matching: .any).matching(
             NSPredicate(format: "label CONTAINS %@", "幸運數字")).firstMatch
-        XCTAssertTrue(lucky.waitForExistence(timeout: 5))
-        attach(name: "10-astrology")
-        goBack(app)
+        var luckyScrolls = 0
+        while !lucky.exists && luckyScrolls < 5 {
+            app.swipeUp()
+            luckyScrolls += 1
+        }
+        XCTAssertTrue(lucky.exists)
+        attach(name: "10-horoscope")
+        app.buttons["horoscopeBackButton"].tap()
 
         // MARK: Meditate placeholder
         XCTAssertTrue(chatTile.waitForExistence(timeout: 5))
@@ -415,6 +422,79 @@ final class TwinkoUITests: XCTestCase {
         app.buttons["homeTile-chat"].tap()
         XCTAssertTrue(app.buttons["chatStarter-0"].waitForExistence(timeout: 5))
         attach(name: "C2-chat-empty-night")
+    }
+
+    /// Focused Horoscope validation: entry with default sign from the
+    /// seeded birthday, dimension expand/collapse, sign switching,
+    /// summary card preview, and text share.
+    func testHoroscopeExperienceStates() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile"]
+        app.launch()
+
+        // Entry: seeded birthday (2000-01-01) => Capricorn 摩羯座
+        XCTAssertTrue(app.buttons["homeTile-zodiac"].waitForExistence(timeout: 10))
+        app.buttons["homeTile-zodiac"].tap()
+        let mySignBadge = app.staticTexts["我的星座"]
+        XCTAssertTrue(mySignBadge.waitForExistence(timeout: 8),
+                      "Profile sign should be marked as My Sign")
+        XCTAssertTrue(app.staticTexts["摩羯座"].firstMatch.exists,
+                      "Seeded birthday must derive Capricorn as the default sign")
+        attach(name: "H1-horoscope-today")
+
+        // Dimensions: Overall expanded by default; expanding Love
+        // collapses it (one at a time)
+        let overall = app.buttons["horoscopeDimension-overall"]
+        let love = app.buttons["horoscopeDimension-love"]
+        XCTAssertTrue(overall.waitForExistence(timeout: 5))
+        XCTAssertTrue(love.exists)
+        settleTap(love)
+        attach(name: "H2-horoscope-dimensions")
+
+        // Lucky details (LazyVGrid below the fold — scroll into view)
+        let lucky = app.descendants(matching: .any).matching(
+            NSPredicate(format: "label CONTAINS %@", "幸運數字")).firstMatch
+        var luckyScrolls = 0
+        while !lucky.exists && luckyScrolls < 5 {
+            app.swipeUp()
+            luckyScrolls += 1
+        }
+        XCTAssertTrue(lucky.exists, "Lucky details should render")
+        app.swipeDown()
+        app.swipeDown()
+
+        // Sign switching (does not overwrite profile sign)
+        settleTap(app.buttons["horoscopeChangeSign"])
+        let leoOption = app.buttons["zodiacOption-leo"]
+        XCTAssertTrue(leoOption.waitForExistence(timeout: 5))
+        attach(name: "H3-zodiac-selector")
+        settleTap(leoOption)
+        XCTAssertTrue(app.staticTexts["獅子座"].firstMatch.waitForExistence(timeout: 8),
+                      "Selector should switch the viewed sign to Leo")
+        XCTAssertFalse(app.staticTexts["我的星座"].exists,
+                       "Viewing another sign must not mark it as My Sign")
+        attach(name: "H4-horoscope-switched")
+
+        // Summary card preview
+        let saveCard = app.buttons["horoscopeSaveCardButton"]
+        scrollTap(saveCard, in: app)
+        let cardSave = app.buttons["horoscopeCardSave"]
+        XCTAssertTrue(cardSave.waitForExistence(timeout: 10),
+                      "Summary card should render and offer Save to Photos")
+        XCTAssertTrue(app.buttons["horoscopeCardShare"].exists)
+        attach(name: "H5-summary-card")
+        app.buttons["關閉"].tap()
+
+        // Text share sheet
+        let share = app.buttons["horoscopeShareButton"]
+        scrollTap(share, in: app)
+        let shareSheet = app.otherElements["ActivityListView"]
+        if shareSheet.waitForExistence(timeout: 8) {
+            attach(name: "H6-share-sheet")
+            app.buttons["Close"].firstMatch.tap()
+        } else {
+            attach(name: "H6-share-sheet")
+        }
     }
 
     /// Focused Tarot validation: three-card flow with optional

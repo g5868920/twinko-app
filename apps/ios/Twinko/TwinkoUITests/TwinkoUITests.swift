@@ -155,15 +155,14 @@ final class TwinkoUITests: XCTestCase {
         attach(name: "10-horoscope")
         app.buttons["horoscopeBackButton"].tap()
 
-        // MARK: Meditate placeholder
+        // MARK: Meditation setup
         XCTAssertTrue(chatTile.waitForExistence(timeout: 5))
         app.buttons["homeTile-meditate"].tap()
-        let meditateLine = app.staticTexts.matching(
-            NSPredicate(format: "label CONTAINS %@", "深呼吸")).firstMatch
-        XCTAssertTrue(meditateLine.waitForExistence(timeout: 5), "Meditate placeholder should open")
+        XCTAssertTrue(app.buttons["meditationStartButton"].waitForExistence(timeout: 8),
+                      "Meditation setup should open")
         XCTAssertFalse(app.staticTexts["即將推出"].exists)
-        attach(name: "11-meditate-placeholder")
-        goBack(app)
+        attach(name: "11-meditation-setup")
+        app.buttons["meditationBackButton"].tap()
 
         // MARK: Music placeholder
         XCTAssertTrue(chatTile.waitForExistence(timeout: 5))
@@ -495,6 +494,90 @@ final class TwinkoUITests: XCTestCase {
         } else {
             attach(name: "H6-share-sheet")
         }
+    }
+
+    /// Focused Meditation validation: direct setup → generating →
+    /// session → completion, then Chat and Tarot handoffs with source
+    /// context prefill.
+    func testMeditationExperienceStates() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile"]
+        app.launch()
+
+        // Direct entry: setup
+        XCTAssertTrue(app.buttons["homeTile-meditate"].waitForExistence(timeout: 10))
+        app.buttons["homeTile-meditate"].tap()
+        let start = app.buttons["meditationStartButton"]
+        XCTAssertTrue(start.waitForExistence(timeout: 8), "Setup should open")
+        XCTAssertTrue(app.buttons["meditationFocus-release_anxiety"].exists)
+        XCTAssertFalse(app.descendants(matching: .any)["meditationSourceCard"].exists,
+                       "Direct entry has no source acknowledgment")
+        attach(name: "MD1-meditation-setup")
+
+        settleTap(app.buttons["meditationFocus-release_anxiety"])
+        scrollTap(start, in: app)
+        attach(name: "MD2-meditation-generating")
+
+        // Session: five segments via Continue, then Finish
+        let next = app.buttons["meditationNextButton"]
+        XCTAssertTrue(next.waitForExistence(timeout: 10), "Session should open after generation")
+        attach(name: "MD3-meditation-session")
+        for _ in 0..<4 { settleTap(next) }
+        XCTAssertTrue(app.buttons["meditationNextButton"].exists)
+        settleTap(next) // Finish
+
+        // Completion
+        let done = app.buttons["meditationDoneButton"]
+        XCTAssertTrue(done.waitForExistence(timeout: 8), "Completion should appear")
+        settleTap(app.buttons["meditationMood-calmer"])
+        attach(name: "MD4-meditation-completion")
+        scrollTap(done, in: app)
+
+        // Chat handoff
+        XCTAssertTrue(app.buttons["homeTile-chat"].waitForExistence(timeout: 8))
+        app.buttons["homeTile-chat"].tap()
+        let input = app.textFields["chatInputField"]
+        XCTAssertTrue(input.waitForExistence(timeout: 5))
+        input.tap()
+        input.typeText("最近工作壓力好大")
+        app.buttons["chatSendButton"].tap()
+        let accept = app.buttons["chatMeditationAccept"]
+        XCTAssertTrue(accept.waitForExistence(timeout: 10),
+                      "Meditation offer should appear after a Twinko reply")
+        attach(name: "MD5-chat-offer")
+        settleTap(accept)
+        XCTAssertTrue(app.buttons["meditationStartButton"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.descendants(matching: .any)["meditationSourceCard"].waitForExistence(timeout: 5),
+                      "Chat-derived setup should acknowledge the source")
+        attach(name: "MD5b-chat-handoff-setup")
+        app.buttons["meditationBackButton"].tap()
+        XCTAssertTrue(input.waitForExistence(timeout: 5), "Back should return to Chat intact")
+        app.buttons["chatBackButton"].tap()
+
+        // Tarot handoff
+        XCTAssertTrue(app.buttons["homeTile-tarot"].waitForExistence(timeout: 8))
+        app.buttons["homeTile-tarot"].tap()
+        let tarotNext = app.buttons["下一步"]
+        XCTAssertTrue(tarotNext.waitForExistence(timeout: 5))
+        tarotNext.tap()
+        let singleSpread = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "單張牌")).firstMatch
+        XCTAssertTrue(singleSpread.waitForExistence(timeout: 5))
+        singleSpread.tap()
+        let facedown = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "蓋著的牌")).firstMatch
+        XCTAssertTrue(facedown.waitForExistence(timeout: 12))
+        settleTap(facedown)
+        let seeResult = app.buttons["看看牌想說什麼"]
+        XCTAssertTrue(seeResult.waitForExistence(timeout: 5))
+        seeResult.tap()
+        let tarotCTA = app.buttons["tarotMeditationCTA"]
+        XCTAssertTrue(tarotCTA.waitForExistence(timeout: 5))
+        scrollTap(tarotCTA, in: app)
+        XCTAssertTrue(app.buttons["meditationStartButton"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.descendants(matching: .any)["meditationSourceCard"].waitForExistence(timeout: 5),
+                      "Tarot-derived setup should acknowledge the source")
+        attach(name: "MD6-tarot-handoff-setup")
     }
 
     /// Focused Tarot validation: three-card flow with optional

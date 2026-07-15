@@ -1,24 +1,11 @@
 import SwiftUI
 
-// Minimal local placeholder pages for Meditate and Music (D-055 §12).
-// They preserve the app's visual world, have working back navigation,
-// contain no fake functionality, no player, no audio service, and no
-// backend — and are intentionally easy to delete when the real modes
-// are authorized and built.
-
-struct MeditatePlaceholderView: View {
-    @EnvironmentObject private var prefs: PrefsStore
-
-    var body: some View {
-        PlaceholderScaffold(
-            title: HomeStrings.modeLabel(.meditate, prefs.language),
-            line: prefs.language == .english
-                ? "Find a comfortable position and take three slow breaths."
-                : "找個舒服的姿勢，先慢慢深呼吸三次。",
-            mood: .neutral
-        )
-    }
-}
+// Minimal local placeholder page for Music (D-055 §12). It preserves
+// the app's visual world, has working back navigation, contains no
+// fake functionality, no player, no audio service, and no backend —
+// and is intentionally easy to delete when the real mode is
+// authorized and built. (The Meditate placeholder was replaced by the
+// real Meditation flow.)
 
 struct MusicPlaceholderView: View {
     @EnvironmentObject private var prefs: PrefsStore
@@ -66,7 +53,7 @@ private struct PlaceholderScaffold: View {
 
 #Preview {
     NavigationStack {
-        MeditatePlaceholderView()
+        MusicPlaceholderView()
             .environmentObject(PrefsStore())
     }
 }

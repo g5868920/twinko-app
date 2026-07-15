@@ -19,6 +19,11 @@ struct ChatView: View {
     @State private var showingDraftDiscard = false
     @State private var goToHistory = false
     @State private var floating = false
+    // Meditation handoff: one offer per conversation; declining hides
+    // it for that session only. No emotion detection — the offer
+    // appears once a Twinko reply exists.
+    @State private var goToMeditation = false
+    @State private var meditationDeclinedSessionID: UUID?
 
     /// Opens a fresh session by default, or continues an existing one
     /// from Chat History.
@@ -39,6 +44,9 @@ struct ChatView: View {
                 } else {
                     messageList
                         .transition(.opacity)
+                }
+                if showsMeditationOffer {
+                    meditationOffer
                 }
                 composer
             }
@@ -64,6 +72,9 @@ struct ChatView: View {
         .navigationBarBackButtonHidden(true)
         .navigationDestination(isPresented: $goToHistory) {
             ChatHistoryView()
+        }
+        .navigationDestination(isPresented: $goToMeditation) {
+            MeditationFlowView(sourceContext: meditationContext)
         }
         .confirmationDialog(
             ChatStrings.discardDraftTitle(lang),
@@ -303,6 +314,79 @@ struct ChatView: View {
             ? "typing" : viewModel.messages.last?.id
         guard let target else { return }
         withAnimation { proxy.scrollTo(target, anchor: .bottom) }
+    }
+
+    // MARK: Meditation handoff
+
+    /// Shown once a Twinko reply exists, at most once per conversation
+    /// (declining hides it for that session). No content analysis.
+    private var showsMeditationOffer: Bool {
+        viewModel.messages.last?.sender == .twinko
+            && viewModel.state != .loading
+            && meditationDeclinedSessionID != viewModel.sessionID
+            && !showingQuickMenu
+    }
+
+    /// Small locally derived summary: the most recent user message,
+    /// truncated — never the whole transcript.
+    private var meditationContext: MeditationSourceContext {
+        let lastUserText = viewModel.messages.last(where: { $0.sender == .user })?.text ?? ""
+        let summary = String(lastUserText.prefix(50))
+        return MeditationSourceContext(sourceType: .chat,
+                                       recentChatSummary: summary.isEmpty ? nil : summary,
+                                       tarotQuestion: nil, tarotSummary: nil,
+                                       emotionalTone: nil)
+    }
+
+    private var meditationOffer: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "moon.stars.fill")
+                .font(.system(size: 14))
+                .foregroundStyle(Color.brandPurpleDeep)
+            Text(MeditationStrings.chatOffer(lang))
+                .font(.system(.caption, design: .rounded))
+                .foregroundStyle(Color.deepPlum)
+                .lineLimit(2)
+            Spacer(minLength: 4)
+            Button {
+                goToMeditation = true
+            } label: {
+                Text(MeditationStrings.chatOfferAccept(lang))
+                    .font(.system(.caption, design: .rounded).weight(.semibold))
+                    .foregroundStyle(Color.textInverseToken)
+                    .padding(.horizontal, 12)
+                    .frame(minHeight: 32)
+                    .background(
+                        LinearGradient(colors: [.brandPurple, .brandPurpleDeep],
+                                       startPoint: .top, endPoint: .bottom),
+                        in: Capsule())
+                    .frame(minHeight: 44)
+                    .contentShape(Capsule())
+            }
+            .accessibilityIdentifier("chatMeditationAccept")
+            Button {
+                withAnimation(.easeOut(duration: 0.2)) {
+                    meditationDeclinedSessionID = viewModel.sessionID
+                }
+            } label: {
+                Text(MeditationStrings.chatOfferDecline(lang))
+                    .font(.system(.caption, design: .rounded))
+                    .foregroundStyle(Color.textSecondaryToken)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
+            }
+            .accessibilityIdentifier("chatMeditationDecline")
+        }
+        .padding(.leading, 14)
+        .padding(.trailing, 4)
+        .background(Color.surfacePrimary.opacity(0.94),
+                    in: RoundedRectangle(cornerRadius: 18))
+        .overlay(RoundedRectangle(cornerRadius: 18)
+            .strokeBorder(Color.borderSoft, lineWidth: 1))
+        .padding(.horizontal, 12)
+        .padding(.top, 4)
+        .transition(.opacity)
+        .accessibilityElement(children: .contain)
     }
 
     // MARK: Composer

@@ -94,7 +94,7 @@ struct HomeView: View {
                     .position(x: twinkoCenter.x + upper.dx, y: twinkoCenter.y - upper.dy)
                 modeTile(.zodiac, diameter: iconDiameter) { HoroscopeTodayView() }
                     .position(x: twinkoCenter.x - lower.dx, y: twinkoCenter.y + lower.dy)
-                modeTile(.meditate, diameter: iconDiameter) { MeditatePlaceholderView() }
+                modeTile(.meditate, diameter: iconDiameter) { MeditationFlowView() }
                     .position(x: twinkoCenter.x + lower.dx, y: twinkoCenter.y + lower.dy)
                 modeTile(.music, diameter: iconDiameter) { MusicPlaceholderView() }
                     .position(x: twinkoCenter.x, y: twinkoCenter.y + musicDrop)

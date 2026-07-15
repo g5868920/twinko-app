@@ -15,8 +15,20 @@ struct TarotResultStage: View {
 
     @EnvironmentObject private var prefs: PrefsStore
     @State private var showingSummaryCard = false
+    @State private var goToMeditation = false
 
     private var lang: AppLanguage { prefs.language }
+
+    /// Compact Meditation handoff context: the question plus the
+    /// combined synthesis — never the full card-by-card interpretation.
+    private var meditationContext: MeditationSourceContext {
+        MeditationSourceContext(
+            sourceType: .tarot,
+            recentChatSummary: nil,
+            tarotQuestion: session.trimmedQuestion.isEmpty ? nil : session.trimmedQuestion,
+            tarotSummary: provider.combinedSummary(for: session, lang: lang),
+            emotionalTone: nil)
+    }
 
     var body: some View {
         ScrollView {
@@ -61,6 +73,9 @@ struct TarotResultStage: View {
         }
         .sheet(isPresented: $showingSummaryCard) {
             TarotSummaryCardSheet(session: session, provider: provider)
+        }
+        .navigationDestination(isPresented: $goToMeditation) {
+            MeditationFlowView(sourceContext: meditationContext)
         }
     }
 
@@ -205,6 +220,20 @@ struct TarotResultStage: View {
                     )
             }
             .accessibilityIdentifier("tarotSaveCardButton")
+
+            // Secondary Meditation handoff (screen spec §11): never
+            // overpowers the main result actions.
+            Button {
+                goToMeditation = true
+            } label: {
+                Label(MeditationStrings.tarotCTA(lang), systemImage: "moon.stars.fill")
+                    .font(.system(.subheadline, design: .rounded).weight(.medium))
+                    .foregroundStyle(Color.textInverseToken.opacity(0.9))
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .background(Color.deepSpace.opacity(0.4),
+                                in: RoundedRectangle(cornerRadius: 22))
+            }
+            .accessibilityIdentifier("tarotMeditationCTA")
 
             Button {
                 onRestart()

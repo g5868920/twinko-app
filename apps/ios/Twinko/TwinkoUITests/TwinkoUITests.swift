@@ -417,6 +417,111 @@ final class TwinkoUITests: XCTestCase {
         attach(name: "C2-chat-empty-night")
     }
 
+    /// Focused Tarot validation: three-card flow with optional
+    /// Guidance Card, orientation labels, summary card sheet, share
+    /// sheet, and the single-card flow.
+    func testTarotExperienceStates() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile"]
+        app.launch()
+
+        XCTAssertTrue(app.buttons["homeTile-tarot"].waitForExistence(timeout: 10))
+        app.buttons["homeTile-tarot"].tap()
+
+        // Setup: topic + optional question
+        let next = app.buttons["下一步"]
+        XCTAssertTrue(next.waitForExistence(timeout: 5))
+        attach(name: "T1-tarot-setup")
+        next.tap()
+
+        // Spread selection (visual cards)
+        let threeSpread = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "三張牌")).firstMatch
+        XCTAssertTrue(threeSpread.waitForExistence(timeout: 5))
+        attach(name: "T2-tarot-spread")
+        threeSpread.tap()
+
+        // Shuffle ritual runs on its own, then manual reveal
+        let facedown = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "蓋著的牌")).firstMatch
+        XCTAssertTrue(facedown.waitForExistence(timeout: 12), "Shuffle must resolve into face-down cards")
+        for _ in 0..<3 {
+            let card = app.buttons.matching(
+                NSPredicate(format: "label CONTAINS %@", "蓋著的牌")).firstMatch
+            XCTAssertTrue(card.waitForExistence(timeout: 8))
+            settleTap(card)
+        }
+        attach(name: "T3-tarot-revealed")
+
+        // Result: Past/Present/Future sections + orientation labels
+        let seeResult = app.buttons["看看牌想說什麼"]
+        XCTAssertTrue(seeResult.waitForExistence(timeout: 5))
+        seeResult.tap()
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "過去")).firstMatch.waitForExistence(timeout: 5))
+        let orientationLabel = app.staticTexts.matching(
+            NSPredicate(format: "label == %@ OR label == %@", "正位", "逆位")).firstMatch
+        XCTAssertTrue(orientationLabel.exists, "Upright/Reversed must be labeled in text")
+        attach(name: "T4-tarot-three-result")
+
+        // Optional Guidance Card
+        let guidance = app.buttons["tarotGuidanceAccept"]
+        XCTAssertTrue(guidance.waitForExistence(timeout: 5))
+        scrollTap(guidance, in: app)
+        let guidanceCard = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "蓋著的牌")).firstMatch
+        XCTAssertTrue(guidanceCard.waitForExistence(timeout: 8))
+        settleTap(guidanceCard)
+        XCTAssertTrue(seeResult.waitForExistence(timeout: 5))
+        seeResult.tap()
+        let combined = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "指引")).firstMatch
+        XCTAssertTrue(combined.waitForExistence(timeout: 5), "3+1 summary should reference guidance")
+        attach(name: "T5-tarot-guidance-result")
+
+        // Summary card sheet
+        let saveCard = app.buttons["tarotSaveCardButton"]
+        XCTAssertTrue(saveCard.waitForExistence(timeout: 5))
+        scrollTap(saveCard, in: app)
+        let shareImage = app.buttons["tarotSummaryShare"]
+        XCTAssertTrue(shareImage.waitForExistence(timeout: 8), "Summary card should render and offer share")
+        attach(name: "T6-tarot-summary-card")
+        app.buttons["完成"].tap()
+
+        // Share sheet (native)
+        let share = app.buttons["tarotShareButton"]
+        XCTAssertTrue(share.waitForExistence(timeout: 5))
+        scrollTap(share, in: app)
+        let shareSheet = app.otherElements["ActivityListView"]
+        if shareSheet.waitForExistence(timeout: 8) {
+            attach(name: "T7-tarot-share-sheet")
+            app.buttons["Close"].firstMatch.tap()
+        } else {
+            attach(name: "T7-tarot-share-sheet")
+        }
+
+        // Single-card flow via Draw Again
+        let again = app.buttons["再抽一次"]
+        XCTAssertTrue(again.waitForExistence(timeout: 5))
+        scrollTap(again, in: app)
+        XCTAssertTrue(next.waitForExistence(timeout: 5))
+        next.tap()
+        let singleSpread = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "單張牌")).firstMatch
+        XCTAssertTrue(singleSpread.waitForExistence(timeout: 5))
+        singleSpread.tap()
+        let singleCard = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "蓋著的牌")).firstMatch
+        XCTAssertTrue(singleCard.waitForExistence(timeout: 12))
+        settleTap(singleCard)
+        XCTAssertTrue(seeResult.waitForExistence(timeout: 5))
+        seeResult.tap()
+        XCTAssertTrue(app.buttons["tarotShareButton"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["tarotGuidanceAccept"].exists,
+                       "Guidance is offered only after a three-card reading")
+        attach(name: "T8-tarot-single-result")
+    }
+
     // MARK: Helpers
 
     private func goBack(_ app: XCUIApplication) {
@@ -437,6 +542,17 @@ final class TwinkoUITests: XCTestCase {
         Thread.sleep(forTimeInterval: 1.2)
         element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         Thread.sleep(forTimeInterval: 0.8)
+    }
+
+    /// Swipes the screen up until the element is hittable (bottom-of-
+    /// scroll buttons), then coordinate-taps it.
+    private func scrollTap(_ element: XCUIElement, in app: XCUIApplication) {
+        var attempts = 0
+        while !element.isHittable && attempts < 6 {
+            app.swipeUp()
+            attempts += 1
+        }
+        settleTap(element)
     }
 
     private func attach(name: String) {

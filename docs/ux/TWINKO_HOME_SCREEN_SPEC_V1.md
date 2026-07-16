@@ -459,3 +459,31 @@ Only implementation calibration remains:
 - Final label font size within `15–17 pt`
 - Final Profile icon asset or initial-based implementation
 - Final placeholder-page copy, if any
+
+---
+
+## My Planet redesign (2026-07-16)
+
+The top-right Profile control is now the **My Planet** entry using the
+approved `home_my_planet_v1` badge (derived transparent runtime copy;
+the temporary SwiftUI planet was removed). It opens the redesigned My
+Planet sheet:
+
+- **Landing** — identity area (planet badge, user name, "你的小星球 /
+  Your little planet") above three large entry cards with icon chips
+  and one-line subtitles: 個人資料 / 設定 / 隱私.
+- **Profile** — a 2×2 grid of tappable cards (稱呼 / 生日 / 星座(自動) /
+  性別). Tapping a card opens Edit Profile scrolled to that field —
+  there is no top-right Edit button. Zodiac stays auto-calculated and
+  read-only.
+- **Edit Profile** — unchanged save/discard semantics; birthday now
+  uses a **wheel picker** so year, month, and day are visible and
+  adjustable in one coherent flow (no calendar hopping).
+- **Settings (Option B)** — language cards with a circled 繁 / EN chip,
+  purple-gradient selected state, and a check seal.
+- **Privacy** — two icon-led cards (stays on this device / nothing is
+  uploaded) plus the short prototype disclaimer, replacing the single
+  text block.
+
+All screens share the dreamy lavender backdrop and rounded card
+system; nothing reads as a default iOS settings list.

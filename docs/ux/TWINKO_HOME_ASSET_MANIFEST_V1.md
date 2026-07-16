@@ -124,3 +124,10 @@ assets/
 - [ ] Labels are live text, not image text
 - [ ] English and Traditional Chinese are supported
 - [ ] Placeholder navigation exists for Meditate and Music
+
+## Addendum (2026-07-16)
+
+- `home_my_planet_v1.png` — Approved. My Planet entry badge on Home
+  (delivered with a baked checkerboard; derived transparent runtime
+  copy in `assets/home/derived/`, source untouched). Replaces the
+  temporary SwiftUI `ProfilePlanetIcon`.

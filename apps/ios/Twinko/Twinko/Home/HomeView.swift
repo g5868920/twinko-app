@@ -150,12 +150,17 @@ struct HomeView: View {
     // MARK: Profile control
 
     private var profileButton: some View {
-        // TEMPORARY PROFILE PLANET — founder-approved SwiftUI prototype
-        // asset (no PNG exists); see ProfilePlanetIcon.
+        // My Planet entry — the approved home_my_planet_v1 badge (via
+        // its derived transparent runtime copy), replacing the
+        // temporary SwiftUI planet.
         Button {
             showingProfileSheet = true
         } label: {
-            ProfilePlanetIcon(diameter: 39)
+            Image("home_my_planet_v1_transparent")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 41, height: 41)
+                .shadow(color: .black.opacity(0.18), radius: 3, y: 1)
                 .frame(width: 44, height: 44)
                 .contentShape(Circle())
         }

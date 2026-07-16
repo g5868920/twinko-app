@@ -186,9 +186,14 @@ final class TwinkoUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["Log Out"].exists)
         attach(name: "13-profile-sheet")
 
-        // Edit Profile: Back with unsaved changes must confirm, and a
-        // discard must not leak into the profile summary.
-        app.buttons["sheetEditButton"].tap()
+        // Edit Profile (entered by tapping the Name card directly):
+        // Back with unsaved changes must confirm, and a discard must
+        // not leak into the profile summary.
+        app.buttons["sheetProfileRow"].tap()
+        let nameCard = app.buttons["profileCard-name"]
+        XCTAssertTrue(nameCard.waitForExistence(timeout: 5),
+                      "Profile cards should be directly tappable to edit")
+        nameCard.tap()
         let nameEdit = app.textFields["editNameField"]
         XCTAssertTrue(nameEdit.waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["editZodiacValue"].exists, "Zodiac shows as auto-calculated")
@@ -211,7 +216,7 @@ final class TwinkoUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["小小"].exists)
 
         // Edit Profile: Save persists and returns; summary updates.
-        app.buttons["sheetEditButton"].tap()
+        nameCard.tap()
         XCTAssertTrue(nameEdit.waitForExistence(timeout: 5))
         nameEdit.tap()
         nameEdit.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 8))
@@ -221,6 +226,8 @@ final class TwinkoUITests: XCTestCase {
                       "Profile summary should update after save")
         attach(name: "16-profile-after-save")
 
+        app.navigationBars.buttons.element(boundBy: 0).tap() // back to My Planet root
+        XCTAssertTrue(settingsRow.waitForExistence(timeout: 5))
         settingsRow.tap()
         let english = app.buttons["language-en"]
         XCTAssertTrue(english.waitForExistence(timeout: 5))
@@ -264,11 +271,11 @@ final class TwinkoUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["登出"].exists)
         attach(name: "R2-profile-sheet")
 
-        // Edit lives only inside Profile detail, top-right.
+        // Editing is reached by tapping profile cards directly.
         profileRow.tap()
-        let editButton = app.buttons["sheetEditButton"]
+        let editButton = app.buttons["profileCard-name"]
         XCTAssertTrue(editButton.waitForExistence(timeout: 5),
-                      "Edit should be reachable from Profile detail's nav bar")
+                      "Profile cards should be directly tappable to edit")
         attach(name: "R3-profile-detail-zh")
 
         // Discard path
@@ -323,7 +330,7 @@ final class TwinkoUITests: XCTestCase {
 
         app.buttons["homeProfileButton"].tap()
         app.buttons["sheetProfileRow"].tap()
-        XCTAssertTrue(app.buttons["sheetEditButton"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["profileCard-name"].waitForExistence(timeout: 5))
         let zodiacCard = app.staticTexts.matching(
             NSPredicate(format: "label CONTAINS[c] %@", "Capricorn")).firstMatch
         XCTAssertTrue(zodiacCard.waitForExistence(timeout: 5),
@@ -334,7 +341,7 @@ final class TwinkoUITests: XCTestCase {
                       "English mode must show the English gender value, not 不方便透露")
         attach(name: "R8-profile-detail-en")
 
-        app.buttons["sheetEditButton"].tap()
+        app.buttons["profileCard-name"].tap()
         XCTAssertTrue(nameEdit.waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts.matching(
             NSPredicate(format: "label CONTAINS[c] %@", "Capricorn")).firstMatch.exists)
@@ -495,6 +502,60 @@ final class TwinkoUITests: XCTestCase {
         } else {
             attach(name: "H6-share-sheet")
         }
+    }
+
+    /// Focused My Planet walkthrough (redesign 2026-07-16): Home entry,
+    /// landing, tappable profile cards, birthday wheel, Settings, and
+    /// Privacy.
+    func testMyPlanetWalkthrough() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile"]
+        app.launch()
+
+        // Home entry → My Planet landing
+        XCTAssertTrue(app.buttons["homeProfileButton"].waitForExistence(timeout: 10))
+        app.buttons["homeProfileButton"].tap()
+        XCTAssertTrue(app.buttons["sheetProfileRow"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["sheetSettingsRow"].exists)
+        XCTAssertTrue(app.buttons["sheetPrivacyRow"].exists)
+        XCTAssertTrue(app.staticTexts["小雅"].exists, "Identity area shows the name")
+        attach(name: "MP1-my-planet-landing")
+
+        // Profile: tappable cards, no Edit button
+        app.buttons["sheetProfileRow"].tap()
+        let nameCard = app.buttons["profileCard-name"]
+        XCTAssertTrue(nameCard.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["profileCard-birthday"].exists)
+        XCTAssertTrue(app.buttons["profileCard-gender"].exists)
+        XCTAssertFalse(app.buttons["sheetEditButton"].exists,
+                       "No prominent Edit button — cards are the affordance")
+        attach(name: "MP2-profile-cards")
+
+        // Tap birthday card → editor with the wheel picker
+        app.buttons["profileCard-birthday"].tap()
+        XCTAssertTrue(app.textFields["editNameField"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.datePickers["editBirthdayPicker"].waitForExistence(timeout: 5),
+                      "Birthday uses a year/month/day wheel in one flow")
+        attach(name: "MP3-edit-birthday-wheel")
+        app.buttons["editBackButton"].tap()
+
+        // Settings (Option B)
+        XCTAssertTrue(nameCard.waitForExistence(timeout: 5))
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.buttons["sheetSettingsRow"].waitForExistence(timeout: 5))
+        app.buttons["sheetSettingsRow"].tap()
+        XCTAssertTrue(app.buttons["language-en"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["language-zh-Hant"].exists)
+        attach(name: "MP4-settings")
+
+        // Privacy
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.buttons["sheetPrivacyRow"].waitForExistence(timeout: 5))
+        app.buttons["sheetPrivacyRow"].tap()
+        let privacyLine = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "只存在這台裝置")).firstMatch
+        XCTAssertTrue(privacyLine.waitForExistence(timeout: 5))
+        attach(name: "MP5-privacy")
     }
 
     /// Focused Chat refinement walkthrough (founder/CPO review

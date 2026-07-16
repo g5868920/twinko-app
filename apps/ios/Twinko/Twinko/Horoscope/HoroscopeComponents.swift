@@ -1,5 +1,90 @@
 import SwiftUI
 
+// MARK: - Horoscope CTA family (feature-scoped, 2026-07-17)
+
+/// Horoscope's premium action treatment: deep grape base with
+/// antique-gold accents — calmer than the old bright-gold fill, and
+/// deliberately distinct from Tarot's amethyst so the surface keeps
+/// its own identity against the starry background.
+enum HoroscopeCTAPalette {
+    static let grapeTop = Color(hex: 0x5B3A94)
+    static let grapeBottom = Color(hex: 0x372359)
+    static let antiqueGold = Color(hex: 0xD8B36A)
+    static let warmLightText = Color(hex: 0xF7EFDD)
+}
+
+struct HoroscopeGrapePrimaryButtonStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.isEnabled) private var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        let pressed = configuration.isPressed && isEnabled
+        configuration.label
+            .labelStyle(HoroscopeGoldIconLabelStyle())
+            .font(.system(.headline, design: .rounded))
+            .foregroundStyle(HoroscopeCTAPalette.warmLightText)
+            .frame(minHeight: 48)
+            .padding(.horizontal, TwinkoSpacing.l)
+            .background(
+                LinearGradient(colors: [HoroscopeCTAPalette.grapeTop,
+                                        HoroscopeCTAPalette.grapeBottom],
+                               startPoint: .top, endPoint: .bottom),
+                in: RoundedRectangle(cornerRadius: 24)
+            )
+            .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(
+                HoroscopeCTAPalette.antiqueGold.opacity(0.55), lineWidth: 1.2))
+            .shadow(color: HoroscopeCTAPalette.grapeBottom.opacity(0.45),
+                    radius: 8, y: 3)
+            .opacity(isEnabled ? 1 : 0.55)
+            .scaleEffect(pressed && !reduceMotion ? 0.97 : 1)
+            .animation(.easeOut(duration: 0.15), value: pressed)
+            .onChange(of: configuration.isPressed) { _, isPressed in
+                if isPressed && isEnabled {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                }
+            }
+    }
+}
+
+struct HoroscopeGrapeSecondaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .labelStyle(HoroscopeGoldIconLabelStyle())
+            .font(.system(.headline, design: .rounded))
+            .foregroundStyle(HoroscopeCTAPalette.warmLightText.opacity(0.95))
+            .frame(minHeight: 48)
+            .padding(.horizontal, TwinkoSpacing.l)
+            .background(HoroscopeCTAPalette.grapeBottom.opacity(0.55),
+                        in: RoundedRectangle(cornerRadius: 24))
+            .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(
+                HoroscopeCTAPalette.antiqueGold.opacity(0.4), lineWidth: 1))
+            .opacity(configuration.isPressed ? 0.75 : 1)
+            .scaleEffect(configuration.isPressed ? 0.98 : 1)
+            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
+    }
+}
+
+/// Antique-gold icon + warm-ivory title for Horoscope actions.
+struct HoroscopeGoldIconLabelStyle: LabelStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: 7) {
+            configuration.icon.foregroundStyle(HoroscopeCTAPalette.antiqueGold)
+            configuration.title
+        }
+    }
+}
+
+extension ButtonStyle where Self == HoroscopeGrapePrimaryButtonStyle {
+    static var horoscopeGrapePrimary: HoroscopeGrapePrimaryButtonStyle {
+        HoroscopeGrapePrimaryButtonStyle()
+    }
+}
+extension ButtonStyle where Self == HoroscopeGrapeSecondaryButtonStyle {
+    static var horoscopeGrapeSecondary: HoroscopeGrapeSecondaryButtonStyle {
+        HoroscopeGrapeSecondaryButtonStyle()
+    }
+}
+
 // MARK: - Score view
 
 /// 1–5 star score with an accessible text label. Gold stars, never a
@@ -75,8 +160,13 @@ struct HoroscopeDimensionCard: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(TwinkoSpacing.m)
-            .background(Color.deepSpace.opacity(0.45),
+            // 整體運勢 is a primary reading entry point; the other
+            // dimensions sit slightly quieter behind it.
+            .background(Color.deepSpace.opacity(kind == .overall ? 0.55 : 0.42),
                         in: RoundedRectangle(cornerRadius: TwinkoRadius.card))
+            .overlay(RoundedRectangle(cornerRadius: TwinkoRadius.card)
+                .strokeBorder(Color.twinkoGold.opacity(kind == .overall ? 0.3 : 0),
+                              lineWidth: 1))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -97,9 +187,11 @@ struct LuckyDetailsGrid: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
+            // Supporting section — deliberately quieter than the
+            // primary reading blocks.
             Label(HoroscopeStrings.luckyTitle(lang), systemImage: "sparkles")
-                .font(.system(.headline, design: .rounded))
-                .foregroundStyle(Color.twinkoGold)
+                .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                .foregroundStyle(Color.twinkoGold.opacity(0.85))
             LazyVGrid(columns: [GridItem(.flexible(), spacing: TwinkoSpacing.s),
                                 GridItem(.flexible(), spacing: TwinkoSpacing.s)],
                       spacing: TwinkoSpacing.s) {
@@ -116,7 +208,7 @@ struct LuckyDetailsGrid: View {
             }
         }
         .padding(TwinkoSpacing.m)
-        .background(Color.deepSpace.opacity(0.45),
+        .background(Color.deepSpace.opacity(0.38),
                     in: RoundedRectangle(cornerRadius: TwinkoRadius.card))
     }
 }
@@ -151,9 +243,9 @@ struct LuckyDetailItem: View {
                     .minimumScaleFactor(0.75)
             }
         }
-        .frame(maxWidth: .infinity, minHeight: 62)
+        .frame(maxWidth: .infinity, minHeight: 56)
         .padding(TwinkoSpacing.s)
-        .background(Color.textInverseToken.opacity(0.08),
+        .background(Color.textInverseToken.opacity(0.07),
                     in: RoundedRectangle(cornerRadius: 14))
         .accessibilityElement(children: .combine)
         .accessibilityLabel(Text("\(label)：\(value)"))
@@ -213,7 +305,7 @@ struct HoroscopeEmptyStateView: View {
                 Text(HoroscopeStrings.retry(lang))
                     .frame(maxWidth: .infinity)
             }
-            .buttonStyle(.twinkoPrimary)
+            .buttonStyle(.horoscopeGrapePrimary)
             .padding(.horizontal, TwinkoSpacing.xl)
             Spacer()
             Spacer()

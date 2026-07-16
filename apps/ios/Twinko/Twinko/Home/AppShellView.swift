@@ -48,13 +48,44 @@ enum AppTab: String, CaseIterable, Identifiable {
     }
 }
 
-/// Shared shell state: the selected tab plus whether an immersive
-/// flow (Tarot) is currently hiding the bottom navigation. Immersive
-/// flows set `tabBarHidden`; tab roots clear it on appear.
+/// Shared shell state: the selected tab plus the derived bottom-tab
+/// visibility. Visibility is never toggled imperatively by tab roots —
+/// the ZStack keeps every root alive and their `onAppear` can re-fire
+/// at unpredictable times, which raced (and lost) against immersive
+/// pushes. Instead, each immersive screen registers a token while it
+/// is on screen, Chat reports whether an active conversation is open,
+/// and the tab bar hides whenever either is true.
 @MainActor
 final class ShellChrome: ObservableObject {
     @Published var selectedTab: AppTab = .home
-    @Published var tabBarHidden = false
+    @Published private(set) var tabBarHidden = false
+
+    private var immersiveTokens: Set<UUID> = []
+    private var chatConversationActive = false
+
+    /// Immersive screens (Tarot, Meditation, Horoscope detail) call
+    /// this with `active: true` on appear and `false` on disappear.
+    /// Token-based so double-fired lifecycle callbacks stay idempotent
+    /// and nested pushes (Tarot → Meditation) hand over cleanly.
+    func setImmersive(_ token: UUID, active: Bool) {
+        if active {
+            immersiveTokens.insert(token)
+        } else {
+            immersiveTokens.remove(token)
+        }
+        recompute()
+    }
+
+    /// Chat reports its conversation state (landing = false).
+    func setChatConversationActive(_ active: Bool) {
+        chatConversationActive = active
+        recompute()
+    }
+
+    private func recompute() {
+        let hidden = !immersiveTokens.isEmpty || chatConversationActive
+        if tabBarHidden != hidden { tabBarHidden = hidden }
+    }
 }
 
 struct AppShellView: View {
@@ -151,7 +182,6 @@ struct AppShellView: View {
 /// shortcuts point here for "View all".
 struct ExploreView: View {
     @EnvironmentObject private var prefs: PrefsStore
-    @EnvironmentObject private var chrome: ShellChrome
 
     private var lang: AppLanguage { prefs.language }
 
@@ -207,7 +237,6 @@ struct ExploreView: View {
             }
         }
         .toolbar(.hidden, for: .navigationBar)
-        .onAppear { chrome.tabBarHidden = false }
     }
 
     @ViewBuilder

@@ -87,7 +87,7 @@ enum ChatStrings {
         lang == .english ? "History" : "聊天紀錄"
     }
     static func temporaryTitle(_ lang: AppLanguage) -> String {
-        lang == .english ? "New Conversation" : "新對話"
+        lang == .english ? "New Chat" : "新對話"
     }
 
     static func rename(_ lang: AppLanguage) -> String {
@@ -394,6 +394,23 @@ struct LocalChatTitleGenerator: ChatTitleGenerating {
         while let last = text.last, "，,。.!！？?～~；;：: ".contains(last) {
             text.removeLast()
         }
-        return text.isEmpty ? nil : text
+        return Self.isMeaningful(text) ? text : nil
+    }
+
+    /// A derived title must carry an actual word: at least two
+    /// characters overall and at least one letter or CJK character —
+    /// never a lone letter, digit, or punctuation fragment. Invalid
+    /// candidates fall through to the localized default
+    /// (新對話 / New Chat) via the empty-title display fallback.
+    static func isMeaningful(_ text: String) -> Bool {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let hasWordCharacter = trimmed.unicodeScalars.contains { scalar in
+            CharacterSet.letters.contains(scalar) ||
+            (0x4E00...0x9FFF).contains(scalar.value)
+        }
+        guard hasWordCharacter else { return false }
+        // One CJK character can be a word; one Latin letter cannot.
+        let isCJK = trimmed.unicodeScalars.contains { (0x4E00...0x9FFF).contains($0.value) }
+        return isCJK ? trimmed.count >= 1 : trimmed.count >= 2
     }
 }

@@ -103,3 +103,18 @@ framework, model calls.
 - Known environment note: the very first synthesized tap after launch can
   be dropped while the shell's tab stacks attach; the UI test settles 3 s
   and retries once.
+
+## Bottom-navigation visibility mechanism (2026-07-17)
+
+`ShellChrome.tabBarHidden` is now **derived, never imperatively
+toggled by tab roots**: immersive screens (Tarot, Meditation, the
+Horoscope content page) register a per-instance token on appear and
+remove it on disappear, and Chat reports whether an active
+conversation is open. The bar hides whenever any token exists or a
+conversation is active. Rationale: the shell keeps all four tab roots
+alive in a ZStack and their `onAppear` re-fires at unpredictable
+times, which raced with (and could undo) an immersive push —
+token-based derivation is idempotent and makes nested handoffs
+(Tarot → Meditation) seamless. Visibility map: tab roots + Chat
+History + Chat landing = visible; active conversation, Tarot (all
+stages), Meditation (whole flow), Horoscope content = hidden.

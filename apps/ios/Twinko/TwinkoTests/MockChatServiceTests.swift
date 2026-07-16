@@ -114,3 +114,27 @@ extension MockChatServiceTests {
                       "Active conversation hides the bottom navigation")
     }
 }
+
+// MARK: - Invalid-title fallback (polish 2026-07-17)
+
+extension MockChatServiceTests {
+    func testInvalidTitleFragmentsFallBackToLocalizedDefault() {
+        let generator = LocalChatTitleGenerator()
+        func title(for firstMessage: String) -> String? {
+            generator.title(for: [ChatMessage(sender: .user, text: firstMessage),
+                                  ChatMessage(sender: .twinko, text: "嗯，我在聽。")])
+        }
+        // Meaningless fragments produce no auto title, so the display
+        // falls back to the localized default.
+        XCTAssertNil(title(for: "K"), "One Latin letter is not a title")
+        XCTAssertNil(title(for: "!!!"), "Punctuation only is not a title")
+        XCTAssertNil(title(for: "   "), "Whitespace only is not a title")
+        XCTAssertNil(title(for: "7"), "A lone digit is not a title")
+        // Valid content still titles normally.
+        XCTAssertNotNil(title(for: "今天跟同事聊得不太愉快"))
+        XCTAssertNotNil(title(for: "Thinking about my weekend plans"))
+        // Localized default used by the empty-title display fallback.
+        XCTAssertEqual(ChatStrings.temporaryTitle(.english), "New Chat")
+        XCTAssertEqual(ChatStrings.temporaryTitle(.traditionalChinese), "新對話")
+    }
+}

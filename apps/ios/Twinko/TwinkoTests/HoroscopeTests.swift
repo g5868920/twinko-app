@@ -136,3 +136,13 @@ final class HoroscopeTests: XCTestCase {
         XCTAssertEqual(HoroscopeScoreLabel.text(3, .traditionalChinese), "平穩")
     }
 }
+
+// MARK: - Approved disclaimer (polish 2026-07-17)
+
+extension HoroscopeTests {
+    func testDisclaimerUsesApprovedReflectionWording() {
+        XCTAssertEqual(HoroscopeStrings.disclaimer(.traditionalChinese), "內容僅供反思與娛樂")
+        XCTAssertEqual(HoroscopeStrings.disclaimer(.english),
+                       "For reflection and entertainment only")
+    }
+}

@@ -87,3 +87,19 @@ Supersedes the corresponding sections above where they conflict.
   對話嗎？」/ "Delete this conversation permanently?" with 取消/刪除 ·
   Cancel/Delete; the separate warning subtitle is removed (danger icon
   and destructive styling stay).
+
+## Chat polish addendum (2026-07-17, pass 2)
+
+- Quick prompts sharpened: stronger lavender surface + border, bordered
+  icon chip, brighter chevron, soft purple shadow — clearly interactive
+  while staying secondary to the composer.
+- Star menu button: highlight→gold gradient star with restrained glow
+  and a thin gold ring separating it from its circular surface.
+- Branded modal typography normalized app-wide (`BrandedModal`): title
+  at headline scale, subheadline action labels, 46 pt buttons — Rename
+  and Delete no longer read oversized.
+- Invalid-title fallback: `LocalChatTitleGenerator` rejects meaningless
+  fragments (single Latin letter, digits, punctuation, whitespace) via
+  `isMeaningful`; the display then falls back to the localized default
+  新對話 / **New Chat** (EN default renamed from "New Conversation").
+  Stored valid titles are never rewritten.

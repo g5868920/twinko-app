@@ -1356,6 +1356,127 @@ final class TwinkoUITests: XCTestCase {
                       "Bottom navigation restored after leaving Tarot")
     }
 
+    /// Smallest targeted check for the derived tab-visibility change:
+    /// an in-progress Tarot X exit restores the bar at its source.
+    func testTarotExitRestoresTabBar() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile"]
+        app.launch()
+        XCTAssertTrue(app.buttons["tab-explore"].waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 3.0)
+        app.buttons["tab-explore"].tap()
+        XCTAssertTrue(app.buttons["explore-tarot"].waitForExistence(timeout: 5))
+        app.buttons["explore-tarot"].tap()
+        XCTAssertTrue(app.buttons["tarotTopic-relationships"].waitForExistence(timeout: 5))
+        Thread.sleep(forTimeInterval: 0.8)
+        XCTAssertFalse(app.buttons["tab-home"].exists, "Tarot hides the tab bar")
+        scrollTap(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "下一步")).firstMatch, in: app)
+        XCTAssertTrue(app.buttons["tarotSpread-single"].waitForExistence(timeout: 5))
+        settleTap(app.buttons["tarotSpread-single"])
+        Thread.sleep(forTimeInterval: 5.0)
+        // In-progress: X requires the branded confirmation, then exits
+        // to the original source with the tab bar restored.
+        settleTap(app.buttons["tarotExitButton"])
+        XCTAssertTrue(app.staticTexts["要先離開這次占卜嗎？"].waitForExistence(timeout: 4))
+        settleTap(app.buttons["離開占卜"])
+        XCTAssertTrue(app.buttons["explore-tarot"].waitForExistence(timeout: 5),
+                      "X returns to Explore")
+        XCTAssertTrue(app.buttons["tab-home"].waitForExistence(timeout: 4),
+                      "Tab bar restored after leaving Tarot")
+    }
+
+    /// Focused Chat/Horoscope/Tarot polish walkthrough (2026-07-17).
+    func testThreeFeaturePolishWalkthrough() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile"]
+        app.launch()
+
+        // --- Chat landing: no overlay, prompts, tab visible.
+        XCTAssertTrue(app.buttons["tab-chat"].waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 3.0)
+        app.buttons["tab-chat"].tap()
+        XCTAssertTrue(app.staticTexts["我在這裡陪你"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["tab-home"].exists, "Landing keeps the tab bar")
+        attach(name: "P1-chat-landing")
+
+        // Active conversation: hidden tab bar + stable keyboard.
+        settleTap(app.buttons["chatStarter-0"])
+        XCTAssertTrue(app.staticTexts["我想聊聊今天發生的事"].waitForExistence(timeout: 6))
+        Thread.sleep(forTimeInterval: 1.2)
+        XCTAssertFalse(app.buttons["tab-home"].exists, "Conversation hides the tab bar")
+        settleTap(app.textFields["chatInputField"])
+        Thread.sleep(forTimeInterval: 1.2)
+        XCTAssertTrue(app.buttons["chatSendButton"].exists,
+                      "Composer/send stay present with the keyboard open")
+        attach(name: "P2-chat-conversation-keyboard")
+        app.swipeDown()
+        Thread.sleep(forTimeInterval: 0.8)
+
+        // History + delete modal typography.
+        settleTap(app.buttons["chatBackButton"])
+        XCTAssertTrue(app.buttons["tab-home"].waitForExistence(timeout: 4))
+        settleTap(app.buttons["chatMenuButton"])
+        settleTap(app.buttons["menuHistoryRow"])
+        XCTAssertTrue(app.staticTexts["聊天紀錄"].waitForExistence(timeout: 5))
+        settleTap(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "更多選項")).firstMatch)
+        settleTap(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "刪除")).firstMatch)
+        XCTAssertTrue(app.staticTexts["確定要永久刪除這段對話嗎？"]
+            .waitForExistence(timeout: 4))
+        attach(name: "P3-chat-delete-modal")
+        settleTap(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "取消")).firstMatch)
+        settleTap(app.buttons["historyBackButton"])
+
+        // --- Horoscope detail: hidden tab bar, grape CTA, disclaimer.
+        app.buttons["tab-explore"].tap()
+        XCTAssertTrue(app.buttons["explore-zodiac"].waitForExistence(timeout: 5))
+        app.buttons["explore-zodiac"].tap()
+        XCTAssertTrue(app.buttons["horoscopeSaveCardButton"].waitForExistence(timeout: 8))
+        Thread.sleep(forTimeInterval: 0.8)
+        XCTAssertFalse(app.buttons["tab-home"].exists,
+                       "Horoscope detail hides the tab bar")
+        var attempts = 0
+        while !app.staticTexts["內容僅供反思與娛樂"].isHittable && attempts < 8 {
+            app.swipeUp(); attempts += 1
+        }
+        XCTAssertTrue(app.staticTexts["內容僅供反思與娛樂"].exists,
+                      "Approved disclaimer wording")
+        attach(name: "P4-horoscope-cta-hierarchy")
+        settleTap(app.buttons["horoscopeBackButton"])
+        XCTAssertTrue(app.buttons["tab-home"].waitForExistence(timeout: 4),
+                      "Tab bar restored on the outer entry")
+
+        // --- Tarot: Result → Back keeps revealed faces + opacity check.
+        app.buttons["explore-tarot"].tap()
+        XCTAssertTrue(app.buttons["tarotTopic-relationships"].waitForExistence(timeout: 5))
+        Thread.sleep(forTimeInterval: 0.8)
+        scrollTap(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "下一步")).firstMatch, in: app)
+        XCTAssertTrue(app.buttons["tarotSpread-single"].waitForExistence(timeout: 5))
+        settleTap(app.buttons["tarotSpread-single"])
+        Thread.sleep(forTimeInterval: 4.6)
+        settleTap(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "蓋著的牌")).firstMatch)
+        scrollTap(app.buttons["tarotSeeReading"], in: app)
+        XCTAssertTrue(app.descendants(matching: .any)["tarotTwinkoMessage"]
+            .waitForExistence(timeout: 5))
+        settleTap(app.buttons["tarotBackButton"])
+        XCTAssertTrue(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "查看完整解讀")).firstMatch
+            .waitForExistence(timeout: 5), "Completed-state CTA after Back")
+        XCTAssertEqual(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "蓋著的牌")).count, 0,
+            "Revealed faces preserved — no card backs, no re-flip")
+        settleTap(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "查看完整解讀")).firstMatch)
+        XCTAssertTrue(app.descendants(matching: .any)["tarotTwinkoMessage"]
+            .waitForExistence(timeout: 5), "Full reading remains accessible")
+        attach(name: "P5-tarot-result-surfaces")
+    }
+
     /// Waits out any in-flight transition, then taps via coordinate —
     /// coordinate taps skip the AX scroll-to-visible action that fails
     /// on animating elements.

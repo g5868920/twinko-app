@@ -34,6 +34,7 @@ struct MeditationFlowView: View {
     @State private var useGeneral = false
     @State private var recordID: UUID?
     @State private var endedEarly = false
+    @State private var immersiveToken = UUID()
 
     init(sourceContext: MeditationSourceContext = .direct) {
         self.sourceContext = sourceContext
@@ -91,12 +92,12 @@ struct MeditationFlowView: View {
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
         .onAppear {
-            // Immersive Meditation: the bottom navigation stays hidden
-            // for the entire flow; the screen we pop back to restores
-            // its own correct visibility on appear.
-            chrome.tabBarHidden = true
+            // Immersive Meditation: registers its token so the bottom
+            // navigation stays hidden while this flow is on screen.
+            chrome.setImmersive(immersiveToken, active: true)
         }
         .onDisappear {
+            chrome.setImmersive(immersiveToken, active: false)
             playback.stop()
         }
         .animation(.easeOut(duration: 0.2), value: showingEndConfirm)

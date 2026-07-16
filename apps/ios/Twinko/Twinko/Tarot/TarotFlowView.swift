@@ -20,6 +20,7 @@ struct TarotFlowView: View {
     /// Back from the result never re-hides them (§41).
     @State private var revealSeen = false
     @State private var showingExitConfirm = false
+    @State private var immersiveToken = UUID()
     private let provider: TarotInterpretationProviding = MockTarotInterpretationProvider()
 
     private var lang: AppLanguage { prefs.language }
@@ -115,14 +116,15 @@ struct TarotFlowView: View {
                 .accessibilityHidden(true)
         }
         .onAppear {
-            // Immersive Tarot: the shell tab bar stays hidden until
-            // navigation returns to a root tab.
-            chrome.tabBarHidden = true
+            // Immersive Tarot: registers its token so the tab bar
+            // stays hidden while any Tarot stage is on screen.
+            chrome.setImmersive(immersiveToken, active: true)
             InteractivePopGate.isBlocked = true
         }
         .onDisappear {
-            // Pushed children (Tarot-derived Meditation) get the native
-            // pop back; the tab bar stays hidden until a root reappears.
+            // Pushed children (Tarot-derived Meditation) hold their own
+            // token, so the handover keeps the bar hidden seamlessly.
+            chrome.setImmersive(immersiveToken, active: false)
             InteractivePopGate.isBlocked = false
         }
     }
@@ -239,7 +241,6 @@ struct TarotFlowView: View {
     /// from (Explore, Home, …) — never forced to Home. The revealed
     /// root restores its own bottom-navigation visibility.
     private func exitFlow() {
-        chrome.tabBarHidden = false
         dismiss()
     }
 
@@ -270,7 +271,6 @@ struct TarotFlowView: View {
     /// Home root and restores the bottom navigation; Start a New
     /// Reading stays immersive and returns to topic setup.
     fileprivate func goHome() {
-        chrome.tabBarHidden = false
         chrome.selectedTab = .home
         dismiss()
     }

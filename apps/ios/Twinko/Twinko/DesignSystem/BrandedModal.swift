@@ -22,16 +22,19 @@ struct BrandedModal<Content: View>: View {
                     .ignoresSafeArea()
                     .accessibilityHidden(true)
 
-                VStack(spacing: 18) {
+                VStack(spacing: 15) {
                     if let icon {
                         Image(systemName: icon)
-                            .font(.system(size: 24, weight: .semibold))
+                            .font(.system(size: 20, weight: .semibold))
                             .foregroundStyle(iconColor)
-                            .frame(width: 52, height: 52)
+                            .frame(width: 46, height: 46)
                             .background(iconColor.opacity(0.14), in: Circle())
                     }
+                    // Headline-scale title (typography normalization
+                    // 2026-07-17): modal text sits with the rest of the
+                    // app instead of reading oversized.
                     Text(title)
-                        .font(.system(.title3, design: .rounded).weight(.semibold))
+                        .font(.system(.headline, design: .rounded))
                         .foregroundStyle(Color.deepPlum)
                         .multilineTextAlignment(.center)
 
@@ -40,20 +43,20 @@ struct BrandedModal<Content: View>: View {
                     HStack(spacing: 12) {
                         Button(action: onCancel) {
                             Text(cancelTitle)
-                                .font(.system(.body, design: .rounded).weight(.medium))
+                                .font(.system(.subheadline, design: .rounded).weight(.medium))
                                 .foregroundStyle(Color.textSecondaryToken)
                                 .frame(maxWidth: .infinity)
-                                .frame(height: 48)
-                                .background(Color.surfaceSecondary, in: RoundedRectangle(cornerRadius: 24))
+                                .frame(height: 46)
+                                .background(Color.surfaceSecondary, in: RoundedRectangle(cornerRadius: 23))
                         }
 
                         Button(action: onConfirm) {
                             Text(confirmTitle)
-                                .font(.system(.body, design: .rounded).weight(.semibold))
+                                .font(.system(.subheadline, design: .rounded).weight(.semibold))
                                 .foregroundStyle(Color.textInverseToken)
                                 .frame(maxWidth: .infinity)
-                                .frame(height: 48)
-                                .background(confirmBackground, in: RoundedRectangle(cornerRadius: 24))
+                                .frame(height: 46)
+                                .background(confirmBackground, in: RoundedRectangle(cornerRadius: 23))
                         }
                         .disabled(confirmDisabled)
                         .opacity(confirmDisabled ? 0.5 : 1.0)

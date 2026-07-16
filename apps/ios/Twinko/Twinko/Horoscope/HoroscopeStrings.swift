@@ -44,10 +44,9 @@ enum HoroscopeStrings {
     static func share(_ l: AppLanguage) -> String {
         l == .english ? "Share" : "分享"
     }
+    /// Approved short disclaimer (2026-07-17).
     static func disclaimer(_ l: AppLanguage) -> String {
-        l == .english
-            ? "For reflection and entertainment."
-            : "僅供娛樂與自我反思參考。"
+        l == .english ? "For reflection and entertainment only" : "內容僅供反思與娛樂"
     }
 
     // Setup / missing profile

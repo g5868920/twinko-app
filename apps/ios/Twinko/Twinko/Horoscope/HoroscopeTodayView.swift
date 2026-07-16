@@ -9,6 +9,7 @@ import SwiftUI
 struct HoroscopeTodayView: View {
     @EnvironmentObject private var profileStore: ProfileStore
     @EnvironmentObject private var prefs: PrefsStore
+    @EnvironmentObject private var chrome: ShellChrome
     @Environment(\.dismiss) private var dismiss
 
     @StateObject private var cache = HoroscopeCache()
@@ -22,6 +23,7 @@ struct HoroscopeTodayView: View {
     @State private var showingSelector = false
     @State private var showingSummaryCard = false
     @State private var floating = false
+    @State private var immersiveToken = UUID()
 
     private var lang: AppLanguage { prefs.language }
 
@@ -55,11 +57,14 @@ struct HoroscopeTodayView: View {
                     // Readability overlay: the cosmic art (zodiac
                     // wheel, decorative glyphs) stays as atmosphere,
                     // never competing with the reading content.
+                    // Slightly deeper overlay: the zodiac wheel and
+                    // decorative glyphs read as atmosphere, never
+                    // competing with the text.
                     LinearGradient(
                         stops: [
-                            .init(color: Color.deepSpace.opacity(0.30), location: 0),
-                            .init(color: Color.deepSpace.opacity(0.22), location: 0.4),
-                            .init(color: Color.deepSpace.opacity(0.36), location: 1),
+                            .init(color: Color.deepSpace.opacity(0.36), location: 0),
+                            .init(color: Color.deepSpace.opacity(0.28), location: 0.4),
+                            .init(color: Color.deepSpace.opacity(0.42), location: 1),
                         ],
                         startPoint: .top, endPoint: .bottom)
                 }
@@ -87,6 +92,12 @@ struct HoroscopeTodayView: View {
         }
         .onAppear {
             if viewedSign == nil { viewedSign = defaultSign }
+            // Horoscope content is a detail page: its immersive token
+            // hides the bottom tab bar while it is on screen.
+            chrome.setImmersive(immersiveToken, active: true)
+        }
+        .onDisappear {
+            chrome.setImmersive(immersiveToken, active: false)
         }
         .task(id: taskKey) { await load() }
     }
@@ -194,8 +205,10 @@ struct HoroscopeTodayView: View {
 
                 LuckyDetailsGrid(lucky: horoscope.lucky, lang: lang)
                     .padding(.horizontal, TwinkoSpacing.m)
+                    .padding(.top, 2)
 
                 actions(sign: sign, horoscope: horoscope)
+                    .padding(.top, TwinkoSpacing.s)
 
                 Text(HoroscopeStrings.disclaimer(lang))
                     .font(.system(.caption2, design: .rounded))
@@ -275,21 +288,14 @@ struct HoroscopeTodayView: View {
                 Label(HoroscopeStrings.saveCard(lang), systemImage: "photo.on.rectangle.angled")
                     .frame(maxWidth: .infinity)
             }
-            .buttonStyle(.twinkoPrimary)
+            .buttonStyle(.horoscopeGrapePrimary)
             .accessibilityIdentifier("horoscopeSaveCardButton")
 
             ShareLink(item: HoroscopeShareFormatter.text(for: horoscope, sign: sign, lang: lang)) {
                 Label(HoroscopeStrings.share(lang), systemImage: "square.and.arrow.up")
-                    .font(.system(.headline, design: .rounded))
-                    .foregroundStyle(Color.twinkoGold)
-                    .frame(maxWidth: .infinity, minHeight: 48)
-                    .background(Color.deepSpace.opacity(0.5),
-                                in: RoundedRectangle(cornerRadius: 24))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 24)
-                            .strokeBorder(Color.twinkoGold.opacity(0.5), lineWidth: 1)
-                    )
+                    .frame(maxWidth: .infinity)
             }
+            .buttonStyle(.horoscopeGrapeSecondary)
             .accessibilityIdentifier("horoscopeShareButton")
         }
         .padding(.horizontal, TwinkoSpacing.m)
@@ -353,7 +359,7 @@ private struct HoroscopeSetupStage: View {
                     Text(HoroscopeStrings.continueLabel(lang))
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.twinkoPrimary)
+                .buttonStyle(.horoscopeGrapePrimary)
                 .padding(.horizontal, TwinkoSpacing.m)
 
                 Button {

@@ -288,7 +288,7 @@ extension View {
                 LinearGradient(colors: [Color(hex: 0xFFF9EE),
                                         Color(hex: 0xF7F0F8)],
                                startPoint: .top, endPoint: .bottom)
-                    .opacity(0.94),
+                    .opacity(0.88),
                 in: RoundedRectangle(cornerRadius: TwinkoRadius.card)
             )
             .overlay(

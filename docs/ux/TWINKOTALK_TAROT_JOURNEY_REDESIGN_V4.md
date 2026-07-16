@@ -284,3 +284,14 @@ confirmation appears: 「要先離開這次占卜嗎？」/「這次的占卜流
 束，你之後可以再重新開始。」· 繼續占卜 preserves all reading state /
 離開占卜 exits (saved Summary Cards untouched). Back, Back to Home, and
 Start a New Reading are unchanged.
+
+## 13. Polish notes (2026-07-17, pass 4)
+
+- Moonlit Ivory reading surfaces blend slightly deeper into the scene
+  (gradient opacity 0.94 → 0.88); border, typography, and structure
+  unchanged; readability re-verified in the Simulator.
+- Completed-reading Back behavior re-verified after the shared
+  tab-visibility change: Result → Back shows the same revealed faces
+  (no card backs, no shuffle replay, no redraw) with the
+  查看完整解讀 completed-state CTA; reveal state remains the single
+  source of truth (`revealSeen` + `initiallyRevealed`).

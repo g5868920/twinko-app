@@ -839,3 +839,23 @@ The following supersede any conflicting sections above:
    the asset catalog.
 6. **Disclaimer** appears once, short, at the bottom of the main
    screen only — never on the Summary Card.
+
+## Horoscope polish amendment (2026-07-17)
+
+- **CTA family:** feature-scoped deep-grape treatment
+  (`HoroscopeCTAPalette`, ≈#5B3A94→#372359 + antique-gold border/icon,
+  warm-ivory text) replaces the bright-gold primary — premium and
+  distinct from Tarot's amethyst. Save 運勢小卡 = primary; Share =
+  secondary (same family); applied on the page, the Summary Card
+  sheet, setup, and retry states. Renderer, export dimensions, Photos
+  and share services unchanged.
+- **Hierarchy:** deeper background overlay (~0.28–0.42) so the zodiac
+  wheel reads as atmosphere; 整體運勢 carries a stronger surface +
+  gold border; Twinko 想說 unchanged as the entry point; 今日幸運 uses
+  a quieter title and lighter tiles; slightly more spacing before the
+  actions.
+- **Disclaimer:** 「內容僅供反思與娛樂」/ "For reflection and
+  entertainment only", low prominence.
+- **Tab visibility:** the Horoscope content page registers an
+  immersive token (bar hidden); the outer entry (Explore/Home) keeps
+  the bar and it restores on pop.

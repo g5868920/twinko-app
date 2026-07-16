@@ -207,7 +207,7 @@ struct HoroscopeSummaryCardPreviewSheet: View {
                         Label(HoroscopeStrings.saveToPhotos(lang), systemImage: "square.and.arrow.down")
                             .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.twinkoPrimary)
+                    .buttonStyle(.horoscopeGrapePrimary)
                     .padding(.horizontal, TwinkoSpacing.l)
                     .accessibilityIdentifier("horoscopeCardSave")
 
@@ -217,16 +217,9 @@ struct HoroscopeSummaryCardPreviewSheet: View {
                                               image: Image(uiImage: rendered))
                     ) {
                         Label(HoroscopeStrings.shareImage(lang), systemImage: "square.and.arrow.up")
-                            .font(.system(.headline, design: .rounded))
-                            .foregroundStyle(Color.twinkoGold)
-                            .frame(maxWidth: .infinity, minHeight: 48)
-                            .background(Color.deepSpace.opacity(0.6),
-                                        in: RoundedRectangle(cornerRadius: 24))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 24)
-                                    .strokeBorder(Color.twinkoGold.opacity(0.5), lineWidth: 1)
-                            )
+                            .frame(maxWidth: .infinity)
                     }
+                    .buttonStyle(.horoscopeGrapeSecondary)
                     .padding(.horizontal, TwinkoSpacing.l)
                     .accessibilityIdentifier("horoscopeCardShare")
                 } else if renderFailed {
@@ -241,7 +234,7 @@ struct HoroscopeSummaryCardPreviewSheet: View {
                     } label: {
                         Text(HoroscopeStrings.retry(lang)).frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.twinkoPrimary)
+                    .buttonStyle(.horoscopeGrapePrimary)
                     .padding(.horizontal, TwinkoSpacing.xl)
                     ShareLink(item: HoroscopeShareFormatter.text(for: horoscope, sign: sign,
                                                                  lang: lang)) {

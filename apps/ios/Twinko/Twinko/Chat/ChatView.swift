@@ -106,16 +106,19 @@ struct ChatView: View {
                 viewModel.startNewSession()
             }
             startIdle()
-            chrome.tabBarHidden = Self.hidesTabBar(conversationActive: isConversationActive)
+            chrome.setChatConversationActive(
+                Self.hidesTabBar(conversationActive: isConversationActive))
         }
         .onChange(of: isConversationActive) { _, active in
-            chrome.tabBarHidden = Self.hidesTabBar(conversationActive: active)
+            chrome.setChatConversationActive(Self.hidesTabBar(conversationActive: active))
         }
-        // No onDisappear reset: a pushed view's onAppear fires before
-        // this view's onDisappear, so resetting here would overwrite
-        // an immersive child (Meditation). Every destination declares
-        // its own chrome on appear instead (History below, Meditation,
-        // tab roots).
+        .onDisappear {
+            // Leaving this chat surface (pop to History, push into an
+            // immersive child) clears the conversation flag; immersive
+            // children keep the bar hidden through their own tokens,
+            // and re-appearing re-reports the state above.
+            chrome.setChatConversationActive(false)
+        }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { isDay = ChatDayNight.isDay() }
         }
@@ -157,14 +160,21 @@ struct ChatView: View {
                 isInputFocused = false
                 withAnimation(.easeOut(duration: 0.2)) { showingQuickMenu.toggle() }
             } label: {
-                // Brighter, more magical star (polish 2026-07-17):
-                // saturated Twinko gold with a restrained glow.
+                // Brighter, dimensional star: highlight-to-gold
+                // gradient with a restrained magical glow, clearly
+                // separated from its circular surface.
                 Image(systemName: "star.fill")
-                    .font(.system(size: 16))
-                    .foregroundStyle(Color.twinkoGold)
-                    .shadow(color: Color.twinkoGold.opacity(0.65), radius: 5)
+                    .font(.system(size: 17))
+                    .foregroundStyle(
+                        LinearGradient(colors: [Color(hex: 0xFFE9A6), .twinkoGold],
+                                       startPoint: .topLeading,
+                                       endPoint: .bottomTrailing))
+                    .shadow(color: Color.twinkoGold.opacity(0.7), radius: 5)
                     .frame(width: 38, height: 38)
-                    .background(Color.surfacePrimary.opacity(0.85), in: Circle())
+                    .background(Color.surfacePrimary.opacity(0.92), in: Circle())
+                    .overlay(Circle().strokeBorder(Color.twinkoGold.opacity(0.35),
+                                                   lineWidth: 1))
+                    .shadow(color: Color.deepPlum.opacity(0.15), radius: 3, y: 1)
                     .frame(width: 44, height: 44)
                     .contentShape(Circle())
             }
@@ -223,11 +233,13 @@ struct ChatView: View {
                                 // (which stays the stronger affordance).
                                 HStack(spacing: 10) {
                                     Image(systemName: starterIcon(index))
-                                        .font(.system(size: 13, weight: .medium))
+                                        .font(.system(size: 13, weight: .semibold))
                                         .foregroundStyle(Color.brandPurpleDeep)
-                                        .frame(width: 26, height: 26)
-                                        .background(Color.surfacePrimary.opacity(0.9),
+                                        .frame(width: 28, height: 28)
+                                        .background(Color.surfacePrimary.opacity(0.95),
                                                     in: Circle())
+                                        .overlay(Circle().strokeBorder(
+                                            Color.brandPurple.opacity(0.35), lineWidth: 1))
                                     Text(starter)
                                         .font(.system(.subheadline, design: .rounded))
                                         .foregroundStyle(Color.deepPlum)
@@ -236,19 +248,21 @@ struct ChatView: View {
                                         .fixedSize(horizontal: false, vertical: true)
                                     Spacer(minLength: 6)
                                     Image(systemName: "chevron.right")
-                                        .font(.system(size: 11, weight: .semibold))
-                                        .foregroundStyle(Color.brandPurpleDeep.opacity(0.55))
+                                        .font(.system(size: 12, weight: .bold))
+                                        .foregroundStyle(Color.brandPurpleDeep.opacity(0.85))
                                 }
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)
                                 .frame(maxWidth: .infinity, minHeight: 44)
-                                .background(Color.brandPurple.opacity(0.16),
+                                .background(Color.brandPurple.opacity(0.18),
                                             in: RoundedRectangle(cornerRadius: 16))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 16)
-                                        .strokeBorder(Color.brandPurple.opacity(0.28),
+                                        .strokeBorder(Color.brandPurple.opacity(0.4),
                                                       lineWidth: 1)
                                 )
+                                .shadow(color: Color.brandPurpleDeep.opacity(0.12),
+                                        radius: 5, y: 2)
                                 .contentShape(RoundedRectangle(cornerRadius: 16))
                             }
                             .buttonStyle(TarotSuggestionPressStyle())

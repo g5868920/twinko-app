@@ -15,6 +15,10 @@ final class ChatViewModel: ObservableObject {
     @Published private(set) var messages: [ChatMessage]
     @Published private(set) var state: ChatState = .idle
     @Published var draftText: String = ""
+    /// The single conversation-level meditation confirmation offer —
+    /// explicit requests and proactive suggestions share this state,
+    /// so two cards can never appear at once.
+    @Published private(set) var meditationOffer: ChatMeditationOffer?
 
     /// Attached by the view; optional so unit tests can run pure
     /// in-memory conversations.
@@ -50,16 +54,63 @@ final class ChatViewModel: ObservableObject {
         }
     }
 
+    /// Response routing priority: explicit feature intent (Meditation)
+    /// is handled before the generic scripted/fallback responses, so a
+    /// clear "我想要冥想" can never be answered with a stale
+    /// misunderstanding reply. (The dev-only error triggers contain no
+    /// meditation keywords, so they still exercise the fallback path.)
     private func respond(to input: String) {
+        if MeditationIntentDetector.detect(input) == .requestIntent {
+            let ack = ChatMessage(sender: .twinko,
+                                  text: ChatStrings.meditationAckMessage(for: input))
+            append(ack)
+            state = .success
+            // An explicit request may reopen confirmation even after a
+            // declined proactive offer.
+            meditationOffer = ChatMeditationOffer(source: .explicitRequest,
+                                                  messageID: ack.id)
+            maybeGenerateTitle()
+            return
+        }
+
         switch service.response(for: input) {
         case .success(let text):
-            append(ChatMessage(sender: .twinko, text: text))
+            let reply = ChatMessage(sender: .twinko, text: text)
+            append(reply)
             state = .success
+            maybeOfferProactiveMeditation(after: reply)
         case .fallback(let text):
             append(ChatMessage(sender: .twinko, text: text))
             state = .error
         }
         maybeGenerateTitle()
+    }
+
+    /// Proactive suggestion: at most once per conversation (persisted
+    /// on the session), only after a meaningful exchange, never while
+    /// another offer is visible.
+    private func maybeOfferProactiveMeditation(after reply: ChatMessage) {
+        guard meditationOffer == nil,
+              !session.meditationProactiveOfferResolved,
+              messages.filter({ $0.sender == .user }).count >= 1 else { return }
+        meditationOffer = ChatMeditationOffer(source: .proactiveSuggestion,
+                                              messageID: reply.id)
+        session.meditationProactiveOfferResolved = true
+        store?.upsert(session)
+    }
+
+    /// Decline: dismiss silently — no "好的" reply, no further
+    /// proactive offers this conversation; explicit requests stay
+    /// available.
+    func declineMeditationOffer() {
+        meditationOffer = nil
+    }
+
+    /// Accept: resolve the offer and hand back the adapted context for
+    /// navigation to the Meditation Context Review.
+    func acceptMeditationOffer(lang: AppLanguage) -> MeditationSourceContext {
+        meditationOffer = nil
+        return ChatMeditationContextAdapter.context(for: messages, lang: lang)
     }
 
     /// Resets this view model to a brand-new empty conversation; all
@@ -69,6 +120,7 @@ final class ChatViewModel: ObservableObject {
         messages = []
         draftText = ""
         state = .idle
+        meditationOffer = nil
     }
 
     /// Automatic topic title once the first exchange exists. Only ever

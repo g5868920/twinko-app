@@ -11,6 +11,8 @@ struct ChatHistoryView: View {
     @State private var renameTarget: ChatSession?
     @State private var renameText = ""
     @State private var deleteTarget: ChatSession?
+    @FocusState private var renameFieldFocused: Bool
+    private static let renameMaxLength = 30
     @State private var actionMenuTarget: ChatSession?
     @State private var moreButtonFrames: [UUID: CGRect] = [:]
 
@@ -78,6 +80,14 @@ struct ChatHistoryView: View {
                     .font(.system(.body, design: .rounded))
                     .foregroundStyle(Color.textPrimaryToken)
                     .tint(.linkPurple)
+                    .focused($renameFieldFocused)
+                    .submitLabel(.done)
+                    .onSubmit { saveRename(target) }
+                    .onChange(of: renameText) { _, newValue in
+                        if newValue.count > Self.renameMaxLength {
+                            renameText = String(newValue.prefix(Self.renameMaxLength))
+                        }
+                    }
                     .padding(.horizontal, 16)
                     .frame(height: 48)
                     .background(Color.surfaceInput, in: RoundedRectangle(cornerRadius: 16))
@@ -86,17 +96,23 @@ struct ChatHistoryView: View {
                             .strokeBorder(Color.borderSoft, lineWidth: 1)
                     )
                     .accessibilityIdentifier("renameTitleField")
+                    .onAppear { renameFieldFocused = true }
             },
             cancelTitle: ChatStrings.cancel(lang),
             confirmTitle: ChatStrings.save(lang),
             confirmDisabled: renameText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
             onCancel: { renameTarget = nil },
-            onConfirm: {
-                chatStore.rename(target.id, to: renameText)
-                renameTarget = nil
-            }
+            onConfirm: { saveRename(target) }
         )
         .transition(.opacity)
+    }
+
+    /// Trims, rejects empty, persists, and locks the manual title.
+    private func saveRename(_ target: ChatSession) {
+        let trimmed = renameText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        chatStore.rename(target.id, to: trimmed)
+        renameTarget = nil
     }
 
     private func deleteModal(_ target: ChatSession) -> some View {
@@ -152,9 +168,18 @@ struct ChatHistoryView: View {
 
     private var sessionList: some View {
         ScrollView {
-            LazyVStack(spacing: 10) {
-                ForEach(chatStore.sessions) { session in
-                    row(session)
+            LazyVStack(spacing: 8, pinnedViews: []) {
+                ForEach(ChatHistoryGroup.grouped(chatStore.sessions), id: \.0) { group, sessions in
+                    Text(group.label(lang))
+                        .font(.system(.caption, design: .rounded).weight(.semibold))
+                        .foregroundStyle(Color.textMutedToken)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.top, 10)
+                        .padding(.leading, 4)
+                        .accessibilityAddTraits(.isHeader)
+                    ForEach(sessions) { session in
+                        row(session)
+                    }
                 }
             }
             .padding(.horizontal, 16)
@@ -220,14 +245,13 @@ struct ChatHistoryView: View {
                 : "「\(session.displayTitle(for: lang))」的更多選項"))
         }
         .padding(.leading, 12)
-        .frame(minHeight: 64)
-        .background(Color.surfacePrimary, in: RoundedRectangle(cornerRadius: 18))
+        .frame(minHeight: 56)
+        .background(Color.surfacePrimary.opacity(0.75),
+                    in: RoundedRectangle(cornerRadius: 16))
         .overlay(
-            RoundedRectangle(cornerRadius: 18)
-                .strokeBorder(Color.borderSoft.opacity(0.6), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 16)
+                .strokeBorder(Color.borderSoft.opacity(0.45), lineWidth: 1)
         )
-        .shadow(color: Color(red: 0.06, green: 0.07, blue: 0.15).opacity(0.06),
-                radius: 6, y: 2)
     }
 
     // MARK: Empty state

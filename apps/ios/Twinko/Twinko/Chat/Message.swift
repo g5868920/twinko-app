@@ -36,16 +36,22 @@ struct ChatSession: Identifiable, Equatable, Codable {
     /// the localized temporary title instead.
     var title: String
     var titleSource: TitleSource
+    /// A proactive meditation suggestion appears at most once per
+    /// conversation; once shown (accepted or declined) it never
+    /// reappears proactively. Explicit user requests are unaffected.
+    var meditationProactiveOfferResolved: Bool
 
     init(id: UUID = UUID(), createdAt: Date = .now, updatedAt: Date = .now,
          messages: [ChatMessage] = [], title: String = "",
-         titleSource: TitleSource = .auto) {
+         titleSource: TitleSource = .auto,
+         meditationProactiveOfferResolved: Bool = false) {
         self.id = id
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.messages = messages
         self.title = title
         self.titleSource = titleSource
+        self.meditationProactiveOfferResolved = meditationProactiveOfferResolved
     }
 
     /// Backward-compatible decoding: sessions saved before titles were
@@ -58,6 +64,8 @@ struct ChatSession: Identifiable, Equatable, Codable {
         messages = try container.decode([ChatMessage].self, forKey: .messages)
         title = try container.decodeIfPresent(String.self, forKey: .title) ?? ""
         titleSource = try container.decodeIfPresent(TitleSource.self, forKey: .titleSource) ?? .auto
+        meditationProactiveOfferResolved = try container.decodeIfPresent(
+            Bool.self, forKey: .meditationProactiveOfferResolved) ?? false
     }
 
     /// Title for display: the stored title, or the localized temporary
@@ -66,8 +74,19 @@ struct ChatSession: Identifiable, Equatable, Codable {
         title.isEmpty ? ChatStrings.temporaryTitle(lang) : title
     }
 
-    /// Last message text, for history previews.
+    /// Latest conversational message, normalized for history previews:
+    /// single line, trimmed, leading filler softened — the underlying
+    /// message content is never altered.
     var lastMessagePreview: String {
-        messages.last?.text ?? ""
+        guard var text = messages.last?.text else { return "" }
+        text = text.replacingOccurrences(of: "\n", with: " ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        // Drop awkward leading hesitation fillers from previews.
+        for filler in ["嗯……", "嗯…", "嗯，"] where text.hasPrefix(filler) {
+            text = String(text.dropFirst(filler.count))
+                .trimmingCharacters(in: .whitespaces)
+            break
+        }
+        return text
     }
 }

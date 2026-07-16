@@ -19,11 +19,10 @@ struct ChatView: View {
     @State private var showingDraftDiscard = false
     @State private var goToHistory = false
     @State private var floating = false
-    // Meditation handoff: one offer per conversation; declining hides
-    // it for that session only. No emotion detection — the offer
-    // appears once a Twinko reply exists.
+    // Meditation handoff: the confirmation offer lives on the view
+    // model (centralized conversation-level state).
     @State private var goToMeditation = false
-    @State private var meditationDeclinedSessionID: UUID?
+    @State private var meditationContext: MeditationSourceContext = .direct
 
     /// Opens a fresh session by default, or continues an existing one
     /// from Chat History.
@@ -44,9 +43,6 @@ struct ChatView: View {
                 } else {
                     messageList
                         .transition(.opacity)
-                }
-                if showsMeditationOffer {
-                    meditationOffer
                 }
                 composer
             }
@@ -126,7 +122,7 @@ struct ChatView: View {
                 Spacer()
                 Button {
                     isInputFocused = false
-                    withAnimation(.easeOut(duration: 0.2)) { showingQuickMenu = true }
+                    withAnimation(.easeOut(duration: 0.2)) { showingQuickMenu.toggle() }
                 } label: {
                     Image(systemName: "star.fill")
                         .font(.system(size: 15))
@@ -142,6 +138,11 @@ struct ChatView: View {
         }
         .padding(.horizontal, 8)
         .frame(height: 48)
+        .background(
+            LinearGradient(colors: [Color.deepSpace.opacity(0.10), .clear],
+                           startPoint: .top, endPoint: .bottom)
+                .allowsHitTesting(false)
+        )
     }
 
     // MARK: Empty state
@@ -184,22 +185,33 @@ struct ChatView: View {
                                 viewModel.draftText = starter
                                 isInputFocused = true
                             } label: {
+                                // Suggestion card: translucent lavender
+                                // surface, icon chip, chevron — clearly
+                                // distinct from the white composer field
+                                // (which stays the stronger affordance).
                                 HStack(spacing: 10) {
                                     Image(systemName: starterIcon(index))
-                                        .font(.system(size: 15, weight: .medium))
-                                        .foregroundStyle(Color.linkPurple)
+                                        .font(.system(size: 13, weight: .medium))
+                                        .foregroundStyle(Color.brandPurpleDeep)
+                                        .frame(width: 26, height: 26)
+                                        .background(Color.surfacePrimary.opacity(0.9),
+                                                    in: Circle())
                                     Text(starter)
-                                        .font(.system(.body, design: .rounded))
+                                        .font(.system(.subheadline, design: .rounded))
                                         .foregroundStyle(Color.deepPlum)
                                     Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 11, weight: .semibold))
+                                        .foregroundStyle(Color.brandPurpleDeep.opacity(0.55))
                                 }
-                                .padding(.horizontal, 16)
-                                .frame(minHeight: 48)
-                                .background(Color.surfacePrimary.opacity(0.94),
-                                            in: RoundedRectangle(cornerRadius: 22))
+                                .padding(.horizontal, 12)
+                                .frame(minHeight: 44)
+                                .background(Color.brandPurple.opacity(0.16),
+                                            in: RoundedRectangle(cornerRadius: 16))
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 22)
-                                        .strokeBorder(Color.borderSoft, lineWidth: 1)
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .strokeBorder(Color.brandPurple.opacity(0.28),
+                                                      lineWidth: 1)
                                 )
                             }
                             .accessibilityIdentifier("chatStarter-\(index)")
@@ -233,13 +245,22 @@ struct ChatView: View {
                         typingRow
                             .id("typing")
                     }
+                    if let offer = viewModel.meditationOffer {
+                        meditationOfferCard(offer)
+                            .id("meditationOffer")
+                    }
                 }
                 .padding(.horizontal, 12)
-                .padding(.vertical, 8)
+                .padding(.top, 10)
+                .padding(.bottom, 8)
             }
             .onChange(of: viewModel.messages.count) { _, _ in scrollToBottom(proxy) }
             .onChange(of: viewModel.state) { _, _ in scrollToBottom(proxy) }
+            .onChange(of: viewModel.meditationOffer) { _, offer in
+                if offer != nil { scrollToBottom(proxy) }
+            }
             .onAppear { scrollToBottom(proxy) }
+            .defaultScrollAnchor(.bottom)
             .scrollDismissesKeyboard(.interactively)
         }
     }
@@ -310,86 +331,73 @@ struct ChatView: View {
     }
 
     private func scrollToBottom(_ proxy: ScrollViewProxy) {
-        let target: AnyHashable? = viewModel.state == .loading
-            ? "typing" : viewModel.messages.last?.id
+        let target: AnyHashable?
+        if viewModel.meditationOffer != nil {
+            target = AnyHashable("meditationOffer")
+        } else if viewModel.state == .loading {
+            target = AnyHashable("typing")
+        } else {
+            target = viewModel.messages.last.map { AnyHashable($0.id) }
+        }
         guard let target else { return }
         withAnimation { proxy.scrollTo(target, anchor: .bottom) }
     }
 
-    // MARK: Meditation handoff
+    // MARK: Meditation confirmation card
 
-    /// Shown once a Twinko reply exists, at most once per conversation
-    /// (declining hides it for that session). No content analysis.
-    private var showsMeditationOffer: Bool {
-        viewModel.messages.last?.sender == .twinko
-            && viewModel.state != .loading
-            && meditationDeclinedSessionID != viewModel.sessionID
-            && !showingQuickMenu
-    }
-
-    /// Small locally derived summary: the most recent user message,
-    /// truncated — never the whole transcript.
-    private var meditationContext: MeditationSourceContext {
-        let lastUserText = viewModel.messages.last(where: { $0.sender == .user })?.text ?? ""
-        let summary = String(lastUserText.prefix(50))
-        return MeditationSourceContext(sourceType: .chat,
-                                       recentChatSummary: summary.isEmpty ? nil : summary,
-                                       tarotQuestion: nil, tarotSummary: nil,
-                                       emotionalTone: nil)
-    }
-
-    private var meditationOffer: some View {
-        HStack(spacing: 10) {
-            Image(systemName: "moon.stars.fill")
-                .font(.system(size: 14))
-                .foregroundStyle(Color.brandPurpleDeep)
-            Text(MeditationStrings.chatOffer(lang))
-                .font(.system(.caption, design: .rounded))
-                .foregroundStyle(Color.deepPlum)
-                .lineLimit(2)
-            Spacer(minLength: 4)
+    /// Contextual confirmation card shown after the related Twinko
+    /// message — one shared component for explicit requests and
+    /// proactive suggestions (only trigger source differs).
+    private func meditationOfferCard(_ offer: ChatMeditationOffer) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: "moon.stars.fill")
+                    .font(.system(size: 14))
+                    .foregroundStyle(Color.brandPurpleDeep)
+                Text(ChatStrings.meditationConfirm(lang))
+                    .font(.system(.subheadline, design: .rounded))
+                    .foregroundStyle(Color.deepPlum)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             Button {
+                meditationContext = viewModel.acceptMeditationOffer(lang: lang)
                 goToMeditation = true
             } label: {
-                Text(MeditationStrings.chatOfferAccept(lang))
-                    .font(.system(.caption, design: .rounded).weight(.semibold))
+                Text(ChatStrings.meditationConfirmAccept(lang))
+                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
                     .foregroundStyle(Color.textInverseToken)
-                    .padding(.horizontal, 12)
-                    .frame(minHeight: 32)
+                    .frame(maxWidth: .infinity, minHeight: 44)
                     .background(
                         LinearGradient(colors: [.brandPurple, .brandPurpleDeep],
                                        startPoint: .top, endPoint: .bottom),
-                        in: Capsule())
-                    .frame(minHeight: 44)
-                    .contentShape(Capsule())
+                        in: RoundedRectangle(cornerRadius: 22))
             }
             .accessibilityIdentifier("chatMeditationAccept")
             Button {
                 withAnimation(.easeOut(duration: 0.2)) {
-                    meditationDeclinedSessionID = viewModel.sessionID
+                    viewModel.declineMeditationOffer()
                 }
             } label: {
-                Text(MeditationStrings.chatOfferDecline(lang))
-                    .font(.system(.caption, design: .rounded))
+                Text(ChatStrings.meditationConfirmDecline(lang))
+                    .font(.system(.subheadline, design: .rounded))
                     .foregroundStyle(Color.textSecondaryToken)
-                    .frame(minWidth: 44, minHeight: 44)
-                    .contentShape(Rectangle())
+                    .frame(maxWidth: .infinity, minHeight: 44)
             }
             .accessibilityIdentifier("chatMeditationDecline")
         }
-        .padding(.leading, 14)
-        .padding(.trailing, 4)
-        .background(Color.surfacePrimary.opacity(0.94),
-                    in: RoundedRectangle(cornerRadius: 18))
-        .overlay(RoundedRectangle(cornerRadius: 18)
+        .padding(TwinkoSpacing.m)
+        .background(Color.surfacePrimary.opacity(0.96),
+                    in: RoundedRectangle(cornerRadius: 20))
+        .overlay(RoundedRectangle(cornerRadius: 20)
             .strokeBorder(Color.borderSoft, lineWidth: 1))
-        .padding(.horizontal, 12)
-        .padding(.top, 4)
+        .padding(.leading, 38)
+        .padding(.trailing, 12)
         .transition(.opacity)
         .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("chatMeditationOfferCard")
     }
 
-    // MARK: Composer
+    // MARK: Composer    // MARK: Composer
 
     private var composer: some View {
         HStack(alignment: .bottom, spacing: 10) {
@@ -429,6 +437,10 @@ struct ChatView: View {
             }
             .buttonStyle(GoldPressStyle(enabled: canSend))
             .disabled(!canSend)
+            // Centers the 44pt button against the 52pt single-line
+            // field; for expanded input it stays bottom-aligned with
+            // the same consistent inset.
+            .padding(.bottom, 4)
             .accessibilityLabel(Text(lang == .english ? "Send" : "送出"))
             .accessibilityIdentifier("chatSendButton")
         }
@@ -480,19 +492,6 @@ struct ChatView: View {
                 .shadow(color: Color(red: 0.06, green: 0.07, blue: 0.15).opacity(0.16),
                         radius: 32, y: 12)
 
-                Button {
-                    closeQuickMenu()
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Color.textInverseToken)
-                        .frame(width: 40, height: 40)
-                        .background(Color.menuDeep.opacity(0.9), in: Circle())
-                        .frame(width: 44, height: 44)
-                        .contentShape(Circle())
-                }
-                .accessibilityLabel(Text(lang == .english ? "Close" : "關閉"))
-                .accessibilityIdentifier("menuCloseButton")
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
             .padding(.trailing, 16)

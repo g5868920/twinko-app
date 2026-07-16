@@ -113,17 +113,8 @@ enum MeditationStrings {
     }
 
     // Chat offer / Tarot CTA
-    static func chatOffer(_ l: AppLanguage) -> String {
-        l == .english
-            ? "Would you like a short meditation around this?"
-            : "要不要針對這件事，做一段短短的冥想？"
-    }
-    static func chatOfferAccept(_ l: AppLanguage) -> String {
-        l == .english ? "Start meditation" : "好，一起冥想"
-    }
-    static func chatOfferDecline(_ l: AppLanguage) -> String {
-        l == .english ? "Not now" : "先不用"
-    }
+    // Chat offer copy moved to ChatStrings (shared confirmation card
+    // for explicit + proactive triggers).
     static func tarotCTA(_ l: AppLanguage) -> String {
         l == .english ? "Turn this guidance into a meditation" : "把這份指引化成一段冥想"
     }

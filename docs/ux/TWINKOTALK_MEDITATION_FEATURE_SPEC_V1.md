@@ -726,3 +726,14 @@ The implementation must not:
 - [ ] `twinko_meditation_calm_v1.png` is used consistently
 - [ ] One canonical Meditation background is used
 - [ ] No unapproved Twinko variants are added
+
+# 24. Chat-entry refinement (founder/CPO review 2026-07-16)
+
+Explicit meditation requests inside Chat require confirmation before
+navigation (never straight to Meditation Home): intent detection →
+Twinko acknowledgment → contextual confirmation card → accept →
+summarized Chat context → Meditation Context Review, prefilled with a
+concise focus summary and recommended theme/duration. Request intent
+is distinguished from topic mentions; proactive suggestions appear at
+most once per conversation and share the same confirmation card and
+state as explicit requests. See the Chat screen spec v1.2 notes.

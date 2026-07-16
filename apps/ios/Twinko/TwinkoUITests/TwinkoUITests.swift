@@ -79,8 +79,9 @@ final class TwinkoUITests: XCTestCase {
         historyRowButton.tap()
 
         let historyRow = app.staticTexts.matching(
-            NSPredicate(format: "label CONTAINS %@", "難過")).firstMatch
-        XCTAssertTrue(historyRow.waitForExistence(timeout: 5), "Saved session should be listed")
+            NSPredicate(format: "label CONTAINS %@", "心情低落")).firstMatch
+        XCTAssertTrue(historyRow.waitForExistence(timeout: 5),
+                      "Saved session should be listed with its topic-style title")
         attach(name: "06-chat-history")
 
         app.buttons["historyBackButton"].tap() // pop history
@@ -494,6 +495,97 @@ final class TwinkoUITests: XCTestCase {
         } else {
             attach(name: "H6-share-sheet")
         }
+    }
+
+    /// Focused Chat refinement walkthrough (founder/CPO review
+    /// 2026-07-16): quick prompts, meditation intent routing,
+    /// confirmation card, handoff, history grouping, and menu toggle.
+    func testChatRefinementWalkthrough() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile"]
+        app.launch()
+
+        // New Chat: restyled quick prompts with the safe wording
+        XCTAssertTrue(app.buttons["homeTile-chat"].waitForExistence(timeout: 10))
+        app.buttons["homeTile-chat"].tap()
+        let input = app.textFields["chatInputField"]
+        XCTAssertTrue(input.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "壓力有點大")).firstMatch.exists,
+            "Replaced quick prompt should be present")
+        XCTAssertFalse(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "喘不過氣")).firstMatch.exists,
+            "Breathing-emergency wording must be gone")
+        attach(name: "CR1-new-chat-prompts")
+
+        // Explicit meditation request → confirmation card, no fallback
+        input.tap()
+        input.typeText("我想要冥想")
+        app.buttons["chatSendButton"].tap()
+        let offerCard = app.descendants(matching: .any)["chatMeditationOfferCard"]
+        XCTAssertTrue(offerCard.waitForExistence(timeout: 8),
+                      "Explicit request should show the confirmation card")
+        XCTAssertFalse(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "沒有完全聽懂")).firstMatch.exists,
+            "Explicit intent must not hit the misunderstanding fallback")
+        attach(name: "CR2-meditation-confirmation")
+
+        // Decline dismisses silently (allow the fade-out to finish)
+        app.buttons["chatMeditationDecline"].tap()
+        Thread.sleep(forTimeInterval: 0.8)
+        XCTAssertFalse(offerCard.exists)
+
+        // Topic-only mention does not trigger confirmation
+        input.tap()
+        input.typeText("你覺得冥想有用嗎")
+        app.buttons["chatSendButton"].tap()
+        Thread.sleep(forTimeInterval: 2.0)
+        XCTAssertFalse(offerCard.exists, "Topic mention must not show the confirmation card")
+
+        // A later explicit request reopens confirmation; accept hands
+        // off to the Meditation Context Review with chat context.
+        input.tap()
+        input.typeText("帶我冥想")
+        app.buttons["chatSendButton"].tap()
+        XCTAssertTrue(offerCard.waitForExistence(timeout: 8))
+        settleTap(app.buttons["chatMeditationAccept"])
+        XCTAssertTrue(app.buttons["meditationStartButton"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.descendants(matching: .any)["meditationSourceCard"]
+            .waitForExistence(timeout: 5), "Context Review should acknowledge the Chat source")
+        attach(name: "CR3-chat-context-review")
+        app.buttons["meditationBackButton"].tap()
+        XCTAssertTrue(input.waitForExistence(timeout: 5))
+
+        // Star menu: toggle open/closed, no floating X
+        settleTap(app.buttons["chatMenuButton"])
+        XCTAssertTrue(app.buttons["menuNewChatRow"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["menuCloseButton"].exists, "Floating X is removed")
+        attach(name: "CR4-chat-menu")
+        settleTap(app.buttons["chatMenuButton"]) // toggle closes
+        XCTAssertFalse(app.buttons["menuNewChatRow"].waitForExistence(timeout: 2))
+
+        // History: date grouping + rename lock
+        settleTap(app.buttons["chatMenuButton"])
+        XCTAssertTrue(app.buttons["menuHistoryRow"].waitForExistence(timeout: 5))
+        settleTap(app.buttons["menuHistoryRow"])
+        XCTAssertTrue(app.staticTexts["今天"].waitForExistence(timeout: 5),
+                      "History should group by date")
+        let moreButton = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "更多選項")).firstMatch
+        XCTAssertTrue(moreButton.waitForExistence(timeout: 5))
+        settleTap(moreButton)
+        let renameItem = app.buttons["重新命名"]
+        XCTAssertTrue(renameItem.waitForExistence(timeout: 5))
+        settleTap(renameItem)
+        let renameField = app.textFields["renameTitleField"]
+        XCTAssertTrue(renameField.waitForExistence(timeout: 5))
+        renameField.tap()
+        renameField.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 20))
+        renameField.typeText("我的固定標題")
+        app.buttons["儲存"].tap()
+        XCTAssertTrue(app.staticTexts["我的固定標題"].waitForExistence(timeout: 5),
+                      "Manual rename should apply immediately")
+        attach(name: "CR5-history-grouped-renamed")
     }
 
     /// Focused Tarot refinement walkthrough (founder review 2026-07-16):

@@ -18,6 +18,7 @@ struct TarotShuffleStage: View {
     @EnvironmentObject private var prefs: PrefsStore
     @State private var start = Date()
     @State private var reducedCardsUp = false
+    @State private var emerged = false
 
     /// Reusable visual pool (§17): enough for a layered vortex without
     /// rendering 78 heavy views.
@@ -25,12 +26,21 @@ struct TarotShuffleStage: View {
     /// Shuffle-state Twinko is deliberately larger than the standard
     /// hero — it should feel like it is channeling the reading.
     static let twinkoSize: CGFloat = 216
-    /// Settled cards hover above Twinko's head: card half-height (45)
-    /// + head/hat clearance beyond the character's half size (108).
-    static let settleY: CGFloat = -176
-    private static let totalDuration: TimeInterval = 2.9
-    private static let convergeStart: TimeInterval = 1.95
-    private static let convergeDuration: TimeInterval = 0.65
+    private static let totalDuration: TimeInterval = 3.5
+    private static let convergeStart: TimeInterval = 2.15
+    private static let convergeDuration: TimeInterval = 0.55
+    /// Convergence completes ≈2.7 s; the settled cards hold ≈0.8 s
+    /// before the transition (spec hold 0.7–1.1 s).
+
+    /// Settled cards hover clearly above Twinko's hat, positioned
+    /// relative to the character frame (half size 108 + clearance +
+    /// enlarged card half-height) — never on the forehead or hat.
+    var settleY: CGFloat { cardCount == 1 ? -204 : -196 }
+    /// Enlarged final cards: single +30%; three-card group +18–25%
+    /// with the center card slightly larger than the sides.
+    func settleScale(slot: Int) -> CGFloat {
+        cardCount == 1 ? 1.30 : (slot == 1 ? 1.25 : 1.18)
+    }
 
     private var selectedIndices: [Int] {
         TarotShuffleChoreography.selectedIndices(fanCount: Self.poolCount,
@@ -50,17 +60,19 @@ struct TarotShuffleStage: View {
                     vortex
                 }
             }
-            .frame(height: 470)
+            .frame(height: 560)
 
-            Text(TarotStrings.shuffling(lang))
+            Text(emerged ? TarotStrings.cardsEmerged(lang) : TarotStrings.shuffling(lang))
                 .font(.system(.body, design: .rounded))
                 .foregroundStyle(Color.textInverseToken.opacity(0.85))
+                .animation(.easeInOut(duration: 0.4), value: emerged)
 
             Spacer()
             Spacer()
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(Text(TarotStrings.shuffling(lang)))
+        .accessibilityLabel(Text(emerged ? TarotStrings.cardsEmerged(lang)
+                                         : TarotStrings.shuffling(lang)))
         .onAppear { run() }
     }
 
@@ -98,7 +110,7 @@ struct TarotShuffleStage: View {
                     let s = cardState(index: index, t: t)
                     let chosen = selectedIndices.contains(index)
                     let e = easeInOut(converge(t))
-                    TarotCardBack(width: 60)
+                    TarotCardBack(width: 66)
                         // Blue-violet trail while swirling; the chosen
                         // cards resolve into a gold aura as they settle.
                         .shadow(color: TarotCTAPalette.violetGlow
@@ -124,16 +136,30 @@ struct TarotShuffleStage: View {
     /// ring and aura (blue-violet = magical energy in motion).
     private func castingTwinko(_ t: TimeInterval) -> some View {
         ZStack {
-            Circle()
-                .strokeBorder(
-                    LinearGradient(colors: [TarotCTAPalette.violetGlow.opacity(0.9),
-                                            Color(hex: 0x5B7BE8).opacity(0.1)],
-                                   startPoint: .top, endPoint: .bottom),
-                    lineWidth: 2.5
-                )
-                .frame(width: 270, height: 270)
-                .scaleEffect(0.5 + 0.65 * riseIn(t, from: 0.2, over: 0.9))
-                .opacity(riseIn(t, from: 0.2, over: 0.6) * (1 - riseIn(t, from: 1.4, over: 0.6)))
+            // Incomplete blue-violet energy ring: two soft arc segments
+            // slowly rotating — never one plain solid circle.
+            ZStack {
+                Circle()
+                    .trim(from: 0.06, to: 0.42)
+                    .stroke(
+                        LinearGradient(colors: [TarotCTAPalette.violetGlow.opacity(0.85),
+                                                Color(hex: 0x5B7BE8).opacity(0.15)],
+                                       startPoint: .top, endPoint: .bottom),
+                        style: StrokeStyle(lineWidth: 2.5, lineCap: .round)
+                    )
+                Circle()
+                    .trim(from: 0.55, to: 0.93)
+                    .stroke(
+                        LinearGradient(colors: [Color(hex: 0x5B7BE8).opacity(0.6),
+                                                TarotCTAPalette.violetGlow.opacity(0.1)],
+                                       startPoint: .bottom, endPoint: .top),
+                        style: StrokeStyle(lineWidth: 2, lineCap: .round)
+                    )
+            }
+            .frame(width: 274, height: 274)
+            .rotationEffect(.degrees(t * 26))
+            .scaleEffect(0.5 + 0.65 * riseIn(t, from: 0.2, over: 0.9))
+            .opacity(riseIn(t, from: 0.2, over: 0.6) * (1 - riseIn(t, from: 1.6, over: 0.7)))
             Circle()
                 .fill(TarotCTAPalette.violetGlow)
                 .frame(width: 190, height: 190)
@@ -150,10 +176,10 @@ struct TarotShuffleStage: View {
     private func cardState(index: Int, t: TimeInterval)
         -> (x: CGFloat, y: CGFloat, scale: CGFloat, rotation: Double,
             opacity: Double, z: Double) {
-        let delay = Double(index) * 0.06
-        let speed = 0.42 + Double((index * 13) % 5) * 0.07      // revolutions/s
-        let radius = 108.0 + Double((index * 37) % 72)
-        let baseScale = 0.55 + Double((index * 23) % 35) / 100
+        let delay = Double(index) * 0.07
+        let speed = 0.34 + Double((index * 13) % 5) * 0.055     // revolutions/s (−~20%)
+        let radius = 135.0 + Double((index * 37) % 90)          // +~25% orbit
+        let baseScale = 0.58 + Double((index * 23) % 35) / 100
         let baseAngle = Double(index) / Double(Self.poolCount) * 2 * .pi
 
         let rise = easeOut(clamp((t - delay) / 1.1))
@@ -163,21 +189,24 @@ struct TarotShuffleStage: View {
         // Tornado spiral: cards emerge from below the reading area and
         // climb vertically while orbiting — the funnel narrows a touch
         // as it rises, and the vortex slows into the convergence.
+        // Slight per-card drift keeps the paths elliptical and
+        // imperfect rather than a clean carousel circle.
+        let drift = sin(t * 0.9 + Double(index)) * 10
         let funnel = 1.0 - 0.18 * rise
-        let orbitX = cos(angle) * radius * rise * funnel
-        let orbitY = 340 * (1 - rise) - 44 + sin(angle) * radius * 0.38 * rise
+        let orbitX = cos(angle) * radius * rise * funnel + drift
+        let orbitY = 380 * (1 - rise) - 48 + sin(angle) * radius * 0.38 * rise
         let orbitRot = sin(angle) * 16
         let depth = sin(angle)   // >0 = in front of Twinko
 
         if let slot = selectedIndices.firstIndex(of: index) {
             // Converges into a row hovering clearly above Twinko's
             // head — never on the forehead or hat (§ separation rule).
-            let spacing: CGFloat = cardCount == 1 ? 0 : 88
+            let spacing: CGFloat = cardCount == 1 ? 0 : 96
             let targetX = (CGFloat(slot) - CGFloat(cardCount - 1) / 2) * spacing
             let e = easeInOut(c)
             return (x: lerp(orbitX, targetX, e),
-                    y: lerp(orbitY, Self.settleY, e),
-                    scale: lerp(baseScale, 1.0, e),
+                    y: lerp(orbitY, settleY, e),
+                    scale: lerp(baseScale, settleScale(slot: slot), e),
                     rotation: orbitRot * (1 - e),
                     opacity: Double(rise > 0 ? 1 : 0),
                     z: 1 + e + max(0, depth))
@@ -201,13 +230,15 @@ struct TarotShuffleStage: View {
                 let selectedSlot = TarotShuffleChoreography
                     .selectedIndices(fanCount: 5, pick: cardCount)
                     .firstIndex(of: index)
-                let spacing: CGFloat = cardCount == 1 ? 0 : 88
-                TarotCardBack(width: 60)
-                    .scaleEffect(reducedCardsUp ? (selectedSlot == nil ? 0.8 : 1.0) : 0.85)
+                let spacing: CGFloat = cardCount == 1 ? 0 : 96
+                TarotCardBack(width: 66)
+                    .scaleEffect(reducedCardsUp
+                                 ? (selectedSlot == nil ? 0.8 : settleScale(slot: selectedSlot!))
+                                 : 0.85)
                     .offset(x: reducedCardsUp && selectedSlot != nil
                                 ? (CGFloat(selectedSlot!) - CGFloat(cardCount - 1) / 2) * spacing
                                 : CGFloat(index - 2) * 34,
-                            y: reducedCardsUp ? Self.settleY : 150)
+                            y: reducedCardsUp ? settleY : 150)
                     .opacity(reducedCardsUp ? (selectedSlot == nil ? 0 : 1) : 0.0)
                     .animation(.easeInOut(duration: 1.1).delay(Double(index) * 0.08),
                                value: reducedCardsUp)
@@ -221,13 +252,21 @@ struct TarotShuffleStage: View {
         if reduceMotion {
             withAnimation { reducedCardsUp = true }
             Task {
-                try? await Task.sleep(nanoseconds: 1_600_000_000)
+                try? await Task.sleep(nanoseconds: 1_400_000_000)
+                emerged = true
+                try? await Task.sleep(nanoseconds: 900_000_000)
                 onFinished()
             }
             return
         }
         Task {
-            try? await Task.sleep(nanoseconds: UInt64(Self.totalDuration * 1_000_000_000))
+            // Copy switches once convergence completes; the settled
+            // cards hold before the transition to Reveal.
+            let emergeAt = Self.convergeStart + Self.convergeDuration + 0.1
+            try? await Task.sleep(nanoseconds: UInt64(emergeAt * 1_000_000_000))
+            emerged = true
+            try? await Task.sleep(nanoseconds:
+                UInt64((Self.totalDuration - emergeAt) * 1_000_000_000))
             onFinished()
         }
     }
@@ -288,6 +327,10 @@ struct TarotStardust: View {
 struct TarotRevealStage: View {
     let cards: [TarotDrawnCard]
     let heading: String
+    /// True when re-entered from the Result via Back: the reading is
+    /// complete, so card faces show directly — no card backs, no
+    /// re-flip, no shuffle replay (§ critical back behavior).
+    let completedReturn: Bool
     let onFinished: () -> Void
 
     @EnvironmentObject private var prefs: PrefsStore
@@ -297,6 +340,7 @@ struct TarotRevealStage: View {
          initiallyRevealed: Bool = false, onFinished: @escaping () -> Void) {
         self.cards = cards
         self.heading = heading
+        self.completedReturn = initiallyRevealed
         self.onFinished = onFinished
         _revealed = State(initialValue: Array(repeating: initiallyRevealed,
                                               count: cards.count))
@@ -309,7 +353,7 @@ struct TarotRevealStage: View {
         VStack(spacing: TwinkoSpacing.l) {
             Spacer()
 
-            Text(heading)
+            Text(completedReturn ? TarotStrings.revealCompleted(lang) : heading)
                 .font(.system(.headline, design: .rounded))
                 .foregroundStyle(Color.textInverseToken)
 
@@ -318,7 +362,9 @@ struct TarotRevealStage: View {
                     VStack(spacing: 8) {
                         FlipTarotCard(drawn: drawn,
                                       isRevealed: $revealed[index],
-                                      width: cards.count == 1 ? 150 : 100)
+                                      width: cards.count == 1 ? 150 : 100,
+                                      isFinalRequired:
+                                        revealed.filter { $0 }.count == cards.count - 1)
                             .tarotRevealedGlow(revealed[index])
                         if revealed[index] {
                             VStack(spacing: 2) {
@@ -346,7 +392,8 @@ struct TarotRevealStage: View {
                 Button {
                     onFinished()
                 } label: {
-                    Text(TarotStrings.seeReading(lang))
+                    Text(completedReturn ? TarotStrings.viewFullReading(lang)
+                                         : TarotStrings.seeReading(lang))
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.tarotMagicPrimary)

@@ -146,6 +146,17 @@
    "mvp_priority": "Optional",
    "repo_path": "Code / Assets/Tarot/Effects/",
    "ready_for_repo": "Not required as standalone PNG assets for MVP"
+  },
+  {
+   "category": "Background",
+   "role": "Guidance Summary Card V2 (export background)",
+   "canonical_filename": "bg_tarot_summary_card_v2.png",
+   "source_name": "bg_tarot_summary_card_v2.png",
+   "approval_status": "Approved",
+   "mvp_priority": "Required",
+   "repo_path": "assets/tarot/backgrounds/",
+   "ready_for_repo": true,
+   "note": "1086x1448 midnight-plum Tarot frame; bundled as 3x for the 360x480 design (1080x1440 export, matching the Horoscope Summary Card geometry)."
   }
  ],
  "critical_rule": "Prototype may use mock interpretation fixtures. Production LLM output must be dynamically synthesized and not hardcoded per card."

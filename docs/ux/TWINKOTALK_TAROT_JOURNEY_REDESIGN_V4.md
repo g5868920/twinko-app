@@ -1,8 +1,8 @@
 # TwinkoTalk Tarot Journey Redesign
 
-**Version:** v4.1
+**Version:** v4.2
 **Status:** Implemented (prototype) — founder/CPO decisions 2026-07-16,
-refinement pass 2026-07-17 (see §10)
+refinement passes 2026-07-17 (see §10–§11)
 **Supersedes:** the flow-, layout-, shuffle-, and result-structure
 sections of `TWINKOTALK_TAROT_SCREEN_SPEC_V3.md` and
 `TWINKOTALK_TAROT_ANIMATION_SPEC_V1.md`. Data models, the 78-card
@@ -199,3 +199,75 @@ Screenshots T1–T5.
   Simulator walkthrough incl. post-guidance expanded result + summary
   sheet; 5 screenshots (T1–T5). Single-card post-guidance behavior
   verified via the unit tests above.
+
+## 11. Final polish + Summary Card V2 (2026-07-17)
+
+### Flow polish
+- **Completed reveal state:** Back from the Result re-enters Reveal
+  with every card face already shown (identities, positions,
+  orientations, glow preserved) — no card backs, no re-flip, no
+  shuffle replay. Copy 「這就是你本次抽到的牌」+ CTA 「查看完整解讀 /
+  View Full Reading」. Redraws happen only via explicit spread
+  re-selection or 開始新的占卜.
+- **Topic selection styling:** selected = deep amethyst surface +
+  antique-gold border + warm-ivory text + gold check + subtle violet
+  glow; unselected = dark translucent plum. Selection never relies on
+  color alone.
+- **Spread copy:** 單張牌「此刻最需要的提醒」/ "Quick Insight";
+  三張牌「過去・現在・未來」/ "Past · Present · Future".
+- **Shuffle ritual tuning:** orbit radius +~25% (135–225), speed
+  −~20%, larger card backs (66 pt), per-card drift for imperfect
+  elliptical paths, total ≈3.5 s with the settled cards holding ≈0.8 s.
+  Energy ring is now two rotating incomplete blue-violet arc segments.
+  Copy switches to 「你的牌已在星光中浮現 / Your cards have emerged in
+  the starlight」 once convergence completes. Selected cards enlarge on
+  settle (single ×1.30; three ×1.18 with the center ×1.25) and hover
+  clearly above Twinko's hat (settle offset −204/−196 relative to the
+  character frame).
+- **Flip haptics:** light impact when a flip begins, very soft settle
+  impact when the face lands, slightly stronger (medium) on the final
+  required card. UIKit honors the system haptic setting; Reduce Motion
+  keeps the haptics with the crossfade reveal.
+- **Guidance insertion:** returning from the Guidance reveal scrolls
+  the result to the inserted 指引 section with a brief gold glow —
+  never jumping to the top.
+- **Primary CTA gradient** pinned to ≈#6248A6→#3E2C73 with gold Label
+  icons; Moonlit Ivory surfaces pinned to #FFF9EE→#F7F0F8 (94%),
+  antique-gold border 30%, deep-plum shadow 16%.
+
+### Guidance Summary Card V2
+- **Background:** production `bg_tarot_summary_card_v2.png`
+  (`assets/tarot/backgrounds/`, bundled as the 3× `bg_tarot_summary_
+  card_v2` imageset). Runtime layered composition — never a screenshot.
+- **Export geometry matches Horoscope exactly:** 360×480 design at 3×
+  → 1080×1440 (`TarotSummaryCardView.designSize ==
+  HoroscopeSummaryCardView.designSize`, unit-tested).
+- **Layer order:** background → readability gradient → TwinkoTalk
+  brand / 塔羅指引 title / localized date / topic badge → card artwork
+  → 整體訊息 Moonlit Ivory panel → Twinko closing strip (idle wizard +
+  message + TwinkoTalk signature over translucent dark plum + gold
+  divider).
+- **Four layout modes** (`TarotSummaryLayout.mode(for:)`): single
+  (one large centered card); three (Past/Present/Future row);
+  single+guidance (two balanced cards labeled 主訊息／指引, guidance
+  gold-glowed); three+guidance (row + guidance centered below a small
+  connector spark — never a fourth chronological position; compact
+  name・orientation labels keep the synthesis un-clipped).
+- 整體訊息 and the closing always use the **current** reading state
+  (`combinedSummary` / `twinkoMessage`), so post-Guidance cards carry
+  the expanded synthesis. Excluded from the image: profile data, the
+  question, full interpretations, CTAs, disclaimer.
+- **Preview sheet:** uncropped aspect-fit preview of the exact render;
+  three distinct actions — 儲存到照片 (primary, PHPhotoLibrary
+  add-only), 分享 (secondary, native share sheet with the same
+  rendered image), 關閉 (tertiary). Preview, saved, and shared images
+  are one render.
+
+### Validation (2026-07-17, pass 3)
+Build clean. TarotDrawTests 29/29 (new: layout-mode selection, export
+geometry equals Horoscope; updated spread subtitles + emerged copy).
+Render probe verified all four Summary Card modes at 1080×1440 with
+no clipped text. Focused Three-Card walkthrough passed incl. Result→
+Back completed-reveal state, post-Guidance updates, and the three
+distinct sheet actions. Screenshots T1–T5. Single-card modes verified
+via unit tests + render probe.

@@ -32,8 +32,8 @@ enum TarotSpreadType: String, Codable, CaseIterable, Identifiable {
 
     func subtitle(_ lang: AppLanguage) -> String {
         switch (self, lang) {
-        case (.single, .english): return "A message for this moment"
-        case (.single, .traditionalChinese): return "一個此刻最需要的提醒"
+        case (.single, .english): return "Quick Insight"
+        case (.single, .traditionalChinese): return "此刻最需要的提醒"
         case (.three, .english): return "Past · Present · Future"
         case (.three, .traditionalChinese): return "過去・現在・未來"
         }

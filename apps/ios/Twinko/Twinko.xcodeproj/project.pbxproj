@@ -59,6 +59,7 @@
 		84D6A89AD7223C9DEB95ED9F /* PrefsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA0D85EC3CDEFF74FEE91DAB /* PrefsStore.swift */; };
 		857639E6CAF39D2FFA7C0362 /* TwinkoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9228AF25B41DF28D12B85613 /* TwinkoUITests.swift */; };
 		8B72E5E940672C66AF38C06E /* TarotDrawTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60378483018DCB13C98FED8F /* TarotDrawTests.swift */; };
+		2F9C8578542D08808ED832A6 /* TarotSummaryRenderProbeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01E798A1C296547EEFDCDF3 /* TarotSummaryRenderProbeTests.swift */; };
 		8DDC7BD09479108E91F9A3B8 /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CEB49807F53B42319B7B855 /* ProfileStore.swift */; };
 		DA52ABD844A82F762ADF82FA /* StableRandom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A74BE2C5F1945A81B22EC1D /* StableRandom.swift */; };
 		9D6D707A287714E51AA577A4 /* TarotResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E298F3D429266D6C304720 /* TarotResultView.swift */; };
@@ -105,6 +106,7 @@
 		4BB43C2476421D337EB1C137 /* ChatHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatHistoryView.swift; sourceTree = "<group>"; };
 		5BFFFEA0570BA6492F3696D7 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		60378483018DCB13C98FED8F /* TarotDrawTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotDrawTests.swift; sourceTree = "<group>"; };
+		D01E798A1C296547EEFDCDF3 /* TarotSummaryRenderProbeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotSummaryRenderProbeTests.swift; sourceTree = "<group>"; };
 		63682DB4699C8D0516D6234B /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
 		73B4022443AD037682D77526 /* ZodiacSign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZodiacSign.swift; sourceTree = "<group>"; };
 		74C3894A03FC2F03F44A9499 /* ChatStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatStoreTests.swift; sourceTree = "<group>"; };
@@ -240,6 +242,7 @@
 				2AB9ADFEDC86900F8F9C16C9 /* ProfileStoreTests.swift */,
 				74C3894A03FC2F03F44A9499 /* ChatStoreTests.swift */,
 				60378483018DCB13C98FED8F /* TarotDrawTests.swift */,
+				D01E798A1C296547EEFDCDF3 /* TarotSummaryRenderProbeTests.swift */,
 				61BA6F763EEAE1B717A23676 /* HoroscopeTests.swift */,
 				BB889AA10A0BD9BC1354727C /* MeditationTests.swift */,
 				E03A5DC6A1390B9C4DA099E4 /* HomeCheckInTests.swift */,
@@ -552,6 +555,7 @@
 				A0431E3214BF86544C2BFD93 /* ProfileStoreTests.swift in Sources */,
 				330D57744BD39094D2FB3AB0 /* ChatStoreTests.swift in Sources */,
 				8B72E5E940672C66AF38C06E /* TarotDrawTests.swift in Sources */,
+				2F9C8578542D08808ED832A6 /* TarotSummaryRenderProbeTests.swift in Sources */,
 				691212873AEB8D77DF457BFB /* HoroscopeTests.swift in Sources */,
 				F81D29C968886A3A0319622D /* MeditationTests.swift in Sources */,
 				245AC2B4BDE20A831608830B /* HomeCheckInTests.swift in Sources */,
@@ -613,7 +617,7 @@
 				DEVELOPMENT_TEAM = Q8NT9386L4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Twinko saves your Horoscope Summary Card to Photos only when you ask it to.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Twinko saves your Summary Cards to Photos only when you ask it to.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -697,7 +701,7 @@
 				DEVELOPMENT_TEAM = Q8NT9386L4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Twinko saves your Horoscope Summary Card to Photos only when you ask it to.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Twinko saves your Summary Cards to Photos only when you ask it to.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

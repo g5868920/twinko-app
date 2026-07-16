@@ -248,6 +248,9 @@ private struct TarotSetupStage: View {
                                 Image(systemName: selected ? "checkmark.circle.fill"
                                                            : option.icon)
                                     .font(.system(size: 14))
+                                    .foregroundStyle(selected
+                                        ? TarotCTAPalette.antiqueGold
+                                        : TarotCTAPalette.warmLightText.opacity(0.85))
                                 Text(option.label(lang))
                                     .font(.system(.subheadline, design: .rounded)
                                         .weight(.medium))
@@ -258,12 +261,22 @@ private struct TarotSetupStage: View {
                             .frame(maxWidth: .infinity, minHeight: 48)
                             .background(
                                 selected ? AnyShapeStyle(
-                                    LinearGradient(colors: [.twinkoGold, .warmOrange],
+                                    LinearGradient(colors: [TarotCTAPalette.amethystTop,
+                                                            TarotCTAPalette.amethystBottom],
                                                    startPoint: .top, endPoint: .bottom))
-                                         : AnyShapeStyle(Color.deepSpace.opacity(0.45)),
+                                         : AnyShapeStyle(
+                                    TarotCTAPalette.deepSurface.opacity(0.55)),
                                 in: RoundedRectangle(cornerRadius: 14)
                             )
-                            .foregroundStyle(selected ? Color.inkNavy : Color.textInverseToken)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .strokeBorder(TarotCTAPalette.antiqueGold
+                                        .opacity(selected ? 0.7 : 0.25),
+                                        lineWidth: selected ? 1.2 : 1)
+                            )
+                            .foregroundStyle(TarotCTAPalette.warmLightText)
+                            .shadow(color: TarotCTAPalette.violetGlow
+                                .opacity(selected ? 0.35 : 0), radius: 8)
                             .contentShape(RoundedRectangle(cornerRadius: 14))
                         }
                         .accessibilityIdentifier("tarotTopic-\(option.rawValue)")

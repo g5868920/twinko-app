@@ -160,6 +160,9 @@ struct FlipTarotCard: View {
     let drawn: TarotDrawnCard
     @Binding var isRevealed: Bool
     var width: CGFloat = 120
+    /// True when this is the last still-hidden required card — its
+    /// settle haptic is slightly stronger (refined, not game-like).
+    var isFinalRequired: Bool = false
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @EnvironmentObject private var prefs: PrefsStore
@@ -209,6 +212,17 @@ struct FlipTarotCard: View {
     private func reveal() {
         guard !isRevealed else { return }
         isRevealed = true
+        // Light impact as the flip begins; a very soft settling impact
+        // as the face lands (slightly stronger on the final required
+        // card). UIKit respects the system haptic setting.
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        let settleStyle: UIImpactFeedbackGenerator.FeedbackStyle =
+            isFinalRequired ? .medium : .soft
+        let settleDelay: TimeInterval = reduceMotion ? 0.15 : 0.62
+        DispatchQueue.main.asyncAfter(deadline: .now() + settleDelay) {
+            UIImpactFeedbackGenerator(style: settleStyle)
+                .impactOccurred(intensity: 0.7)
+        }
         if reduceMotion { return }
         withAnimation(.easeOut(duration: 0.12)) { lifted = true }
         withAnimation(.easeInOut(duration: 0.6).delay(0.08)) { angle = 180 }

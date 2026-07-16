@@ -237,12 +237,32 @@ final class TarotDrawTests: XCTestCase {
     }
 
     func testSpreadSubtitlesUseApprovedShortCopy() {
-        XCTAssertEqual(TarotSpreadType.single.subtitle(.traditionalChinese), "一個此刻最需要的提醒")
+        XCTAssertEqual(TarotSpreadType.single.subtitle(.traditionalChinese), "此刻最需要的提醒")
+        XCTAssertEqual(TarotSpreadType.single.subtitle(.english), "Quick Insight")
         XCTAssertEqual(TarotSpreadType.three.subtitle(.traditionalChinese), "過去・現在・未來")
+        XCTAssertEqual(TarotSpreadType.three.subtitle(.english), "Past · Present · Future")
     }
 
     func testShuffleCopyIsTheStarlightLine() {
         XCTAssertEqual(TarotStrings.shuffling(.traditionalChinese), "讓牌在星光中回應你的心意……")
+        XCTAssertEqual(TarotStrings.cardsEmerged(.traditionalChinese), "你的牌已在星光中浮現")
+    }
+
+    // MARK: Summary Card V2
+
+    func testSummaryCardSelectsCorrectLayoutMode() {
+        XCTAssertEqual(TarotSummaryLayout.mode(for: makeSession(spread: .single)), .single)
+        XCTAssertEqual(TarotSummaryLayout.mode(for: makeSession(spread: .three)), .three)
+        XCTAssertEqual(TarotSummaryLayout.mode(for: makeSession(spread: .single, guidance: true)),
+                       .singlePlusGuidance)
+        XCTAssertEqual(TarotSummaryLayout.mode(for: makeSession(spread: .three, guidance: true)),
+                       .threePlusGuidance)
+    }
+
+    func testTarotExportGeometryMatchesHoroscope() {
+        XCTAssertEqual(TarotSummaryCardView.designSize,
+                       HoroscopeSummaryCardView.designSize,
+                       "Tarot Summary Card exports at the Horoscope dimensions (360×480 @3x = 1080×1440)")
     }
 
     func testCombinedSummaryExpandsWithGuidanceForBothSpreads() {

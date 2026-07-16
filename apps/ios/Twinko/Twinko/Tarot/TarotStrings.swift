@@ -46,6 +46,15 @@ enum TarotStrings {
     static func seeReading(_ l: AppLanguage) -> String {
         l == .english ? "See what the cards say" : "看看牌想說什麼"
     }
+    static func viewFullReading(_ l: AppLanguage) -> String {
+        l == .english ? "View Full Reading" : "查看完整解讀"
+    }
+    static func revealCompleted(_ l: AppLanguage) -> String {
+        l == .english ? "These are the cards you drew" : "這就是你本次抽到的牌"
+    }
+    static func cardsEmerged(_ l: AppLanguage) -> String {
+        l == .english ? "Your cards have emerged in the starlight" : "你的牌已在星光中浮現"
+    }
     static func faceDownCard(_ l: AppLanguage) -> String {
         l == .english ? "Face-down card, double-tap to reveal" : "蓋著的牌，點兩下翻開"
     }
@@ -88,14 +97,37 @@ enum TarotStrings {
         l == .english ? "Create My Meditation" : "生成專屬冥想"
     }
 
-    // Summary card
+    // Summary card (V2)
     static func summaryCardTitle(_ l: AppLanguage) -> String {
-        l == .english ? "Twinko Tarot Guidance" : "Twinko 塔羅指引"
+        l == .english ? "Tarot Guidance" : "塔羅指引"
     }
-    static func summaryCardShare(_ l: AppLanguage) -> String {
-        l == .english ? "Share or save image" : "分享或儲存圖片"
+    static func overallMessage(_ l: AppLanguage) -> String {
+        l == .english ? "Overall Message" : "整體訊息"
     }
-    static func done(_ l: AppLanguage) -> String { l == .english ? "Done" : "完成" }
+    static func mainMessageLabel(_ l: AppLanguage) -> String {
+        l == .english ? "Main Message" : "主訊息"
+    }
+    static func saveToPhotos(_ l: AppLanguage) -> String {
+        l == .english ? "Save to Photos" : "儲存到照片"
+    }
+    static func shareImage(_ l: AppLanguage) -> String {
+        l == .english ? "Share" : "分享"
+    }
+    static func close(_ l: AppLanguage) -> String { l == .english ? "Close" : "關閉" }
+    static func savedToast(_ l: AppLanguage) -> String {
+        l == .english ? "Saved to Photos" : "已儲存到照片"
+    }
+    static func saveDenied(_ l: AppLanguage) -> String {
+        l == .english
+            ? "Twinko needs permission to add photos. You can allow it in Settings."
+            : "Twinko 需要新增照片的權限，可以到「設定」裡開啟。"
+    }
+    static func renderFailed(_ l: AppLanguage) -> String {
+        l == .english
+            ? "The card couldn't be prepared this time — try again?"
+            : "小卡這次沒有準備好，再試一次好嗎？"
+    }
+    static func retry(_ l: AppLanguage) -> String { l == .english ? "Retry" : "再試一次" }
 }
 
 // MARK: - Tarot → Meditation context adapter

@@ -21,6 +21,7 @@ struct TarotResultStage: View {
     @EnvironmentObject private var prefs: PrefsStore
     @State private var showingSummaryCard = false
     @State private var goToMeditation = false
+    @State private var guidanceHighlight = false
 
     private var lang: AppLanguage { prefs.language }
 
@@ -31,6 +32,7 @@ struct TarotResultStage: View {
     }
 
     var body: some View {
+        ScrollViewReader { proxy in
         ScrollView {
             VStack(spacing: TwinkoSpacing.m) {
                 // Group 1 — the reading starts here, directly. Once a
@@ -42,6 +44,10 @@ struct TarotResultStage: View {
                 }
                 if let guidance = session.guidanceCard {
                     cardSection(guidance)
+                        .id("tarotGuidanceSection")
+                        .shadow(color: Color.twinkoGold.opacity(guidanceHighlight ? 0.55 : 0),
+                                radius: 12)
+                        .animation(.easeInOut(duration: 0.6), value: guidanceHighlight)
                 }
 
                 // Group 2 — 整體來看: three-card readings always; once
@@ -98,6 +104,22 @@ struct TarotResultStage: View {
         }
         .navigationDestination(isPresented: $goToMeditation) {
             MeditationFlowView(sourceContext: meditationContext)
+        }
+        .onAppear {
+            // Returning from the Guidance reveal: bring the newly
+            // inserted 指引 section into view with a brief glow — never
+            // jump the reader back to the top.
+            guard session.guidanceCard != nil else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) {
+                withAnimation(.easeInOut(duration: 0.55)) {
+                    proxy.scrollTo("tarotGuidanceSection", anchor: .center)
+                }
+                guidanceHighlight = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
+                    guidanceHighlight = false
+                }
+            }
+        }
         }
     }
 

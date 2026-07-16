@@ -98,3 +98,15 @@
 - Spread previews composed from the canonical card back for equal
   visual weight; three-card subtitle exactly 「過去・現在・未來」.
 - Details: `TWINKOTALK_TAROT_JOURNEY_REDESIGN_V4.md` §10.
+
+## v4.2 final polish + Summary Card V2 (2026-07-17)
+
+- Completed reveal state on Back from Result (faces preserved, 查看完整
+  解讀), amethyst selected-topic styling, tuned wider/slower/longer
+  vortex with incomplete arc ring + emerged copy + hold, enlarged
+  settled cards above Twinko's hat, flip haptics.
+- Guidance Summary Card V2 on `bg_tarot_summary_card_v2` with Horoscope
+  export geometry (1080×1440), four layout modes, current-state
+  synthesis/closing, and a Save to Photos / Share / Close preview sheet
+  in the Tarot CTA family.
+- Details: `TWINKOTALK_TAROT_JOURNEY_REDESIGN_V4.md` §11.

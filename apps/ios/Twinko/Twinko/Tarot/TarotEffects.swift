@@ -70,8 +70,8 @@ struct TarotPressSparkles: View {
 /// sacred / resolved. CTAs move off the bright orange treatment onto
 /// a deep amethyst base with antique-gold accents.
 enum TarotCTAPalette {
-    static let amethystTop = Color(hex: 0x6A4BAB)
-    static let amethystBottom = Color(hex: 0x3E2578)
+    static let amethystTop = Color(hex: 0x6248A6)
+    static let amethystBottom = Color(hex: 0x3E2C73)
     static let deepSurface = Color(hex: 0x2C1A52)
     static let antiqueGold = Color(hex: 0xD8B36A)
     static let warmLightText = Color(hex: 0xF7EFDD)
@@ -90,6 +90,7 @@ struct TarotMagicPrimaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         let pressed = configuration.isPressed && isEnabled
         configuration.label
+            .labelStyle(TarotGoldIconLabelStyle())
             .font(.twinkoHeadline)
             .foregroundStyle(TarotCTAPalette.warmLightText)
             .padding(.vertical, 15)
@@ -143,6 +144,17 @@ extension ButtonStyle where Self == TarotMagicPrimaryButtonStyle {
     }
 }
 
+/// Antique-gold icon + inherited warm-ivory title for Tarot CTAs.
+struct TarotGoldIconLabelStyle: LabelStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: 7) {
+            configuration.icon
+                .foregroundStyle(TarotCTAPalette.antiqueGold)
+            configuration.title
+        }
+    }
+}
+
 /// Secondary Tarot CTA (儲存指引小卡 / 開始新的占卜): quieter deep-
 /// purple surface with a thin antique-gold border — same family and
 /// hierarchy as the primary, with the same restrained press feedback.
@@ -153,6 +165,7 @@ struct TarotMagicSecondaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         let pressed = configuration.isPressed && isEnabled
         configuration.label
+            .labelStyle(TarotGoldIconLabelStyle())
             .font(.system(.headline, design: .rounded))
             .foregroundStyle(TarotCTAPalette.warmLightText.opacity(0.95))
             .padding(.vertical, 13)
@@ -163,6 +176,7 @@ struct TarotMagicSecondaryButtonStyle: ButtonStyle {
                 Capsule().strokeBorder(TarotCTAPalette.antiqueGold.opacity(0.5),
                                        lineWidth: 1)
             )
+
             .overlay {
                 if pressed && !reduceMotion {
                     TarotPressSparkles()
@@ -271,17 +285,17 @@ extension View {
             .padding(TwinkoSpacing.m)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
-                LinearGradient(colors: [Color(hex: 0xFAF4E6),
-                                        Color(hex: 0xF1EAF2)],
+                LinearGradient(colors: [Color(hex: 0xFFF9EE),
+                                        Color(hex: 0xF7F0F8)],
                                startPoint: .top, endPoint: .bottom)
-                    .opacity(0.96),
+                    .opacity(0.94),
                 in: RoundedRectangle(cornerRadius: TwinkoRadius.card)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: TwinkoRadius.card)
-                    .strokeBorder(Color(hex: 0xD8B36A).opacity(0.35), lineWidth: 1)
+                    .strokeBorder(Color(hex: 0xD8B36A).opacity(0.30), lineWidth: 1)
             )
-            .shadow(color: Color(hex: 0x2C1A52).opacity(0.18), radius: 7, y: 3)
+            .shadow(color: Color.deepPlum.opacity(0.16), radius: 7, y: 3)
             .padding(.horizontal, TwinkoSpacing.m)
     }
 }

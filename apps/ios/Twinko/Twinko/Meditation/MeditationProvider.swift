@@ -63,6 +63,10 @@ struct MockMeditationProvider: MeditationGenerating {
         let custom = request.customUserInput?
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         switch request.sourceContext.sourceType {
+        case .checkIn:
+            return lang == .english
+                ? "Let today's feeling simply be here with you — nothing needs fixing right now."
+                : "讓今天的心情陪著你就好，現在不需要修好什麼。"
         case .direct:
             guard !custom.isEmpty else { return nil }
             return lang == .english

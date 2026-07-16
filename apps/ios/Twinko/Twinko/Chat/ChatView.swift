@@ -24,9 +24,14 @@ struct ChatView: View {
     @State private var goToMeditation = false
     @State private var meditationContext: MeditationSourceContext = .direct
 
+    /// Hides the back chevron when Chat is hosted as the Chat tab's
+    /// root (bottom navigation owns the top-level switch).
+    let isTabRoot: Bool
+
     /// Opens a fresh session by default, or continues an existing one
     /// from Chat History.
-    init(session: ChatSession = ChatSession()) {
+    init(session: ChatSession = ChatSession(), isTabRoot: Bool = false) {
+        self.isTabRoot = isTabRoot
         _viewModel = StateObject(wrappedValue: ChatViewModel(session: session))
     }
 
@@ -108,17 +113,21 @@ struct ChatView: View {
                 .font(.system(.headline, design: .rounded))
                 .foregroundStyle(Color.deepPlum)
             HStack {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "chevron.backward")
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(Color.deepPlum)
-                        .frame(width: 44, height: 44)
-                        .contentShape(Rectangle())
+                if isTabRoot {
+                    Color.clear.frame(width: 44, height: 44)
+                } else {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "chevron.backward")
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundStyle(Color.deepPlum)
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
+                    }
+                    .accessibilityLabel(Text(lang == .english ? "Back" : "返回"))
+                    .accessibilityIdentifier("chatBackButton")
                 }
-                .accessibilityLabel(Text(lang == .english ? "Back" : "返回"))
-                .accessibilityIdentifier("chatBackButton")
                 Spacer()
                 Button {
                     isInputFocused = false

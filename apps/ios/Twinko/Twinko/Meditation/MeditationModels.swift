@@ -64,6 +64,8 @@ enum MeditationDuration: Int, Codable, CaseIterable, Identifiable {
 
 enum MeditationSourceType: String, Codable {
     case direct, chat, tarot
+    /// Home Daily Check-in recommendation handoff.
+    case checkIn = "check_in"
 }
 
 /// Minimal cross-feature handoff context. Only short, locally derived

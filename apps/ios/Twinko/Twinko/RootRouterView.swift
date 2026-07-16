@@ -9,9 +9,9 @@ struct RootRouterView: View {
     @State private var showingSetup = false
 
     var body: some View {
-        NavigationStack {
-            Group {
-                if profileStore.profile == nil {
+        Group {
+            if profileStore.profile == nil {
+                NavigationStack {
                     if showingSetup {
                         ProfileSetupView()
                             .transition(.move(edge: .trailing).combined(with: .opacity))
@@ -23,13 +23,15 @@ struct RootRouterView: View {
                         }
                         .transition(.opacity)
                     }
-                } else {
-                    HomeView()
-                        .transition(.opacity)
                 }
+            } else {
+                // The four-tab app shell owns top-level navigation;
+                // each tab hosts its own NavigationStack.
+                AppShellView()
+                    .transition(.opacity)
             }
-            .animation(.easeInOut(duration: TwinkoMotion.standard), value: profileStore.profile == nil)
         }
+        .animation(.easeInOut(duration: TwinkoMotion.standard), value: profileStore.profile == nil)
         .environmentObject(profileStore)
         .environmentObject(chatStore)
         .environmentObject(prefs)

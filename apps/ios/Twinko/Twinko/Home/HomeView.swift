@@ -1,203 +1,429 @@
 import SwiftUI
 
-/// D-055 Home: the approved `home_screen_v1.png` sky as a full-screen
-/// aspect-fill background, the procedural Twinko centered (temporary,
-/// pending a transparent character export), five mode entries in the
-/// approved 2–2–1 orbit, one top-right Profile control, and no product
-/// wordmark. Bilingual labels per the active Home specification.
+/// The daily-companion Home (redesign 2026-07-16): greeting header
+/// with a direct Settings gear, progressive Daily Check-in (mood →
+/// need), the floating Twinko hero, one personalized recommendation
+/// with a quieter alternative, a conditional continuation card, and
+/// compact Explore shortcuts — all over the approved home_screen_v1
+/// background with a readability overlay. Bottom navigation lives in
+/// AppShellView.
 struct HomeView: View {
     @EnvironmentObject private var profileStore: ProfileStore
     @EnvironmentObject private var prefs: PrefsStore
+    @EnvironmentObject private var chatStore: ChatStore
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    @StateObject private var checkInStore = CheckInStore()
+    private let recommender: HomeRecommendationProviding = LocalHomeRecommendationProvider()
+
     @State private var floating = false
-    @State private var breathing = false
-    @State private var showingProfileSheet = false
-    // Test-only deep route for manual Simulator verification (same
-    // pattern as -uiTestReset / -uiTestSeedProfile).
-    @State private var autoOpenHoroscope =
-        ProcessInfo.processInfo.arguments.contains("-uiTestOpenHoroscope")
+    @State private var showingSettings = false
+    @State private var pendingMood: CheckInMood?
+    @State private var editingCheckIn = false
+    @State private var activeAction: HomeAction?
 
     private var lang: AppLanguage { prefs.language }
+    private var todayCheckIn: DailyCheckIn? { checkInStore.today }
 
     var body: some View {
-        GeometryReader { geo in
-            // Full-screen coordinates: the background must extend behind
-            // the safe areas, so the whole layout works edge to edge and
-            // the safe-area insets are applied manually where needed.
-            let w = geo.size.width
-            let h = geo.size.height + geo.safeAreaInsets.top + geo.safeAreaInsets.bottom
-            let topInset = geo.safeAreaInsets.top
-            let compact = w < 380
-            let iconDiameter: CGFloat = compact ? 68 : 74
-            let twinkoSize: CGFloat = compact ? 150 : 178
-            let twinkoCenter = CGPoint(x: w * 0.5, y: h * 0.44)
-            // Cluster offsets from Twinko's center, expressed as
-            // fractions of screen height so the cluster's vertical span
-            // scales consistently across devices (~65-72% of usable
-            // height on standard iPhones). Chat/Tarot sit higher and
-            // wider than Zodiac/Meditate; Music is tucked further below
-            // the lower pair, keeping the whole group visually joined.
-            let scale: CGFloat = compact ? 0.92 : 1.0
-            let upper = CGVector(dx: h * 0.145 * scale, dy: h * 0.175 * scale)
-            let lower = CGVector(dx: h * 0.128 * scale, dy: h * 0.163 * scale)
-            let musicDrop: CGFloat = h * 0.37 * scale
-
-            ZStack {
-                // Approved fixed background — aspect fill, edge to edge,
-                // no recoloring (intentionally opaque asset).
-                Image("home_screen_v1")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: w, height: h)
-                    .clipped()
-                    .accessibilityHidden(true)
-
-                // Layered glow behind Twinko (separate UI layers): warm
-                // creamy inner glow + soft pink-lavender outer aura,
-                // breathing gently.
-                Circle()
-                    .fill(Color(red: 0.76, green: 0.62, blue: 0.92))
-                    .frame(width: twinkoSize * 1.26, height: twinkoSize * 1.26)
-                    .blur(radius: 38)
-                    .opacity(reduceMotion ? 0.16 : (breathing ? 0.20 : 0.12))
-                    .position(twinkoCenter)
-                    .allowsHitTesting(false)
-                    .accessibilityHidden(true)
-                Circle()
-                    .fill(Color(red: 1.0, green: 0.97, blue: 0.88))
-                    .frame(width: twinkoSize * 1.10, height: twinkoSize * 1.10)
-                    .blur(radius: 22)
-                    .opacity(reduceMotion ? 0.25 : (breathing ? 0.30 : 0.20))
-                    .position(twinkoCenter)
-                    .allowsHitTesting(false)
-                    .accessibilityHidden(true)
-
-                // Central Twinko — the approved character image, via a
-                // derived transparent runtime asset (external baked
-                // checkerboard removed; artwork pixels untouched). The
-                // procedural TwinkoCharacterView is no longer used on
-                // Home but remains available to other screens.
-                Image("twinko_default_smile_v1_transparent")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: twinkoSize, height: twinkoSize)
-                    .scaleEffect(reduceMotion ? 1 : (breathing ? 1.015 : 1.0))
-                    .offset(y: reduceMotion ? 0 : (floating ? -6 : 6))
-                    .position(twinkoCenter)
-                    .accessibilityLabel(Text("Twinko"))
-
-                // 2–2–1 orbit, clustered around Twinko.
-                modeTile(.chat, diameter: iconDiameter) { ChatView() }
-                    .position(x: twinkoCenter.x - upper.dx, y: twinkoCenter.y - upper.dy)
-                modeTile(.tarot, diameter: iconDiameter) { TarotFlowView() }
-                    .position(x: twinkoCenter.x + upper.dx, y: twinkoCenter.y - upper.dy)
-                modeTile(.zodiac, diameter: iconDiameter) { HoroscopeTodayView() }
-                    .position(x: twinkoCenter.x - lower.dx, y: twinkoCenter.y + lower.dy)
-                modeTile(.meditate, diameter: iconDiameter) { MeditationFlowView() }
-                    .position(x: twinkoCenter.x + lower.dx, y: twinkoCenter.y + lower.dy)
-                modeTile(.music, diameter: iconDiameter) { MusicPlaceholderView() }
-                    .position(x: twinkoCenter.x, y: twinkoCenter.y + musicDrop)
-
-                // Top-right Profile control (44pt target, ~18pt right
-                // margin, ~14pt below the top safe area).
-                profileButton
-                    .position(x: w - 37, y: topInset + 33)
+        ZStack {
+            ScrollView {
+                VStack(spacing: TwinkoSpacing.m) {
+                    greetingHeader
+                    checkInCard
+                    hero
+                    if let checkIn = todayCheckIn, !editingCheckIn {
+                        recommendationCard(for: checkIn)
+                    }
+                    continuationCard
+                    exploreShortcuts
+                }
+                .padding(.horizontal, TwinkoSpacing.m)
+                .padding(.bottom, TwinkoSpacing.l)
             }
-            .frame(width: w, height: h)
-            .offset(y: -topInset)
+        }
+        .background {
+            GeometryReader { geo in
+                ZStack {
+                    Image("home_screen_v1")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: geo.size.width, height: geo.size.height)
+                        .clipped()
+                    // Readability treatment: content areas dim gently,
+                    // the world stays warm around Twinko.
+                    LinearGradient(
+                        stops: [
+                            .init(color: Color.deepSpace.opacity(0.24), location: 0),
+                            .init(color: Color.deepSpace.opacity(0.10), location: 0.45),
+                            .init(color: Color.deepSpace.opacity(0.30), location: 1),
+                        ],
+                        startPoint: .top, endPoint: .bottom)
+                }
+                .accessibilityHidden(true)
+            }
+            .ignoresSafeArea()
         }
         .toolbar(.hidden, for: .navigationBar)
-        .navigationBarBackButtonHidden(true)
-        .sheet(isPresented: $showingProfileSheet) {
-            ProfileSheetView()
+        .sheet(isPresented: $showingSettings) {
+            SettingsSheetView()
         }
-        .navigationDestination(isPresented: $autoOpenHoroscope) {
-            HoroscopeTodayView()
+        .navigationDestination(item: $activeAction) { action in
+            destination(for: action)
         }
-        .onAppear { startIdleMotion() }
+        .onAppear { startFloating() }
     }
 
-    // MARK: Mode tiles
+    // MARK: Greeting header (+ direct Settings gear)
+
+    private var greetingHeader: some View {
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(HomeExperienceStrings.greeting(lang,
+                                                    name: profileStore.profile?.preferredName))
+                    .font(.system(.title2, design: .rounded).weight(.bold))
+                    .foregroundStyle(Color.softWhite)
+                    .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
+                Text(HomeExperienceStrings.greetingSupport(lang))
+                    .font(.system(.subheadline, design: .rounded))
+                    .foregroundStyle(Color.softWhite.opacity(0.85))
+                    .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
+            }
+            Spacer()
+            Button {
+                showingSettings = true
+            } label: {
+                Image(systemName: "gearshape.fill")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(Color.softWhite)
+                    .frame(width: 38, height: 38)
+                    .background(Color.deepSpace.opacity(0.30), in: Circle())
+                    .frame(width: 44, height: 44)
+                    .contentShape(Circle())
+            }
+            .accessibilityLabel(Text(HomeExperienceStrings.settings(lang)))
+            .accessibilityIdentifier("homeSettingsButton")
+        }
+        .padding(.top, TwinkoSpacing.s)
+    }
+
+    // MARK: Daily Check-in (progressive disclosure)
 
     @ViewBuilder
-    private func modeTile<Destination: View>(
-        _ mode: HomeMode, diameter: CGFloat,
-        @ViewBuilder destination: () -> Destination
+    private var checkInCard: some View {
+        if let checkIn = todayCheckIn, !editingCheckIn {
+            collapsedCheckIn(checkIn)
+        } else {
+            activeCheckIn
+        }
+    }
+
+    private var activeCheckIn: some View {
+        VStack(spacing: TwinkoSpacing.s) {
+            Text(HomeExperienceStrings.moodQuestion(lang))
+                .font(.system(.headline, design: .rounded))
+                .foregroundStyle(Color.deepPlum)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            HStack(spacing: 6) {
+                ForEach(CheckInMood.allCases) { mood in
+                    let selected = pendingMood == mood
+                    Button {
+                        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.2)) {
+                            pendingMood = mood
+                        }
+                    } label: {
+                        VStack(spacing: 4) {
+                            MoodOrbView(mood: mood, isSelected: selected, size: 46)
+                            Text(mood.label(lang))
+                                .font(.system(size: 11, design: .rounded)
+                                    .weight(selected ? .bold : .regular))
+                                .foregroundStyle(Color.deepPlum)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .contentShape(Rectangle())
+                    }
+                    .accessibilityIdentifier("mood-\(mood.rawValue)")
+                    .accessibilityLabel(Text(selected
+                        ? (lang == .english ? "\(mood.label(lang)), selected"
+                                            : "\(mood.label(lang))，已選取")
+                        : mood.label(lang)))
+                    .accessibilityAddTraits(selected ? [.isSelected] : [])
+                }
+            }
+
+            // Need choices appear only after a mood is chosen.
+            if let mood = pendingMood {
+                Text(HomeExperienceStrings.needQuestion(lang))
+                    .font(.system(.headline, design: .rounded))
+                    .foregroundStyle(Color.deepPlum)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.top, 2)
+                    .transition(.opacity)
+
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: 8),
+                                    GridItem(.flexible(), spacing: 8)], spacing: 8) {
+                    ForEach(CheckInNeed.allCases) { need in
+                        Button {
+                            withAnimation(reduceMotion ? nil : .easeOut(duration: 0.25)) {
+                                checkInStore.save(mood: mood, need: need)
+                                pendingMood = nil
+                                editingCheckIn = false
+                            }
+                        } label: {
+                            HStack(spacing: 7) {
+                                Image(systemName: need.icon)
+                                    .font(.system(size: 13, weight: .medium))
+                                Text(need.label(lang))
+                                    .font(.system(.subheadline, design: .rounded).weight(.medium))
+                            }
+                            .foregroundStyle(Color.deepPlum)
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                            .background(Color.brandPurple.opacity(0.15),
+                                        in: RoundedRectangle(cornerRadius: 14))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .strokeBorder(Color.brandPurple.opacity(0.3), lineWidth: 1)
+                            )
+                        }
+                        .accessibilityIdentifier("need-\(need.rawValue)")
+                        .accessibilityLabel(Text(need.label(lang)))
+                    }
+                }
+                .transition(.opacity)
+            }
+        }
+        .padding(TwinkoSpacing.m)
+        .background(Color.surfacePrimary.opacity(0.92),
+                    in: RoundedRectangle(cornerRadius: 20))
+        .overlay(RoundedRectangle(cornerRadius: 20)
+            .strokeBorder(Color.borderSoft, lineWidth: 1))
+        .accessibilityElement(children: .contain)
+    }
+
+    private func collapsedCheckIn(_ checkIn: DailyCheckIn) -> some View {
+        HStack(spacing: TwinkoSpacing.m) {
+            MoodOrbView(mood: checkIn.mood, isSelected: false, size: 34)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("\(HomeExperienceStrings.summaryMood(lang))：\(checkIn.mood.label(lang))")
+                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                    .foregroundStyle(Color.deepPlum)
+                Text("\(HomeExperienceStrings.summaryNeed(lang))：\(checkIn.need.label(lang))")
+                    .font(.system(.caption, design: .rounded))
+                    .foregroundStyle(Color.textSecondaryToken)
+            }
+            Spacer()
+            Button {
+                withAnimation(reduceMotion ? nil : .easeOut(duration: 0.2)) {
+                    pendingMood = checkIn.mood
+                    editingCheckIn = true
+                }
+            } label: {
+                Text(HomeExperienceStrings.edit(lang))
+                    .font(.system(.caption, design: .rounded).weight(.semibold))
+                    .foregroundStyle(Color.linkPurple)
+                    .padding(.horizontal, 12)
+                    .frame(minHeight: 32)
+                    .background(Color.brandPurple.opacity(0.12), in: Capsule())
+                    .frame(minHeight: 44)
+                    .contentShape(Capsule())
+            }
+            .accessibilityIdentifier("checkInEditButton")
+        }
+        .padding(.horizontal, TwinkoSpacing.m)
+        .padding(.vertical, 10)
+        .background(Color.surfacePrimary.opacity(0.90),
+                    in: RoundedRectangle(cornerRadius: 18))
+        .overlay(RoundedRectangle(cornerRadius: 18)
+            .strokeBorder(Color.borderSoft, lineWidth: 1))
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("checkInSummary")
+    }
+
+    // MARK: Twinko hero
+
+    private var hero: some View {
+        ZStack {
+            Circle()
+                .fill(Color(red: 1.0, green: 0.97, blue: 0.88))
+                .frame(width: 150, height: 150)
+                .blur(radius: 24)
+                .opacity(0.26)
+            Image("twinko_default_smile_v1_transparent")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 138, height: 138)
+                .offset(y: reduceMotion ? 0 : (floating ? -5 : 5))
+                .accessibilityLabel(Text("Twinko"))
+        }
+        .padding(.vertical, -6)
+    }
+
+    private func startFloating() {
+        guard !reduceMotion else { return }
+        withAnimation(.easeInOut(duration: 2.8).repeatForever(autoreverses: true)) {
+            floating = true
+        }
+    }
+
+    // MARK: Recommendation
+
+    private func recommendationCard(for checkIn: DailyCheckIn) -> some View {
+        let recommendation = recommender.recommendation(for: checkIn, lang: lang)
+        return VStack(spacing: TwinkoSpacing.s) {
+            Text(recommendation.message)
+                .font(.system(.body, design: .rounded))
+                .foregroundStyle(Color.deepPlum)
+                .lineSpacing(4)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Button {
+                activeAction = recommendation.primaryAction
+            } label: {
+                Text(recommendation.primaryAction.label(lang))
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.twinkoPrimary)
+            .accessibilityIdentifier("homePrimaryAction")
+
+            if let secondary = recommendation.secondaryAction {
+                Button {
+                    activeAction = secondary
+                } label: {
+                    Text(secondary.label(lang))
+                        .font(.system(.subheadline, design: .rounded).weight(.medium))
+                        .foregroundStyle(Color.linkPurple)
+                        .frame(maxWidth: .infinity, minHeight: 40)
+                }
+                .accessibilityIdentifier("homeSecondaryAction")
+            }
+        }
+        .padding(TwinkoSpacing.m)
+        .background(Color.surfacePrimary.opacity(0.94),
+                    in: RoundedRectangle(cornerRadius: 20))
+        .overlay(RoundedRectangle(cornerRadius: 20)
+            .strokeBorder(Color.twinkoGold.opacity(0.4), lineWidth: 1))
+        .transition(.opacity)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("homeRecommendationCard")
+    }
+
+    /// Minimum context handoff into existing features.
+    @ViewBuilder
+    private func destination(for action: HomeAction) -> some View {
+        switch action {
+        case .chat:
+            ChatView()
+        case .meditation(let focus, _):
+            MeditationFlowView(sourceContext: MeditationSourceContext(
+                sourceType: .checkIn,
+                focusSummary: todayCheckIn.map { checkIn in
+                    lang == .english
+                        ? "Feeling \(checkIn.mood.label(lang).lowercased()) today and wanting to \(checkIn.need.label(lang).lowercased())."
+                        : "今天感覺\(checkIn.mood.label(lang))，想要\(checkIn.need.label(lang))。"
+                },
+                recommendedFocus: focus))
+        case .tarot:
+            TarotFlowView()
+        case .horoscope:
+            HoroscopeTodayView()
+        case .music:
+            MusicPlaceholderView()
+        }
+    }
+
+    // MARK: Conditional continuation
+
+    /// Shown only when real recent state exists (a conversation
+    /// updated today) — never a fixed checklist, never fake history.
+    @ViewBuilder
+    private var continuationCard: some View {
+        if let recent = chatStore.sessions.first,
+           Calendar.current.isDateInToday(recent.updatedAt),
+           !recent.messages.isEmpty {
+            VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
+                Text(HomeExperienceStrings.continuationTitle(lang))
+                    .font(.system(.caption, design: .rounded).weight(.semibold))
+                    .foregroundStyle(Color.softWhite.opacity(0.85))
+                    .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
+                NavigationLink {
+                    ChatView(session: recent)
+                } label: {
+                    HStack(spacing: TwinkoSpacing.m) {
+                        Image(systemName: "bubble.left.fill")
+                            .font(.system(size: 14))
+                            .foregroundStyle(Color.brandPurpleDeep)
+                            .frame(width: 32, height: 32)
+                            .background(Color.brandPurple.opacity(0.15), in: Circle())
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(HomeExperienceStrings.continueChat(lang))
+                                .font(.system(.subheadline, design: .rounded).weight(.medium))
+                                .foregroundStyle(Color.deepPlum)
+                            Text(recent.displayTitle(for: lang))
+                                .font(.system(.caption, design: .rounded))
+                                .foregroundStyle(Color.textSecondaryToken)
+                                .lineLimit(1)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(Color.textMutedToken)
+                    }
+                    .padding(TwinkoSpacing.m)
+                    .background(Color.surfacePrimary.opacity(0.85),
+                                in: RoundedRectangle(cornerRadius: 18))
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("homeContinuationChat")
+            }
+        }
+    }
+
+    // MARK: Compact Explore shortcuts
+
+    private var exploreShortcuts: some View {
+        VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
+            Text(HomeExperienceStrings.exploreTitle(lang))
+                .font(.system(.caption, design: .rounded).weight(.semibold))
+                .foregroundStyle(Color.softWhite.opacity(0.85))
+                .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
+            HStack(spacing: TwinkoSpacing.s) {
+                shortcut(.tarot) { TarotFlowView() }
+                shortcut(.zodiac) { HoroscopeTodayView() }
+                shortcut(.meditate) { MeditationFlowView() }
+                shortcut(.music) { MusicPlaceholderView() }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func shortcut<Destination: View>(
+        _ mode: HomeMode, @ViewBuilder destination: () -> Destination
     ) -> some View {
         NavigationLink {
             destination()
         } label: {
-            VStack(spacing: 7) {
-                HomeModeIcon(mode: mode, diameter: diameter)
+            VStack(spacing: 5) {
+                HomeModeIcon(mode: mode, diameter: 46)
                 Text(HomeStrings.modeLabel(mode, lang))
-                    .font(lang == .traditionalChinese
-                          ? .custom("PingFangTC-Medium", size: 16)
-                          : .system(size: 16, weight: .semibold, design: .rounded))
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
                     .foregroundStyle(Color.softWhite)
                     .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
                     .lineLimit(1)
-                    .fixedSize()
             }
-            .frame(minWidth: 76, minHeight: 76)
+            .frame(maxWidth: .infinity, minHeight: 44)
             .contentShape(Rectangle())
         }
         .buttonStyle(HomeTilePressStyle())
         .accessibilityLabel(Text(HomeStrings.modeAccessibilityLabel(mode, lang)))
         .accessibilityIdentifier("homeTile-\(mode)")
     }
-
-    // MARK: Profile control
-
-    private var profileButton: some View {
-        // My Planet entry — the approved home_my_planet_v1 badge (via
-        // its derived transparent runtime copy), replacing the
-        // temporary SwiftUI planet.
-        Button {
-            showingProfileSheet = true
-        } label: {
-            Image("home_my_planet_v1_transparent")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 41, height: 41)
-                .shadow(color: .black.opacity(0.18), radius: 3, y: 1)
-                .frame(width: 44, height: 44)
-                .contentShape(Circle())
-        }
-        .buttonStyle(HomeTilePressStyle())
-        .accessibilityLabel(Text(HomeStrings.openProfile(lang)))
-        .accessibilityIdentifier("homeProfileButton")
-    }
-
-    // MARK: Idle motion (spec §7, with Reduce Motion fallback)
-
-    private func startIdleMotion() {
-        guard !reduceMotion else { return }
-        withAnimation(.easeInOut(duration: 4.0).repeatForever(autoreverses: true)) {
-            floating = true
-        }
-        withAnimation(.easeInOut(duration: 4.8).repeatForever(autoreverses: true)) {
-            breathing = true
-        }
-    }
-}
-
-/// Shared tap feedback for the five mode tiles (spec §13): press scale
-/// 0.95, ~150ms, subtle brightness lift.
-private struct HomeTilePressStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
-            .brightness(configuration.isPressed ? 0.05 : 0)
-            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
-    }
 }
 
 #Preview {
-    NavigationStack {
-        HomeView()
-            .environmentObject(ProfileStore())
-            .environmentObject(ChatStore())
-            .environmentObject(PrefsStore())
-    }
+    AppShellView()
+        .environmentObject(ProfileStore())
+        .environmentObject(PrefsStore())
+        .environmentObject(ChatStore())
 }

@@ -57,6 +57,9 @@ enum MeditationStrings {
     static func fromTarot(_ l: AppLanguage) -> String {
         l == .english ? "Based on your Tarot reading" : "根據你剛剛的塔羅解讀"
     }
+    static func fromCheckIn(_ l: AppLanguage) -> String {
+        l == .english ? "Based on today's check-in" : "根據今天的 Check-in"
+    }
     static func focusSummaryLabel(_ l: AppLanguage) -> String {
         l == .english ? "Focus" : "這次的重點"
     }

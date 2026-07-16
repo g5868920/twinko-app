@@ -346,6 +346,10 @@ struct MeditationFlowView: View {
             return (MeditationStrings.fromTarot(lang),
                     sourceContext.focusSummary ?? sourceContext.tarotQuestion,
                     MeditationStrings.trustNote(lang))
+        case .checkIn:
+            return (MeditationStrings.fromCheckIn(lang),
+                    sourceContext.focusSummary,
+                    nil)
         }
     }
 

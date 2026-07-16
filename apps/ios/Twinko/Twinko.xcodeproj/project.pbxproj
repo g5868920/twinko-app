@@ -20,6 +20,8 @@
 		346BB136960D9D4A04D632A6 /* ZodiacSignTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2641A69011EF85C697CF3524 /* ZodiacSignTests.swift */; };
 		3F2FF620CCA6E8285BAA5621 /* ZodiacSign.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73B4022443AD037682D77526 /* ZodiacSign.swift */; };
 		4CD4E5B313CF46C1EAB5B1CC /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE017F9A8111F4496A2D821F /* HomeView.swift */; };
+		E3F496812F683FC0C3D2C84B /* HomeCheckIn.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC983BACD21929105DE2E789 /* HomeCheckIn.swift */; };
+		5C28088F62E957F2C76216F6 /* AppShellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF89B2C5F28226F8EDC15BFB /* AppShellView.swift */; };
 		4DE261B62E9A7D6F66363388 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BFFFEA0570BA6492F3696D7 /* Message.swift */; };
 		4E07BD3D0661A9D70DBE8519 /* TwinkoStar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C28B60D3F5CE4428D34C91C /* TwinkoStar.swift */; };
 		51E9677557A8B45D34243176 /* ProfileSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3643A992548A02C0B45B0DFF /* ProfileSheetView.swift */; };
@@ -34,6 +36,7 @@
 		C92FDA68F7DCBAA15106E7A0 /* MeditationStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 282517ABAA97028692545FB8 /* MeditationStrings.swift */; };
 		E87AB36722209831F710E5CA /* MeditationFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123096DBD6F534B66C2EE4F4 /* MeditationFlowView.swift */; };
 		F81D29C968886A3A0319622D /* MeditationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB889AA10A0BD9BC1354727C /* MeditationTests.swift */; };
+		245AC2B4BDE20A831608830B /* HomeCheckInTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E03A5DC6A1390B9C4DA099E4 /* HomeCheckInTests.swift */; };
 		CEF27A757FDA03D6735C0326 /* HoroscopeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F0269AFE91F603D478DB5E /* HoroscopeProvider.swift */; };
 		181ED5A427D56B96B2EBE210 /* HoroscopeCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E08F0D78ADCCA5108B53758 /* HoroscopeCache.swift */; };
 		04C51EAC0BD3DDCCF5BF19BB /* HoroscopeStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A297C2367F0AF83A483139F /* HoroscopeStrings.swift */; };
@@ -117,6 +120,7 @@
 		282517ABAA97028692545FB8 /* MeditationStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeditationStrings.swift; sourceTree = "<group>"; };
 		123096DBD6F534B66C2EE4F4 /* MeditationFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeditationFlowView.swift; sourceTree = "<group>"; };
 		BB889AA10A0BD9BC1354727C /* MeditationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeditationTests.swift; sourceTree = "<group>"; };
+		E03A5DC6A1390B9C4DA099E4 /* HomeCheckInTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCheckInTests.swift; sourceTree = "<group>"; };
 		75F0269AFE91F603D478DB5E /* HoroscopeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoroscopeProvider.swift; sourceTree = "<group>"; };
 		7E08F0D78ADCCA5108B53758 /* HoroscopeCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoroscopeCache.swift; sourceTree = "<group>"; };
 		5A297C2367F0AF83A483139F /* HoroscopeStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoroscopeStrings.swift; sourceTree = "<group>"; };
@@ -154,6 +158,8 @@
 		F5099A053EA7E83DC6D7D771 /* TwinkoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TwinkoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9F2531A0ADC09B7F99AA6BF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		FE017F9A8111F4496A2D821F /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		AC983BACD21929105DE2E789 /* HomeCheckIn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCheckIn.swift; sourceTree = "<group>"; };
+		BF89B2C5F28226F8EDC15BFB /* AppShellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShellView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -232,6 +238,7 @@
 				60378483018DCB13C98FED8F /* TarotDrawTests.swift */,
 				61BA6F763EEAE1B717A23676 /* HoroscopeTests.swift */,
 				BB889AA10A0BD9BC1354727C /* MeditationTests.swift */,
+				E03A5DC6A1390B9C4DA099E4 /* HomeCheckInTests.swift */,
 				8407D12EF8F41951B8F2C0D8 /* PrefsStoreTests.swift */,
 			);
 			path = TwinkoTests;
@@ -260,6 +267,8 @@
 			isa = PBXGroup;
 			children = (
 				FE017F9A8111F4496A2D821F /* HomeView.swift */,
+				AC983BACD21929105DE2E789 /* HomeCheckIn.swift */,
+				BF89B2C5F28226F8EDC15BFB /* AppShellView.swift */,
 				96056CDCE220CF3815E46C77 /* HomeModeIcon.swift */,
 				3643A992548A02C0B45B0DFF /* ProfileSheetView.swift */,
 				A2629A099DF1889B93EEE8C5 /* PlaceholderViews.swift */,
@@ -480,6 +489,8 @@
 				A6A6F3234F4A5F16627D71E8 /* WelcomeView.swift in Sources */,
 				CDCFE1CC5551CDB86DD7EEE9 /* ProfileSetupView.swift in Sources */,
 				4CD4E5B313CF46C1EAB5B1CC /* HomeView.swift in Sources */,
+				E3F496812F683FC0C3D2C84B /* HomeCheckIn.swift in Sources */,
+				5C28088F62E957F2C76216F6 /* AppShellView.swift in Sources */,
 				6F05F72DBFD392DDA35F1839 /* HomeModeIcon.swift in Sources */,
 				51E9677557A8B45D34243176 /* ProfileSheetView.swift in Sources */,
 				1B4BF31E7C419B3C0FA25040 /* PlaceholderViews.swift in Sources */,
@@ -535,6 +546,7 @@
 				8B72E5E940672C66AF38C06E /* TarotDrawTests.swift in Sources */,
 				691212873AEB8D77DF457BFB /* HoroscopeTests.swift in Sources */,
 				F81D29C968886A3A0319622D /* MeditationTests.swift in Sources */,
+				245AC2B4BDE20A831608830B /* HomeCheckInTests.swift in Sources */,
 				BCA2FE3D9D34F29F4D106FC5 /* PrefsStoreTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

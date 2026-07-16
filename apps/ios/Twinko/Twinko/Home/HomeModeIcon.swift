@@ -225,3 +225,13 @@ private struct BeamedNoteShape: Shape {
     .padding()
     .background(TwinkoBackground.sky)
 }
+
+/// Soft press feedback for Home tiles and controls (0.94 scale, gentle
+/// ease) — shared by Home shortcuts and shell controls.
+struct HomeTilePressStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.94 : 1.0)
+            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
+    }
+}

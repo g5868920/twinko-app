@@ -362,4 +362,14 @@ Basis：`docs/product/TWINKO_DECISION_LOG.md`（D-055）、Chairwoman Decision R
 - **D-055 授權一項 founder-approved 暫時例外**：五個 Home mode icons 以原生 SwiftUI vector views 暫時實作（以交付的 PNG 為視覺參照，不在 runtime 使用該等 PNG）；Home 中央角色暫時沿用既有的 procedural `TwinkoCharacterView`。`home_screen_v1.png` 為刻意不透明的背景，直接使用。
 - **此例外不取代 founder-approved visual target**：待真正透明的 source assets 交付並通過 alpha 驗證後，應以 PNG assets 取代暫時的 SwiftUI drawings。
 - **不改變任何 product scope、naming、language、navigation 或 feature 決策。**
+
+### Home daily-companion redesign 與 four-tab shell（additive note — 2026-07-16）
+
+- **Home 重新設計為 daily-companion loop：已授權並實作。** 問候（時段 + 稱呼）→ Daily Check-in（先選心情、再選需求、當日可修改、同日不重複詢問）→ Twinko hero → 單一個人化建議（一個 primary CTA + 一個較安靜的替代選項）→ 條件式 continuation → 精簡 Explore 捷徑。
+- **四個 bottom-navigation destinations：首頁／聊天／探索／我的星球**（`AppShellView`，每個 tab 各自持有 NavigationStack；feature 內部導覽不變）。右上齒輪直接開啟設定，與「我的星球」為不同目的地。
+- **Mood Orbs 為 code-rendered**（非 Twinko 角色 PNG、無新圖像 assets）；選取狀態使用金色外框 + 勾號（不只靠顏色）。Check-in 資料僅存本機 `daily_checkin`，不進 analytics。
+- **建議由 `HomeRecommendationProviding` boundary 提供**（目前為 deterministic local provider；未來可換 AI provider）：聊聊→Chat、安定下來→3 分鐘冥想、獲得方向→塔羅、休息→睡前冥想（音樂仍為 placeholder）。Check-in→冥想 handoff 使用新的 `checkIn` source context。
+- **未實作（明確排除）**：Memory、Journal、Weekly Insights、streaks/coins、Journey engine、新 router/DB/recommendation framework、任何 model calls。
+- 規格見 `docs/ux/TWINKO_HOME_DAILY_COMPANION_SPEC_V2.md`。
+
 - **Dogfooding distraction**：PM Workflow must prove value in a bounded Discovery-to-Decision slice before expanding。

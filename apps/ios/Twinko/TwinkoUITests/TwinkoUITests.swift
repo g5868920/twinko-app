@@ -953,6 +953,67 @@ final class TwinkoUITests: XCTestCase {
         start.press(forDuration: 0.05, thenDragTo: end)
     }
 
+    /// Focused Home redesign walkthrough (founder/CPO decisions
+    /// 2026-07-16): greeting + check-in progressive disclosure,
+    /// recommendation, bottom navigation, and Settings vs My Planet.
+    func testHomeRedesignWalkthrough() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile"]
+        app.launch()
+
+        // Initial Home: greeting, mood question, four tabs, Settings gear
+        let firstMood = app.descendants(matching: .any)["mood-happy"]
+        XCTAssertTrue(firstMood.waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["homeSettingsButton"].exists)
+        XCTAssertTrue(app.buttons["tab-home"].exists)
+        XCTAssertTrue(app.buttons["tab-chat"].exists)
+        XCTAssertTrue(app.buttons["tab-explore"].exists)
+        XCTAssertTrue(app.buttons["tab-myplanet"].exists)
+        attach(name: "H1-home-initial")
+
+        // Progressive disclosure: mood → need question appears
+        // (long settle: the very first tap after launch can be dropped
+        // while the shell's tab stacks finish attaching)
+        Thread.sleep(forTimeInterval: 3.0)
+        let moodOrb = app.buttons["mood-anxious"]
+        moodOrb.tap()
+        if !app.buttons["need-ground"].waitForExistence(timeout: 3) {
+            moodOrb.tap()   // one retry for a dropped first tap
+        }
+        let needChip = app.buttons["need-ground"]
+        XCTAssertTrue(needChip.waitForExistence(timeout: 5))
+        attach(name: "H2-mood-selected-need-revealed")
+
+        // Need → collapsed summary + one recommendation
+        Thread.sleep(forTimeInterval: 0.8)
+        needChip.tap()
+        XCTAssertTrue(app.descendants(matching: .any)["checkInSummary"]
+            .waitForExistence(timeout: 5))
+        let recommendation = app.descendants(matching: .any)["homeRecommendationCard"]
+        XCTAssertTrue(recommendation.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.descendants(matching: .any)["homePrimaryAction"].exists)
+        attach(name: "H3-checkin-complete-recommendation")
+
+        // Settings gear opens Settings directly (language rows) —
+        // a different destination from the My Planet tab.
+        settleTap(app.buttons["homeSettingsButton"])
+        XCTAssertTrue(app.buttons["language-zh-Hant"].waitForExistence(timeout: 5))
+        attach(name: "H4-settings-sheet")
+        app.swipeDown(velocity: .fast)
+
+        // My Planet tab shows the planet landing, not Settings
+        settleTap(app.buttons["tab-myplanet"])
+        XCTAssertTrue(app.buttons["sheetProfileRow"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["小雅"].exists)
+
+        // Back to Home: check-in stays collapsed (no re-ask same day)
+        settleTap(app.buttons["tab-home"])
+        XCTAssertTrue(app.descendants(matching: .any)["checkInSummary"]
+            .waitForExistence(timeout: 5))
+        XCTAssertFalse(app.descendants(matching: .any)["mood-happy"].exists,
+                       "Same-day check-in is not re-asked after navigating away")
+    }
+
     /// Waits out any in-flight transition, then taps via coordinate —
     /// coordinate taps skip the AX scroll-to-visible action that fails
     /// on animating elements.

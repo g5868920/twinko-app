@@ -60,11 +60,11 @@ private func sectionHeader(_ text: String) -> some View {
 
 // MARK: - My Planet landing
 
-/// My Planet: the personal cosmic space behind the Home planet badge.
+/// My Planet: the personal cosmic space on the My Planet tab.
 /// Identity area (planet + name + subtitle) above three large branded
 /// entry cards — Profile, Settings, Privacy. Editing is reached by
 /// tapping profile cards directly; no prominent Edit button.
-struct ProfileSheetView: View {
+struct MyPlanetContentView: View {
     @EnvironmentObject private var profileStore: ProfileStore
     @EnvironmentObject private var prefs: PrefsStore
     @StateObject private var sheetHeight = ProfileSheetHeight()
@@ -109,12 +109,6 @@ struct ProfileSheetView: View {
             .onAppear { sheetHeight.fraction = 0.55 }
         }
         .environmentObject(sheetHeight)
-        .presentationDetents([.fraction(sheetHeight.fraction)])
-        .presentationCornerRadius(28)
-        .presentationDragIndicator(.visible)
-        .presentationBackground {
-            DreamyBackground()
-        }
         .tint(.warmOrange)
     }
 
@@ -269,59 +263,7 @@ struct ProfileSheetView: View {
     // MARK: Settings (Option B — designed, minimal)
 
     private var settingsDetail: some View {
-        ZStack {
-            DreamyBackground()
-            ScrollView {
-                VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
-                    sectionHeader(HomeStrings.language(lang))
-                    ForEach(AppLanguage.allCases) { option in
-                        let selected = prefs.language == option
-                        Button {
-                            prefs.language = option
-                        } label: {
-                            HStack(spacing: TwinkoSpacing.m) {
-                                Text(option == .traditionalChinese ? "繁" : "EN")
-                                    .font(.system(size: 14, weight: .bold, design: .rounded))
-                                    .foregroundStyle(selected ? .white : Color.brandPurpleDeep)
-                                    .frame(width: 36, height: 36)
-                                    .background(
-                                        selected
-                                            ? AnyShapeStyle(LinearGradient(
-                                                colors: [.brandPurple, .brandPurpleDeep],
-                                                startPoint: .top, endPoint: .bottom))
-                                            : AnyShapeStyle(Color.brandPurple.opacity(0.14)),
-                                        in: Circle())
-                                Text(option.displayName)
-                                    .font(.twinkoHeadline)
-                                    .foregroundStyle(Color.inkNavy)
-                                Spacer()
-                                Image(systemName: selected ? "checkmark.circle.fill" : "circle")
-                                    .font(.system(size: 20))
-                                    .foregroundStyle(selected
-                                                     ? Color.brandPurpleDeep
-                                                     : Color.inkNavy.opacity(0.2))
-                            }
-                            .padding(TwinkoSpacing.m)
-                            .frame(minHeight: 60)
-                            .dreamyCard()
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 18)
-                                    .strokeBorder(selected ? Color.brandPurple.opacity(0.6)
-                                                           : Color.clear,
-                                                  lineWidth: 1.5)
-                            )
-                        }
-                        .accessibilityIdentifier("language-\(option.rawValue)")
-                        .accessibilityAddTraits(prefs.language == option ? [.isSelected] : [])
-                    }
-                }
-                .padding(TwinkoSpacing.m)
-            }
-        }
-        .navigationTitle(HomeStrings.settings(lang))
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
-        .onAppear { sheetHeight.fraction = 0.55 }
+        MyPlanetSettingsDetail()
     }
 
     // MARK: Privacy (sectioned reading experience)
@@ -618,8 +560,85 @@ struct EditProfileView: View {
     }
 }
 
+// MARK: - Settings detail (shared by My Planet and the Home gear)
+
+struct MyPlanetSettingsDetail: View {
+    @EnvironmentObject private var prefs: PrefsStore
+
+    private var lang: AppLanguage { prefs.language }
+
+    var body: some View {
+        ZStack {
+            DreamyBackground()
+            ScrollView {
+                VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
+                    sectionHeader(HomeStrings.language(lang))
+                    ForEach(AppLanguage.allCases) { option in
+                        let selected = prefs.language == option
+                        Button {
+                            prefs.language = option
+                        } label: {
+                            HStack(spacing: TwinkoSpacing.m) {
+                                Text(option == .traditionalChinese ? "繁" : "EN")
+                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                    .foregroundStyle(selected ? .white : Color.brandPurpleDeep)
+                                    .frame(width: 36, height: 36)
+                                    .background(
+                                        selected
+                                            ? AnyShapeStyle(LinearGradient(
+                                                colors: [.brandPurple, .brandPurpleDeep],
+                                                startPoint: .top, endPoint: .bottom))
+                                            : AnyShapeStyle(Color.brandPurple.opacity(0.14)),
+                                        in: Circle())
+                                Text(option.displayName)
+                                    .font(.twinkoHeadline)
+                                    .foregroundStyle(Color.inkNavy)
+                                Spacer()
+                                Image(systemName: selected ? "checkmark.circle.fill" : "circle")
+                                    .font(.system(size: 20))
+                                    .foregroundStyle(selected
+                                                     ? Color.brandPurpleDeep
+                                                     : Color.inkNavy.opacity(0.2))
+                            }
+                            .padding(TwinkoSpacing.m)
+                            .frame(minHeight: 60)
+                            .dreamyCard()
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 18)
+                                    .strokeBorder(selected ? Color.brandPurple.opacity(0.6)
+                                                           : Color.clear,
+                                                  lineWidth: 1.5)
+                            )
+                        }
+                        .accessibilityIdentifier("language-\(option.rawValue)")
+                        .accessibilityAddTraits(prefs.language == option ? [.isSelected] : [])
+                    }
+                }
+                .padding(TwinkoSpacing.m)
+            }
+        }
+        .navigationTitle(HomeStrings.settings(lang))
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(.hidden, for: .navigationBar)
+    }
+}
+
+/// Direct Settings sheet for the Home top-right gear — a different
+/// destination from the My Planet tab.
+struct SettingsSheetView: View {
+    var body: some View {
+        NavigationStack {
+            MyPlanetSettingsDetail()
+        }
+        .presentationDetents([.fraction(0.55)])
+        .presentationCornerRadius(28)
+        .presentationDragIndicator(.visible)
+        .tint(.warmOrange)
+    }
+}
+
 #Preview {
-    ProfileSheetView()
+    MyPlanetContentView()
         .environmentObject(ProfileStore())
         .environmentObject(PrefsStore())
 }

@@ -11,6 +11,7 @@ struct TwinkoApp: App {
             store.delete("profile")
             store.delete("chat_sessions")
             store.delete("prefs")
+            store.delete("daily_checkin")
         }
         if arguments.contains("-uiTestSeedProfile") {
             let store = JSONStore()

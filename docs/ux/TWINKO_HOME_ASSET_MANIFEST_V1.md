@@ -131,3 +131,17 @@ assets/
   (delivered with a baked checkerboard; derived transparent runtime
   copy in `assets/home/derived/`, source untouched). Replaces the
   temporary SwiftUI `ProfilePlanetIcon`.
+
+## Addendum — Home daily-companion redesign (2026-07-16)
+
+- No new image assets. The Daily Check-in **Mood Orbs** are code-rendered
+  (`MoodOrbView` in `HomeCheckIn.swift`) — not Twinko character PNGs.
+- `home_my_planet_v1` (derived transparent copy) is now also the
+  **My Planet tab icon** in the four-tab bottom navigation.
+- The five orbiting Home mode icons are retired from Home; `HomeModeIcon`
+  views remain in use on the Explore tab and the compact Home shortcuts
+  (Tarot / Zodiac / Meditate / Music).
+- `home_screen_v1.png` remains the Home background, now with a code-based
+  readability gradient overlay.
+
+See `TWINKO_HOME_DAILY_COMPANION_SPEC_V2.md` for the full redesigned IA.

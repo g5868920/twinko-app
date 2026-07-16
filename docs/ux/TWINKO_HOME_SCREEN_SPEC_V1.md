@@ -462,6 +462,15 @@ Only implementation calibration remains:
 
 ---
 
+## Home daily-companion redesign (2026-07-16)
+
+> **Superseding amendment:** the five-icon orbit Home described in this
+> spec is replaced by the daily-companion Home (greeting + Daily Check-in +
+> Twinko hero + one recommendation + compact shortcuts) with a four-tab
+> bottom navigation (首頁/聊天/探索/我的星球). See
+> `TWINKO_HOME_DAILY_COMPANION_SPEC_V2.md`. Naming, localization,
+> accessibility, and asset-integrity rules in this spec remain active.
+
 ## My Planet redesign (2026-07-16)
 
 The top-right Profile control is now the **My Planet** entry using the

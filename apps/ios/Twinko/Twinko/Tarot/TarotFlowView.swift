@@ -39,12 +39,24 @@ struct TarotFlowView: View {
         }
         .background {
             GeometryReader { geo in
-                Image(backgroundName)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: geo.size.width, height: geo.size.height)
-                    .clipped()
-                    .accessibilityHidden(true)
+                ZStack {
+                    Image(backgroundName)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: geo.size.width, height: geo.size.height)
+                        .clipped()
+                    // Restrained readability overlay (spec §8): the
+                    // approved art stays visible but secondary behind
+                    // text-heavy content.
+                    LinearGradient(
+                        stops: [
+                            .init(color: Color.deepSpace.opacity(0.22), location: 0),
+                            .init(color: Color.deepSpace.opacity(0.14), location: 0.35),
+                            .init(color: Color.deepSpace.opacity(0.28), location: 1),
+                        ],
+                        startPoint: .top, endPoint: .bottom)
+                }
+                .accessibilityHidden(true)
             }
             .ignoresSafeArea()
             .animation(.easeInOut(duration: 0.4), value: backgroundName)
@@ -69,7 +81,7 @@ struct TarotFlowView: View {
                     advance(to: .shuffle)
                 }
             case .shuffle:
-                TarotShuffleStage { advance(to: .reveal) }
+                TarotShuffleStage(cardCount: session.cards.count) { advance(to: .reveal) }
             case .reveal:
                 TarotRevealStage(cards: session.cards,
                                  heading: session.spread == .single
@@ -158,12 +170,9 @@ private struct TarotSetupStage: View {
     var body: some View {
         ScrollView {
             VStack(spacing: TwinkoSpacing.m) {
-                Image("twinko_tarot_idle_v1_transparent")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 130, height: 130)
+                TarotTwinkoView(state: .idle, size: TarotTwinkoSize.supporting,
+                                effect: .idleGlow)
                     .padding(.top, TwinkoSpacing.s)
-                    .accessibilityHidden(true)
 
                 Text(TarotStrings.setupTitle(lang))
                     .font(.system(.title3, design: .rounded).weight(.semibold))
@@ -211,16 +220,31 @@ private struct TarotSetupStage: View {
                     Text(TarotStrings.questionHint(lang))
                         .font(.system(.caption, design: .rounded))
                         .foregroundStyle(Color.textInverseToken.opacity(0.65))
+                    // Clearly tappable suggestion chips — tapping fills
+                    // the question input (spec §5).
                     ForEach(session.topic.suggestedQuestions(lang), id: \.self) { suggestion in
                         Button {
                             session.question = suggestion
                         } label: {
-                            Text(suggestion)
-                                .font(.system(.caption, design: .rounded))
-                                .foregroundStyle(Color.twinkoGold)
-                                .multilineTextAlignment(.leading)
-                                .frame(minHeight: 28, alignment: .leading)
+                            HStack(spacing: 6) {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(Color.twinkoGold.opacity(0.8))
+                                Text(suggestion)
+                                    .font(.system(.caption, design: .rounded))
+                                    .foregroundStyle(Color.twinkoGold)
+                                    .multilineTextAlignment(.leading)
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .frame(minHeight: 40, alignment: .leading)
+                            .background(Color.twinkoGold.opacity(0.10), in: Capsule())
+                            .overlay(Capsule().strokeBorder(Color.twinkoGold.opacity(0.35),
+                                                            lineWidth: 1))
+                            .contentShape(Capsule())
                         }
+                        .accessibilityHint(Text(lang == .english
+                            ? "Fills the question field" : "會填入問題欄位"))
                     }
                 }
                 .padding(TwinkoSpacing.m)
@@ -255,11 +279,8 @@ private struct TarotSpreadStage: View {
     var body: some View {
         VStack(spacing: TwinkoSpacing.l) {
             Spacer()
-            Image("twinko_tarot_idle_v1_transparent")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 120, height: 120)
-                .accessibilityHidden(true)
+            TarotTwinkoView(state: .idle, size: TarotTwinkoSize.supporting,
+                            effect: .idleGlow)
             Text(TarotStrings.spreadTitle(lang))
                 .font(.system(.title3, design: .rounded).weight(.semibold))
                 .foregroundStyle(Color.textInverseToken)

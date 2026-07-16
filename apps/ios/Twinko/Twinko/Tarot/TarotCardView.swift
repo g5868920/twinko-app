@@ -1,5 +1,112 @@
 import SwiftUI
 
+// MARK: - Tarot Twinko character states
+
+/// Centralized Tarot Twinko asset-state mapping (founder review
+/// 2026-07-16). Canonical set: idle / gentle concern / magic. The old
+/// summary and interpreting poses are deprecated — summary states use
+/// the idle character plus code-rendered effects.
+enum TarotTwinkoState {
+    case idle
+    /// Empathetic state for sensitive moments. The approved
+    /// `twinko_tarot_gentle_concern_v1` asset has not been delivered
+    /// yet, so this resolves to the idle character until it exists
+    /// (documented asset gap — never redrawn in code).
+    case gentleConcern
+    case magic
+
+    var assetName: String {
+        switch self {
+        case .idle, .gentleConcern:
+            return "twinko_tarot_idle_v1_transparent"
+        case .magic:
+            return "twinko_tarot_magic_v1_transparent"
+        }
+    }
+}
+
+/// Semantic Tarot Twinko sizes (spec §3.7).
+enum TarotTwinkoSize {
+    static let hero: CGFloat = 170
+    static let supporting: CGFloat = 112
+    static let mini: CGFloat = 56
+}
+
+/// Tarot Twinko with its runtime-composed effect layer. Effects live
+/// in code, never baked into the character PNG; Reduce Motion swaps
+/// motion for static treatment.
+struct TarotTwinkoView: View {
+    enum Effect { case none, idleGlow, summaryAura }
+
+    let state: TarotTwinkoState
+    var size: CGFloat = TarotTwinkoSize.supporting
+    var effect: Effect = .none
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var floating = false
+
+    var body: some View {
+        ZStack {
+            switch effect {
+            case .none:
+                EmptyView()
+            case .idleGlow:
+                Circle()
+                    .fill(Color.twinkoGold)
+                    .frame(width: size * 1.05, height: size * 1.05)
+                    .blur(radius: 24)
+                    .opacity(0.12)
+            case .summaryAura:
+                // Warm stable halo + sparse static sparkles — the
+                // summary presentation uses the idle character.
+                Circle()
+                    .fill(Color.twinkoGold)
+                    .frame(width: size * 1.1, height: size * 1.1)
+                    .blur(radius: 22)
+                    .opacity(0.18)
+                ForEach(0..<4, id: \.self) { index in
+                    Circle()
+                        .fill(Color.twinkoGold.opacity(0.55))
+                        .frame(width: 3.5, height: 3.5)
+                        .offset(x: [-0.55, 0.6, -0.4, 0.5][index] * size * 0.62,
+                                y: [-0.45, -0.3, 0.5, 0.42][index] * size * 0.55)
+                }
+            }
+            Image(state.assetName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: size, height: size)
+                .offset(y: floatOffset)
+        }
+        .accessibilityHidden(true)
+        .onAppear {
+            guard !reduceMotion, effect == .idleGlow else { return }
+            withAnimation(.easeInOut(duration: 3.6).repeatForever(autoreverses: true)) {
+                floating = true
+            }
+        }
+    }
+
+    private var floatOffset: CGFloat {
+        guard !reduceMotion, effect == .idleGlow else { return 0 }
+        return floating ? -4 : 4
+    }
+}
+
+/// Pure choreography helper so the final selected-card count is
+/// testable apart from animation: a Three-Card reading must isolate
+/// exactly three cards from the shuffle fan.
+enum TarotShuffleChoreography {
+    /// Indices of the fanned deck cards that converge into the final
+    /// spread positions (centered within `fanCount`).
+    static func selectedIndices(fanCount: Int, pick: Int) -> [Int] {
+        guard pick > 0, fanCount > 0 else { return [] }
+        let count = min(pick, fanCount)
+        let start = (fanCount - count) / 2
+        return Array(start..<(start + count))
+    }
+}
+
 /// Face-up card front from the canonical 78-card registry assets.
 /// Reversed cards render rotated 180° (and are always also labeled in
 /// text elsewhere — orientation never relies on rotation alone).
@@ -64,6 +171,9 @@ struct FlipTarotCard: View {
         .offset(y: lifted ? -6 : (breathing && !isRevealed && !reduceMotion ? -3 : 0))
         .onTapGesture { reveal() }
         .onAppear { startBreathing() }
+        // Exactly one accessibility element per card — inner image
+        // layers must not surface as duplicates (spec §25).
+        .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityText)
         .accessibilityAddTraits(.isButton)
     }

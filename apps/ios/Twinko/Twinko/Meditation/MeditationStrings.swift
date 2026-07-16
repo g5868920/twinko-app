@@ -28,7 +28,26 @@ enum MeditationStrings {
             : "我最近對工作很焦慮，希望可以安定下來。"
     }
     static func start(_ l: AppLanguage) -> String {
-        l == .english ? "Create my meditation" : "開始專屬冥想"
+        l == .english ? "Create My Meditation" : "生成專屬冥想"
+    }
+    static func recommendedTag(_ l: AppLanguage) -> String {
+        l == .english ? "Recommended" : "建議"
+    }
+    static func twinkoRecommends(_ l: AppLanguage) -> String {
+        l == .english ? "Twinko recommends:" : "Twinko 建議："
+    }
+    static func trustNote(_ l: AppLanguage) -> String {
+        l == .english
+            ? "Twinko will use your question and the reading's overall message, not repeat the interpretation word for word."
+            : "Twinko 會使用你的問題與牌卡整體訊息，不會逐字朗讀解讀內容。"
+    }
+    static func supplementLabel(_ l: AppLanguage) -> String {
+        l == .english ? "Anything else you'd like to add? (Optional)" : "還有什麼想補充嗎？（選填）"
+    }
+    static func supplementPlaceholder(_ l: AppLanguage) -> String {
+        l == .english
+            ? "For example: I want to feel less anxious about the outcome."
+            : "例如：我希望可以更放下對結果的焦慮。"
     }
 
     // Source acknowledgment (subtle, no raw content)

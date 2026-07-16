@@ -69,7 +69,7 @@ bg_tarot_moonlight_altar_result_v1.png
 
 ### 6. Interpretation
 - background: result background
-- loading / reflection state: `twinko_tarot_interpreting_v1.png`
+- loading / reflection state: `twinko_tarot_gentle_concern_v1.png` (asset pending — runtime falls back to `twinko_tarot_idle_v1.png`; the old interpreting pose is deprecated)
 - production output must be LLM-synthesized, not hardcoded per card
 
 ### 7. Guidance Card Prompt
@@ -78,7 +78,7 @@ bg_tarot_moonlight_altar_result_v1.png
 
 ### 8. Final Summary
 - background: result background or a calmer dark surface in the same Tarot language
-- hero: `twinko_tarot_summary_v1.png`
+- hero: `twinko_tarot_idle_v1.png` + code-rendered summary aura (the old summary pose is deprecated)
 - supports save / share / continue
 - uses runtime summary-card composition system
 

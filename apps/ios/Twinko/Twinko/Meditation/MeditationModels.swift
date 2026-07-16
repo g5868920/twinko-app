@@ -74,6 +74,12 @@ struct MeditationSourceContext: Equatable {
     var tarotQuestion: String?
     var tarotSummary: String?
     var emotionalTone: String?
+    /// Concise adapted focus summary (2–3 short lines) shown on the
+    /// Context Review — never a copied or truncated source paragraph.
+    var focusSummary: String?
+    /// Twinko's recommended theme for this context; the user can
+    /// always change it. Nil means no recommendation.
+    var recommendedFocus: MeditationFocus?
 
     static let direct = MeditationSourceContext(sourceType: .direct)
 }

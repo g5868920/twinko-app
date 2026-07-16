@@ -37,3 +37,14 @@ Prototype:
 Production LLM:
 - must synthesize output dynamically from question, spread, positions, orientation, card combination, and context
 - must not rely on one fixed prewritten answer per card
+
+## v3.1 update (founder review 2026-07-16)
+
+Canonical Tarot Twinko set is now `idle` / `gentle_concern` / `magic`.
+The old `summary` and `interpreting` poses are deprecated: summary
+states use `twinko_tarot_idle_v1` plus code-rendered summary effects,
+and emotional states map to `twinko_tarot_gentle_concern_v1` (not yet
+delivered — runtime falls back to idle). Character PNGs contain the
+character only; all auras, sparkles, rings, and card motion are
+runtime layers. See the expression spec v3.1 and changelog for
+details.

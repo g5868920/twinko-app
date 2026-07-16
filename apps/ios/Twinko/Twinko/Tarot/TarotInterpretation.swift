@@ -2,10 +2,13 @@ import Foundation
 
 // MARK: - Provider boundary
 
-/// One card's interpretation block for the result screen.
+/// One card's interpretation block for the result screen: a short
+/// always-visible core (2–3 sentences) and a longer detail revealed
+/// behind "Show full interpretation".
 struct TarotCardInterpretation: Equatable {
     let keywords: [String]
-    let body: String
+    let core: String
+    let detail: String
     let reflectionPrompt: String
 }
 
@@ -24,6 +27,10 @@ protocol TarotInterpretationProviding {
     /// Final combined summary: single-card closing, or the 3(+1)
     /// overall message when a guidance card is present.
     func combinedSummary(for session: TarotReadingSession, lang: AppLanguage) -> String
+    /// Twinko's short emotional closing with one practical or
+    /// reflective next step — always distinct from the synthesis and
+    /// combined summary (never the same string).
+    func twinkoMessage(for session: TarotReadingSession, lang: AppLanguage) -> String
     func closingLine(lang: AppLanguage) -> String
 }
 
@@ -151,17 +158,19 @@ struct MockTarotInterpretationProvider: TarotInterpretationProviding {
     func interpretation(for drawn: TarotDrawnCard,
                         in session: TarotReadingSession,
                         lang: AppLanguage) -> TarotCardInterpretation {
-        var lines: [String] = []
-        if let frame = positionFrame(drawn.position, lang) { lines.append(frame) }
+        // Core: position frame + theme, kept to 2–3 short sentences.
+        var coreLines: [String] = []
+        if let frame = positionFrame(drawn.position, lang) { coreLines.append(frame) }
         if lang == .english {
-            lines.append("This card may reflect that \(theme(drawn.card, lang)).")
+            coreLines.append("This card may reflect that \(theme(drawn.card, lang)).")
         } else {
-            lines.append("這張牌或許在說，\(theme(drawn.card, lang))。")
+            coreLines.append("這張牌或許在說，\(theme(drawn.card, lang))。")
         }
-        lines.append(orientationNuance(drawn, lang))
-        lines.append(topicAngle(session.topic, lang))
+        // Detail: orientation nuance + topic angle, shown on expand.
+        let detailLines = [orientationNuance(drawn, lang), topicAngle(session.topic, lang)]
         return TarotCardInterpretation(keywords: keywords(drawn, lang),
-                                       body: lines.joined(separator: "\n"),
+                                       core: coreLines.joined(separator: "\n"),
+                                       detail: detailLines.joined(separator: "\n"),
                                        reflectionPrompt: reflection(drawn, lang))
     }
 
@@ -192,6 +201,27 @@ struct MockTarotInterpretationProvider: TarotInterpretationProviding {
             return "Bringing all four together: the Past–Present–Future story above sets the scene, and \(gName) (\(gState)) arrives as your guidance — a direction to act on, gently. Let it suggest one small next step rather than a final answer."
         }
         return "把四張牌合起來看：前面「過去—現在—未來」鋪出了整個故事，而\(gState)的「\(gName)」作為指引牌輕輕落下——它給的是一個可以行動的方向，不是最終答案。讓它幫你想出一小步，就很足夠了。"
+    }
+
+    func twinkoMessage(for session: TarotReadingSession, lang: AppLanguage) -> String {
+        // Short, warm, one practical step — deliberately generated
+        // from separate pools so it can never duplicate the synthesis
+        // or combined summary (spec §10).
+        let zh = [
+            "不用急著把每個方向都想清楚，今天先為自己做一件小小的事就好。",
+            "把牌給你的感覺記在心裡，然後泡杯溫的東西，慢慢來。",
+            "留意今天心裡最常出現的那個念頭，睡前輕輕回看一眼就好。",
+            "選一個此刻做得到的小步驟，其他的，先交給時間。",
+        ]
+        let en = [
+            "You don't need every direction figured out today — just do one small kind thing for yourself.",
+            "Keep the feeling this reading gave you, make something warm to drink, and take it slow.",
+            "Notice the thought that visits you most today, and gently revisit it before sleep.",
+            "Pick one small step you can take right now, and let time hold the rest.",
+        ]
+        let pool = lang == .english ? en : zh
+        let seed = session.allCards.map(\.card.id).joined(separator: "|") + "|twinko-message"
+        return pool[Int(stableHash(seed) % UInt64(pool.count))]
     }
 
     func closingLine(lang: AppLanguage) -> String {

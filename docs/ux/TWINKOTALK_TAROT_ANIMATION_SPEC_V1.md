@@ -179,7 +179,7 @@ Cards must not cover Twinko’s face.
 Use:
 
 ```text
-twinko_tarot_interpreting_v1.png
+twinko_tarot_gentle_concern_v1.png  (v3.1: replaces the deprecated interpreting pose; idle fallback until delivered)
 ```
 
 Motion:
@@ -194,7 +194,7 @@ Motion:
 Use:
 
 ```text
-twinko_tarot_summary_v1.png
+twinko_tarot_idle_v1.png  (v3.1: summary uses the idle character + runtime summary aura; the summary pose is deprecated)
 ```
 
 Motion:
@@ -694,3 +694,14 @@ Claude Code must not:
 - [ ] Assets are preloaded appropriately
 - [ ] Offscreen loops stop
 - [ ] Memory use remains controlled
+
+
+---
+
+# 14. v3.1 Character/Effect Separation (founder review 2026-07-16)
+
+Character PNGs contain the character only. All Tarot motion effects
+(idle glow, magic aura, sparkles, energy ring, card orbit/fan, summary
+aura) are runtime SwiftUI layers, independent from the character asset
+and gated by Reduce Motion. The shuffle fan resolves to exactly the
+drawn card count (three for a Three-Card reading) before reveal.

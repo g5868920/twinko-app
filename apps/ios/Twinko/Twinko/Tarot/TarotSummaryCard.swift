@@ -15,11 +15,11 @@ struct TarotSummaryCardView: View {
     static let designSize = CGSize(width: 360, height: 450)
 
     var body: some View {
-        VStack(spacing: 12) {
-            // Title + date
+        VStack(spacing: 10) {
+            // ~20%: title, date, topic (question only when short)
             VStack(spacing: 2) {
                 Text(TarotStrings.summaryCardTitle(lang))
-                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
                     .foregroundStyle(Color.twinkoGold)
                 Text(session.createdAt.formatted(date: .abbreviated, time: .omitted)
                         .description)
@@ -31,43 +31,36 @@ struct TarotSummaryCardView: View {
             }
             .padding(.top, 18)
 
-            if !session.trimmedQuestion.isEmpty {
-                Text("「\(session.trimmedQuestion)」")
-                    .font(.system(size: 12, design: .rounded))
-                    .foregroundStyle(Color.textInverseToken.opacity(0.85))
-                    .multilineTextAlignment(.center)
-                    .lineLimit(2)
-                    .padding(.horizontal, 24)
-            }
-
-            // Cards row
+            // ~36%: larger card artwork with readable names
             HStack(spacing: 10) {
                 ForEach(session.allCards) { drawn in
                     VStack(spacing: 4) {
                         TarotCardFace(drawn: drawn, width: cardWidth)
                         if let position = drawn.position {
                             Text(position.label(lang))
-                                .font(.system(size: 9, weight: .semibold, design: .rounded))
+                                .font(.system(size: 10, weight: .semibold, design: .rounded))
                                 .foregroundStyle(Color.twinkoGold)
                         }
                         Text(drawn.card.displayName(for: lang))
-                            .font(.system(size: 9, weight: .semibold, design: .rounded))
+                            .font(.system(size: 11, weight: .bold, design: .rounded))
                             .foregroundStyle(Color.textInverseToken)
                             .lineLimit(1)
+                            .minimumScaleFactor(0.8)
                         Text(drawn.orientation.label(lang))
-                            .font(.system(size: 8, design: .rounded))
+                            .font(.system(size: 9, design: .rounded))
                             .foregroundStyle(Color.textInverseToken.opacity(0.7))
                     }
                 }
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 14)
 
-            // Short synthesis on an ivory reading surface
+            // ~24%: concise synthesis, 3–4 readable lines
             Text(provider.combinedSummary(for: session, lang: lang))
-                .font(.system(size: 11, design: .rounded))
+                .font(.system(size: 11.5, design: .rounded))
                 .foregroundStyle(Color.textPrimaryToken)
-                .lineSpacing(2.5)
-                .lineLimit(6)
+                .lineSpacing(3)
+                .lineLimit(4)
+                .minimumScaleFactor(0.9)
                 .multilineTextAlignment(.leading)
                 .padding(12)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -77,23 +70,41 @@ struct TarotSummaryCardView: View {
 
             Spacer(minLength: 0)
 
-            // Twinko + closing line + branding
-            HStack(alignment: .center, spacing: 10) {
-                Image("twinko_tarot_summary_v1_transparent")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 64, height: 64)
+            // ~12%: Twinko closing — the idle character with a
+            // code-rendered warm aura + sparse sparkles (the old
+            // summary pose is deprecated; effects are never baked in).
+            HStack(alignment: .center, spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(Color.twinkoGold)
+                        .frame(width: 78, height: 78)
+                        .blur(radius: 16)
+                        .opacity(0.20)
+                    ForEach(0..<3, id: \.self) { index in
+                        Circle()
+                            .fill(Color.twinkoGold.opacity(0.6))
+                            .frame(width: 3, height: 3)
+                            .offset(x: [-30, 34, -22][index], y: [-26, -14, 30][index])
+                    }
+                    Image(TarotTwinkoState.idle.assetName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 72, height: 72)
+                }
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(provider.closingLine(lang: lang))
+                    Text(provider.twinkoMessage(for: session, lang: lang))
                         .font(.system(size: 11, weight: .medium, design: .rounded))
                         .foregroundStyle(Color.textInverseToken)
+                        .lineLimit(3)
+                        .minimumScaleFactor(0.85)
+                    // ~8%: branding
                     Text("TwinkoTalk")
                         .font(.system(size: 9, design: .rounded))
                         .foregroundStyle(Color.textInverseToken.opacity(0.5))
                 }
                 Spacer()
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 18)
             .padding(.bottom, 16)
         }
         .frame(width: Self.designSize.width, height: Self.designSize.height)
@@ -109,7 +120,7 @@ struct TarotSummaryCardView: View {
     }
 
     private var cardWidth: CGFloat {
-        session.allCards.count <= 1 ? 96 : (session.allCards.count == 3 ? 72 : 62)
+        session.allCards.count <= 1 ? 118 : (session.allCards.count == 3 ? 88 : 74)
     }
 }
 

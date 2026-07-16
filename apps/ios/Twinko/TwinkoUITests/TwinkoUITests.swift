@@ -107,7 +107,7 @@ final class TwinkoUITests: XCTestCase {
         let seeResult = app.buttons["看看牌想說什麼"]
         XCTAssertTrue(seeResult.waitForExistence(timeout: 5))
         seeResult.tap()
-        let restart = app.buttons["再抽一次"]
+        let restart = app.buttons["開始新的占卜"]
         XCTAssertTrue(restart.waitForExistence(timeout: 5))
         attach(name: "08-tarot-single-result")
 
@@ -496,6 +496,108 @@ final class TwinkoUITests: XCTestCase {
         }
     }
 
+    /// Focused Tarot refinement walkthrough (founder review 2026-07-16):
+    /// setup, three-card selection count, expand/collapse, CTA
+    /// hierarchy, summary card, meditation context review, and return
+    /// navigation back to the Tarot result.
+    func testTarotRefinementWalkthrough() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile"]
+        app.launch()
+
+        // Setup (idle Twinko, suggestion chips)
+        XCTAssertTrue(app.buttons["homeTile-tarot"].waitForExistence(timeout: 10))
+        app.buttons["homeTile-tarot"].tap()
+        let next = app.buttons["下一步"]
+        XCTAssertTrue(next.waitForExistence(timeout: 5))
+        attach(name: "TR1-tarot-setup")
+        next.tap()
+
+        // Three-card spread: shuffle must resolve to exactly three
+        // face-down cards.
+        let threeSpread = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "三張牌")).firstMatch
+        XCTAssertTrue(threeSpread.waitForExistence(timeout: 5))
+        threeSpread.tap()
+        let facedownQuery = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "蓋著的牌"))
+        XCTAssertTrue(facedownQuery.firstMatch.waitForExistence(timeout: 12))
+        Thread.sleep(forTimeInterval: 0.8)
+        XCTAssertEqual(facedownQuery.count, 3,
+                       "A Three-Card reading must isolate exactly three cards")
+        attach(name: "TR2-three-selected")
+
+        for _ in 0..<3 {
+            let card = facedownQuery.firstMatch
+            XCTAssertTrue(card.waitForExistence(timeout: 8))
+            settleTap(card)
+        }
+        let seeResult = app.buttons["看看牌想說什麼"]
+        XCTAssertTrue(seeResult.waitForExistence(timeout: 5))
+        seeResult.tap()
+
+        // Result: expand/collapse the first card's full interpretation
+        let expandButtons = app.buttons.matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", "tarotExpand-"))
+        XCTAssertTrue(expandButtons.firstMatch.waitForExistence(timeout: 5))
+        let firstExpand = expandButtons.firstMatch
+        settleTap(firstExpand)
+        XCTAssertTrue(app.staticTexts["小小的反思"].firstMatch.waitForExistence(timeout: 5),
+                      "Expanding should reveal the full interpretation and reflection")
+        settleTap(firstExpand)
+
+        // Optional Guidance Card (one only), then the final result
+        let saveCard = app.buttons["tarotSaveCardButton"]
+        scrollTap(app.buttons["tarotGuidanceAccept"], in: app)
+        XCTAssertTrue(facedownQuery.firstMatch.waitForExistence(timeout: 8))
+        settleTap(facedownQuery.firstMatch)
+        XCTAssertTrue(seeResult.waitForExistence(timeout: 5))
+        seeResult.tap()
+
+        var scrolls = 0
+        while !app.buttons["回到首頁"].isHittable && scrolls < 6 {
+            app.swipeUp()
+            scrolls += 1
+        }
+        XCTAssertTrue(saveCard.exists)
+        XCTAssertTrue(app.buttons["tarotMeditationCTA"].exists)
+        XCTAssertTrue(app.buttons["tarotShareButton"].exists)
+        XCTAssertTrue(app.buttons["開始新的占卜"].exists, "Draw Again is renamed")
+        XCTAssertFalse(app.buttons["再抽一次"].exists)
+        attach(name: "TR3-result-cta")
+
+        // Summary card (idle character + runtime effects)
+        settleTap(saveCard)
+        XCTAssertTrue(app.buttons["tarotSummaryShare"].waitForExistence(timeout: 10))
+        attach(name: "TR4-summary-card")
+        app.buttons["完成"].tap()
+
+        // Meditation handoff → Context Review with recommendations
+        let medCTA = app.buttons["tarotMeditationCTA"]
+        scrollTap(medCTA, in: app)
+        XCTAssertTrue(app.buttons["meditationStartButton"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.descendants(matching: .any)["meditationSourceCard"]
+            .waitForExistence(timeout: 5))
+        let recommended = app.descendants(matching: .any).matching(
+            NSPredicate(format: "label CONTAINS %@", "建議")).firstMatch
+        XCTAssertTrue(recommended.exists, "Twinko's recommendation should be marked")
+        attach(name: "TR5-meditation-context-review")
+
+        // Generate → session → completion → Done returns to the
+        // original Tarot result with the reading intact.
+        settleTap(app.buttons["meditationStartButton"])
+        let medNext = app.buttons["meditationNextButton"]
+        XCTAssertTrue(medNext.waitForExistence(timeout: 10))
+        for _ in 0..<5 { settleTap(medNext) }
+        let done = app.buttons["meditationDoneButton"]
+        XCTAssertTrue(done.waitForExistence(timeout: 8))
+        scrollTap(done, in: app)
+        XCTAssertTrue(app.buttons["tarotMeditationCTA"].waitForExistence(timeout: 8),
+                      "Done must return to the original Tarot result")
+        XCTAssertTrue(app.buttons["tarotSaveCardButton"].exists,
+                      "Reading and result actions must be preserved")
+    }
+
     /// Focused Meditation validation: direct setup → generating →
     /// session → completion, then Chat and Tarot handoffs with source
     /// context prefill.
@@ -664,7 +766,7 @@ final class TwinkoUITests: XCTestCase {
         }
 
         // Single-card flow via Draw Again
-        let again = app.buttons["再抽一次"]
+        let again = app.buttons["開始新的占卜"]
         XCTAssertTrue(again.waitForExistence(timeout: 5))
         scrollTap(again, in: app)
         XCTAssertTrue(next.waitForExistence(timeout: 5))

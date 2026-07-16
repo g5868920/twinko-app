@@ -36,7 +36,10 @@ enum TarotStrings {
         l == .english ? "Your Guidance Card is ready" : "你的指引牌準備好了"
     }
     static func tapToFlip(_ l: AppLanguage) -> String {
-        l == .english ? "Tap a card to turn it over" : "輕點牌面，把牌翻開"
+        l == .english ? "Tap a card to reveal it." : "輕點牌面，把牌翻開。"
+    }
+    static func tapNextCard(_ l: AppLanguage) -> String {
+        l == .english ? "Reveal the next card." : "繼續翻開下一張牌。"
     }
     static func seeReading(_ l: AppLanguage) -> String {
         l == .english ? "See what the cards say" : "看看牌想說什麼"
@@ -53,13 +56,21 @@ enum TarotStrings {
         l == .english ? "Twinko's final message" : "Twinko 想對你說"
     }
     static func guidancePrompt(_ l: AppLanguage) -> String {
-        l == .english ? "Would you like to draw one Guidance Card?" : "想再抽一張指引牌嗎？"
+        l == .english ? "Want one more card for practical guidance?" : "還想知道接下來可以怎麼做嗎？"
+    }
+    static func guidancePromptBody(_ l: AppLanguage) -> String {
+        l == .english
+            ? "This card offers one action or reflection to take with you."
+            : "這張牌會提供一個可以帶走的行動提醒。"
     }
     static func guidanceAccept(_ l: AppLanguage) -> String {
         l == .english ? "Draw a Guidance Card" : "抽一張指引牌"
     }
-    static func guidanceDecline(_ l: AppLanguage) -> String {
-        l == .english ? "Finish without it" : "先這樣就好"
+    static func showFullInterpretation(_ l: AppLanguage) -> String {
+        l == .english ? "Show full interpretation" : "展開完整解讀"
+    }
+    static func hideFullInterpretation(_ l: AppLanguage) -> String {
+        l == .english ? "Hide full interpretation" : "收合完整解讀"
     }
     static func reflectionLabel(_ l: AppLanguage) -> String {
         l == .english ? "A little reflection" : "小小的反思"
@@ -70,8 +81,15 @@ enum TarotStrings {
     static func saveCard(_ l: AppLanguage) -> String {
         l == .english ? "Save summary card" : "儲存指引小卡"
     }
-    static func drawAgain(_ l: AppLanguage) -> String { l == .english ? "Draw again" : "再抽一次" }
+    static func startNewReading(_ l: AppLanguage) -> String {
+        l == .english ? "Start a New Reading" : "開始新的占卜"
+    }
     static func backHome(_ l: AppLanguage) -> String { l == .english ? "Back to Home" : "回到首頁" }
+    static func meditationHelper(_ l: AppLanguage) -> String {
+        l == .english
+            ? "Twinko will use your question and the reading's main guidance to create a personalized meditation."
+            : "Twinko 會根據你的問題與牌卡整體訊息，生成一段專屬冥想。"
+    }
 
     // Summary card
     static func summaryCardTitle(_ l: AppLanguage) -> String {
@@ -81,6 +99,62 @@ enum TarotStrings {
         l == .english ? "Share or save image" : "分享或儲存圖片"
     }
     static func done(_ l: AppLanguage) -> String { l == .english ? "Done" : "完成" }
+}
+
+// MARK: - Tarot → Meditation context adapter
+
+/// Centralized Tarot-to-Meditation adaptation (spec §15–16, §22):
+/// summarizes the reading into a concise reflective focus, recommends
+/// one theme and a duration, and strips deterministic wording. Never
+/// passes raw interpretations or card-name lists to the Meditation
+/// surface.
+enum TarotMeditationContextAdapter {
+    static func context(for session: TarotReadingSession,
+                        provider: TarotInterpretationProviding,
+                        lang: AppLanguage) -> MeditationSourceContext {
+        MeditationSourceContext(
+            sourceType: .tarot,
+            recentChatSummary: nil,
+            tarotQuestion: session.trimmedQuestion.isEmpty ? nil : session.trimmedQuestion,
+            tarotSummary: provider.combinedSummary(for: session, lang: lang),
+            emotionalTone: nil,
+            focusSummary: focusSummary(for: session.topic, lang: lang),
+            recommendedFocus: recommendedFocus(for: session.topic))
+    }
+
+    /// Twinko's recommended Meditation theme per Tarot topic.
+    static func recommendedFocus(for topic: TarotTopicType) -> MeditationFocus {
+        switch topic {
+        case .love: return .selfLove
+        case .career: return .releaseAnxiety
+        case .growth: return .selfLove
+        case .general: return .calmDown
+        }
+    }
+
+    /// Concise adapted focus (2 short lines): emotional tension +
+    /// desired state, in possibility language — no card names, no raw
+    /// interpretation text, no predictions, no ellipsis.
+    static func focusSummary(for topic: TarotTopicType, lang: AppLanguage) -> String {
+        switch (topic, lang) {
+        case (.love, .traditionalChinese):
+            return "你正在關係裡尋找更多理解與安心，希望能溫柔地對待彼此，也對待自己。"
+        case (.love, .english):
+            return "You're looking for more understanding and ease in your relationships, and want to be gentle with others and yourself."
+        case (.career, .traditionalChinese):
+            return "你正在面對工作上的壓力與不確定，希望放下焦慮，重新找回自己的步調。"
+        case (.career, .english):
+            return "You're navigating pressure and uncertainty at work, and want to set the anxiety down and return to your own pace."
+        case (.growth, .traditionalChinese):
+            return "你正在整理自己的內在狀態，希望更誠實地看見自己，並多一點自我信任。"
+        case (.growth, .english):
+            return "You're sorting through your inner state, and want to see yourself honestly and trust yourself a little more."
+        case (.general, .traditionalChinese):
+            return "你正在思考生活的方向與步調，希望安定下來，把注意力放回眼前的一步。"
+        case (.general, .english):
+            return "You're thinking about your direction and pace in life, and want to settle and return attention to the next step in front of you."
+        }
+    }
 }
 
 // MARK: - Share text formatter

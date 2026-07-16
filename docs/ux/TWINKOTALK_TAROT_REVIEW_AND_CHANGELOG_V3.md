@@ -18,3 +18,33 @@
 - whether to implement optional aura / particle / shimmer polish in MVP
 - exact runtime layout details of the summary-card renderer
 - final localization copy polish for the Tarot UI
+
+## v3.1 changes (founder review 2026-07-16)
+
+1. Canonical Twinko character inventory reduced to
+   `twinko_tarot_idle_v1` / `twinko_tarot_gentle_concern_v1` /
+   `twinko_tarot_magic_v1`. Summary and interpreting poses deprecated
+   (sources retained as reference-only; runtime image sets removed).
+2. Summary presentation = idle character + runtime summary aura and
+   restrained sparkles; magic = magic character + runtime aura, dust,
+   ring, and independent card layers. Effects are never baked into
+   character PNGs.
+3. `twinko_tarot_gentle_concern_v1.png` is an approved concept but is
+   NOT yet in the repo (status: missing). Runtime falls back to idle.
+4. Three-Card shuffle now isolates exactly three selected cards from
+   the fan before reveal (single card isolates one).
+5. Setup suggestions are tappable chips; reveal copy adds a
+   second-state line; targeted readability overlays added over the
+   approved backgrounds (art unchanged).
+6. Result restructured: collapsed card cores with expandable full
+   interpretations; Overall Synthesis and Twinko Message are separate
+   provider fields; Guidance Card prompt compacted; CTA order is Save
+   Guidance Card → meditation handoff → Share → Start a New Reading /
+   Back to Home ("Draw Again" renamed).
+7. Guidance Summary Card: larger card art, 3–4-line synthesis,
+   idle character with runtime halo/sparkles, readable card names.
+8. Tarot → Meditation handoff now goes through
+   `TarotMeditationContextAdapter`: concise adapted focus summary (no
+   card lists, no determinism, no ellipsis), recommended theme +
+   duration marked as Twinko recommendations, trust note, supplemental
+   input copy, sticky generation CTA ("Create My Meditation").

@@ -1,138 +1,151 @@
 {
-  "version": "2.0",
-  "status": "founder_reviewed_delivery_pack",
-  "notes": "This manifest reflects the corrected Tarot package after source review.",
-  "assets": [
-    {
-      "category": "Background",
-      "role": "Setup / Spread",
-      "canonical_filename": "bg_tarot_celestial_altar_setup_v1.png",
-      "source_name": "夢幻天際的魔法祭壇.png",
-      "approval_status": "Approved",
-      "mvp_priority": "Required",
-      "repo_path": "Assets/Tarot/Backgrounds/",
-      "ready_for_repo": true
-    },
-    {
-      "category": "Background",
-      "role": "Shuffle",
-      "canonical_filename": "bg_tarot_observatory_shuffle_v1.png",
-      "source_name": "夢幻星空觀景窗.png",
-      "approval_status": "Approved",
-      "mvp_priority": "Required",
-      "repo_path": "Assets/Tarot/Backgrounds/",
-      "ready_for_repo": true
-    },
-    {
-      "category": "Background",
-      "role": "Reveal / Result",
-      "canonical_filename": "bg_tarot_moonlight_altar_result_v1.png",
-      "source_name": "星空祭壇與黃金月光.png",
-      "approval_status": "Approved",
-      "mvp_priority": "Required",
-      "repo_path": "Assets/Tarot/Backgrounds/",
-      "ready_for_repo": true
-    },
-    {
-      "category": "Spread Preview",
-      "role": "Single Card",
-      "canonical_filename": "tarot_spread_single_preview_v1.png",
-      "source_name": "ornate_purple_and_gold_card_design.png",
-      "approval_status": "Approved",
-      "mvp_priority": "Required",
-      "repo_path": "Assets/Tarot/Spreads/",
-      "ready_for_repo": true
-    },
-    {
-      "category": "Spread Preview",
-      "role": "Three Cards",
-      "canonical_filename": "tarot_spread_three_preview_v1.png",
-      "source_name": "golden_star_tarot_card_stack.png",
-      "approval_status": "Approved",
-      "mvp_priority": "Required",
-      "repo_path": "Assets/Tarot/Spreads/",
-      "ready_for_repo": true
-    },
-    {
-      "category": "Twinko",
-      "role": "Idle",
-      "canonical_filename": "twinko_tarot_idle_v1.png",
-      "source_name": "smiling_star_wizard_character_with_cape.png",
-      "approval_status": "Approved",
-      "mvp_priority": "Required",
-      "repo_path": "Assets/Tarot/Twinko/",
-      "ready_for_repo": true
-    },
-    {
-      "category": "Twinko",
-      "role": "Interpreting",
-      "canonical_filename": "twinko_tarot_interpreting_v1.png",
-      "source_name": "thoughtful_star_mage_in_purple_cloak.png",
-      "approval_status": "Approved",
-      "mvp_priority": "Required",
-      "repo_path": "Assets/Tarot/Twinko/",
-      "ready_for_repo": true
-    },
-    {
-      "category": "Twinko",
-      "role": "Magic",
-      "canonical_filename": "twinko_tarot_magic_v1.png",
-      "source_name": "magical_star_mage_with_glowing_cards.png",
-      "approval_status": "Approved",
-      "mvp_priority": "Required",
-      "repo_path": "Assets/Tarot/Twinko/",
-      "ready_for_repo": true
-    },
-    {
-      "category": "Twinko",
-      "role": "Summary",
-      "canonical_filename": "twinko_tarot_summary_v1.png",
-      "source_name": "cute_star_wizard_with_magical_sparkles.png",
-      "approval_status": "Approved",
-      "mvp_priority": "Required",
-      "repo_path": "Assets/Tarot/Twinko/",
-      "ready_for_repo": true
-    },
-    {
-      "category": "Cards",
-      "role": "Card Back",
-      "canonical_filename": "tarot_card_back_v1.png",
-      "source_name": "golden_star_on_purple_card.png",
-      "approval_status": "Approved working reference",
-      "mvp_priority": "Required",
-      "repo_path": "Assets/Tarot/Cards/Back/",
-      "ready_for_repo": true
-    },
-    {
-      "category": "Cards",
-      "role": "Swords Page",
-      "canonical_filename": "tarot_swords_page_v1.png",
-      "source_name": "the_brave_little_star_warrior.png",
-      "approval_status": "Approved",
-      "mvp_priority": "Required",
-      "repo_path": "Assets/Tarot/Cards/Swords/",
-      "ready_for_repo": true
-    },
-    {
-      "category": "Cards",
-      "role": "78 Card Fronts",
-      "canonical_filename": "Registry-driven filenames",
-      "source_name": "Founder-created 78-card image set",
-      "approval_status": "Founder confirmed all PNG",
-      "mvp_priority": "Required",
-      "repo_path": "Assets/Tarot/Cards/",
-      "ready_for_repo": "Verify exact filename match against registry"
-    },
-    {
-      "category": "Effects",
-      "role": "Optional polish effects",
-      "canonical_filename": "tarot_magic_aura_v1 / tarot_energy_ring_v1 / tarot_card_shimmer_v1 / tarot_gold_particles_v1",
-      "source_name": "Implementation-layer effects",
-      "approval_status": "Optional",
-      "mvp_priority": "Optional",
-      "repo_path": "Code / Assets/Tarot/Effects/",
-      "ready_for_repo": "Not required as standalone PNG assets for MVP"
-    }
-  ],
-  "critical_rule": "Prototype may use mock interpretation fixtures. Production LLM output must be dynamically synthesized and not hardcoded per card."
+ "version": "2.1",
+ "status": "founder_reviewed_delivery_pack",
+ "notes": "This manifest reflects the corrected Tarot package after source review. v3.1 (2026-07-16): canonical Twinko set is idle/gentle_concern/magic; summary and interpreting poses deprecated; effects are runtime layers.",
+ "assets": [
+  {
+   "category": "Background",
+   "role": "Setup / Spread",
+   "canonical_filename": "bg_tarot_celestial_altar_setup_v1.png",
+   "source_name": "夢幻天際的魔法祭壇.png",
+   "approval_status": "Approved",
+   "mvp_priority": "Required",
+   "repo_path": "Assets/Tarot/Backgrounds/",
+   "ready_for_repo": true
+  },
+  {
+   "category": "Background",
+   "role": "Shuffle",
+   "canonical_filename": "bg_tarot_observatory_shuffle_v1.png",
+   "source_name": "夢幻星空觀景窗.png",
+   "approval_status": "Approved",
+   "mvp_priority": "Required",
+   "repo_path": "Assets/Tarot/Backgrounds/",
+   "ready_for_repo": true
+  },
+  {
+   "category": "Background",
+   "role": "Reveal / Result",
+   "canonical_filename": "bg_tarot_moonlight_altar_result_v1.png",
+   "source_name": "星空祭壇與黃金月光.png",
+   "approval_status": "Approved",
+   "mvp_priority": "Required",
+   "repo_path": "Assets/Tarot/Backgrounds/",
+   "ready_for_repo": true
+  },
+  {
+   "category": "Spread Preview",
+   "role": "Single Card",
+   "canonical_filename": "tarot_spread_single_preview_v1.png",
+   "source_name": "ornate_purple_and_gold_card_design.png",
+   "approval_status": "Approved",
+   "mvp_priority": "Required",
+   "repo_path": "Assets/Tarot/Spreads/",
+   "ready_for_repo": true
+  },
+  {
+   "category": "Spread Preview",
+   "role": "Three Cards",
+   "canonical_filename": "tarot_spread_three_preview_v1.png",
+   "source_name": "golden_star_tarot_card_stack.png",
+   "approval_status": "Approved",
+   "mvp_priority": "Required",
+   "repo_path": "Assets/Tarot/Spreads/",
+   "ready_for_repo": true
+  },
+  {
+   "category": "Twinko",
+   "role": "Idle",
+   "canonical_filename": "twinko_tarot_idle_v1.png",
+   "source_name": "smiling_star_wizard_character_with_cape.png",
+   "approval_status": "Approved",
+   "mvp_priority": "Required",
+   "repo_path": "Assets/Tarot/Twinko/",
+   "ready_for_repo": true
+  },
+  {
+   "category": "Twinko",
+   "role": "Gentle Concern",
+   "canonical_filename": "twinko_tarot_gentle_concern_v1.png",
+   "source_name": "",
+   "approval_status": "Missing",
+   "mvp_priority": "Requested",
+   "repo_path": "Assets/Tarot/Twinko/",
+   "ready_for_repo": false,
+   "note": "v3.1: approved concept, asset not yet delivered; runtime resolves to twinko_tarot_idle_v1 until it exists."
+  },
+  {
+   "category": "Twinko",
+   "role": "Interpreting",
+   "canonical_filename": "twinko_tarot_interpreting_v1.png",
+   "source_name": "thoughtful_star_mage_in_purple_cloak.png",
+   "approval_status": "Deprecated",
+   "mvp_priority": "Reference-only",
+   "repo_path": "Assets/Tarot/Twinko/",
+   "ready_for_repo": false,
+   "note": "v3.1: deprecated; emotional states use twinko_tarot_gentle_concern_v1 (idle fallback until delivered). Source retained in assets/tarot/twinko/."
+  },
+  {
+   "category": "Twinko",
+   "role": "Magic",
+   "canonical_filename": "twinko_tarot_magic_v1.png",
+   "source_name": "magical_star_mage_with_glowing_cards.png",
+   "approval_status": "Approved",
+   "mvp_priority": "Required",
+   "repo_path": "Assets/Tarot/Twinko/",
+   "ready_for_repo": true
+  },
+  {
+   "category": "Twinko",
+   "role": "Summary",
+   "canonical_filename": "twinko_tarot_summary_v1.png",
+   "source_name": "cute_star_wizard_with_magical_sparkles.png",
+   "approval_status": "Deprecated",
+   "mvp_priority": "Reference-only",
+   "repo_path": "Assets/Tarot/Twinko/",
+   "ready_for_repo": false,
+   "note": "v3.1: deprecated; summary states use twinko_tarot_idle_v1 + runtime summary effects. Source retained in assets/tarot/twinko/."
+  },
+  {
+   "category": "Cards",
+   "role": "Card Back",
+   "canonical_filename": "tarot_card_back_v1.png",
+   "source_name": "golden_star_on_purple_card.png",
+   "approval_status": "Approved working reference",
+   "mvp_priority": "Required",
+   "repo_path": "Assets/Tarot/Cards/Back/",
+   "ready_for_repo": true
+  },
+  {
+   "category": "Cards",
+   "role": "Swords Page",
+   "canonical_filename": "tarot_swords_page_v1.png",
+   "source_name": "the_brave_little_star_warrior.png",
+   "approval_status": "Approved",
+   "mvp_priority": "Required",
+   "repo_path": "Assets/Tarot/Cards/Swords/",
+   "ready_for_repo": true
+  },
+  {
+   "category": "Cards",
+   "role": "78 Card Fronts",
+   "canonical_filename": "Registry-driven filenames",
+   "source_name": "Founder-created 78-card image set",
+   "approval_status": "Founder confirmed all PNG",
+   "mvp_priority": "Required",
+   "repo_path": "Assets/Tarot/Cards/",
+   "ready_for_repo": "Verify exact filename match against registry"
+  },
+  {
+   "category": "Effects",
+   "role": "Optional polish effects",
+   "canonical_filename": "tarot_magic_aura_v1 / tarot_energy_ring_v1 / tarot_card_shimmer_v1 / tarot_gold_particles_v1",
+   "source_name": "Implementation-layer effects",
+   "approval_status": "Optional",
+   "mvp_priority": "Optional",
+   "repo_path": "Code / Assets/Tarot/Effects/",
+   "ready_for_repo": "Not required as standalone PNG assets for MVP"
+  }
+ ],
+ "critical_rule": "Prototype may use mock interpretation fixtures. Production LLM output must be dynamically synthesized and not hardcoded per card."
 }

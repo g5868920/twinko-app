@@ -98,15 +98,91 @@ final class TarotDrawTests: XCTestCase {
         return session
     }
 
-    func testInterpretationReflectsOrientationAndPosition() {
+    func testInterpretationSplitsCoreAndDetail() {
         let provider = MockTarotInterpretationProvider()
         let session = makeSession(spread: .three)
         let first = session.cards[0]
         let interp = provider.interpretation(for: first, in: session, lang: .traditionalChinese)
-        XCTAssertFalse(interp.body.isEmpty)
+        XCTAssertFalse(interp.core.isEmpty)
+        XCTAssertFalse(interp.detail.isEmpty)
         XCTAssertFalse(interp.keywords.isEmpty)
-        XCTAssertTrue(interp.body.contains("過去"), "Past position frame should appear")
-        XCTAssertTrue(interp.body.contains(first.orientation == .upright ? "正位" : "逆位"))
+        XCTAssertTrue(interp.core.contains("過去"), "Position frame belongs to the visible core")
+        XCTAssertTrue(interp.detail.contains(first.orientation == .upright ? "正位" : "逆位"),
+                      "Orientation nuance belongs to the expandable detail")
+        XCTAssertNotEqual(interp.core, interp.detail)
+    }
+
+    func testTwinkoMessageIsDistinctFromSynthesisAndSummary() {
+        let provider = MockTarotInterpretationProvider()
+        for lang in AppLanguage.allCases {
+            let three = makeSession(spread: .three)
+            let message = provider.twinkoMessage(for: three, lang: lang)
+            XCTAssertFalse(message.isEmpty)
+            XCTAssertNotEqual(message, provider.synthesis(for: three, lang: lang))
+            XCTAssertNotEqual(message, provider.combinedSummary(for: three, lang: lang))
+
+            let withGuidance = makeSession(spread: .three, guidance: true)
+            XCTAssertNotEqual(provider.twinkoMessage(for: withGuidance, lang: lang),
+                              provider.combinedSummary(for: withGuidance, lang: lang))
+        }
+    }
+
+    // MARK: Character asset mapping (founder review 2026-07-16)
+
+    func testTwinkoStateAssetMapping() {
+        XCTAssertEqual(TarotTwinkoState.idle.assetName, "twinko_tarot_idle_v1_transparent")
+        XCTAssertEqual(TarotTwinkoState.magic.assetName, "twinko_tarot_magic_v1_transparent")
+        // Gentle Concern falls back to idle until the approved asset
+        // is delivered (documented gap).
+        XCTAssertEqual(TarotTwinkoState.gentleConcern.assetName,
+                       TarotTwinkoState.idle.assetName)
+        // The deprecated summary/interpreting poses are never resolved.
+        for state in [TarotTwinkoState.idle, .gentleConcern, .magic] {
+            XCTAssertFalse(state.assetName.contains("summary"))
+            XCTAssertFalse(state.assetName.contains("interpreting"))
+        }
+    }
+
+    func testShuffleChoreographyIsolatesExactSelectionCount() {
+        XCTAssertEqual(TarotShuffleChoreography.selectedIndices(fanCount: 5, pick: 3).count, 3)
+        XCTAssertEqual(TarotShuffleChoreography.selectedIndices(fanCount: 5, pick: 1).count, 1)
+        XCTAssertEqual(TarotShuffleChoreography.selectedIndices(fanCount: 5, pick: 3), [1, 2, 3])
+        XCTAssertEqual(TarotShuffleChoreography.selectedIndices(fanCount: 5, pick: 1), [2])
+        XCTAssertTrue(TarotShuffleChoreography.selectedIndices(fanCount: 5, pick: 0).isEmpty)
+    }
+
+    // MARK: Tarot → Meditation adapter
+
+    func testMeditationAdapterProducesCleanFocusSummary() {
+        let provider = MockTarotInterpretationProvider()
+        let session = makeSession(spread: .three, guidance: true)
+        for lang in AppLanguage.allCases {
+            let context = TarotMeditationContextAdapter.context(for: session,
+                                                                provider: provider, lang: lang)
+            XCTAssertEqual(context.sourceType, .tarot)
+            XCTAssertEqual(context.tarotQuestion, "測試問題")
+            XCTAssertNotNil(context.recommendedFocus)
+
+            let summary = context.focusSummary ?? ""
+            XCTAssertFalse(summary.isEmpty)
+            XCTAssertFalse(summary.contains("…"), "No accidental ellipsis")
+            XCTAssertFalse(summary.contains("..."))
+            for drawn in session.allCards {
+                XCTAssertFalse(summary.contains(drawn.card.displayName(for: lang)),
+                               "Focus summary must not list card names")
+            }
+            for banned in ["一定", "絕對", "注定", "will definitely", "destined", "guarantee"] {
+                XCTAssertFalse(summary.contains(banned),
+                               "No deterministic wording: \(banned)")
+            }
+        }
+    }
+
+    func testMeditationAdapterRecommendsThemePerTopic() {
+        XCTAssertEqual(TarotMeditationContextAdapter.recommendedFocus(for: .love), .selfLove)
+        XCTAssertEqual(TarotMeditationContextAdapter.recommendedFocus(for: .career), .releaseAnxiety)
+        XCTAssertEqual(TarotMeditationContextAdapter.recommendedFocus(for: .growth), .selfLove)
+        XCTAssertEqual(TarotMeditationContextAdapter.recommendedFocus(for: .general), .calmDown)
     }
 
     func testSynthesisOnlyForThreeCardReadings() {
@@ -135,8 +211,9 @@ final class TarotDrawTests: XCTestCase {
         let zh = provider.interpretation(for: session.cards[0], in: session,
                                          lang: .traditionalChinese)
         let en = provider.interpretation(for: session.cards[0], in: session, lang: .english)
-        XCTAssertNotEqual(zh.body, en.body)
-        XCTAssertFalse(en.body.contains("這張牌"), "English output must not contain Chinese copy")
+        XCTAssertNotEqual(zh.core, en.core)
+        XCTAssertFalse(en.core.contains("這張牌"), "English output must not contain Chinese copy")
+        XCTAssertFalse(en.detail.contains("這股能量"), "English detail must not contain Chinese copy")
     }
 
     // MARK: Share formatter

@@ -4,11 +4,13 @@ import SwiftUI
 
 /// Shuffle magic transition (animation spec §5): Twinko activates
 /// magic, a warm-gold energy ring expands, card backs rise / fan /
-/// drift, then everything settles and the flow advances on its own
-/// (~2.2 s). The aura ring and gold dust are code-driven layers — no
-/// standalone effect assets exist. Reduce Motion shows a short static
-/// beat instead.
+/// drift, then exactly the drawn number of cards separates from the
+/// fan and settles into spread positions while the rest fade — a
+/// Three-Card reading always ends with exactly three isolated cards.
+/// The aura ring and gold dust are code-driven layers. Reduce Motion
+/// shows a short static beat instead.
 struct TarotShuffleStage: View {
+    let cardCount: Int
     let onFinished: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -16,7 +18,13 @@ struct TarotShuffleStage: View {
     @State private var ringScale: CGFloat = 0.4
     @State private var ringOpacity: Double = 0
     @State private var cardsUp = false
+    @State private var gathered = false
     @State private var twinkoIn = false
+
+    private static let fanCount = 5
+    private var selectedIndices: [Int] {
+        TarotShuffleChoreography.selectedIndices(fanCount: Self.fanCount, pick: cardCount)
+    }
 
     private var lang: AppLanguage { prefs.language }
 
@@ -25,8 +33,7 @@ struct TarotShuffleStage: View {
             Spacer()
 
             ZStack {
-                // Code-driven energy ring (tarot_energy_ring_v1 does
-                // not exist as an asset).
+                // Code-driven energy ring (no standalone effect asset).
                 Circle()
                     .strokeBorder(
                         LinearGradient(colors: [.twinkoGold.opacity(0.9), .twinkoGold.opacity(0.1)],
@@ -37,29 +44,31 @@ struct TarotShuffleStage: View {
                     .scaleEffect(ringScale)
                     .opacity(ringOpacity)
 
-                // Code-driven sparse gold dust (tarot_gold_particles_v1
-                // does not exist as an asset).
+                // Code-driven sparse gold dust (no standalone asset).
                 if !reduceMotion {
                     TarotGoldDust(active: cardsUp)
                         .frame(width: 260, height: 260)
                 }
 
-                // Rising, fanning card backs behind Twinko.
-                ForEach(0..<5, id: \.self) { index in
+                // Rising, fanning card backs; the selected cards then
+                // separate and settle while the rest fade out.
+                ForEach(0..<Self.fanCount, id: \.self) { index in
+                    let selectedSlot = selectedIndices.firstIndex(of: index)
                     TarotCardBack(width: 64)
-                        .rotationEffect(.degrees(cardsUp ? Double(index - 2) * 16 : 0))
-                        .offset(x: cardsUp ? CGFloat(index - 2) * 44 : 0,
-                                y: cardsUp ? -108 : 40)
-                        .opacity(cardsUp ? 1 : 0)
+                        .rotationEffect(.degrees(
+                            gathered ? 0 : (cardsUp ? Double(index - 2) * 16 : 0)))
+                        .offset(x: gathered
+                                    ? gatherX(selectedSlot)
+                                    : (cardsUp ? CGFloat(index - 2) * 44 : 0),
+                                y: gathered ? -118 : (cardsUp ? -108 : 40))
+                        .opacity(gathered
+                                    ? (selectedSlot == nil ? 0 : 1)
+                                    : (cardsUp ? 1 : 0))
                 }
 
-                Image("twinko_tarot_magic_v1_transparent")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 170, height: 170)
+                TarotTwinkoView(state: .magic, size: TarotTwinkoSize.hero)
                     .scaleEffect(twinkoIn ? 1.0 : 0.92)
                     .opacity(twinkoIn ? 1 : 0)
-                    .accessibilityHidden(true)
             }
             .frame(height: 320)
 
@@ -75,6 +84,13 @@ struct TarotShuffleStage: View {
         .onAppear { run() }
     }
 
+    /// Final x offset for a selected card slot, centered per count.
+    private func gatherX(_ slot: Int?) -> CGFloat {
+        guard let slot else { return 0 }
+        let spacing: CGFloat = 74
+        return (CGFloat(slot) - CGFloat(cardCount - 1) / 2) * spacing
+    }
+
     private func run() {
         if reduceMotion {
             twinkoIn = true
@@ -84,9 +100,7 @@ struct TarotShuffleStage: View {
             }
             return
         }
-        // Twinko activation (~350 ms) → ring expands → cards rise and
-        // fan (~500 ms) → orbit beat → gather (handled by the stage
-        // transition into reveal).
+        // Activation → ring → fan → selected cards separate and settle.
         withAnimation(.easeOut(duration: 0.35)) { twinkoIn = true }
         withAnimation(.easeOut(duration: 0.9).delay(0.25)) {
             ringScale = 1.15
@@ -94,8 +108,9 @@ struct TarotShuffleStage: View {
         }
         withAnimation(.easeOut(duration: 0.6).delay(1.2)) { ringOpacity = 0 }
         withAnimation(.easeInOut(duration: 0.5).delay(0.45)) { cardsUp = true }
+        withAnimation(.easeInOut(duration: 0.45).delay(1.55)) { gathered = true }
         Task {
-            try? await Task.sleep(nanoseconds: 2_200_000_000)
+            try? await Task.sleep(nanoseconds: 2_400_000_000)
             onFinished()
         }
     }
@@ -198,9 +213,14 @@ struct TarotRevealStage: View {
                 .padding(.horizontal, TwinkoSpacing.l)
                 .transition(.opacity)
             } else {
-                Text(TarotStrings.tapToFlip(lang))
+                Text(revealed.contains(true)
+                     ? TarotStrings.tapNextCard(lang)
+                     : TarotStrings.tapToFlip(lang))
                     .font(.system(.body, design: .rounded))
                     .foregroundStyle(Color.textInverseToken.opacity(0.8))
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 6)
+                    .background(Color.deepSpace.opacity(0.35), in: Capsule())
             }
             Spacer(minLength: TwinkoSpacing.xl)
         }

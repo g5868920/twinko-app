@@ -40,14 +40,26 @@ tarot_card_back_v1.png
 
 This is the single canonical face-down card used for shuffle, reveal, spread previews, and any face-down card UI.
 
-## 4. Tarot Twinko state set
+## 4. Tarot Twinko state set (updated — founder review 2026-07-16)
 
 ```text
-twinko_tarot_idle_v1.png
+twinko_tarot_idle_v1.png            (active)
+twinko_tarot_gentle_concern_v1.png  (approved concept — asset not yet delivered)
+twinko_tarot_magic_v1.png           (active)
+```
+
+Deprecated (reference-only source files, no runtime use):
+
+```text
 twinko_tarot_interpreting_v1.png
-twinko_tarot_magic_v1.png
 twinko_tarot_summary_v1.png
 ```
+
+The Guidance Summary Card and all stable summary states use
+`twinko_tarot_idle_v1` plus code-rendered summary effects (warm halo,
+restrained sparkles). Character PNGs contain the character only —
+effects are never baked in. See
+`TWINKOTALK_TAROT_TWINKO_EXPRESSION_AND_USAGE_SPEC_V3.md` v3.1.
 
 ## 5. Additional card asset added in this pack
 

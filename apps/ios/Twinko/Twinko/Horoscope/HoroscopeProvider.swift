@@ -287,20 +287,23 @@ struct MockHoroscopeProvider: HoroscopeProviding {
         ],
     ]
 
+    // Each message carries the day's feeling plus one small, doable
+    // action — the message is the single personalized takeaway on the
+    // screen (no separate headline or action block).
     private static let twinkoMessages: [AppLanguage: [String]] = [
         .traditionalChinese: [
-            "不用一次解決全部，先把今天最重要的一步走好。",
-            "累的時候記得，休息也是往前走的一部分。",
-            "今天的你，已經比自己以為的做得更好了。",
-            "把心放軟一點，世界也會跟著柔軟一些。",
-            "慢慢來沒關係，我會在這裡陪著你。",
+            "不用一次解決全部——今天先挑一件最重要的小事，把它好好做完就夠了。",
+            "今天的你可以慢一點。累的時候，起來倒杯溫水、看看窗外，休息也是往前走。",
+            "你已經比自己以為的做得更好了。睡前花一分鐘，寫下今天做得不錯的一件事吧。",
+            "把心放軟一點，世界也會跟著柔軟。今天試著對一個人（包括自己）說句溫柔的話。",
+            "慢慢來沒關係，我陪著你。現在先深呼吸三次，讓肩膀輕輕放下來。",
         ],
         .english: [
-            "You don't have to solve everything at once — just take today's most important step well.",
-            "When you're tired, remember: resting is part of moving forward too.",
-            "You're already doing better today than you think you are.",
-            "Soften your heart a little, and the world softens with you.",
-            "It's okay to go slowly. I'll be right here with you.",
+            "You don't have to solve everything at once — pick today's one most important small thing and finish it well.",
+            "You're allowed to go slower today. When you're tired, get up for a warm drink and a look out the window — resting is moving forward too.",
+            "You're already doing better than you think. Before bed, take one minute to write down one thing that went well today.",
+            "Soften your heart a little and the world softens with you — try saying one kind thing to someone today, including yourself.",
+            "It's okay to take your time; I'm right here. Start with three slow breaths and let your shoulders drop.",
         ],
     ]
 }

@@ -14,12 +14,14 @@ struct HoroscopeTodayView: View {
     @StateObject private var cache = HoroscopeCache()
     private let provider: HoroscopeProviding = MockHoroscopeProvider()
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var viewedSign: ZodiacSign?
     @State private var horoscope: DailyHoroscope?
     @State private var loadFailed = false
     @State private var expandedKind: HoroscopeDimensionKind? = .overall
     @State private var showingSelector = false
     @State private var showingSummaryCard = false
+    @State private var floating = false
 
     private var lang: AppLanguage { prefs.language }
 
@@ -44,12 +46,24 @@ struct HoroscopeTodayView: View {
         }
         .background {
             GeometryReader { geo in
-                Image("bg_horoscope_cosmic_v1")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: geo.size.width, height: geo.size.height)
-                    .clipped()
-                    .accessibilityHidden(true)
+                ZStack {
+                    Image("bg_horoscope_cosmic_v1")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: geo.size.width, height: geo.size.height)
+                        .clipped()
+                    // Readability overlay: the cosmic art (zodiac
+                    // wheel, decorative glyphs) stays as atmosphere,
+                    // never competing with the reading content.
+                    LinearGradient(
+                        stops: [
+                            .init(color: Color.deepSpace.opacity(0.30), location: 0),
+                            .init(color: Color.deepSpace.opacity(0.22), location: 0.4),
+                            .init(color: Color.deepSpace.opacity(0.36), location: 1),
+                        ],
+                        startPoint: .top, endPoint: .bottom)
+                }
+                .accessibilityHidden(true)
             }
             .ignoresSafeArea()
         }
@@ -193,11 +207,7 @@ struct HoroscopeTodayView: View {
 
     private func hero(sign: ZodiacSign, horoscope: DailyHoroscope) -> some View {
         VStack(spacing: 8) {
-            Image(sign.symbolAssetName)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 64, height: 64)
-                .accessibilityHidden(true)
+            ZodiacGlyphView(sign: sign, size: 56)
 
             HStack(spacing: 8) {
                 Text(sign.displayName(for: lang))
@@ -234,20 +244,27 @@ struct HoroscopeTodayView: View {
             }
             .accessibilityIdentifier("horoscopeChangeSign")
 
+            // Floating Twinko — same gentle motion language as Home
+            // and Chat (breathing drift, Reduce Motion aware). The
+            // headline was removed; the Twinko message below carries
+            // the day's feeling plus one small action.
             Image("twinko_horoscope_default_v1_transparent")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 118, height: 118)
+                .offset(y: reduceMotion ? 0 : (floating ? -5 : 5))
                 .accessibilityHidden(true)
-
-            Text(horoscope.headline)
-                .font(.system(.title3, design: .rounded).weight(.semibold))
-                .foregroundStyle(Color.textInverseToken)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, TwinkoSpacing.l)
         }
         .padding(.top, TwinkoSpacing.s)
         .accessibilityElement(children: .contain)
+        .onAppear { startFloating() }
+    }
+
+    private func startFloating() {
+        guard !reduceMotion else { return }
+        withAnimation(.easeInOut(duration: 3.8).repeatForever(autoreverses: true)) {
+            floating = true
+        }
     }
 
     private func actions(sign: ZodiacSign, horoscope: DailyHoroscope) -> some View {

@@ -631,3 +631,23 @@ Claude Code must not:
 - [ ] Card is not a screenshot of the app UI
 - [ ] Text remains readable on the approved background
 - [ ] Design feels consistent with TwinkoTalk Horoscope
+
+---
+
+# 20. v1.1 Refinements (founder review 2026-07-16)
+
+Superseding updates:
+
+1. **Export is 1080 × 1440 (3:4)** — the background art's native
+   ratio. This is the root fix for the previously clipped top/bottom
+   decorative frame: the canvas must match the art ratio; never
+   aspect-fill a mismatched canvas.
+2. **No headline zone.** Card content: branding + date → zodiac
+   identity (code-rendered glyph) + Twinko → overall score + summary
+   → Twinko message (feeling + one small action) → 2×2 lucky details.
+3. **No disclaimer, privacy note, or "does not include personal
+   data" copy on the card.** The short disclaimer lives only on the
+   main Horoscope screen.
+4. Zodiac symbols on the card are code-rendered glyphs
+   (`ZodiacGlyphView`), not raster assets.
+5. Preview and export share the exact same composition and ratio.

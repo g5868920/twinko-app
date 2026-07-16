@@ -38,6 +38,7 @@
 		181ED5A427D56B96B2EBE210 /* HoroscopeCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E08F0D78ADCCA5108B53758 /* HoroscopeCache.swift */; };
 		04C51EAC0BD3DDCCF5BF19BB /* HoroscopeStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A297C2367F0AF83A483139F /* HoroscopeStrings.swift */; };
 		186DDE0E87634E388CA7476F /* HoroscopeComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE3BCE993C9D82F39065BAF /* HoroscopeComponents.swift */; };
+		D2E8DB09EF8BAC95CF22B79E /* ZodiacGlyphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588FE8568C74BCC0BDAD900C /* ZodiacGlyphView.swift */; };
 		A320A0640D4B41DD7B414B14 /* ZodiacSelectorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32072622BE13CCBFECC823CF /* ZodiacSelectorSheet.swift */; };
 		DB60451E2AC27181EE3A839B /* HoroscopeTodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A979B38E24FB566BA7219F57 /* HoroscopeTodayView.swift */; };
 		272045C2ED7644D570A23005 /* HoroscopeSummaryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E19E699C5ACFEEB626157C68 /* HoroscopeSummaryCard.swift */; };
@@ -120,6 +121,7 @@
 		7E08F0D78ADCCA5108B53758 /* HoroscopeCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoroscopeCache.swift; sourceTree = "<group>"; };
 		5A297C2367F0AF83A483139F /* HoroscopeStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoroscopeStrings.swift; sourceTree = "<group>"; };
 		3AE3BCE993C9D82F39065BAF /* HoroscopeComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoroscopeComponents.swift; sourceTree = "<group>"; };
+		588FE8568C74BCC0BDAD900C /* ZodiacGlyphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZodiacGlyphView.swift; sourceTree = "<group>"; };
 		32072622BE13CCBFECC823CF /* ZodiacSelectorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZodiacSelectorSheet.swift; sourceTree = "<group>"; };
 		A979B38E24FB566BA7219F57 /* HoroscopeTodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoroscopeTodayView.swift; sourceTree = "<group>"; };
 		E19E699C5ACFEEB626157C68 /* HoroscopeSummaryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoroscopeSummaryCard.swift; sourceTree = "<group>"; };
@@ -284,6 +286,7 @@
 				7E08F0D78ADCCA5108B53758 /* HoroscopeCache.swift */,
 				5A297C2367F0AF83A483139F /* HoroscopeStrings.swift */,
 				3AE3BCE993C9D82F39065BAF /* HoroscopeComponents.swift */,
+				588FE8568C74BCC0BDAD900C /* ZodiacGlyphView.swift */,
 				32072622BE13CCBFECC823CF /* ZodiacSelectorSheet.swift */,
 				A979B38E24FB566BA7219F57 /* HoroscopeTodayView.swift */,
 				E19E699C5ACFEEB626157C68 /* HoroscopeSummaryCard.swift */,
@@ -503,6 +506,7 @@
 				181ED5A427D56B96B2EBE210 /* HoroscopeCache.swift in Sources */,
 				04C51EAC0BD3DDCCF5BF19BB /* HoroscopeStrings.swift in Sources */,
 				186DDE0E87634E388CA7476F /* HoroscopeComponents.swift in Sources */,
+				D2E8DB09EF8BAC95CF22B79E /* ZodiacGlyphView.swift in Sources */,
 				A320A0640D4B41DD7B414B14 /* ZodiacSelectorSheet.swift in Sources */,
 				DB60451E2AC27181EE3A839B /* HoroscopeTodayView.swift in Sources */,
 				272045C2ED7644D570A23005 /* HoroscopeSummaryCard.swift in Sources */,

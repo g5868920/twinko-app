@@ -110,7 +110,7 @@ struct LuckyDetailsGrid: View {
                                 swatchHex: lucky.color.hex)
                 LuckyDetailItem(label: HoroscopeStrings.luckyZodiac(lang),
                                 value: lucky.luckySign?.displayName(for: lang) ?? "—",
-                                zodiacAsset: lucky.luckySign?.symbolAssetName)
+                                zodiacSign: lucky.luckySign)
                 LuckyDetailItem(label: HoroscopeStrings.luckyItem(lang),
                                 value: lucky.item)
             }
@@ -125,7 +125,7 @@ struct LuckyDetailItem: View {
     let label: String
     let value: String
     var swatchHex: String? = nil
-    var zodiacAsset: String? = nil
+    var zodiacSign: ZodiacSign? = nil
 
     var body: some View {
         VStack(spacing: 5) {
@@ -133,12 +133,8 @@ struct LuckyDetailItem: View {
                 .font(.system(.caption, design: .rounded))
                 .foregroundStyle(Color.textInverseToken.opacity(0.65))
             HStack(spacing: 6) {
-                if let zodiacAsset {
-                    Image(zodiacAsset)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 18, height: 18)
-                        .accessibilityHidden(true)
+                if let zodiacSign {
+                    ZodiacGlyphView(sign: zodiacSign, size: 18, emphasized: false)
                 }
                 if let swatchHex, let color = Color(horoscopeHex: swatchHex) {
                     Circle()

@@ -13,7 +13,7 @@ final class HoroscopeTests: XCTestCase {
         XCTAssertEqual(ZodiacSign.allCases.map(\.canonicalID), expected)
         for sign in ZodiacSign.allCases {
             XCTAssertEqual(ZodiacSign(canonicalID: sign.canonicalID), sign)
-            XCTAssertEqual(sign.symbolAssetName, "zodiac_\(sign.canonicalID)_v1")
+            XCTAssertFalse(sign.symbol.isEmpty, "Code-rendered glyphs use the Unicode symbol")
             XCTAssertFalse(sign.dateRangeText(.english).isEmpty)
         }
         XCTAssertNil(ZodiacSign(canonicalID: "ophiuchus"))
@@ -105,7 +105,7 @@ final class HoroscopeTests: XCTestCase {
     // MARK: Summary card renderer
 
     @MainActor
-    func testSummaryCardRendersAt1080x1350InBothLocales() async throws {
+    func testSummaryCardRendersAt1080x1440InBothLocales() async throws {
         let provider = MockHoroscopeProvider()
         for lang in AppLanguage.allCases {
             let result = try await provider.daily(for: .leo, on: referenceDate, lang: lang)
@@ -113,7 +113,8 @@ final class HoroscopeTests: XCTestCase {
                                                             lang: lang)
             XCTAssertNotNil(image, "Summary card must render for \(lang.rawValue)")
             XCTAssertEqual(image!.size.width * image!.scale, 1080)
-            XCTAssertEqual(image!.size.height * image!.scale, 1350)
+            XCTAssertEqual(image!.size.height * image!.scale, 1440,
+                           "3:4 canvas matches the background art ratio (clipping fix)")
             // Export for visual review evidence.
             if let data = image!.pngData() {
                 let url = FileManager.default.temporaryDirectory

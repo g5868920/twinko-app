@@ -3,19 +3,21 @@ import Photos
 
 // MARK: - Summary card composition
 
-/// Runtime-composed Horoscope Summary Card (summary-card spec V1):
-/// 4:5 branded export over `bg_horoscope_summary_card_v1` with zodiac
-/// identity, headline, overall score + summary, Twinko message, the
-/// four lucky details, and the canonical Horoscope Twinko. One locale
-/// at a time; never a screenshot of the app screen; never includes
-/// birthday or profile data.
+/// Runtime-composed Horoscope Summary Card: a 3:4 branded export over
+/// `bg_horoscope_summary_card_v1` (canvas matches the art's native
+/// ratio so the decorative frame is never cropped) with zodiac
+/// identity, overall score + summary, the Twinko message, the four
+/// lucky details, and the canonical Horoscope Twinko. One locale at a
+/// time; never a screenshot of the app screen.
 struct HoroscopeSummaryCardView: View {
     let horoscope: DailyHoroscope
     let sign: ZodiacSign
     let lang: AppLanguage
 
-    /// 1080×1350 at 1/3 scale; the renderer exports at 3×.
-    static let designSize = CGSize(width: 360, height: 450)
+    /// 1080×1440 (3:4, the background art's native ratio) at 1/3
+    /// scale; the renderer exports at 3×. Matching the art ratio is
+    /// the root fix for the previously clipped top/bottom frame.
+    static let designSize = CGSize(width: 360, height: 480)
 
     var body: some View {
         VStack(spacing: 10) {
@@ -33,15 +35,12 @@ struct HoroscopeSummaryCardView: View {
                     .font(.system(size: 10, design: .rounded))
                     .foregroundStyle(Color.softWhite.opacity(0.65))
             }
-            .padding(.top, 26)
+            .padding(.top, 34)
 
             // Zodiac identity + Twinko
             HStack(spacing: 14) {
                 VStack(spacing: 4) {
-                    Image(sign.symbolAssetName)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 56, height: 56)
+                    ZodiacGlyphView(sign: sign, size: 56)
                     Text(sign.displayName(for: lang))
                         .font(.system(size: 17, weight: .bold, design: .rounded))
                         .foregroundStyle(Color.softWhite)
@@ -51,15 +50,6 @@ struct HoroscopeSummaryCardView: View {
                     .scaledToFit()
                     .frame(width: 78, height: 78)
             }
-
-            // Headline
-            Text(horoscope.headline)
-                .font(.system(size: 15, weight: .semibold, design: .rounded))
-                .foregroundStyle(Color.softWhite)
-                .multilineTextAlignment(.center)
-                .lineLimit(2)
-                .minimumScaleFactor(0.7)
-                .padding(.horizontal, 30)
 
             // Overall score + summary
             VStack(spacing: 5) {
@@ -84,7 +74,7 @@ struct HoroscopeSummaryCardView: View {
             .padding(.horizontal, 14)
             .frame(maxWidth: .infinity)
             .background(Color.deepSpace.opacity(0.5), in: RoundedRectangle(cornerRadius: 13))
-            .padding(.horizontal, 24)
+            .padding(.horizontal, 26)
 
             // Twinko message
             VStack(alignment: .leading, spacing: 3) {
@@ -116,17 +106,12 @@ struct HoroscopeSummaryCardView: View {
                           swatchHex: horoscope.lucky.color.hex)
                 luckyCell(HoroscopeStrings.luckyZodiac(lang),
                           horoscope.lucky.luckySign?.displayName(for: lang) ?? "—",
-                          zodiacAsset: horoscope.lucky.luckySign?.symbolAssetName)
+                          zodiacSign: horoscope.lucky.luckySign)
                 luckyCell(HoroscopeStrings.luckyItem(lang), horoscope.lucky.item)
             }
             .padding(.horizontal, 24)
 
             Spacer(minLength: 0)
-
-            Text(HoroscopeStrings.disclaimer(lang))
-                .font(.system(size: 8, design: .rounded))
-                .foregroundStyle(Color.softWhite.opacity(0.45))
-                .padding(.bottom, 22)
         }
         .frame(width: Self.designSize.width, height: Self.designSize.height)
         .background {
@@ -139,17 +124,14 @@ struct HoroscopeSummaryCardView: View {
     }
 
     private func luckyCell(_ label: String, _ value: String,
-                           swatchHex: String? = nil, zodiacAsset: String? = nil) -> some View {
+                           swatchHex: String? = nil, zodiacSign: ZodiacSign? = nil) -> some View {
         VStack(spacing: 3) {
             Text(label)
                 .font(.system(size: 9, design: .rounded))
                 .foregroundStyle(Color.softWhite.opacity(0.6))
             HStack(spacing: 4) {
-                if let zodiacAsset {
-                    Image(zodiacAsset)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 13, height: 13)
+                if let zodiacSign {
+                    ZodiacGlyphView(sign: zodiacSign, size: 14, emphasized: false)
                 }
                 if let swatchHex, let color = Color(horoscopeHex: swatchHex) {
                     Circle()
@@ -173,7 +155,7 @@ struct HoroscopeSummaryCardView: View {
 
 // MARK: - Renderer
 
-/// Renders the summary card to a 1080×1350 sRGB PNG-backed UIImage.
+/// Renders the summary card to a 1080×1440 sRGB PNG-backed UIImage.
 enum HoroscopeSummaryCardRenderer {
     @MainActor
     static func render(horoscope: DailyHoroscope, sign: ZodiacSign,
@@ -309,8 +291,8 @@ struct HoroscopeSummaryCardPreviewSheet: View {
     private var accessibilitySummary: String {
         let score = HoroscopeScoreLabel.accessibilityText(horoscope.overall.score, lang)
         return lang == .english
-            ? "\(sign.displayName(for: lang)) daily horoscope. Overall \(score). \(horoscope.headline)"
-            : "\(sign.displayName(for: lang))今日運勢。整體\(score)。\(horoscope.headline)"
+            ? "\(sign.displayName(for: lang)) daily horoscope. Overall \(score). \(horoscope.twinkoMessage)"
+            : "\(sign.displayName(for: lang))今日運勢。整體\(score)。\(horoscope.twinkoMessage)"
     }
 
     private func render() {

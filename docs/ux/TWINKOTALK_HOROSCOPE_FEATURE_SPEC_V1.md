@@ -689,3 +689,18 @@ Claude Code must not:
 - [ ] Sign switching works without regenerating unrelated data
 - [ ] Accessibility labels exist
 - [ ] Reduce Motion is supported
+
+---
+
+# 23. v1.1 Refinements (founder review 2026-07-16)
+
+1. The main screen no longer displays the headline; the **Twinko
+   message** is the single personalized takeaway and always includes
+   one small, doable action (no separate action block). The
+   `headline` field remains in the data model and share text only.
+2. Lucky Number remains an integer in **1–99**, deterministic per
+   local date + sign + locale (unchanged behavior, now explicit).
+3. Zodiac symbols are code-rendered glyphs; the raster assets are
+   reference-only (see canonical assets spec addendum).
+4. The Summary Card exports at 1080×1440 (3:4) with no disclaimer or
+   privacy copy; the short disclaimer appears once on the main screen.

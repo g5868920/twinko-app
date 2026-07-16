@@ -33,8 +33,9 @@ extension ZodiacSign {
         self = match
     }
 
-    /// Canonical zodiac symbol imageset name.
-    var symbolAssetName: String { "zodiac_\(canonicalID)_v1" }
+    // Zodiac symbols are code-rendered (`ZodiacGlyphView`) as of the
+    // 2026-07-16 refinement; the raster symbol assets are
+    // reference-only and no longer resolved at runtime.
 
     /// Localized date range, e.g. "7/23 – 8/22".
     func dateRangeText(_ lang: AppLanguage) -> String {

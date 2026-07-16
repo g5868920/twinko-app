@@ -53,7 +53,9 @@ struct ZodiacSelectorSheet: View {
                 }
             }
         }
-        .presentationDetents([.medium, .large])
+        // Open tall enough that all 12 signs are visible
+        // immediately — no drag needed (refinement 2026-07-16).
+        .presentationDetents([.large])
         .presentationDragIndicator(.hidden)
     }
 }
@@ -68,11 +70,7 @@ struct ZodiacSelectorItem: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: 6) {
-                Image(sign.symbolAssetName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 44, height: 44)
-                    .accessibilityHidden(true)
+                ZodiacGlyphView(sign: sign, size: 44, emphasized: isSelected)
                 Text(sign.displayName(for: lang))
                     .font(.system(.caption, design: .rounded).weight(.semibold))
                     .foregroundStyle(Color.textInverseToken)

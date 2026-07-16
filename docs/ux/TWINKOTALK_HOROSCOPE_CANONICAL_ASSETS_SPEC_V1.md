@@ -586,3 +586,16 @@ Claude Code must not:
 - [ ] No text is baked into static assets
 - [ ] Summary-card background is not used as the main screen background
 - [ ] Tarot visual assets are not reused in Horoscope
+
+---
+
+# Addendum — v1.1 (founder review 2026-07-16)
+
+The 12 zodiac symbol PNGs (`zodiac_*_v1.png`) are now
+**reference-only**: runtime presentation switched to code-rendered
+glyphs (`ZodiacGlyphView`) because the raster assets' edges were not
+clean enough to keep maintaining. The source PNGs remain under
+`assets/horoscope/zodiac-symbols/` but are no longer imported into
+the app's asset catalog. Canonical runtime Horoscope assets are now:
+`bg_horoscope_cosmic_v1.png`, `bg_horoscope_summary_card_v1.png`, and
+`twinko_horoscope_default_v1.png` (via its derived transparent copy).

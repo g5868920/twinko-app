@@ -810,3 +810,32 @@ Claude Code must not:
 - [ ] Decorative backgrounds do not interfere with readability
 - [ ] Accessibility support is present
 - [ ] Prototype uses structured data and reusable components
+
+---
+
+# 21. v1.1 Refinements (founder review 2026-07-16)
+
+The following supersede any conflicting sections above:
+
+1. **No headline.** The hero shows zodiac glyph → localized name (+
+   My Sign badge) → date → change-sign chip → floating Twinko. The
+   single takeaway is the **Twinko message**, which carries the day's
+   feeling plus one small, doable action — there is no separate
+   headline block and no separate "small action" section.
+2. **Floating Twinko.** The hero Twinko uses the same gentle
+   breathing-float motion language as Home and Chat (±5 pt, ~3.8 s
+   ease-in-out, Reduce Motion → static).
+3. **Readability overlay.** A restrained deep-purple gradient
+   (22–36%) sits over the cosmic background so the art stays
+   atmospheric and never competes with reading surfaces.
+4. **Zodiac selector opens fully.** The sheet presents at the large
+   detent so all 12 signs are visible immediately — no drag needed.
+   Tap still applies immediately and dismisses.
+5. **Code-rendered zodiac glyphs.** All zodiac symbols (hero,
+   selector, lucky grid, summary card) are rendered in code
+   (`ZodiacGlyphView`: Unicode glyph forced to text presentation,
+   brand-gold gradient, soft glow, emphasized/unemphasized states).
+   The raster symbol PNGs are reference-only and are not shipped in
+   the asset catalog.
+6. **Disclaimer** appears once, short, at the bottom of the main
+   screen only — never on the Summary Card.

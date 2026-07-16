@@ -82,3 +82,19 @@
   Result removed, merged Personalized Meditation section, quiet exits,
   short single disclaimer 「內容僅供反思與娛樂」.
 - Full spec: `TWINKOTALK_TAROT_JOURNEY_REDESIGN_V4.md`.
+
+## v4.1 refinement pass (2026-07-17)
+
+- Premium amethyst/antique-gold Tarot CTA hierarchy (primary /
+  secondary / tertiary) replaces the orange treatment across Tarot.
+- Larger casting Twinko + bigger blue-violet tornado shuffle; chosen
+  cards resolve gold and settle clearly above Twinko's head; shuffle
+  copy 「讓牌在星光中回應你的心意……」.
+- Moonlit-ivory reading surfaces with lavender undertone; gold section
+  icons restored.
+- Guidance Card restructure: 指引 joins the reading before an expanded
+  整體來看 (both spreads) and an updated Twinko 想對你說; draw CTA
+  disappears after use; Summary Card reflects the expanded state.
+- Spread previews composed from the canonical card back for equal
+  visual weight; three-card subtitle exactly 「過去・現在・未來」.
+- Details: `TWINKOTALK_TAROT_JOURNEY_REDESIGN_V4.md` §10.

@@ -187,10 +187,22 @@ struct MockTarotInterpretationProvider: TarotInterpretationProviding {
         return "把三張牌放在一起看：「\(names[0])」說的是把你帶到這裡的故事，「\(names[1])」照著你今天站的位置，「\(names[2])」則描了一個可能的走向。它們不是定論，而是三個幫你想事情的角度——接下來怎麼走，永遠由你自己決定。"
     }
 
+    /// The "reading it together" text for the CURRENT reading state:
+    /// single, single + guidance, three, or three + guidance. Adding a
+    /// Guidance Card expands this summary (and only this summary) —
+    /// the already-drawn cards' interpretations are never regenerated.
     func combinedSummary(for session: TarotReadingSession, lang: AppLanguage) -> String {
         if session.spread == .single, let only = session.cards.first {
             let name = only.card.displayName(for: lang)
             let state = only.orientation.label(lang)
+            if let guidance = session.guidanceCard {
+                let gName = guidance.card.displayName(for: lang)
+                let gState = guidance.orientation.label(lang)
+                if lang == .english {
+                    return "Reading the two together: \(name) (\(state)) mirrors where you stand, and \(gName) (\(gState)) arrives as your guidance — one gentle direction to act on. Let them suggest a small next step, not a final answer."
+                }
+                return "把兩張牌放在一起看：\(state)的「\(name)」照著你此刻站的位置，而\(gState)的「\(gName)」作為指引牌輕輕落下——它給的是一個溫柔可行的方向。讓它們幫你想出一小步，就很足夠了。"
+            }
             if lang == .english {
                 return "Today, \(name) (\(state)) keeps you company. Take its message as one gentle angle on your question — notice what it stirs, keep what helps, and let the rest go."
             }

@@ -24,7 +24,9 @@ enum TarotStrings {
 
     // Shuffle / reveal
     static func shuffling(_ l: AppLanguage) -> String {
-        l == .english ? "Twinko is shuffling for you…" : "Twinko 正在為你洗牌⋯⋯"
+        l == .english
+            ? "Let the cards answer your heart in the starlight…"
+            : "讓牌在星光中回應你的心意……"
     }
     static func revealSingle(_ l: AppLanguage) -> String {
         l == .english ? "This card is here for you today" : "這是今天陪你的牌"

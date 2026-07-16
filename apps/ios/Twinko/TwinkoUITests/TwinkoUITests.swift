@@ -1066,7 +1066,9 @@ final class TwinkoUITests: XCTestCase {
 
         // Three Cards → vortex converges into exactly three cards.
         settleTap(three)
-        Thread.sleep(forTimeInterval: 4.0)
+        Thread.sleep(forTimeInterval: 1.2)
+        attach(name: "T3-vortex-shuffle")
+        Thread.sleep(forTimeInterval: 3.0)
         let faceDown = app.buttons.matching(
             NSPredicate(format: "label CONTAINS %@", "蓋著的牌"))
         XCTAssertEqual(faceDown.count, 3, "Vortex converges into exactly three cards")
@@ -1076,7 +1078,6 @@ final class TwinkoUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts.matching(
             NSPredicate(format: "label CONTAINS %@", "繼續翻開下一張牌")).firstMatch
             .waitForExistence(timeout: 4))
-        attach(name: "T3-partial-reveal")
         settleTap(faceDown.firstMatch)
         settleTap(faceDown.firstMatch)
         scrollTap(app.buttons["tarotSeeReading"], in: app)
@@ -1090,7 +1091,6 @@ final class TwinkoUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts.matching(
             NSPredicate(format: "label CONTAINS %@", "小小的反思")).firstMatch.exists,
             "No per-card mini reflections")
-        attach(name: "T4-result-reading")
 
         // One Guidance Card only; Save stays, Share Result is gone.
         scrollTap(app.buttons["tarotGuidanceAccept"], in: app)
@@ -1103,11 +1103,22 @@ final class TwinkoUITests: XCTestCase {
             .waitForExistence(timeout: 5))
         XCTAssertFalse(app.buttons["tarotGuidanceAccept"].exists,
                        "Guidance Card can be drawn only once")
+        XCTAssertTrue(app.descendants(matching: .any)["tarotSynthesis"].exists,
+                      "整體來看 present for the expanded reading")
+        attach(name: "T4-post-guidance-expanded-result")
         XCTAssertTrue(app.buttons["tarotSaveCardButton"].waitForExistence(timeout: 4))
         XCTAssertFalse(app.buttons["tarotShareButton"].exists,
                        "Result-page Share Result is removed")
         XCTAssertTrue(app.buttons["tarotMeditationCTA"].exists,
                       "Merged personalized Meditation section")
+
+        // Summary Card reflects the current expanded reading state.
+        scrollTap(app.buttons["tarotSaveCardButton"], in: app)
+        XCTAssertTrue(app.buttons["tarotSummaryShare"].waitForExistence(timeout: 6),
+                      "Summary Card sheet renders the expanded reading")
+        attach(name: "T5-summary-card-expanded")
+        settleTap(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "完成")).firstMatch)
 
         // Exit actions + single short disclaimer at the bottom.
         var attempts = 0
@@ -1115,7 +1126,6 @@ final class TwinkoUITests: XCTestCase {
         while !newReading.isHittable && attempts < 8 { app.swipeUp(); attempts += 1 }
         XCTAssertTrue(app.staticTexts.matching(
             NSPredicate(format: "label CONTAINS %@", "內容僅供反思與娛樂")).firstMatch.exists)
-        attach(name: "T5-exit-actions-disclaimer")
 
         // Start a New Reading → back to topic setup, still immersive.
         settleTap(newReading)

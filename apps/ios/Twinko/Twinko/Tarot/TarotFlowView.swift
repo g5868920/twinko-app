@@ -366,8 +366,8 @@ private struct TarotSpreadStage: View {
                 .foregroundStyle(Color.textInverseToken)
 
             HStack(spacing: TwinkoSpacing.m) {
-                spreadCard(.single, preview: "tarot_spread_single_preview_v1_transparent")
-                spreadCard(.three, preview: "tarot_spread_three_preview_v1_transparent")
+                spreadCard(.single)
+                spreadCard(.three)
             }
             .padding(.horizontal, TwinkoSpacing.l)
             Spacer()
@@ -377,8 +377,26 @@ private struct TarotSpreadStage: View {
 
     /// Both options share one fixed illustration container, title
     /// baseline, and subtitle region, so Single Card and Three Cards
-    /// carry identical visual weight (§15).
-    private func spreadCard(_ spread: TarotSpreadType, preview: String) -> some View {
+    /// carry identical visual weight (§15). The previews are composed
+    /// from the canonical card back: both center cards are the same
+    /// size, with the three-card sides at ~84% tucked behind.
+    private func spreadPreview(_ spread: TarotSpreadType) -> some View {
+        ZStack {
+            if spread == .three {
+                TarotCardBack(width: 52)
+                    .rotationEffect(.degrees(-9))
+                    .offset(x: -30, y: 5)
+                TarotCardBack(width: 52)
+                    .rotationEffect(.degrees(9))
+                    .offset(x: 30, y: 5)
+            }
+            TarotCardBack(width: 62)
+        }
+        .frame(height: 104)
+        .accessibilityHidden(true)
+    }
+
+    private func spreadCard(_ spread: TarotSpreadType) -> some View {
         Button {
             withAnimation(.easeOut(duration: 0.15)) { pressed = spread }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -386,11 +404,7 @@ private struct TarotSpreadStage: View {
             }
         } label: {
             VStack(spacing: 10) {
-                Image(preview)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxHeight: spread == .single ? 92 : 100)
-                    .frame(height: 104)
+                spreadPreview(spread)
                 Text(spread.title(lang))
                     .font(.system(.headline, design: .rounded))
                     .foregroundStyle(Color.textInverseToken)

@@ -1,7 +1,8 @@
 # TwinkoTalk Tarot Journey Redesign
 
-**Version:** v4.0
-**Status:** Implemented (prototype) — founder/CPO decisions 2026-07-16
+**Version:** v4.1
+**Status:** Implemented (prototype) — founder/CPO decisions 2026-07-16,
+refinement pass 2026-07-17 (see §10)
 **Supersedes:** the flow-, layout-, shuffle-, and result-structure
 sections of `TWINKOTALK_TAROT_SCREEN_SPEC_V3.md` and
 `TWINKOTALK_TAROT_ANIMATION_SPEC_V1.md`. Data models, the 78-card
@@ -70,9 +71,11 @@ lifePath / other` — stable language-independent identifiers.
 
 Two spreads with identical visual weight: shared fixed illustration
 container (104 pt), equal card sizes, equal subtitle region.
-Subtitles: 單張牌「一個此刻最需要的提醒」/ "A message for this
-moment"; 三張牌「過去・現在・未來，看見事情的發展」/ "Past · Present ·
-Future".
+Subtitles (exact, short): 單張牌「一個此刻最需要的提醒」/ "A message
+for this moment"; 三張牌「過去・現在・未來」/ "Past · Present ·
+Future". Previews are composed from the canonical card back in one
+shared container — both center cards identical in size, three-card
+sides at ~84% rotated behind — so neither option dominates.
 
 ## 5. Vortex shuffle (replaces the fan shuffle)
 
@@ -154,3 +157,45 @@ reveal glow, restructured result, one Guidance draw, Save present /
 Share absent, merged meditation section, Start a New Reading, Back to
 Home restoring the tab bar, native edge swipe verified on Meditation).
 Screenshots T1–T5.
+
+## 10. Refinement pass (2026-07-17)
+
+- **Premium CTA system** (`TarotCTAPalette`, applied Tarot-wide):
+  primary = deep amethyst gradient + antique-gold border + warm light
+  text + restrained violet glow (下一步, 看看牌想說什麼, 抽一張指引牌,
+  生成專屬冥想, summary-sheet share); secondary = quieter deep-purple
+  surface + thin gold border (儲存指引小卡, 開始新的占卜); tertiary =
+  text-led (回到首頁). Primary/secondary keep the magical press
+  feedback (scale, halo, sparkles, light haptic); tertiary and Back
+  use standard feedback. The bright orange treatment is retired inside
+  Tarot. Brand logic: blue-violet = magical energy, gold = chosen.
+- **Shuffle upgrade:** shuffle Twinko enlarged to 216 pt with a
+  blue-violet energy ring and aura; the tornado is bigger (radius
+  108–180, cards emerge from lower off-stage), with a narrowing funnel
+  as it rises; violet card trails resolve into gold auras on the
+  chosen cards; violet + gold stardust. Settled cards hover in a row
+  clearly above Twinko's head (settleY −176), never on the forehead.
+  Copy is exactly 「讓牌在星光中回應你的心意……」.
+- **Moonlit ivory surfaces:** all reading containers use one warm
+  ivory → soft lavender gradient (never pure white) with a faint
+  antique-gold border; the guidance prompt joins the same family.
+  The moon icon before Twinko 想對你說 (and the sparkles icon before
+  整體來看, and the meditation crescent) are gold accents.
+- **Guidance restructure:** once drawn, the 指引 card joins the
+  reading directly after the original cards, followed by an
+  **expanded 整體來看** (`combinedSummary`, now covering single +
+  guidance as well) and Twinko 想對你說 derived from the full current
+  state; the 抽一張指引牌 CTA disappears. Original card
+  interpretations, identities, and orientations are never
+  regenerated. Order after guidance — three: 過去/現在/未來/指引 →
+  整體來看 → Twinko 想對你說 → 儲存 → 冥想 → exits → disclaimer;
+  single: 主牌/指引 → 整體來看 → Twinko 想對你說 → …
+- The Summary Card and the Meditation handoff always render from the
+  current session state, so both reflect the expanded reading after a
+  Guidance Card (already-exported images are never altered).
+- Validation: build clean; TarotDrawTests 27/27 (new: approved spread
+  subtitles, starlight shuffle copy, expanded combined summary for
+  both spreads, Twinko-message expansion); one focused Three-Card
+  Simulator walkthrough incl. post-guidance expanded result + summary
+  sheet; 5 screenshots (T1–T5). Single-card post-guidance behavior
+  verified via the unit tests above.

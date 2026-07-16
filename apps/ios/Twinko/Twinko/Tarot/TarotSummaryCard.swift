@@ -157,7 +157,7 @@ struct TarotSummaryCardSheet: View {
                           systemImage: "square.and.arrow.up")
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.twinkoPrimary)
+                .buttonStyle(.tarotMagicPrimary)
                 .padding(.horizontal, TwinkoSpacing.l)
                 .accessibilityIdentifier("tarotSummaryShare")
             }

@@ -236,6 +236,49 @@ final class TarotDrawTests: XCTestCase {
         XCTAssertFalse(restarted.canDrawGuidance, "Nothing to guide before a draw")
     }
 
+    func testSpreadSubtitlesUseApprovedShortCopy() {
+        XCTAssertEqual(TarotSpreadType.single.subtitle(.traditionalChinese), "一個此刻最需要的提醒")
+        XCTAssertEqual(TarotSpreadType.three.subtitle(.traditionalChinese), "過去・現在・未來")
+    }
+
+    func testShuffleCopyIsTheStarlightLine() {
+        XCTAssertEqual(TarotStrings.shuffling(.traditionalChinese), "讓牌在星光中回應你的心意……")
+    }
+
+    func testCombinedSummaryExpandsWithGuidanceForBothSpreads() {
+        let provider = MockTarotInterpretationProvider()
+        for spread in TarotSpreadType.allCases {
+            var session = makeSession(spread: spread)
+            let before = provider.combinedSummary(for: session, lang: .traditionalChinese)
+            var engine = TarotDrawEngine(rng: SeededRNG(state: 11))
+            session.guidanceCard = engine.drawGuidance(excluding: session.cards)
+            let after = provider.combinedSummary(for: session, lang: .traditionalChinese)
+            XCTAssertNotEqual(before, after,
+                              "整體來看 expands once the Guidance Card joins (\(spread))")
+            let gName = session.guidanceCard!.card.displayNameZh
+            XCTAssertTrue(after.contains(gName),
+                          "Expanded summary reads the guidance card (\(spread))")
+            // Original card identities/orientations are untouched.
+            XCTAssertEqual(session.cards.count, spread.cardCount)
+        }
+    }
+
+    func testTwinkoMessageReflectsExpandedReading() {
+        let provider = MockTarotInterpretationProvider()
+        var session = makeSession(spread: .three)
+        let before = provider.twinkoMessage(for: session, lang: .traditionalChinese)
+        var engine = TarotDrawEngine(rng: SeededRNG(state: 21))
+        session.guidanceCard = engine.drawGuidance(excluding: session.cards)
+        let after = provider.twinkoMessage(for: session, lang: .traditionalChinese)
+        // Deterministic seeds chosen so the expanded reading selects a
+        // different closing message (the message derives from all
+        // cards including the guidance card).
+        XCTAssertNotEqual(before, after,
+                          "Twinko 想對你說 reflects the expanded reading state")
+        XCTAssertNotEqual(after, provider.combinedSummary(for: session, lang: .traditionalChinese),
+                          "Message stays distinct from the expanded synthesis")
+    }
+
     func testDisclaimerIsTheApprovedShortLine() {
         XCTAssertEqual(TarotDisclaimer.text(.traditionalChinese), "內容僅供反思與娛樂")
         XCTAssertEqual(TarotDisclaimer.text(.english),

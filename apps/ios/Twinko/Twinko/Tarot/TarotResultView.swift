@@ -33,32 +33,37 @@ struct TarotResultStage: View {
     var body: some View {
         ScrollView {
             VStack(spacing: TwinkoSpacing.m) {
-                // Group 1 — the reading starts here, directly.
+                // Group 1 — the reading starts here, directly. Once a
+                // Guidance Card is drawn it joins the reading (指引)
+                // right after the original cards, whose interpretations
+                // are never regenerated.
                 ForEach(session.cards) { drawn in
                     cardSection(drawn)
                 }
+                if let guidance = session.guidanceCard {
+                    cardSection(guidance)
+                }
 
-                // Group 2 — Overall Synthesis belongs to the same
-                // interpretation group (three-card readings only).
-                if session.spread == .three {
+                // Group 2 — 整體來看: three-card readings always; once
+                // a Guidance Card exists it expands to read the whole
+                // current state (both spreads).
+                if session.spread == .three || session.guidanceCard != nil {
                     synthesisSection
                 }
 
                 TarotMagicalDivider()
 
-                // Group 3 — Twinko's emotional closing.
+                // Group 3 — Twinko's emotional closing (reflects the
+                // expanded reading once guidance is drawn).
                 twinkoMessageSection
 
                 TarotMagicalDivider()
 
-                // Group 4 — one optional Guidance Card.
-                if let guidance = session.guidanceCard {
-                    cardSection(guidance)
-                } else if session.canDrawGuidance {
+                // Group 4 — one optional Guidance Card draw.
+                if session.canDrawGuidance {
                     guidancePromptSection
+                    TarotMagicalDivider()
                 }
-
-                TarotMagicalDivider()
 
                 // Group 5 — Save Guidance Card (single export entry).
                 Button {
@@ -67,7 +72,7 @@ struct TarotResultStage: View {
                     Label(TarotStrings.saveCard(lang), systemImage: "photo.on.rectangle.angled")
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.tarotMagicPrimary)
+                .buttonStyle(.tarotMagicSecondary)
                 .padding(.horizontal, TwinkoSpacing.m)
                 .accessibilityIdentifier("tarotSaveCardButton")
 
@@ -144,14 +149,22 @@ struct TarotResultStage: View {
 
     // MARK: Group 2 — Overall Synthesis (three cards only)
 
-    /// Connects Past / Present / Future as a reflective pattern —
-    /// always a different provider field from Twinko's message (§32).
+    /// Connects the cards as a reflective pattern — always a different
+    /// provider field from Twinko's message (§32). Before a Guidance
+    /// Card this is the three-card synthesis; afterwards it is the
+    /// expanded combined summary of the whole current reading.
     private var synthesisSection: some View {
         VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
-            Label(TarotStrings.overallTitle(lang), systemImage: "sparkles")
-                .font(.system(.headline, design: .rounded))
-                .foregroundStyle(Color.deepPlum)
-            Text(provider.synthesis(for: session, lang: lang))
+            HStack(spacing: 7) {
+                Image(systemName: "sparkles")
+                    .foregroundStyle(Color.accentGold)
+                Text(TarotStrings.overallTitle(lang))
+                    .foregroundStyle(Color.deepPlum)
+            }
+            .font(.system(.headline, design: .rounded))
+            Text(session.guidanceCard == nil
+                 ? provider.synthesis(for: session, lang: lang)
+                 : provider.combinedSummary(for: session, lang: lang))
                 .font(.system(.body, design: .rounded))
                 .foregroundStyle(Color.textPrimaryToken)
                 .lineSpacing(5)
@@ -164,9 +177,13 @@ struct TarotResultStage: View {
 
     private var twinkoMessageSection: some View {
         VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
-            Label(TarotStrings.finalSummaryTitle(lang), systemImage: "moon.stars.fill")
-                .font(.system(.headline, design: .rounded))
-                .foregroundStyle(Color.deepPlum)
+            HStack(spacing: 7) {
+                Image(systemName: "moon.stars.fill")
+                    .foregroundStyle(Color.accentGold)
+                Text(TarotStrings.finalSummaryTitle(lang))
+                    .foregroundStyle(Color.deepPlum)
+            }
+            .font(.system(.headline, design: .rounded))
             Text(provider.twinkoMessage(for: session, lang: lang))
                 .font(.system(.body, design: .rounded))
                 .foregroundStyle(Color.textPrimaryToken)
@@ -201,14 +218,7 @@ struct TarotResultStage: View {
             .accessibilityIdentifier("tarotGuidanceAccept")
         }
         .frame(maxWidth: .infinity)
-        .padding(TwinkoSpacing.m)
-        .background(Color.surfacePrimary.opacity(0.97),
-                    in: RoundedRectangle(cornerRadius: TwinkoRadius.card))
-        .overlay(
-            RoundedRectangle(cornerRadius: TwinkoRadius.card)
-                .strokeBorder(Color.accentGold.opacity(0.55), lineWidth: 1)
-        )
-        .padding(.horizontal, TwinkoSpacing.m)
+        .tarotReadingCard()
     }
 
     // MARK: Group 6 — one merged Personalized Meditation section (§35)
@@ -218,7 +228,7 @@ struct TarotResultStage: View {
             HStack(spacing: 10) {
                 Image(systemName: "moon.stars.fill")
                     .font(.system(size: 18))
-                    .foregroundStyle(Color.brandPurpleDeep)
+                    .foregroundStyle(Color.accentGold)
                 Text(TarotStrings.meditationSectionTitle(lang))
                     .font(.system(.headline, design: .rounded))
                     .foregroundStyle(Color.deepPlum)
@@ -250,16 +260,9 @@ struct TarotResultStage: View {
                 onRestart()
             } label: {
                 Text(TarotStrings.startNewReading(lang))
-                    .font(.system(.headline, design: .rounded))
-                    .foregroundStyle(Color.textInverseToken)
-                    .frame(maxWidth: .infinity, minHeight: 46)
-                    .background(Color.deepSpace.opacity(0.5),
-                                in: RoundedRectangle(cornerRadius: 23))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 23)
-                            .strokeBorder(Color.textInverseToken.opacity(0.3), lineWidth: 1)
-                    )
+                    .frame(maxWidth: .infinity)
             }
+            .buttonStyle(.tarotMagicSecondary)
             .accessibilityIdentifier("tarotStartNewReading")
 
             Button {

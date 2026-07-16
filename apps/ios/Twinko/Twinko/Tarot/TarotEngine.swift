@@ -35,7 +35,7 @@ enum TarotSpreadType: String, Codable, CaseIterable, Identifiable {
         case (.single, .english): return "A message for this moment"
         case (.single, .traditionalChinese): return "一個此刻最需要的提醒"
         case (.three, .english): return "Past · Present · Future"
-        case (.three, .traditionalChinese): return "過去・現在・未來，看見事情的發展"
+        case (.three, .traditionalChinese): return "過去・現在・未來"
         }
     }
 }

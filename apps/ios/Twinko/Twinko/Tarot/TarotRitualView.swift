@@ -22,6 +22,12 @@ struct TarotShuffleStage: View {
     /// Reusable visual pool (§17): enough for a layered vortex without
     /// rendering 78 heavy views.
     private static let poolCount = 14
+    /// Shuffle-state Twinko is deliberately larger than the standard
+    /// hero — it should feel like it is channeling the reading.
+    static let twinkoSize: CGFloat = 216
+    /// Settled cards hover above Twinko's head: card half-height (45)
+    /// + head/hat clearance beyond the character's half size (108).
+    static let settleY: CGFloat = -176
     private static let totalDuration: TimeInterval = 2.9
     private static let convergeStart: TimeInterval = 1.95
     private static let convergeDuration: TimeInterval = 0.65
@@ -44,7 +50,7 @@ struct TarotShuffleStage: View {
                     vortex
                 }
             }
-            .frame(height: 380)
+            .frame(height: 470)
 
             Text(TarotStrings.shuffling(lang))
                 .font(.system(.body, design: .rounded))
@@ -64,29 +70,41 @@ struct TarotShuffleStage: View {
         TimelineView(.animation) { timeline in
             let t = timeline.date.timeIntervalSince(start)
             ZStack {
-                // Phase A — energy awakening near the lower altar.
+                // Phase A — blue-violet energy awakening at the altar.
                 Ellipse()
                     .fill(
-                        RadialGradient(colors: [Color.twinkoGold.opacity(0.4),
-                                                Color.brandPurple.opacity(0.15),
+                        RadialGradient(colors: [TarotCTAPalette.violetGlow.opacity(0.5),
+                                                Color(hex: 0x5B7BE8).opacity(0.2),
                                                 .clear],
-                                       center: .center, startRadius: 4, endRadius: 130)
+                                       center: .center, startRadius: 4, endRadius: 160)
                     )
-                    .frame(width: 240, height: 90)
-                    .offset(y: 165)
+                    .frame(width: 300, height: 110)
+                    .offset(y: 210)
                     .opacity(riseIn(t, from: 0.05, over: 0.4) * (1 - converge(t)))
-                    .blur(radius: 6)
+                    .blur(radius: 7)
 
-                // Restrained gold dust while the vortex is alive.
-                TarotGoldDust(active: t > 0.5)
-                    .frame(width: 280, height: 300)
+                // Restrained stardust: violet magical energy + a few
+                // gold accents (gold = chosen / resolved).
+                TarotStardust(active: t > 0.5, tint: TarotCTAPalette.violetGlow)
+                    .frame(width: 340, height: 400)
+                TarotStardust(active: t > 0.8, tint: .twinkoGold)
+                    .frame(width: 250, height: 300)
+                    .opacity(0.7)
 
                 // Phase B/C — the card vortex: varied depth, scale,
                 // rotation, delay and speed; selected cards converge,
                 // the rest dissolve and fall away.
                 ForEach(0..<Self.poolCount, id: \.self) { index in
                     let s = cardState(index: index, t: t)
-                    TarotCardBack(width: 56)
+                    let chosen = selectedIndices.contains(index)
+                    let e = easeInOut(converge(t))
+                    TarotCardBack(width: 60)
+                        // Blue-violet trail while swirling; the chosen
+                        // cards resolve into a gold aura as they settle.
+                        .shadow(color: TarotCTAPalette.violetGlow
+                                    .opacity(0.55 * (1 - e)), radius: 9)
+                        .shadow(color: Color.twinkoGold
+                                    .opacity(chosen ? 0.5 * e : 0), radius: 10)
                         .scaleEffect(s.scale)
                         .rotationEffect(.degrees(s.rotation))
                         .offset(x: s.x, y: s.y)
@@ -102,24 +120,26 @@ struct TarotShuffleStage: View {
         }
     }
 
+    /// A larger, actively channeling Twinko with a blue-violet energy
+    /// ring and aura (blue-violet = magical energy in motion).
     private func castingTwinko(_ t: TimeInterval) -> some View {
         ZStack {
             Circle()
                 .strokeBorder(
-                    LinearGradient(colors: [.twinkoGold.opacity(0.9),
-                                            .twinkoGold.opacity(0.08)],
+                    LinearGradient(colors: [TarotCTAPalette.violetGlow.opacity(0.9),
+                                            Color(hex: 0x5B7BE8).opacity(0.1)],
                                    startPoint: .top, endPoint: .bottom),
-                    lineWidth: 2
+                    lineWidth: 2.5
                 )
-                .frame(width: 210, height: 210)
+                .frame(width: 270, height: 270)
                 .scaleEffect(0.5 + 0.65 * riseIn(t, from: 0.2, over: 0.9))
                 .opacity(riseIn(t, from: 0.2, over: 0.6) * (1 - riseIn(t, from: 1.4, over: 0.6)))
             Circle()
-                .fill(Color.twinkoGold)
-                .frame(width: 150, height: 150)
-                .blur(radius: 30)
-                .opacity(0.14 + 0.05 * sin(t * 2.2))
-            TarotTwinkoView(state: .casting, size: TarotTwinkoSize.hero)
+                .fill(TarotCTAPalette.violetGlow)
+                .frame(width: 190, height: 190)
+                .blur(radius: 36)
+                .opacity(0.20 + 0.06 * sin(t * 2.2))
+            TarotTwinkoView(state: .casting, size: Self.twinkoSize)
                 .scaleEffect(0.92 + 0.08 * riseIn(t, from: 0, over: 0.35))
                 .opacity(riseIn(t, from: 0, over: 0.35))
         }
@@ -132,7 +152,7 @@ struct TarotShuffleStage: View {
             opacity: Double, z: Double) {
         let delay = Double(index) * 0.06
         let speed = 0.42 + Double((index * 13) % 5) * 0.07      // revolutions/s
-        let radius = 92.0 + Double((index * 37) % 58)
+        let radius = 108.0 + Double((index * 37) % 72)
         let baseScale = 0.55 + Double((index * 23) % 35) / 100
         let baseAngle = Double(index) / Double(Self.poolCount) * 2 * .pi
 
@@ -140,20 +160,23 @@ struct TarotShuffleStage: View {
         let c = converge(t)
         let angle = baseAngle + t * speed * 2 * .pi
 
-        // Spiral orbit: rises from the lower altar into a flattened
-        // ellipse around Twinko; the vortex slows as it converges.
-        let orbitX = cos(angle) * radius * rise
-        let orbitY = 250 * (1 - rise) - 30 + sin(angle) * radius * 0.32 * rise
+        // Tornado spiral: cards emerge from below the reading area and
+        // climb vertically while orbiting — the funnel narrows a touch
+        // as it rises, and the vortex slows into the convergence.
+        let funnel = 1.0 - 0.18 * rise
+        let orbitX = cos(angle) * radius * rise * funnel
+        let orbitY = 340 * (1 - rise) - 44 + sin(angle) * radius * 0.38 * rise
         let orbitRot = sin(angle) * 16
         let depth = sin(angle)   // >0 = in front of Twinko
 
         if let slot = selectedIndices.firstIndex(of: index) {
-            // Converges into its final spread position.
-            let spacing: CGFloat = cardCount == 1 ? 0 : 86
+            // Converges into a row hovering clearly above Twinko's
+            // head — never on the forehead or hat (§ separation rule).
+            let spacing: CGFloat = cardCount == 1 ? 0 : 88
             let targetX = (CGFloat(slot) - CGFloat(cardCount - 1) / 2) * spacing
             let e = easeInOut(c)
             return (x: lerp(orbitX, targetX, e),
-                    y: lerp(orbitY, -34, e),
+                    y: lerp(orbitY, Self.settleY, e),
                     scale: lerp(baseScale, 1.0, e),
                     rotation: orbitRot * (1 - e),
                     opacity: Double(rise > 0 ? 1 : 0),
@@ -178,18 +201,18 @@ struct TarotShuffleStage: View {
                 let selectedSlot = TarotShuffleChoreography
                     .selectedIndices(fanCount: 5, pick: cardCount)
                     .firstIndex(of: index)
-                let spacing: CGFloat = cardCount == 1 ? 0 : 86
-                TarotCardBack(width: 56)
+                let spacing: CGFloat = cardCount == 1 ? 0 : 88
+                TarotCardBack(width: 60)
                     .scaleEffect(reducedCardsUp ? (selectedSlot == nil ? 0.8 : 1.0) : 0.85)
                     .offset(x: reducedCardsUp && selectedSlot != nil
                                 ? (CGFloat(selectedSlot!) - CGFloat(cardCount - 1) / 2) * spacing
                                 : CGFloat(index - 2) * 34,
-                            y: reducedCardsUp ? -34 : 130)
+                            y: reducedCardsUp ? Self.settleY : 150)
                     .opacity(reducedCardsUp ? (selectedSlot == nil ? 0 : 1) : 0.0)
                     .animation(.easeInOut(duration: 1.1).delay(Double(index) * 0.08),
                                value: reducedCardsUp)
             }
-            TarotTwinkoView(state: .casting, size: TarotTwinkoSize.hero)
+            TarotTwinkoView(state: .casting, size: Self.twinkoSize)
         }
     }
 
@@ -226,11 +249,13 @@ struct TarotShuffleStage: View {
     }
 }
 
-/// Sparse warm-gold dust: a fixed constellation of small circles that
-/// drift gently outward and fade. Deterministic positions, low
-/// opacity — a soft shimmer, not a glitter storm.
-struct TarotGoldDust: View {
+/// Sparse magical stardust: a fixed constellation of small circles
+/// that drift gently upward and fade. Deterministic positions, low
+/// opacity — a soft shimmer, not a glitter storm. Tint carries the
+/// brand logic (violet = energy, gold = chosen).
+struct TarotStardust: View {
     let active: Bool
+    var tint: Color = .twinkoGold
     private static let points: [(x: CGFloat, y: CGFloat, s: CGFloat, d: Double)] = [
         (0.20, 0.30, 4, 0.0), (0.80, 0.25, 3, 0.3), (0.32, 0.70, 3, 0.5),
         (0.72, 0.68, 4, 0.15), (0.50, 0.12, 3, 0.4), (0.12, 0.55, 3, 0.6),
@@ -241,10 +266,10 @@ struct TarotGoldDust: View {
         GeometryReader { geo in
             ForEach(Array(Self.points.enumerated()), id: \.offset) { _, p in
                 Circle()
-                    .fill(Color.twinkoGold.opacity(active ? 0.0 : 0.45))
+                    .fill(tint.opacity(active ? 0.0 : 0.5))
                     .frame(width: p.s, height: p.s)
                     .position(x: geo.size.width * p.x, y: geo.size.height * p.y)
-                    .offset(y: active ? -22 : 0)
+                    .offset(y: active ? -26 : 0)
                     .animation(.easeOut(duration: 1.4).delay(p.d), value: active)
             }
         }

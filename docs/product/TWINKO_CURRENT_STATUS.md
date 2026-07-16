@@ -372,4 +372,6 @@ Basis：`docs/product/TWINKO_DECISION_LOG.md`（D-055）、Chairwoman Decision R
 - **未實作（明確排除）**：Memory、Journal、Weekly Insights、streaks/coins、Journey engine、新 router/DB/recommendation framework、任何 model calls。
 - 規格見 `docs/ux/TWINKO_HOME_DAILY_COMPANION_SPEC_V2.md`。
 
+**Follow-up（test maintenance only — 2026-07-16）：** 部分既有 UI walkthrough 測試可能仍以已移除的 orbit-style Home 功能入口按鈕為導覽路徑；這些路徑已不代表目前的四-tab shell（首頁／聊天／探索／我的星球）導覽 UI。在 merge-readiness 或里程碑驗證前，受影響的既有 UI walkthrough 應改用四-tab shell 或既有的直接測試啟動路徑。在更新前，僅由已移除的 orbit-style Home 入口點所導致的失敗，應視為過時測試失敗（obsolete-test failures），而非產品回歸（product regression）。本項為測試維護追蹤事項，本次不更新該等測試。
+
 - **Dogfooding distraction**：PM Workflow must prove value in a bounded Discovery-to-Decision slice before expanding。

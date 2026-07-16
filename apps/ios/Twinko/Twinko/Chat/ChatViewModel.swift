@@ -40,7 +40,10 @@ final class ChatViewModel: ObservableObject {
 
     var sessionID: UUID { session.id }
 
-    func send() {
+    /// Sends the current draft. `lang` is the app locale at the moment
+    /// of sending — newly produced Twinko replies match it; stored
+    /// history is never retroactively translated.
+    func send(lang: AppLanguage = .traditionalChinese) {
         let trimmed = draftText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty, state != .loading else { return }
 
@@ -50,7 +53,7 @@ final class ChatViewModel: ObservableObject {
 
         Task {
             try? await Task.sleep(nanoseconds: loadingDelayNanoseconds)
-            respond(to: trimmed)
+            respond(to: trimmed, lang: lang)
         }
     }
 
@@ -59,7 +62,7 @@ final class ChatViewModel: ObservableObject {
     /// clear "我想要冥想" can never be answered with a stale
     /// misunderstanding reply. (The dev-only error triggers contain no
     /// meditation keywords, so they still exercise the fallback path.)
-    private func respond(to input: String) {
+    private func respond(to input: String, lang: AppLanguage) {
         if MeditationIntentDetector.detect(input) == .requestIntent {
             let ack = ChatMessage(sender: .twinko,
                                   text: ChatStrings.meditationAckMessage(for: input))
@@ -73,7 +76,7 @@ final class ChatViewModel: ObservableObject {
             return
         }
 
-        switch service.response(for: input) {
+        switch service.response(for: input, lang: lang) {
         case .success(let text):
             let reply = ChatMessage(sender: .twinko, text: text)
             append(reply)

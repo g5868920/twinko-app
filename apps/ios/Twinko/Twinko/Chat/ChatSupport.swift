@@ -30,7 +30,8 @@ enum ChatStrings {
     }
 
     static func introLine1(_ lang: AppLanguage) -> String {
-        lang == .english ? "I’m here with you." : "我在這裡陪你。"
+        // Approved welcome headline — no ending punctuation.
+        lang == .english ? "I'm here with you" : "我在這裡陪你"
     }
     static func introLine2(_ lang: AppLanguage) -> String {
         lang == .english ? "What’s on your mind today?" : "今天想聊些什麼呢？"
@@ -101,11 +102,11 @@ enum ChatStrings {
     static func save(_ lang: AppLanguage) -> String {
         lang == .english ? "Save" : "儲存"
     }
+    /// Single-sentence delete confirmation (2026-07-17) — no separate
+    /// warning subtitle.
     static func deleteConfirmTitle(_ lang: AppLanguage) -> String {
-        lang == .english ? "Delete this conversation?" : "刪除這段對話？"
-    }
-    static func deleteConfirmBody(_ lang: AppLanguage) -> String {
-        lang == .english ? "This can’t be undone." : "刪除後無法復原。"
+        lang == .english ? "Delete this conversation permanently?"
+                         : "確定要永久刪除這段對話嗎？"
     }
     static func discardDraftTitle(_ lang: AppLanguage) -> String {
         lang == .english ? "Discard your unsent message?" : "捨棄尚未送出的訊息？"

@@ -46,3 +46,44 @@
   still dismisses; the separate floating X was removed.
 - **Rename.** Auto-focused field, Return saves, trimmed, empty
   rejected, 30-character cap, Save disabled while invalid.
+
+## Chat polish + localization amendment (2026-07-17)
+
+Supersedes the corresponding sections above where they conflict.
+
+- **Landing:** the generic 聊天/Chat page title and the translucent
+  header gradient block are removed — the landing keeps only the
+  top-right star menu over the approved background. Welcome copy is
+  exactly 「我在這裡陪你」(no ending punctuation) +
+  「今天想聊些什麼呢？」/ "I'm here with you" + "What's on your mind
+  today?".
+- **Quick prompts** (approved copy): 我想聊聊今天發生的事／我最近壓力
+  有點大／我只是想有人陪我 · "I want to talk about my day" / "I've
+  been under some pressure lately" / "I just want some company".
+  Equal full-width rows, natural wrapping up to two lines (no font
+  shrinking/clipping), fixed leading icon + trailing chevron, quiet
+  pressed state. Tapping a prompt starts the conversation directly
+  with the prompt as the first user message.
+- **Composer send button:** premium violet treatment (brandPurple→
+  brandPurpleDeep gradient, restrained glow, centered icon); disabled
+  state stays visible (30% purple). Light haptic on enabled send taps
+  and on the star menu button only.
+- **Star menu button:** brighter saturated Twinko gold with a
+  restrained glow; function and menu unchanged.
+- **Bottom navigation:** visible on the Chat landing; hidden only
+  while an active conversation is open (`ChatView.hidesTabBar` +
+  `ShellChrome`); restored on returning to the landing. At the tab
+  root, an active conversation shows a Back chevron that returns to
+  the landing (the conversation stays saved in History).
+- **Active conversation:** no generic page title.
+- **Response localization:** the mock provider is locale-aware
+  (`MockChatServicing.response(for:lang:)`) — new Twinko replies,
+  scripted scenarios, and the fallback match the app locale at the
+  moment of sending. Stored history is never retroactively translated.
+- **History:** rows use a warm ivory→lavender surface with purple-
+  tinted icon chips, soft plum shadow, and the same title/preview/time
+  hierarchy; the localized 聊天紀錄/History title stays.
+- **Delete confirmation:** one concise sentence — 「確定要永久刪除這段
+  對話嗎？」/ "Delete this conversation permanently?" with 取消/刪除 ·
+  Cancel/Delete; the separate warning subtitle is removed (danger icon
+  and destructive styling stay).

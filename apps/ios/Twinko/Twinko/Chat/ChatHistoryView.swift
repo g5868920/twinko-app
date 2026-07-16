@@ -115,17 +115,14 @@ struct ChatHistoryView: View {
         renameTarget = nil
     }
 
+    /// One concise confirmation sentence — no separate warning
+    /// subtitle (polish 2026-07-17).
     private func deleteModal(_ target: ChatSession) -> some View {
         BrandedModal(
             icon: "exclamationmark.triangle.fill",
             iconColor: .destructiveToken,
             title: ChatStrings.deleteConfirmTitle(lang),
-            content: {
-                Text(ChatStrings.deleteConfirmBody(lang))
-                    .font(.system(.body, design: .rounded))
-                    .foregroundStyle(Color.textSecondaryToken)
-                    .multilineTextAlignment(.center)
-            },
+            content: { EmptyView() },
             cancelTitle: ChatStrings.cancel(lang),
             confirmTitle: ChatStrings.delete(lang),
             isDestructive: true,
@@ -197,7 +194,7 @@ struct ChatHistoryView: View {
                         .font(.system(size: 15, weight: .medium))
                         .foregroundStyle(Color.linkPurple)
                         .frame(width: 36, height: 36)
-                        .background(Color.surfaceSecondary, in: Circle())
+                        .background(Color.brandPurple.opacity(0.12), in: Circle())
                     VStack(alignment: .leading, spacing: 3) {
                         Text(session.displayTitle(for: lang))
                             .font(.system(.body, design: .rounded).weight(.semibold))
@@ -245,13 +242,21 @@ struct ChatHistoryView: View {
                 : "「\(session.displayTitle(for: lang))」的更多選項"))
         }
         .padding(.leading, 12)
-        .frame(minHeight: 56)
-        .background(Color.surfacePrimary.opacity(0.75),
-                    in: RoundedRectangle(cornerRadius: 16))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .strokeBorder(Color.borderSoft.opacity(0.45), lineWidth: 1)
+        .padding(.vertical, 4)
+        .frame(minHeight: 58)
+        // Warm ivory→lavender surface (polish 2026-07-17): softer than
+        // a pure white system card, consistent with the Twinko world.
+        .background(
+            LinearGradient(colors: [Color(hex: 0xFFFBF2), Color(hex: 0xF5EFFA)],
+                           startPoint: .top, endPoint: .bottom)
+                .opacity(0.92),
+            in: RoundedRectangle(cornerRadius: 18)
         )
+        .overlay(
+            RoundedRectangle(cornerRadius: 18)
+                .strokeBorder(Color.brandPurple.opacity(0.18), lineWidth: 1)
+        )
+        .shadow(color: Color.deepPlum.opacity(0.06), radius: 5, y: 2)
     }
 
     // MARK: Empty state

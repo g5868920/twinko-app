@@ -1167,6 +1167,83 @@ final class TwinkoUITests: XCTestCase {
                       "Bottom navigation is restored on Home")
     }
 
+    /// Focused Chat polish walkthrough (2026-07-17): landing without
+    /// title/overlay, localized welcome + prompts, EN conversation with
+    /// EN reply, active-conversation nav hiding, History, delete dialog.
+    func testChatPolishWalkthrough() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile"]
+        app.launch()
+
+        // zh-Hant landing: welcome copy, prompts, nav visible, no title.
+        XCTAssertTrue(app.buttons["tab-chat"].waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 3.0)
+        app.buttons["tab-chat"].tap()
+        XCTAssertTrue(app.staticTexts["我在這裡陪你"].waitForExistence(timeout: 5),
+                      "Approved zh welcome headline, no punctuation")
+        // (The bottom tab's 聊天 label remains; only the page title is
+        // gone — verified visually via the C1 screenshot.)
+        XCTAssertTrue(app.buttons["chatStarter-0"].exists)
+        XCTAssertTrue(app.buttons["tab-home"].exists, "Bottom nav visible on landing")
+        attach(name: "C1-zh-landing")
+
+        // Switch to English via Home settings.
+        app.buttons["tab-home"].tap()
+        Thread.sleep(forTimeInterval: 1.0)
+        settleTap(app.buttons["homeSettingsButton"])
+        XCTAssertTrue(app.buttons["language-en"].waitForExistence(timeout: 5))
+        settleTap(app.buttons["language-en"])
+        app.swipeDown(velocity: .fast)
+        Thread.sleep(forTimeInterval: 1.0)
+        app.buttons["tab-chat"].tap()
+        XCTAssertTrue(app.staticTexts["I'm here with you"].waitForExistence(timeout: 5),
+                      "Approved EN welcome headline")
+        XCTAssertTrue(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "under some pressure")).firstMatch.exists,
+            "EN prompt shown without clipping")
+        attach(name: "C2-en-landing")
+
+        // Start an EN conversation from a quick prompt: prompt becomes
+        // the first message, reply is English, bottom nav hides.
+        settleTap(app.buttons["chatStarter-0"])
+        XCTAssertTrue(app.staticTexts["I want to talk about my day"]
+            .waitForExistence(timeout: 5), "Prompt is the first user message")
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "How has your day been")).firstMatch
+            .waitForExistence(timeout: 6), "New Twinko reply is English")
+        Thread.sleep(forTimeInterval: 0.6)
+        XCTAssertFalse(app.buttons["tab-home"].exists,
+                       "Active conversation hides the bottom navigation")
+        attach(name: "C3-en-active-conversation")
+
+        // Back returns to the landing and restores the bottom nav.
+        settleTap(app.buttons["chatBackButton"])
+        XCTAssertTrue(app.staticTexts["I'm here with you"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["tab-home"].waitForExistence(timeout: 4),
+                      "Bottom navigation restored on Chat landing")
+
+        // History: refreshed rows, localized title.
+        settleTap(app.buttons["chatMenuButton"])
+        XCTAssertTrue(app.buttons["menuHistoryRow"].waitForExistence(timeout: 4))
+        settleTap(app.buttons["menuHistoryRow"])
+        XCTAssertTrue(app.staticTexts["History"].waitForExistence(timeout: 5),
+                      "Localized History title preserved")
+        attach(name: "C4-history")
+
+        // Delete dialog: one concise sentence, localized buttons.
+        settleTap(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "More options")).firstMatch)
+        settleTap(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "Delete")).firstMatch)
+        XCTAssertTrue(app.staticTexts["Delete this conversation permanently?"]
+            .waitForExistence(timeout: 5), "Single-sentence confirmation")
+        XCTAssertFalse(app.staticTexts["This can't be undone."].exists,
+                       "No separate warning subtitle")
+        attach(name: "C5-delete-dialog")
+        settleTap(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "Cancel")).firstMatch)
+    }
+
     /// Waits out any in-flight transition, then taps via coordinate —
     /// coordinate taps skip the AX scroll-to-visible action that fails
     /// on animating elements.

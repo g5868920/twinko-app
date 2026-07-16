@@ -8,6 +8,7 @@ import SwiftUI
 struct ChatView: View {
     @EnvironmentObject private var chatStore: ChatStore
     @EnvironmentObject private var prefs: PrefsStore
+    @EnvironmentObject private var chrome: ShellChrome
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.dismiss) private var dismiss
@@ -37,6 +38,13 @@ struct ChatView: View {
 
     private var lang: AppLanguage { prefs.language }
     private var twinkoAsset: String { ChatDayNight.twinkoAssetName() }
+    private var isConversationActive: Bool { !viewModel.messages.isEmpty }
+
+    /// Bottom navigation stays on the Chat landing and hides only
+    /// while an active conversation is open (polish 2026-07-17).
+    static func hidesTabBar(conversationActive: Bool) -> Bool {
+        conversationActive
+    }
 
     var body: some View {
         ZStack {
@@ -98,6 +106,15 @@ struct ChatView: View {
                 viewModel.startNewSession()
             }
             startIdle()
+            chrome.tabBarHidden = Self.hidesTabBar(conversationActive: isConversationActive)
+        }
+        .onChange(of: isConversationActive) { _, active in
+            chrome.tabBarHidden = Self.hidesTabBar(conversationActive: active)
+        }
+        .onDisappear {
+            // Landing-level screens (History, other pushes) show the
+            // bottom navigation again.
+            chrome.tabBarHidden = false
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { isDay = ChatDayNight.isDay() }
@@ -107,51 +124,55 @@ struct ChatView: View {
 
     // MARK: Header
 
+    /// No page title and no translucent header block (polish
+    /// 2026-07-17) — just Back where meaningful and the star menu.
     private var header: some View {
-        ZStack {
-            Text(ChatStrings.title(lang))
-                .font(.system(.headline, design: .rounded))
-                .foregroundStyle(Color.deepPlum)
-            HStack {
-                if isTabRoot {
-                    Color.clear.frame(width: 44, height: 44)
-                } else {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "chevron.backward")
-                            .font(.system(size: 17, weight: .semibold))
-                            .foregroundStyle(Color.deepPlum)
-                            .frame(width: 44, height: 44)
-                            .contentShape(Rectangle())
-                    }
-                    .accessibilityLabel(Text(lang == .english ? "Back" : "返回"))
-                    .accessibilityIdentifier("chatBackButton")
-                }
-                Spacer()
+        HStack {
+            if isTabRoot && !isConversationActive {
+                Color.clear.frame(width: 44, height: 44)
+            } else {
                 Button {
-                    isInputFocused = false
-                    withAnimation(.easeOut(duration: 0.2)) { showingQuickMenu.toggle() }
+                    if isTabRoot {
+                        // Leave the active conversation back to the
+                        // Chat landing (the conversation stays saved).
+                        withAnimation(.easeOut(duration: 0.25)) {
+                            viewModel.startNewSession()
+                        }
+                    } else {
+                        dismiss()
+                    }
                 } label: {
-                    Image(systemName: "star.fill")
-                        .font(.system(size: 15))
-                        .foregroundStyle(Color.accentGold)
-                        .frame(width: 38, height: 38)
-                        .background(Color.surfacePrimary.opacity(0.72), in: Circle())
+                    Image(systemName: "chevron.backward")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(Color.deepPlum)
                         .frame(width: 44, height: 44)
-                        .contentShape(Circle())
+                        .contentShape(Rectangle())
                 }
-                .accessibilityLabel(Text(lang == .english ? "Chat menu" : "聊天選單"))
-                .accessibilityIdentifier("chatMenuButton")
+                .accessibilityLabel(Text(lang == .english ? "Back" : "返回"))
+                .accessibilityIdentifier("chatBackButton")
             }
+            Spacer()
+            Button {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                isInputFocused = false
+                withAnimation(.easeOut(duration: 0.2)) { showingQuickMenu.toggle() }
+            } label: {
+                // Brighter, more magical star (polish 2026-07-17):
+                // saturated Twinko gold with a restrained glow.
+                Image(systemName: "star.fill")
+                    .font(.system(size: 16))
+                    .foregroundStyle(Color.twinkoGold)
+                    .shadow(color: Color.twinkoGold.opacity(0.65), radius: 5)
+                    .frame(width: 38, height: 38)
+                    .background(Color.surfacePrimary.opacity(0.85), in: Circle())
+                    .frame(width: 44, height: 44)
+                    .contentShape(Circle())
+            }
+            .accessibilityLabel(Text(lang == .english ? "Chat menu" : "聊天選單"))
+            .accessibilityIdentifier("chatMenuButton")
         }
         .padding(.horizontal, 8)
         .frame(height: 48)
-        .background(
-            LinearGradient(colors: [Color.deepSpace.opacity(0.10), .clear],
-                           startPoint: .top, endPoint: .bottom)
-                .allowsHitTesting(false)
-        )
     }
 
     // MARK: Empty state
@@ -191,8 +212,10 @@ struct ChatView: View {
                     VStack(spacing: 10) {
                         ForEach(Array(ChatStrings.starters(lang).enumerated()), id: \.offset) { index, starter in
                             Button {
+                                // Starts the conversation directly with
+                                // this prompt as the first user message.
                                 viewModel.draftText = starter
-                                isInputFocused = true
+                                viewModel.send(lang: lang)
                             } label: {
                                 // Suggestion card: translucent lavender
                                 // surface, icon chip, chevron — clearly
@@ -208,13 +231,17 @@ struct ChatView: View {
                                     Text(starter)
                                         .font(.system(.subheadline, design: .rounded))
                                         .foregroundStyle(Color.deepPlum)
-                                    Spacer()
+                                        .lineLimit(2)
+                                        .multilineTextAlignment(.leading)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                    Spacer(minLength: 6)
                                     Image(systemName: "chevron.right")
                                         .font(.system(size: 11, weight: .semibold))
                                         .foregroundStyle(Color.brandPurpleDeep.opacity(0.55))
                                 }
                                 .padding(.horizontal, 12)
-                                .frame(minHeight: 44)
+                                .padding(.vertical, 8)
+                                .frame(maxWidth: .infinity, minHeight: 44)
                                 .background(Color.brandPurple.opacity(0.16),
                                             in: RoundedRectangle(cornerRadius: 16))
                                 .overlay(
@@ -222,7 +249,9 @@ struct ChatView: View {
                                         .strokeBorder(Color.brandPurple.opacity(0.28),
                                                       lineWidth: 1)
                                 )
+                                .contentShape(RoundedRectangle(cornerRadius: 16))
                             }
+                            .buttonStyle(TarotSuggestionPressStyle())
                             .accessibilityIdentifier("chatStarter-\(index)")
                         }
                     }
@@ -432,19 +461,27 @@ struct ChatView: View {
             .accessibilityIdentifier("chatInputField")
 
             Button {
-                viewModel.send()
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                viewModel.send(lang: lang)
             } label: {
+                // Premium purple send action (polish 2026-07-17): a
+                // calm violet gradient with restrained glow; disabled
+                // stays visible and intentional.
                 Image(systemName: "paperplane.fill")
                     .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(Color.textInverseToken)
+                    .foregroundStyle(Color.textInverseToken.opacity(canSend ? 1 : 0.75))
                     .frame(width: 44, height: 44)
-                    .background(canSend ? Color.sendEnabled : Color.sendDisabled.opacity(0.6),
-                                in: Circle())
-                    .shadow(color: canSend
-                            ? Color(red: 0.06, green: 0.07, blue: 0.15).opacity(0.08) : .clear,
-                            radius: 4, y: 2)
+                    .background(
+                        canSend
+                            ? AnyShapeStyle(LinearGradient(
+                                colors: [.brandPurple, .brandPurpleDeep],
+                                startPoint: .top, endPoint: .bottom))
+                            : AnyShapeStyle(Color.brandPurple.opacity(0.30)),
+                        in: Circle())
+                    .shadow(color: canSend ? Color.brandPurpleDeep.opacity(0.35) : .clear,
+                            radius: 6, y: 2)
             }
-            .buttonStyle(GoldPressStyle(enabled: canSend))
+            .buttonStyle(PurplePressStyle(enabled: canSend))
             .disabled(!canSend)
             // Centers the 44pt button against the 52pt single-line
             // field; for expanded input it stays bottom-aligned with
@@ -541,8 +578,8 @@ struct ChatView: View {
     }
 }
 
-/// Gold send-button press treatment (DESIGN.md §26 Composer States).
-private struct GoldPressStyle: ButtonStyle {
+/// Purple send-button press treatment (polish 2026-07-17).
+private struct PurplePressStyle: ButtonStyle {
     let enabled: Bool
 
     func makeBody(configuration: Configuration) -> some View {
@@ -550,7 +587,7 @@ private struct GoldPressStyle: ButtonStyle {
             .background(
                 Circle()
                     .fill(configuration.isPressed && enabled
-                          ? Color.sendPressed : Color.clear)
+                          ? Color.brandPurpleDeep.opacity(0.45) : Color.clear)
             )
             .scaleEffect(configuration.isPressed && enabled ? 0.95 : 1.0)
             .animation(.easeOut(duration: 0.14), value: configuration.isPressed)
@@ -562,5 +599,6 @@ private struct GoldPressStyle: ButtonStyle {
         ChatView()
             .environmentObject(ChatStore())
             .environmentObject(PrefsStore())
+            .environmentObject(ShellChrome())
     }
 }

@@ -48,3 +48,15 @@
    card lists, no determinism, no ellipsis), recommended theme +
    duration marked as Twinko recommendations, trust note, supplemental
    input copy, sticky generation CTA ("Create My Meditation").
+
+## v3.1 asset delivery addendum (2026-07-16)
+
+- `twinko_tarot_gentle_concern_v1.png` delivered — status Active.
+  Derived transparent runtime copy created; wired into
+  `TarotTwinkoState.gentleConcern` and shown as the mini character
+  introducing the Tarot-derived Meditation handoff.
+- `twinko_tarot_magic_v1.png` replaced with a clean character-only
+  pose (no baked cards/rings); derived runtime copy regenerated.
+- `twinko_tarot_summary_v1.png` source replaced by founder; remains
+  deprecated with no runtime reference.
+- `twinko_tarot_interpreting_v1.png` source removed by founder.

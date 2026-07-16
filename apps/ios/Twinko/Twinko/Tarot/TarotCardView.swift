@@ -8,17 +8,17 @@ import SwiftUI
 /// the idle character plus code-rendered effects.
 enum TarotTwinkoState {
     case idle
-    /// Empathetic state for sensitive moments. The approved
-    /// `twinko_tarot_gentle_concern_v1` asset has not been delivered
-    /// yet, so this resolves to the idle character until it exists
-    /// (documented asset gap — never redrawn in code).
+    /// Empathetic state for sensitive moments — gently raised inner
+    /// brows and a small reassuring smile (delivered 2026-07-16).
     case gentleConcern
     case magic
 
     var assetName: String {
         switch self {
-        case .idle, .gentleConcern:
+        case .idle:
             return "twinko_tarot_idle_v1_transparent"
+        case .gentleConcern:
+            return "twinko_tarot_gentle_concern_v1_transparent"
         case .magic:
             return "twinko_tarot_magic_v1_transparent"
         }

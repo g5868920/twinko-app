@@ -260,11 +260,16 @@ struct TarotResultStage: View {
             }
             .accessibilityIdentifier("tarotMeditationCTA")
 
-            Text(TarotStrings.meditationHelper(lang))
-                .font(.system(.caption2, design: .rounded))
-                .foregroundStyle(Color.textInverseToken.opacity(0.6))
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, TwinkoSpacing.l)
+            // Gentle-concern Twinko introduces the meditation handoff
+            // (expression spec §3.2 — selective, emotionally attentive).
+            HStack(spacing: 8) {
+                TarotTwinkoView(state: .gentleConcern, size: TarotTwinkoSize.mini)
+                Text(TarotStrings.meditationHelper(lang))
+                    .font(.system(.caption2, design: .rounded))
+                    .foregroundStyle(Color.textInverseToken.opacity(0.65))
+                    .multilineTextAlignment(.leading)
+            }
+            .padding(.horizontal, TwinkoSpacing.l)
 
             // Tertiary: share
             ShareLink(item: TarotShareFormatter.text(for: session, provider: provider,

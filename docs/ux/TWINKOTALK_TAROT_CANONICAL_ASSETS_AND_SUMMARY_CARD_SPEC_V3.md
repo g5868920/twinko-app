@@ -44,7 +44,7 @@ This is the single canonical face-down card used for shuffle, reveal, spread pre
 
 ```text
 twinko_tarot_idle_v1.png            (active)
-twinko_tarot_gentle_concern_v1.png  (approved concept — asset not yet delivered)
+twinko_tarot_gentle_concern_v1.png  (active — delivered 2026-07-16)
 twinko_tarot_magic_v1.png           (active)
 ```
 

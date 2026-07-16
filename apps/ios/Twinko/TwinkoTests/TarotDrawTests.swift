@@ -132,10 +132,8 @@ final class TarotDrawTests: XCTestCase {
     func testTwinkoStateAssetMapping() {
         XCTAssertEqual(TarotTwinkoState.idle.assetName, "twinko_tarot_idle_v1_transparent")
         XCTAssertEqual(TarotTwinkoState.magic.assetName, "twinko_tarot_magic_v1_transparent")
-        // Gentle Concern falls back to idle until the approved asset
-        // is delivered (documented gap).
         XCTAssertEqual(TarotTwinkoState.gentleConcern.assetName,
-                       TarotTwinkoState.idle.assetName)
+                       "twinko_tarot_gentle_concern_v1_transparent")
         // The deprecated summary/interpreting poses are never resolved.
         for state in [TarotTwinkoState.idle, .gentleConcern, .magic] {
             XCTAssertFalse(state.assetName.contains("summary"))

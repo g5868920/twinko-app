@@ -22,7 +22,7 @@ never baked into the character PNG.
 
 ```text
 twinko_tarot_idle_v1.png            — active
-twinko_tarot_gentle_concern_v1.png  — missing (approved concept, asset not yet delivered)
+twinko_tarot_gentle_concern_v1.png  — active (delivered 2026-07-16)
 twinko_tarot_magic_v1.png           — active
 ```
 
@@ -41,9 +41,10 @@ twinko_tarot_magic_v1.png           — active
 - expression: softly raised inner brows, small reassuring smile — not
   sadness or panic; same body/hat/cape/proportions as idle
 - do not overuse; it never replaces idle across the whole result screen
-- **Status: asset not yet in the repo.** Runtime resolves this state to
-  the idle character until the approved file is delivered (see
-  `TarotTwinkoState` in code). Do not redraw it in code.
+- **Status: active.** Delivered 2026-07-16 with the usual baked
+  checkerboard; a derived-transparent runtime copy lives in
+  `assets/tarot/derived/` (source untouched). First usage: the mini
+  character introducing the Tarot-derived Meditation handoff.
 
 ### Magic — `twinko_tarot_magic_v1.png`
 - use: shuffle, energy sensing, selected-card separation, magical
@@ -51,21 +52,20 @@ twinko_tarot_magic_v1.png           — active
 - runtime composition: `twinko_tarot_magic_v1` + code-rendered magic
   aura + independent card layers + sparse sparkles + optional energy
   ring
-- note: the currently delivered PNG still carries baked cards/glow from
-  the V3 pack; treat as accepted for prototype, replace with a clean
-  character-only export in the next asset delivery
+- note: the 2026-07-16 delivery replaced the old PNG with a clean
+  character-only pose (no baked cards/rings) — fully compliant with
+  the character/effect separation rule
 
 ## Deprecated character states (v3.1)
 
 ```text
 twinko_tarot_summary_v1.png       — deprecated (source retained in assets/tarot/twinko/; no runtime reference)
-twinko_tarot_interpreting_v1.png  — deprecated (source retained in assets/tarot/twinko/; no runtime reference)
+twinko_tarot_interpreting_v1.png  — removed (source deleted in the 2026-07-16 founder delivery)
 ```
 
 - Summary references → `twinko_tarot_idle_v1` + runtime summary effects.
 - Interpreting/concerned references → `twinko_tarot_gentle_concern_v1`
-  where the emotional state is genuinely needed (idle fallback until
-  the asset exists).
+  where the emotional state is genuinely needed.
 - Runtime image sets for the deprecated poses were removed from the
   asset catalog; the source PNGs remain in `assets/tarot/twinko/` as
   reference-only files.
@@ -99,7 +99,7 @@ Centralized in `TarotTwinkoSize`.
 | Spread Selection | idle | idle glow + float |
 | Shuffle Ritual | magic | aura, ring, dust, card fan (independent) |
 | Result / Synthesis | idle | summary aura |
-| Sensitive / error states | gentle concern (idle fallback) | minimal glow |
+| Sensitive / error states | gentle concern | minimal glow |
 | Guidance Summary Card | idle | warm halo + sparse static sparkles |
 
 ## Hard rules

@@ -68,22 +68,22 @@
    "role": "Gentle Concern",
    "canonical_filename": "twinko_tarot_gentle_concern_v1.png",
    "source_name": "",
-   "approval_status": "Missing",
-   "mvp_priority": "Requested",
+   "approval_status": "Approved",
+   "mvp_priority": "Required",
    "repo_path": "Assets/Tarot/Twinko/",
-   "ready_for_repo": false,
-   "note": "v3.1: approved concept, asset not yet delivered; runtime resolves to twinko_tarot_idle_v1 until it exists."
+   "ready_for_repo": true,
+   "note": "Delivered 2026-07-16. Source has a baked checkerboard; derived transparent runtime copy in assets/tarot/derived/. Used for sensitive/supportive moments and the Tarot-derived Meditation introduction."
   },
   {
    "category": "Twinko",
    "role": "Interpreting",
    "canonical_filename": "twinko_tarot_interpreting_v1.png",
    "source_name": "thoughtful_star_mage_in_purple_cloak.png",
-   "approval_status": "Deprecated",
+   "approval_status": "Removed",
    "mvp_priority": "Reference-only",
    "repo_path": "Assets/Tarot/Twinko/",
    "ready_for_repo": false,
-   "note": "v3.1: deprecated; emotional states use twinko_tarot_gentle_concern_v1 (idle fallback until delivered). Source retained in assets/tarot/twinko/."
+   "note": "v3.1: deprecated; source file removed by founder in the 2026-07-16 delivery."
   },
   {
    "category": "Twinko",
@@ -93,7 +93,8 @@
    "approval_status": "Approved",
    "mvp_priority": "Required",
    "repo_path": "Assets/Tarot/Twinko/",
-   "ready_for_repo": true
+   "ready_for_repo": true,
+   "note": "Replaced 2026-07-16 with a clean character-only pose (no baked cards/effects); runtime effects are code layers."
   },
   {
    "category": "Twinko",

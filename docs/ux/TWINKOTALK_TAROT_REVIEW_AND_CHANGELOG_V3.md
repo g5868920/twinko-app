@@ -60,3 +60,25 @@
 - `twinko_tarot_summary_v1.png` source replaced by founder; remains
   deprecated with no runtime reference.
 - `twinko_tarot_interpreting_v1.png` source removed by founder.
+
+## v4.0 journey redesign (2026-07-16)
+
+- Six approved topics (`relationships/career/finance/growth/lifePath/
+  other`) with exact English labels, equal 2×3 grid, topic-specific
+  full-width suggestions.
+- Immersive Tarot: bottom navigation hidden throughout; all redundant
+  塔羅 top titles removed; Back/edge-swipe = previous page; Back to
+  Home → Home root; Start a New Reading → topic setup.
+- App-wide native edge-swipe-back convention on non-root pushed pages
+  (`InteractivePopSupport.swift`).
+- Equal spread-selection cards with approved subtitles; vortex shuffle
+  (14-card pool → exactly 1/3 converge) with gentle casting Twinko and
+  Reduce Motion fallback; revealed-card gold glow; centralized magical
+  CTA press treatment.
+- Result restructure: starts directly with full interpretations
+  (expand controls and per-card mini reflections removed), warm-white
+  matte reading system, magical dividers, synthesis vs Twinko message
+  kept distinct, one optional Guidance Card for both spreads, Share
+  Result removed, merged Personalized Meditation section, quiet exits,
+  short single disclaimer 「內容僅供反思與娛樂」.
+- Full spec: `TWINKOTALK_TAROT_JOURNEY_REDESIGN_V4.md`.

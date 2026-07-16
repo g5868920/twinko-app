@@ -1014,6 +1014,133 @@ final class TwinkoUITests: XCTestCase {
                        "Same-day check-in is not re-asked after navigating away")
     }
 
+    /// Focused Tarot redesign walkthrough (founder/CPO decisions
+    /// 2026-07-16): immersive shell, six-topic setup, equal spreads,
+    /// vortex convergence, reveal glow, restructured result, one
+    /// Guidance Card, exits, and edge-swipe back on a pushed page.
+    func testTarotRedesignWalkthrough() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile"]
+        app.launch()
+
+        // Native edge-swipe back on one other pushed page (Meditation).
+        XCTAssertTrue(app.buttons["tab-explore"].waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 3.0)
+        app.buttons["tab-explore"].tap()
+        XCTAssertTrue(app.buttons["explore-meditate"].waitForExistence(timeout: 5))
+        app.buttons["explore-meditate"].tap()
+        Thread.sleep(forTimeInterval: 2.0)
+        let edge = app.coordinate(withNormalizedOffset: CGVector(dx: 0.002, dy: 0.5))
+        edge.press(forDuration: 0.05,
+                   thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.5)))
+        XCTAssertTrue(app.buttons["explore-tarot"].waitForExistence(timeout: 5),
+                      "Edge swipe pops the pushed Meditation page back to Explore")
+
+        // Enter Tarot: immersive — the shell tab bar disappears.
+        app.buttons["explore-tarot"].tap()
+        let firstTopic = app.buttons["tarotTopic-relationships"]
+        XCTAssertTrue(firstTopic.waitForExistence(timeout: 5))
+        Thread.sleep(forTimeInterval: 0.6)
+        XCTAssertFalse(app.buttons["tab-home"].exists,
+                       "Bottom navigation is hidden throughout Tarot")
+        for topic in ["relationships", "career", "finance", "growth", "lifePath", "other"] {
+            XCTAssertTrue(app.buttons["tarotTopic-\(topic)"].exists, topic)
+        }
+        attach(name: "T1-six-topic-setup")
+
+        // Topic-specific suggestions.
+        settleTap(app.buttons["tarotTopic-finance"])
+        XCTAssertTrue(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "金錢")).firstMatch
+            .waitForExistence(timeout: 4), "Finance-specific suggestion appears")
+        scrollTap(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "下一步")).firstMatch, in: app)
+
+        // Spread selection: both options present and equal-sized.
+        let three = app.buttons["tarotSpread-three"]
+        XCTAssertTrue(three.waitForExistence(timeout: 5))
+        let single = app.buttons["tarotSpread-single"]
+        XCTAssertEqual(single.frame.size.width, three.frame.size.width, accuracy: 2)
+        XCTAssertEqual(single.frame.size.height, three.frame.size.height, accuracy: 2)
+        attach(name: "T2-equal-spread-cards")
+
+        // Three Cards → vortex converges into exactly three cards.
+        settleTap(three)
+        Thread.sleep(forTimeInterval: 4.0)
+        let faceDown = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "蓋著的牌"))
+        XCTAssertEqual(faceDown.count, 3, "Vortex converges into exactly three cards")
+
+        // Partial reveal: instruction updates, revealed card glows.
+        settleTap(faceDown.firstMatch)
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "繼續翻開下一張牌")).firstMatch
+            .waitForExistence(timeout: 4))
+        attach(name: "T3-partial-reveal")
+        settleTap(faceDown.firstMatch)
+        settleTap(faceDown.firstMatch)
+        scrollTap(app.buttons["tarotSeeReading"], in: app)
+
+        // Result: starts directly with full interpretations.
+        XCTAssertTrue(app.descendants(matching: .any)["tarotSynthesis"]
+            .waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "展開完整解讀")).firstMatch.exists,
+            "No expand controls — full interpretations by default")
+        XCTAssertFalse(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "小小的反思")).firstMatch.exists,
+            "No per-card mini reflections")
+        attach(name: "T4-result-reading")
+
+        // One Guidance Card only; Save stays, Share Result is gone.
+        scrollTap(app.buttons["tarotGuidanceAccept"], in: app)
+        Thread.sleep(forTimeInterval: 4.0)
+        let guidanceCard = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "蓋著的牌")).firstMatch
+        settleTap(guidanceCard)
+        scrollTap(app.buttons["tarotSeeReading"], in: app)
+        XCTAssertTrue(app.descendants(matching: .any)["tarotTwinkoMessage"]
+            .waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["tarotGuidanceAccept"].exists,
+                       "Guidance Card can be drawn only once")
+        XCTAssertTrue(app.buttons["tarotSaveCardButton"].waitForExistence(timeout: 4))
+        XCTAssertFalse(app.buttons["tarotShareButton"].exists,
+                       "Result-page Share Result is removed")
+        XCTAssertTrue(app.buttons["tarotMeditationCTA"].exists,
+                      "Merged personalized Meditation section")
+
+        // Exit actions + single short disclaimer at the bottom.
+        var attempts = 0
+        let newReading = app.buttons["tarotStartNewReading"]
+        while !newReading.isHittable && attempts < 8 { app.swipeUp(); attempts += 1 }
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "內容僅供反思與娛樂")).firstMatch.exists)
+        attach(name: "T5-exit-actions-disclaimer")
+
+        // Start a New Reading → back to topic setup, still immersive.
+        settleTap(newReading)
+        XCTAssertTrue(firstTopic.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["tab-home"].exists,
+                       "New reading stays inside immersive Tarot")
+
+        // Quick single-card reading to verify Back to Home.
+        scrollTap(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "下一步")).firstMatch, in: app)
+        XCTAssertTrue(app.buttons["tarotSpread-single"].waitForExistence(timeout: 5))
+        settleTap(app.buttons["tarotSpread-single"])
+        Thread.sleep(forTimeInterval: 4.0)
+        settleTap(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "蓋著的牌")).firstMatch)
+        scrollTap(app.buttons["tarotSeeReading"], in: app)
+        XCTAssertTrue(app.descendants(matching: .any)["tarotTwinkoMessage"]
+            .waitForExistence(timeout: 5))
+        scrollTap(app.buttons["tarotBackHome"], in: app)
+        XCTAssertTrue(app.buttons["homeSettingsButton"].waitForExistence(timeout: 6),
+                      "Back to Home lands on the Home root")
+        XCTAssertTrue(app.buttons["tab-home"].waitForExistence(timeout: 4),
+                      "Bottom navigation is restored on Home")
+    }
+
     /// Waits out any in-flight transition, then taps via coordinate —
     /// coordinate taps skip the AX scroll-to-visible action that fails
     /// on animating elements.

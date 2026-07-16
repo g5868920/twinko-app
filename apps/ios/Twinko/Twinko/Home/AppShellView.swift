@@ -48,11 +48,21 @@ enum AppTab: String, CaseIterable, Identifiable {
     }
 }
 
+/// Shared shell state: the selected tab plus whether an immersive
+/// flow (Tarot) is currently hiding the bottom navigation. Immersive
+/// flows set `tabBarHidden`; tab roots clear it on appear.
+@MainActor
+final class ShellChrome: ObservableObject {
+    @Published var selectedTab: AppTab = .home
+    @Published var tabBarHidden = false
+}
+
 struct AppShellView: View {
     @EnvironmentObject private var prefs: PrefsStore
-    @State private var selectedTab: AppTab = .home
+    @StateObject private var chrome = ShellChrome()
 
     private var lang: AppLanguage { prefs.language }
+    private var selectedTab: AppTab { chrome.selectedTab }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -72,9 +82,14 @@ struct AppShellView: View {
                     .opacity(selectedTab == .myPlanet ? 1 : 0)
                     .allowsHitTesting(selectedTab == .myPlanet)
             }
-            tabBar
+            if !chrome.tabBarHidden {
+                tabBar
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
         }
+        .animation(.easeInOut(duration: 0.25), value: chrome.tabBarHidden)
         .ignoresSafeArea(.keyboard, edges: .bottom)
+        .environmentObject(chrome)
     }
 
     // MARK: Bottom bar (stable readable surface)
@@ -84,7 +99,7 @@ struct AppShellView: View {
             ForEach(AppTab.allCases) { tab in
                 let selected = selectedTab == tab
                 Button {
-                    selectedTab = tab
+                    chrome.selectedTab = tab
                 } label: {
                     VStack(spacing: 3) {
                         if tab == .myPlanet {
@@ -136,6 +151,7 @@ struct AppShellView: View {
 /// shortcuts point here for "View all".
 struct ExploreView: View {
     @EnvironmentObject private var prefs: PrefsStore
+    @EnvironmentObject private var chrome: ShellChrome
 
     private var lang: AppLanguage { prefs.language }
 
@@ -191,6 +207,7 @@ struct ExploreView: View {
             }
         }
         .toolbar(.hidden, for: .navigationBar)
+        .onAppear { chrome.tabBarHidden = false }
     }
 
     @ViewBuilder

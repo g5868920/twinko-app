@@ -90,7 +90,7 @@ final class TarotDrawTests: XCTestCase {
 
     private func makeSession(spread: TarotSpreadType, guidance: Bool = false) -> TarotReadingSession {
         var engine = TarotDrawEngine(rng: SeededRNG(state: 5))
-        var session = TarotReadingSession(topic: .love, question: "測試問題", spread: spread)
+        var session = TarotReadingSession(topic: .relationships, question: "測試問題", spread: spread)
         session.cards = engine.draw(spread: spread)
         if guidance {
             session.guidanceCard = engine.drawGuidance(excluding: session.cards)
@@ -177,10 +177,76 @@ final class TarotDrawTests: XCTestCase {
     }
 
     func testMeditationAdapterRecommendsThemePerTopic() {
-        XCTAssertEqual(TarotMeditationContextAdapter.recommendedFocus(for: .love), .selfLove)
+        XCTAssertEqual(TarotMeditationContextAdapter.recommendedFocus(for: .relationships), .selfLove)
         XCTAssertEqual(TarotMeditationContextAdapter.recommendedFocus(for: .career), .releaseAnxiety)
+        XCTAssertEqual(TarotMeditationContextAdapter.recommendedFocus(for: .finance), .releaseAnxiety)
         XCTAssertEqual(TarotMeditationContextAdapter.recommendedFocus(for: .growth), .selfLove)
-        XCTAssertEqual(TarotMeditationContextAdapter.recommendedFocus(for: .general), .calmDown)
+        XCTAssertEqual(TarotMeditationContextAdapter.recommendedFocus(for: .lifePath), .calmDown)
+        XCTAssertEqual(TarotMeditationContextAdapter.recommendedFocus(for: .other), .calmDown)
+    }
+
+    // MARK: Redesign 2026-07-16
+
+    func testSixApprovedTopicsWithExactEnglishLabels() {
+        XCTAssertEqual(TarotTopicType.allCases,
+                       [.relationships, .career, .finance, .growth, .lifePath, .other])
+        XCTAssertEqual(TarotTopicType.allCases.map { $0.label(.english) },
+                       ["Relationships", "Career", "Finance", "Growth", "Life Path", "Other"])
+        XCTAssertEqual(TarotTopicType.allCases.map { $0.label(.traditionalChinese) },
+                       ["愛情與關係", "工作與事業", "財務與投資", "自我成長", "生活方向", "其他"])
+    }
+
+    func testSuggestedQuestionsAreTopicSpecificAndLocalized() {
+        for lang in AppLanguage.allCases {
+            var seen = Set<String>()
+            for topic in TarotTopicType.allCases {
+                let suggestions = topic.suggestedQuestions(lang)
+                XCTAssertEqual(suggestions.count, 2, "Two suggestions per topic")
+                for s in suggestions {
+                    XCTAssertTrue(seen.insert(s).inserted,
+                                  "Suggestions must differ per topic: \(s)")
+                }
+            }
+        }
+        XCTAssertTrue(TarotTopicType.finance.suggestedQuestions(.traditionalChinese)
+            .contains { $0.contains("金錢") })
+        XCTAssertTrue(TarotTopicType.relationships.suggestedQuestions(.english)
+            .contains { $0.contains("relationship") })
+    }
+
+    func testGuidanceCardIsOneDrawPerReading() {
+        var session = makeSession(spread: .single)
+        XCTAssertTrue(session.canDrawGuidance)
+        var engine = TarotDrawEngine(rng: SeededRNG(state: 9))
+        session.guidanceCard = engine.drawGuidance(excluding: session.cards)
+        XCTAssertNotNil(session.guidanceCard)
+        XCTAssertFalse(session.canDrawGuidance,
+                       "Once drawn, no further Guidance Card is offered")
+    }
+
+    func testStartNewReadingResetsToTopicSetupState() {
+        let finished = makeSession(spread: .three, guidance: true)
+        // Mirrors the flow's restart: a fresh session keeps the topic
+        // but clears the reading, question, and Guidance Card.
+        let restarted = TarotReadingSession(topic: finished.topic)
+        XCTAssertEqual(restarted.topic, finished.topic)
+        XCTAssertTrue(restarted.cards.isEmpty)
+        XCTAssertNil(restarted.guidanceCard)
+        XCTAssertTrue(restarted.trimmedQuestion.isEmpty)
+        XCTAssertFalse(restarted.canDrawGuidance, "Nothing to guide before a draw")
+    }
+
+    func testDisclaimerIsTheApprovedShortLine() {
+        XCTAssertEqual(TarotDisclaimer.text(.traditionalChinese), "內容僅供反思與娛樂")
+        XCTAssertEqual(TarotDisclaimer.text(.english),
+                       "For reflection and entertainment only")
+    }
+
+    func testVortexPoolStillIsolatesExactSelectionCount() {
+        // The vortex uses a 14-card visual pool; the converged set must
+        // still be exactly the drawn count.
+        XCTAssertEqual(TarotShuffleChoreography.selectedIndices(fanCount: 14, pick: 3).count, 3)
+        XCTAssertEqual(TarotShuffleChoreography.selectedIndices(fanCount: 14, pick: 1).count, 1)
     }
 
     func testSynthesisOnlyForThreeCardReadings() {

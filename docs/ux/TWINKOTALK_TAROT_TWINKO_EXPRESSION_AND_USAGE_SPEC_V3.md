@@ -1,5 +1,13 @@
 # TwinkoTalk Tarot Twinko Expression & Usage Specification
 
+> **Amendment (2026-07-16):** the shuffle stage now uses a dedicated
+> `casting` state. The canonical `twinko_tarot_casting_v1` asset has
+> not been delivered; because the delivered magic pose's furrowed
+> brows are ruled out for casting, `casting` temporarily aliases the
+> approved gentle idle wizard pose with casting energy rendered in
+> code. Swap the single alias in `TarotTwinkoState` when the canonical
+> asset arrives. See `TWINKOTALK_TAROT_JOURNEY_REDESIGN_V4.md` §5.
+
 **Version:** v3.1 (founder review 2026-07-16 — character asset rule)  
 **Status:** founder-reviewed character usage spec
 

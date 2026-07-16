@@ -32,10 +32,10 @@ enum TarotSpreadType: String, Codable, CaseIterable, Identifiable {
 
     func subtitle(_ lang: AppLanguage) -> String {
         switch (self, lang) {
-        case (.single, .english): return "One reminder for this moment"
+        case (.single, .english): return "A message for this moment"
         case (.single, .traditionalChinese): return "一個此刻最需要的提醒"
         case (.three, .english): return "Past · Present · Future"
-        case (.three, .traditionalChinese): return "過去・現在・未來"
+        case (.three, .traditionalChinese): return "過去・現在・未來，看見事情的發展"
         }
     }
 }
@@ -119,7 +119,7 @@ extension TarotDrawEngine where G == SystemRandomNumberGenerator {
 /// LLM interpretation provider receives the full context (question,
 /// spread, cards, orientations, positions) defined in the spec.
 struct TarotReadingSession: Equatable {
-    var topic: TarotTopicType = .general
+    var topic: TarotTopicType = .relationships
     var question: String = ""
     var spread: TarotSpreadType = .single
     var cards: [TarotDrawnCard] = []
@@ -133,63 +133,92 @@ struct TarotReadingSession: Equatable {
     var trimmedQuestion: String {
         question.trimmingCharacters(in: .whitespacesAndNewlines)
     }
+
+    /// One optional Guidance Card per reading — never a repeated
+    /// "draw until satisfied" loop (redesign 2026-07-16).
+    var canDrawGuidance: Bool {
+        guidanceCard == nil && !cards.isEmpty
+    }
 }
 
 // MARK: - Topics
 
+/// The six approved topics (redesign 2026-07-16). Identifiers are
+/// stable and language-independent; exact English labels are approved
+/// copy — do not shorten or merge them.
 enum TarotTopicType: String, Codable, CaseIterable, Identifiable {
-    case love, career, growth, general
+    case relationships, career, finance, growth, lifePath, other
 
     var id: String { rawValue }
 
     var icon: String {
         switch self {
-        case .love: return "heart.fill"
+        case .relationships: return "heart.fill"
         case .career: return "briefcase.fill"
+        case .finance: return "dollarsign.circle.fill"
         case .growth: return "leaf.fill"
-        case .general: return "signpost.right.fill"
+        case .lifePath: return "signpost.right.fill"
+        case .other: return "sparkles"
         }
     }
 
     func label(_ lang: AppLanguage) -> String {
         switch (self, lang) {
-        case (.love, .english): return "Love & Relationships"
-        case (.love, .traditionalChinese): return "愛情與關係"
-        case (.career, .english): return "Career & Finance"
-        case (.career, .traditionalChinese): return "工作與財務"
-        case (.growth, .english): return "Personal Growth"
+        case (.relationships, .english): return "Relationships"
+        case (.relationships, .traditionalChinese): return "愛情與關係"
+        case (.career, .english): return "Career"
+        case (.career, .traditionalChinese): return "工作與事業"
+        case (.finance, .english): return "Finance"
+        case (.finance, .traditionalChinese): return "財務與投資"
+        case (.growth, .english): return "Growth"
         case (.growth, .traditionalChinese): return "自我成長"
-        case (.general, .english): return "Life Path"
-        case (.general, .traditionalChinese): return "生活方向"
+        case (.lifePath, .english): return "Life Path"
+        case (.lifePath, .traditionalChinese): return "生活方向"
+        case (.other, .english): return "Other"
+        case (.other, .traditionalChinese): return "其他"
         }
     }
 
+    /// Topic-specific reflective suggestions. Finance prompts are
+    /// reflective only — never investment advice or outcome promises.
     func suggestedQuestions(_ lang: AppLanguage) -> [String] {
         switch (self, lang) {
-        case (.love, .english):
-            return ["What can I understand better about this relationship?",
-                    "What is worth noticing in how I connect with others?"]
-        case (.love, .traditionalChinese):
-            return ["關於這段關係，我可以多理解什麼？",
-                    "在人與人的相處裡，我最近可以留意什麼？"]
+        case (.relationships, .english):
+            return ["What deserves my attention in this relationship?",
+                    "What direction could this relationship be moving toward?"]
+        case (.relationships, .traditionalChinese):
+            return ["我現在的關係，最需要我留意的是什麼？",
+                    "這段關係接下來可能朝什麼方向發展？"]
         case (.career, .english):
-            return ["Where should I focus my energy at work right now?",
-                    "What perspective could help with my financial choices?"]
+            return ["Where should I focus my energy at work?",
+                    "What deserves my attention in my career right now?"]
         case (.career, .traditionalChinese):
-            return ["目前的工作狀態，我該把心力放在哪裡？",
-                    "面對金錢的安排，哪種角度可能幫助我？"]
+            return ["我接下來在工作上應該把重心放在哪裡？",
+                    "現在的職涯狀態，最值得我注意的是什麼？"]
+        case (.finance, .english):
+            return ["What should I be mindful of in my financial decisions?",
+                    "Should I take a more cautious or active approach financially?"]
+        case (.finance, .traditionalChinese):
+            return ["我現在在金錢決策上，最需要留意的是什麼？",
+                    "接下來的財務方向，我應該更保守還是更積極？"]
         case (.growth, .english):
-            return ["What part of me most needs to be seen right now?",
-                    "What perspective could help me take one step forward?"]
+            return ["What inner lesson needs my attention right now?",
+                    "What strength would be most valuable for me to develop?"]
         case (.growth, .traditionalChinese):
-            return ["最近的我，最需要被看見的是什麼？",
-                    "有什麼視角可以幫助我往前走一步？"]
-        case (.general, .english):
-            return ["How can I pace myself in the days ahead?",
-                    "What in my life deserves a little more attention?"]
-        case (.general, .traditionalChinese):
+            return ["我最近最需要面對的內在課題是什麼？",
+                    "現在的我，最值得培養的是什麼力量？"]
+        case (.lifePath, .english):
+            return ["How can I find the right pace for the days ahead?",
+                    "What deserves more attention in my life right now?"]
+        case (.lifePath, .traditionalChinese):
             return ["接下來的日子，我可以怎麼安排自己的步調？",
                     "現在的生活裡，有什麼值得我多留意？"]
+        case (.other, .english):
+            return ["What reminder do I need most right now?",
+                    "What might the cards help me notice about this situation?"]
+        case (.other, .traditionalChinese):
+            return ["我現在最需要被提醒的是什麼？",
+                    "對我正在思考的這件事，牌想讓我看見什麼？"]
         }
     }
 }

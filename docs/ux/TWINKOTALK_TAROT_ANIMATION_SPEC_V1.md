@@ -1,5 +1,13 @@
 # TwinkoTalk Tarot Animation Specification
 
+> **Superseded in part (2026-07-16):** the fan-style shuffle in §5 is
+> replaced by the rising vortex shuffle (pool of ~14 card backs,
+> spiral convergence into exactly 1/3 cards, gentle casting Twinko,
+> Reduce Motion rising-fade fallback). See
+> `TWINKOTALK_TAROT_JOURNEY_REDESIGN_V4.md` §5–6. Flip/reveal motion
+> fundamentals remain active; revealed cards additionally receive the
+> subtle gold activation glow.
+
 **Status:** Canonical CPO-approved motion specification  
 **Version:** v1.0  
 **Target:** iOS-first prototype / MVP  

@@ -12,9 +12,13 @@ struct TarotFlowView: View {
 
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var prefs: PrefsStore
+    @EnvironmentObject private var chrome: ShellChrome
 
     @State private var stage: Stage = .setup
     @State private var session = TarotReadingSession()
+    /// Whether this reading's cards were already revealed once, so
+    /// Back from the result never re-hides them (§41).
+    @State private var revealSeen = false
     private let provider: TarotInterpretationProviding = MockTarotInterpretationProvider()
 
     private var lang: AppLanguage { prefs.language }
@@ -48,11 +52,13 @@ struct TarotFlowView: View {
                     // Restrained readability overlay (spec §8): the
                     // approved art stays visible but secondary behind
                     // text-heavy content.
+                    // Deeper purple-black overlay (§24): backgrounds
+                    // stay atmospheric while foreground text wins.
                     LinearGradient(
                         stops: [
-                            .init(color: Color.deepSpace.opacity(0.22), location: 0),
-                            .init(color: Color.deepSpace.opacity(0.14), location: 0.35),
-                            .init(color: Color.deepSpace.opacity(0.28), location: 1),
+                            .init(color: Color.deepSpace.opacity(0.30), location: 0),
+                            .init(color: Color.deepSpace.opacity(0.22), location: 0.35),
+                            .init(color: Color.deepSpace.opacity(0.38), location: 1),
                         ],
                         startPoint: .top, endPoint: .bottom)
                 }
@@ -63,6 +69,37 @@ struct TarotFlowView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
+        // Stage-wise edge-back: Tarot's pages are stages inside one
+        // pushed view, so a narrow leading-edge drag mirrors the Back
+        // button while the native pop stays gated off (§11). The strip
+        // starts below the header so the Back button stays tappable.
+        .overlay(alignment: .leading) {
+            Color.clear
+                .frame(width: 22)
+                .contentShape(Rectangle())
+                .padding(.top, 60)
+                .gesture(
+                    DragGesture(minimumDistance: 24)
+                        .onEnded { value in
+                            if value.translation.width > 60,
+                               abs(value.translation.height) < 90 {
+                                goBack()
+                            }
+                        }
+                )
+                .accessibilityHidden(true)
+        }
+        .onAppear {
+            // Immersive Tarot: the shell tab bar stays hidden until
+            // navigation returns to a root tab.
+            chrome.tabBarHidden = true
+            InteractivePopGate.isBlocked = true
+        }
+        .onDisappear {
+            // Pushed children (Tarot-derived Meditation) get the native
+            // pop back; the tab bar stays hidden until a root reappears.
+            InteractivePopGate.isBlocked = false
+        }
     }
 
     @ViewBuilder
@@ -78,6 +115,7 @@ struct TarotFlowView: View {
                     session.cards = engine.draw(spread: spread)
                     session.guidanceCard = nil
                     session.createdAt = .now
+                    revealSeen = false
                     advance(to: .shuffle)
                 }
             case .shuffle:
@@ -86,20 +124,25 @@ struct TarotFlowView: View {
                 TarotRevealStage(cards: session.cards,
                                  heading: session.spread == .single
                                      ? TarotStrings.revealSingle(lang)
-                                     : TarotStrings.revealThree(lang)) {
+                                     : TarotStrings.revealThree(lang),
+                                 initiallyRevealed: revealSeen) {
+                    revealSeen = true
                     advance(to: .result)
                 }
             case .result:
                 TarotResultStage(session: $session, provider: provider,
                                  onDrawGuidance: {
+                    // One optional Guidance Card per reading (§33).
+                    guard session.canDrawGuidance else { return }
                     var engine = TarotDrawEngine()
                     session.guidanceCard = engine.drawGuidance(excluding: session.cards)
                     advance(to: .guidanceReveal)
                 }, onRestart: {
                     session = TarotReadingSession(topic: session.topic)
+                    revealSeen = false
                     advance(to: .setup)
                 }, onHome: {
-                    dismiss()
+                    goHome()
                 })
             case .guidanceReveal:
                 if let guidance = session.guidanceCard {
@@ -114,13 +157,10 @@ struct TarotFlowView: View {
                                 removal: .opacity))
     }
 
-    // MARK: Header
+    // MARK: Header (Back only — no redundant page title, §9)
 
     private var header: some View {
         ZStack {
-            Text(TarotStrings.title(lang))
-                .font(.system(.headline, design: .rounded))
-                .foregroundStyle(Color.textInverseToken)
             HStack {
                 Button {
                     goBack()
@@ -144,6 +184,10 @@ struct TarotFlowView: View {
         withAnimation(.easeInOut(duration: 0.3)) { stage = next }
     }
 
+    /// Back (button and edge swipe) always returns to the previous
+    /// page; the reading state is preserved and never silently redrawn
+    /// (§11). Cards redraw only when the user explicitly re-chooses a
+    /// spread or starts a new reading.
     private func goBack() {
         switch stage {
         case .setup:
@@ -152,9 +196,20 @@ struct TarotFlowView: View {
             advance(to: .setup)
         case .shuffle, .reveal:
             advance(to: .spread)
-        case .result, .guidanceReveal:
-            advance(to: .setup)
+        case .result:
+            advance(to: .reveal)
+        case .guidanceReveal:
+            advance(to: .result)
         }
+    }
+
+    /// Result-page exits (§12–13): Back to Home always returns to the
+    /// Home root and restores the bottom navigation; Start a New
+    /// Reading stays immersive and returns to topic setup.
+    fileprivate func goHome() {
+        chrome.tabBarHidden = false
+        chrome.selectedTab = .home
+        dismiss()
     }
 }
 
@@ -178,26 +233,44 @@ private struct TarotSetupStage: View {
                     .font(.system(.title3, design: .rounded).weight(.semibold))
                     .foregroundStyle(Color.textInverseToken)
 
-                FlowHStack(spacing: TwinkoSpacing.s) {
+                // Six approved topics in a fixed equal 2×3 grid (§5):
+                // width never depends on text length, and selection is
+                // a filled surface + check, never border color alone.
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: TwinkoSpacing.s),
+                                    GridItem(.flexible(), spacing: TwinkoSpacing.s)],
+                          spacing: TwinkoSpacing.s) {
                     ForEach(TarotTopicType.allCases) { option in
                         let selected = session.topic == option
                         Button {
                             session.topic = option
                         } label: {
-                            Label(option.label(lang), systemImage: option.icon)
-                                .font(.system(.body, design: .rounded))
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 9)
-                                .frame(minHeight: 40)
-                                .background(
-                                    selected ? AnyShapeStyle(
-                                        LinearGradient(colors: [.twinkoGold, .warmOrange],
-                                                       startPoint: .top, endPoint: .bottom))
-                                             : AnyShapeStyle(Color.deepSpace.opacity(0.35)),
-                                    in: Capsule()
-                                )
-                                .foregroundStyle(selected ? Color.inkNavy : Color.textInverseToken)
+                            HStack(spacing: 7) {
+                                Image(systemName: selected ? "checkmark.circle.fill"
+                                                           : option.icon)
+                                    .font(.system(size: 14))
+                                Text(option.label(lang))
+                                    .font(.system(.subheadline, design: .rounded)
+                                        .weight(.medium))
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.8)
+                            }
+                            .padding(.horizontal, 10)
+                            .frame(maxWidth: .infinity, minHeight: 48)
+                            .background(
+                                selected ? AnyShapeStyle(
+                                    LinearGradient(colors: [.twinkoGold, .warmOrange],
+                                                   startPoint: .top, endPoint: .bottom))
+                                         : AnyShapeStyle(Color.deepSpace.opacity(0.45)),
+                                in: RoundedRectangle(cornerRadius: 14)
+                            )
+                            .foregroundStyle(selected ? Color.inkNavy : Color.textInverseToken)
+                            .contentShape(RoundedRectangle(cornerRadius: 14))
                         }
+                        .accessibilityIdentifier("tarotTopic-\(option.rawValue)")
+                        .accessibilityLabel(Text(selected
+                            ? (lang == .english ? "\(option.label(lang)), selected"
+                                                : "\(option.label(lang))，已選取")
+                            : option.label(lang)))
                         .accessibilityAddTraits(selected ? [.isSelected] : [])
                     }
                 }
@@ -210,8 +283,10 @@ private struct TarotSetupStage: View {
                     TextField("", text: $session.question, axis: .vertical)
                         .font(.system(.body, design: .rounded))
                         .padding(10)
-                        .background(Color.deepSpace.opacity(0.35),
+                        .background(Color.deepSpace.opacity(0.55),
                                     in: RoundedRectangle(cornerRadius: 12))
+                        .overlay(RoundedRectangle(cornerRadius: 12)
+                            .strokeBorder(Color.textInverseToken.opacity(0.18), lineWidth: 1))
                         .foregroundStyle(Color.textInverseToken)
                         .tint(.accentGold)
                         .lineLimit(1...3)
@@ -220,35 +295,40 @@ private struct TarotSetupStage: View {
                     Text(TarotStrings.questionHint(lang))
                         .font(.system(.caption, design: .rounded))
                         .foregroundStyle(Color.textInverseToken.opacity(0.65))
-                    // Clearly tappable suggestion chips — tapping fills
-                    // the question input (spec §5).
+                    // Topic-specific suggestions as equal full-width
+                    // rows — tapping fills the question input (§6–7).
                     ForEach(session.topic.suggestedQuestions(lang), id: \.self) { suggestion in
                         Button {
                             session.question = suggestion
                         } label: {
-                            HStack(spacing: 6) {
+                            HStack(alignment: .top, spacing: 8) {
                                 Image(systemName: "plus.circle.fill")
-                                    .font(.system(size: 12))
-                                    .foregroundStyle(Color.twinkoGold.opacity(0.8))
+                                    .font(.system(size: 13))
+                                    .foregroundStyle(Color.twinkoGold.opacity(0.85))
+                                    .padding(.top, 2)
                                 Text(suggestion)
-                                    .font(.system(.caption, design: .rounded))
+                                    .font(.system(.subheadline, design: .rounded))
                                     .foregroundStyle(Color.twinkoGold)
                                     .multilineTextAlignment(.leading)
+                                    .lineLimit(2)
+                                Spacer(minLength: 0)
                             }
                             .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .frame(minHeight: 40, alignment: .leading)
-                            .background(Color.twinkoGold.opacity(0.10), in: Capsule())
-                            .overlay(Capsule().strokeBorder(Color.twinkoGold.opacity(0.35),
-                                                            lineWidth: 1))
-                            .contentShape(Capsule())
+                            .padding(.vertical, 10)
+                            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                            .background(Color.twinkoGold.opacity(0.10),
+                                        in: RoundedRectangle(cornerRadius: 12))
+                            .overlay(RoundedRectangle(cornerRadius: 12)
+                                .strokeBorder(Color.twinkoGold.opacity(0.35), lineWidth: 1))
+                            .contentShape(RoundedRectangle(cornerRadius: 12))
                         }
+                        .buttonStyle(TarotSuggestionPressStyle())
                         .accessibilityHint(Text(lang == .english
                             ? "Fills the question field" : "會填入問題欄位"))
                     }
                 }
                 .padding(TwinkoSpacing.m)
-                .background(Color.deepSpace.opacity(0.45),
+                .background(Color.deepSpace.opacity(0.5),
                             in: RoundedRectangle(cornerRadius: TwinkoRadius.card))
                 .padding(.horizontal, TwinkoSpacing.m)
 
@@ -258,7 +338,7 @@ private struct TarotSetupStage: View {
                     Text(TarotStrings.next(lang))
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.twinkoPrimary)
+                .buttonStyle(.tarotMagicPrimary)
                 .padding(.horizontal, TwinkoSpacing.m)
                 .padding(.bottom, TwinkoSpacing.xl)
             }
@@ -295,10 +375,13 @@ private struct TarotSpreadStage: View {
         }
     }
 
+    /// Both options share one fixed illustration container, title
+    /// baseline, and subtitle region, so Single Card and Three Cards
+    /// carry identical visual weight (§15).
     private func spreadCard(_ spread: TarotSpreadType, preview: String) -> some View {
         Button {
             withAnimation(.easeOut(duration: 0.15)) { pressed = spread }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 onChoose(spread)
             }
         } label: {
@@ -306,7 +389,8 @@ private struct TarotSpreadStage: View {
                 Image(preview)
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 110)
+                    .frame(maxHeight: spread == .single ? 92 : 100)
+                    .frame(height: 104)
                 Text(spread.title(lang))
                     .font(.system(.headline, design: .rounded))
                     .foregroundStyle(Color.textInverseToken)
@@ -314,19 +398,31 @@ private struct TarotSpreadStage: View {
                     .font(.system(.caption, design: .rounded))
                     .foregroundStyle(Color.textInverseToken.opacity(0.75))
                     .multilineTextAlignment(.center)
+                    .frame(height: 32, alignment: .top)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, TwinkoSpacing.m)
             .padding(.horizontal, TwinkoSpacing.s)
-            .background(Color.deepSpace.opacity(0.45),
+            .background(Color.deepSpace.opacity(0.5),
                         in: RoundedRectangle(cornerRadius: TwinkoRadius.card))
             .overlay(
                 RoundedRectangle(cornerRadius: TwinkoRadius.card)
                     .strokeBorder(Color.accentGold.opacity(pressed == spread ? 0.9 : 0.45),
                                   lineWidth: pressed == spread ? 2 : 1)
             )
-            .scaleEffect(pressed == spread ? 1.03 : 1.0)
         }
+        .buttonStyle(TarotMagicPressStyle())
+        .accessibilityIdentifier("tarotSpread-\(spread.rawValue)")
         .accessibilityLabel(Text("\(spread.title(lang))，\(spread.subtitle(lang))"))
+    }
+}
+
+/// Quiet pressed feedback for suggestion rows (not a full magic CTA).
+struct TarotSuggestionPressStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .opacity(configuration.isPressed ? 0.6 : 1.0)
+            .scaleEffect(configuration.isPressed ? 0.99 : 1.0)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
     }
 }

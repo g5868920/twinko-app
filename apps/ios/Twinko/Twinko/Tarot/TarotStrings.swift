@@ -36,10 +36,10 @@ enum TarotStrings {
         l == .english ? "Your Guidance Card is ready" : "你的指引牌準備好了"
     }
     static func tapToFlip(_ l: AppLanguage) -> String {
-        l == .english ? "Tap a card to reveal it." : "輕點牌面，把牌翻開。"
+        l == .english ? "Tap a card to reveal it" : "輕點牌面，把牌翻開"
     }
     static func tapNextCard(_ l: AppLanguage) -> String {
-        l == .english ? "Reveal the next card." : "繼續翻開下一張牌。"
+        l == .english ? "Reveal the next card" : "繼續翻開下一張牌"
     }
     static func seeReading(_ l: AppLanguage) -> String {
         l == .english ? "See what the cards say" : "看看牌想說什麼"
@@ -66,29 +66,24 @@ enum TarotStrings {
     static func guidanceAccept(_ l: AppLanguage) -> String {
         l == .english ? "Draw a Guidance Card" : "抽一張指引牌"
     }
-    static func showFullInterpretation(_ l: AppLanguage) -> String {
-        l == .english ? "Show full interpretation" : "展開完整解讀"
-    }
-    static func hideFullInterpretation(_ l: AppLanguage) -> String {
-        l == .english ? "Hide full interpretation" : "收合完整解讀"
-    }
-    static func reflectionLabel(_ l: AppLanguage) -> String {
-        l == .english ? "A little reflection" : "小小的反思"
-    }
-    static func shareText(_ l: AppLanguage) -> String {
-        l == .english ? "Share reading" : "分享結果"
-    }
     static func saveCard(_ l: AppLanguage) -> String {
-        l == .english ? "Save summary card" : "儲存指引小卡"
+        l == .english ? "Save Guidance Card" : "儲存指引小卡"
     }
     static func startNewReading(_ l: AppLanguage) -> String {
         l == .english ? "Start a New Reading" : "開始新的占卜"
     }
     static func backHome(_ l: AppLanguage) -> String { l == .english ? "Back to Home" : "回到首頁" }
-    static func meditationHelper(_ l: AppLanguage) -> String {
+    // Personalized Meditation section (one merged cross-feature card)
+    static func meditationSectionTitle(_ l: AppLanguage) -> String {
+        l == .english ? "Turn this guidance into a meditation" : "把這份指引化成一段冥想"
+    }
+    static func meditationSectionBody(_ l: AppLanguage) -> String {
         l == .english
-            ? "Twinko will use your question and the reading's main guidance to create a personalized meditation."
-            : "Twinko 會根據你的問題與牌卡整體訊息，生成一段專屬冥想。"
+            ? "Twinko will use your question and the reading's overall message to prepare a personalized meditation."
+            : "Twinko 會根據你的問題與牌卡整體訊息，為你準備一段專屬冥想。"
+    }
+    static func meditationSectionCTA(_ l: AppLanguage) -> String {
+        l == .english ? "Create My Meditation" : "生成專屬冥想"
     }
 
     // Summary card
@@ -125,10 +120,12 @@ enum TarotMeditationContextAdapter {
     /// Twinko's recommended Meditation theme per Tarot topic.
     static func recommendedFocus(for topic: TarotTopicType) -> MeditationFocus {
         switch topic {
-        case .love: return .selfLove
+        case .relationships: return .selfLove
         case .career: return .releaseAnxiety
+        case .finance: return .releaseAnxiety
         case .growth: return .selfLove
-        case .general: return .calmDown
+        case .lifePath: return .calmDown
+        case .other: return .calmDown
         }
     }
 
@@ -137,22 +134,30 @@ enum TarotMeditationContextAdapter {
     /// interpretation text, no predictions, no ellipsis.
     static func focusSummary(for topic: TarotTopicType, lang: AppLanguage) -> String {
         switch (topic, lang) {
-        case (.love, .traditionalChinese):
+        case (.relationships, .traditionalChinese):
             return "你正在關係裡尋找更多理解與安心，希望能溫柔地對待彼此，也對待自己。"
-        case (.love, .english):
+        case (.relationships, .english):
             return "You're looking for more understanding and ease in your relationships, and want to be gentle with others and yourself."
         case (.career, .traditionalChinese):
             return "你正在面對工作上的壓力與不確定，希望放下焦慮，重新找回自己的步調。"
         case (.career, .english):
             return "You're navigating pressure and uncertainty at work, and want to set the anxiety down and return to your own pace."
+        case (.finance, .traditionalChinese):
+            return "你正在為金錢的安排感到有些緊繃，希望可以安定下來，做出讓自己安心的決定。"
+        case (.finance, .english):
+            return "You're feeling some tension around money decisions, and want to settle and choose in a way that feels steady."
         case (.growth, .traditionalChinese):
             return "你正在整理自己的內在狀態，希望更誠實地看見自己，並多一點自我信任。"
         case (.growth, .english):
             return "You're sorting through your inner state, and want to see yourself honestly and trust yourself a little more."
-        case (.general, .traditionalChinese):
+        case (.lifePath, .traditionalChinese):
             return "你正在思考生活的方向與步調，希望安定下來，把注意力放回眼前的一步。"
-        case (.general, .english):
+        case (.lifePath, .english):
             return "You're thinking about your direction and pace in life, and want to settle and return attention to the next step in front of you."
+        case (.other, .traditionalChinese):
+            return "你心裡掛著一件還說不太清楚的事，希望先安定下來，聽聽自己真正的聲音。"
+        case (.other, .english):
+            return "Something hard to name is on your mind, and you want to settle first and hear your own voice."
         }
     }
 }

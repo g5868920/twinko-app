@@ -12,6 +12,13 @@ enum TarotTwinkoState {
     /// brows and a small reassuring smile (delivered 2026-07-16).
     case gentleConcern
     case magic
+    /// Focused, gentle shuffle-casting state (redesign §18). The
+    /// canonical `twinko_tarot_casting_v1` asset has not been
+    /// delivered; the delivered magic pose has furrowed brows the spec
+    /// rules out, so this alias resolves to the approved idle wizard
+    /// pose (gentle expression) with casting energy rendered in code.
+    /// Swap this one mapping when the canonical asset arrives.
+    case casting
 
     var assetName: String {
         switch self {
@@ -21,6 +28,8 @@ enum TarotTwinkoState {
             return "twinko_tarot_gentle_concern_v1_transparent"
         case .magic:
             return "twinko_tarot_magic_v1_transparent"
+        case .casting:
+            return "twinko_tarot_idle_v1_transparent"
         }
     }
 }

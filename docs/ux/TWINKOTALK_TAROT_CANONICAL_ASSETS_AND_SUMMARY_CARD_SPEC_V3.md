@@ -1,5 +1,15 @@
 # TwinkoTalk Tarot Canonical Assets & Guidance Summary Card Specification
 
+> **Amendment (2026-07-16):** `twinko_tarot_casting_v1` is a reported
+> missing canonical asset (shuffle casting pose — gentle expression,
+> wizard hat/cape, no angry brows). Until delivered,
+> `TarotTwinkoState.casting` aliases `twinko_tarot_idle_v1`. The
+> result page's separate Share Result action is removed; 儲存指引小卡
+> is the single export entry (the summary-card sheet keeps its
+> rendered-image ShareLink). The result-page disclaimer is now the
+> short line 「內容僅供反思與娛樂」and never appears inside the
+> Summary Card.
+
 **Version:** v3.0  
 **Status:** canonical founder-reviewed asset specification
 

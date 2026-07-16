@@ -374,4 +374,11 @@ Basis：`docs/product/TWINKO_DECISION_LOG.md`（D-055）、Chairwoman Decision R
 
 **Follow-up（test maintenance only — 2026-07-16）：** 部分既有 UI walkthrough 測試可能仍以已移除的 orbit-style Home 功能入口按鈕為導覽路徑；這些路徑已不代表目前的四-tab shell（首頁／聊天／探索／我的星球）導覽 UI。在 merge-readiness 或里程碑驗證前，受影響的既有 UI walkthrough 應改用四-tab shell 或既有的直接測試啟動路徑。在更新前，僅由已移除的 orbit-style Home 入口點所導致的失敗，應視為過時測試失敗（obsolete-test failures），而非產品回歸（product regression）。本項為測試維護追蹤事項，本次不更新該等測試。
 
+
+### Tarot journey redesign 與 app-wide edge-swipe（additive note — 2026-07-16）
+
+- **Tarot 重新設計為沉浸式占卜旅程：已授權並實作。** 六個核准主題（愛情與關係／工作與事業／財務與投資／自我成長／生活方向／其他，英文標籤固定）、等寬 2×3 主題格、主題對應建議問題、等大牌陣選卡、上升漩渦洗牌（收斂為恰好 1 或 3 張）、溫柔施法 Twinko（canonical `twinko_tarot_casting_v1` 未交付，暫以 idle 別名替代並回報）、翻牌金光效果、結果頁直接以完整解讀開場（移除展開控制與每張牌的小反思）、暖白閱讀卡系統、魔法分隔線、一次性指引牌、移除結果頁「分享結果」、合併專屬冥想區塊、結尾單一免責「內容僅供反思與娛樂」。
+- **導覽慣例：** Tarot 全程隱藏 bottom navigation；「回到首頁」一律回 Home root 並還原導覽列；「開始新的占卜」回主題設定。App-wide：非 root 的 pushed 頁面支援原生左緣滑動返回（Tarot 內部改為分段返回）。
+- 規格見 `docs/ux/TWINKOTALK_TAROT_JOURNEY_REDESIGN_V4.md`。
+
 - **Dogfooding distraction**：PM Workflow must prove value in a bounded Discovery-to-Decision slice before expanding。

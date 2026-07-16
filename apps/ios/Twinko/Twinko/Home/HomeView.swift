@@ -13,6 +13,7 @@ struct HomeView: View {
     @EnvironmentObject private var chatStore: ChatStore
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    @EnvironmentObject private var chrome: ShellChrome
     @StateObject private var checkInStore = CheckInStore()
     private let recommender: HomeRecommendationProviding = LocalHomeRecommendationProvider()
 
@@ -71,7 +72,11 @@ struct HomeView: View {
         .navigationDestination(item: $activeAction) { action in
             destination(for: action)
         }
-        .onAppear { startFloating() }
+        .onAppear {
+            startFloating()
+            // Returning to the tab root ends any immersive flow.
+            chrome.tabBarHidden = false
+        }
     }
 
     // MARK: Greeting header (+ direct Settings gear)

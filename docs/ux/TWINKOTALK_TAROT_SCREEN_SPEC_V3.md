@@ -1,5 +1,13 @@
 # TwinkoTalk Tarot Screen-by-Screen UI Specification
 
+> **Superseded in part (2026-07-16):** the founder/CPO Tarot journey
+> redesign replaces this spec's topic set, setup/spread layouts,
+> shuffle choreography, result-page structure (expand controls, mini
+> reflections, result hero, Share Result), disclaimer copy, and
+> navigation chrome. See `TWINKOTALK_TAROT_JOURNEY_REDESIGN_V4.md` —
+> it wins wherever the two disagree. Card registry, draw rules, and
+> reveal-state fundamentals below remain active.
+
 **Version:** v3.0  
 **Status:** founder-reviewed product and UI spec
 

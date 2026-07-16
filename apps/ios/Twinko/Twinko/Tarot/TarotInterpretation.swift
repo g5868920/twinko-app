@@ -107,14 +107,18 @@ struct MockTarotInterpretationProvider: TarotInterpretationProviding {
 
     private func topicAngle(_ topic: TarotTopicType, _ lang: AppLanguage) -> String {
         switch (topic, lang) {
-        case (.love, .traditionalChinese): return "放在感情與關係裡看，它可能在邀請你多聽聽彼此真正的需要。"
-        case (.career, .traditionalChinese): return "放在工作與財務裡看，它可能在提醒你留意方向，而不只是速度。"
+        case (.relationships, .traditionalChinese): return "放在感情與關係裡看，它可能在邀請你多聽聽彼此真正的需要。"
+        case (.career, .traditionalChinese): return "放在工作與事業裡看，它可能在提醒你留意方向，而不只是速度。"
+        case (.finance, .traditionalChinese): return "放在金錢與財務裡看，它可能在邀請你先看清自己的安心界線，再做決定。"
         case (.growth, .traditionalChinese): return "放在自我成長裡看，它可能在指向一個值得被你看見的內在角落。"
-        case (.general, .traditionalChinese): return "放在生活的整體裡看，它可能在邀請你重新安排自己的步調。"
-        case (.love, .english): return "Seen through love and relationships, it may be inviting you to listen for what each of you truly needs."
-        case (.career, .english): return "Seen through career and finances, it may be a reminder to watch your direction, not just your speed."
+        case (.lifePath, .traditionalChinese): return "放在生活的整體裡看，它可能在邀請你重新安排自己的步調。"
+        case (.other, .traditionalChinese): return "放在你心裡掛著的那件事上看，它可能在幫你把感覺說得更清楚一點。"
+        case (.relationships, .english): return "Seen through your relationships, it may be inviting you to listen for what each of you truly needs."
+        case (.career, .english): return "Seen through your career, it may be a reminder to watch your direction, not just your speed."
+        case (.finance, .english): return "Seen through money matters, it may be inviting you to notice where you feel steady before deciding."
         case (.growth, .english): return "Seen through personal growth, it may be pointing to a part of you that deserves to be seen."
-        case (.general, .english): return "Seen through your life as a whole, it may be inviting you to re-set your own pace."
+        case (.lifePath, .english): return "Seen through your life as a whole, it may be inviting you to re-set your own pace."
+        case (.other, .english): return "Held next to what's on your mind, it may help you put the feeling into clearer words."
         }
     }
 
@@ -234,9 +238,11 @@ struct MockTarotInterpretationProvider: TarotInterpretationProviding {
 // MARK: - Shared copy
 
 enum TarotDisclaimer {
+    /// Shown once, at the absolute bottom of the result page — never
+    /// inside the Guidance Summary Card (redesign 2026-07-16).
     static func text(_ lang: AppLanguage) -> String {
         lang == .english
-            ? "Tarot content is for reflection and entertainment. It does not predict a certain future and is not medical, legal, or financial advice."
-            : "塔羅內容僅供反思與娛樂，不代表確定的未來，也不是醫療、法律或財務建議。"
+            ? "For reflection and entertainment only"
+            : "內容僅供反思與娛樂"
     }
 }

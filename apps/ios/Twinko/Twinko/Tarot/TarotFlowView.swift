@@ -19,6 +19,7 @@ struct TarotFlowView: View {
     /// Whether this reading's cards were already revealed once, so
     /// Back from the result never re-hides them (§41).
     @State private var revealSeen = false
+    @State private var showingExitConfirm = false
     private let provider: TarotInterpretationProviding = MockTarotInterpretationProvider()
 
     private var lang: AppLanguage { prefs.language }
@@ -40,7 +41,31 @@ struct TarotFlowView: View {
                 header
                 stageContent
             }
+
+            if showingExitConfirm {
+                BrandedModal(
+                    icon: "sparkles",
+                    iconColor: .brandPurpleDeep,
+                    title: TarotStrings.exitConfirmTitle(lang),
+                    content: {
+                        Text(TarotStrings.exitConfirmBody(lang))
+                            .font(.system(.body, design: .rounded))
+                            .foregroundStyle(Color.textSecondaryToken)
+                            .multilineTextAlignment(.center)
+                    },
+                    cancelTitle: TarotStrings.exitConfirmStay(lang),
+                    confirmTitle: TarotStrings.exitConfirmLeave(lang),
+                    isDestructive: true,
+                    onCancel: { showingExitConfirm = false },
+                    onConfirm: {
+                        showingExitConfirm = false
+                        exitFlow()
+                    }
+                )
+                .transition(.opacity)
+            }
         }
+        .animation(.easeOut(duration: 0.2), value: showingExitConfirm)
         .background {
             GeometryReader { geo in
                 ZStack {
@@ -157,8 +182,12 @@ struct TarotFlowView: View {
                                 removal: .opacity))
     }
 
-    // MARK: Header (Back only — no redundant page title, §9)
+    // MARK: Header (Back + flow exit — no redundant page title, §9)
 
+    /// Top-left Back = previous Tarot step. Top-right X = leave the
+    /// whole flow back to its original source (Explore, Home, …) —
+    /// with a branded confirmation once meaningful reading state
+    /// exists (2026-07-17).
     private var header: some View {
         ZStack {
             HStack {
@@ -174,10 +203,44 @@ struct TarotFlowView: View {
                 .accessibilityLabel(Text(lang == .english ? "Back" : "上一步"))
                 .accessibilityIdentifier("tarotBackButton")
                 Spacer()
+                Button {
+                    if Self.requiresExitConfirmation(stage: stage) {
+                        showingExitConfirm = true
+                    } else {
+                        exitFlow()
+                    }
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(Color.textInverseToken.opacity(0.85))
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .accessibilityLabel(Text(lang == .english ? "Leave Tarot" : "離開塔羅"))
+                .accessibilityIdentifier("tarotExitButton")
             }
         }
         .padding(.horizontal, 8)
         .frame(height: 48)
+    }
+
+    /// Meaningful reading state begins with the shuffle: from then on
+    /// (shuffle / reveal / result / guidance) leaving is destructive
+    /// and requires confirmation. Setup and spread exit directly.
+    static func requiresExitConfirmation(stage: Stage) -> Bool {
+        switch stage {
+        case .setup, .spread: return false
+        case .shuffle, .reveal, .result, .guidanceReveal: return true
+        }
+    }
+
+    /// Leaves the entire Tarot flow to its original source: the flow is
+    /// one pushed view, so dismiss pops back to wherever it was entered
+    /// from (Explore, Home, …) — never forced to Home. The revealed
+    /// root restores its own bottom-navigation visibility.
+    private func exitFlow() {
+        chrome.tabBarHidden = false
+        dismiss()
     }
 
     private func advance(to next: Stage) {

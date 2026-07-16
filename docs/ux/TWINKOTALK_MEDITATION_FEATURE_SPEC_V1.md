@@ -737,3 +737,61 @@ concise focus summary and recommended theme/duration. Request intent
 is distinguished from topic mentions; proactive suggestions appear at
 most once per conversation and share the same confirmation card and
 state as explicit requests. See the Chat screen spec v1.2 notes.
+
+## Immersive session amendment (2026-07-17) — supersedes conflicting sections above
+
+**Entry modes.** Three explicit paths share one flow: general (Explore/
+Home — no context card), personalized from Chat, personalized from
+Tarot (plus the existing Home check-in handoff). Personalized setup
+shows one concise context card (「根據你剛剛的聊天」/「根據你剛剛的塔羅
+解讀」+ a one-to-two-sentence emotional summary — never raw source
+content) with a quiet 「改用一般冥想 / Use a general meditation
+instead」 switch that drops the source (and its summary) from
+generation entirely (`MeditationFlowView.effectiveContext`). The
+over-explanatory Tarot trust note (「…不會逐字朗讀解讀內容」) is removed.
+
+**Setup.** No centered 冥想 title; bottom navigation hidden for the
+whole flow (`ShellChrome`; the screen popped back to restores its own
+visibility on appear). Compact no-scroll layout on standard iPhones:
+92 pt breathing Twinko, concise context card, stable 2-column focus
+grid and 3-up duration row — every cell reserves a secondary caption
+line (建議 / Recommended appears under the label, never inline), so
+selection can never shift the layout. Note field
+「還有什麼想補充嗎？（選填）」. CTA 「開始專屬冥想」/「開始冥想」in the
+shared premium amethyst style (`.tarotMagicPrimary`).
+
+**Session (auto-progressing).** `MeditationPlaybackController` is the
+single session clock: segments advance automatically (duration
+weighted by line count, `segmentEndSeconds`), completion fires exactly
+once, pause freezes the clock and resume continues from the same
+segment. Controls: pause/resume, narration toggle, ambient toggle
+(only when an approved track exists), header X. Remaining time shown
+as 「剩下 m:ss」. UI-test hook `-uiTestFastMeditation` compresses the
+tick only.
+
+**Narration / ambient boundaries (temporary, replaceable).**
+`MeditationNarrating` → `SpeechNarrationProvider` (AVSpeechSynthesizer,
+locale-aware voice en-US / zh-TW, slow calm rate; stops on exit).
+`MeditationAmbientPlaying` → `BundledAmbientAudioProvider`, which loops
+the approved `ambient_meditation_v1` track when bundled. **No approved
+ambient audio exists in the repo today**, so the provider is a
+documented silent fallback (control hidden, progression unaffected) —
+delivering the approved track requires no view changes. Narration and
+ambient are independent; neither drives the clock.
+
+**Exit modal.** Branded (`BrandedModal`, never a system sheet):
+「要先結束這段冥想嗎？」/「沒關係，隨時準備好，都可以再回來。」·
+繼續冥想 (resumes, no restart) / 結束冥想 (stops audio + clock, records
+the session as not completed, existing navigation contract).
+
+**Completion + reflection + record.** Headline 「你剛剛為自己留了一點
+空間」 (no period). Reflection 現在感覺怎麼樣？ (比較平靜／差不多／還是
+有點不安, check + border — never color alone) persists to
+`MeditationSessionRecord` via `MeditationRecordStore` (JSONStore file
+`meditation_records`): startedAt/endedAt, source, short source summary
+only (never transcripts/interpretations), focus, duration, note,
+completed vs early-ended, finalFeeling. Future My Planet input; no
+consumption UI; nothing logged to analytics.
+
+**Sleep-friendly note.** Completion stays calm and static; no
+background/lock-screen playback in this prototype (future note).

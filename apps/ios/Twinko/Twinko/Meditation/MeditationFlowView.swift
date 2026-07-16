@@ -1,11 +1,12 @@
 import SwiftUI
 
-/// The Meditation MVP flow as one contained stage machine:
-/// setup (focus + duration + optional input, with subtle Chat/Tarot
-/// source acknowledgment) → generating → text-guided session →
-/// completion. Entered directly from Home or with a prefilled source
-/// context from Chat / Tarot; exiting at any point returns safely to
-/// the previous flow.
+/// The Meditation flow as one contained stage machine: compact setup
+/// (context card for personalized entries, stable focus/duration
+/// selectors, optional note) → generating → one continuous
+/// auto-progressing guided session (narration + ambient boundaries) →
+/// completion → lightweight reflection. Entered generally from
+/// Explore/Home or personalized from Chat / Tarot / check-in; the
+/// bottom navigation stays hidden for the whole flow.
 struct MeditationFlowView: View {
     enum Stage {
         case setup, generating, session, completion, error
@@ -13,18 +14,26 @@ struct MeditationFlowView: View {
 
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var prefs: PrefsStore
+    @EnvironmentObject private var chrome: ShellChrome
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     let sourceContext: MeditationSourceContext
     private let provider: MeditationGenerating = MockMeditationProvider()
+
+    @StateObject private var playback = MeditationPlaybackController()
+    @StateObject private var recordStore = MeditationRecordStore()
 
     @State private var stage: Stage = .setup
     @State private var focus: MeditationFocus = .calmDown
     @State private var duration: MeditationDuration = .five
     @State private var customInput: String = ""
     @State private var result: MeditationGenerationResult?
-    @State private var segmentIndex = 0
     @State private var mood: MeditationMood?
     @State private var showingEndConfirm = false
+    /// "改用一般冥想": drops the source context for this run.
+    @State private var useGeneral = false
+    @State private var recordID: UUID?
+    @State private var endedEarly = false
 
     init(sourceContext: MeditationSourceContext = .direct) {
         self.sourceContext = sourceContext
@@ -33,10 +42,26 @@ struct MeditationFlowView: View {
         _focus = State(initialValue: sourceContext.recommendedFocus ?? .calmDown)
     }
 
+    /// The context actually used for generation: personalized entries
+    /// fall back to a plain general session when the user opts out —
+    /// no source summary flows into generation. Pure and testable.
+    static func effectiveContext(_ context: MeditationSourceContext,
+                                 useGeneral: Bool) -> MeditationSourceContext {
+        useGeneral ? .direct : context
+    }
+
+    private var effectiveContext: MeditationSourceContext {
+        Self.effectiveContext(sourceContext, useGeneral: useGeneral)
+    }
+
+    private var isPersonalized: Bool { effectiveContext.sourceType != .direct }
+
     /// Recommendations exist only for handoff-derived sessions.
-    private var recommendedFocus: MeditationFocus? { sourceContext.recommendedFocus }
+    private var recommendedFocus: MeditationFocus? {
+        isPersonalized ? sourceContext.recommendedFocus : nil
+    }
     private var recommendedDuration: MeditationDuration? {
-        sourceContext.recommendedFocus != nil ? .five : nil
+        recommendedFocus != nil ? .five : nil
     }
 
     private var lang: AppLanguage { prefs.language }
@@ -46,6 +71,10 @@ struct MeditationFlowView: View {
             VStack(spacing: 0) {
                 header
                 stageContent
+            }
+
+            if showingEndConfirm {
+                endConfirmModal
             }
         }
         .background {
@@ -61,16 +90,16 @@ struct MeditationFlowView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
-        .confirmationDialog(MeditationStrings.endEarlyTitle(lang),
-                            isPresented: $showingEndConfirm,
-                            titleVisibility: .visible) {
-            Button(MeditationStrings.endSession(lang), role: .destructive) {
-                advance(to: .completion)
-            }
-            Button(MeditationStrings.keepGoing(lang), role: .cancel) {}
-        } message: {
-            Text(MeditationStrings.endEarlyBody(lang))
+        .onAppear {
+            // Immersive Meditation: the bottom navigation stays hidden
+            // for the entire flow; the screen we pop back to restores
+            // its own correct visibility on appear.
+            chrome.tabBarHidden = true
         }
+        .onDisappear {
+            playback.stop()
+        }
+        .animation(.easeOut(duration: 0.2), value: showingEndConfirm)
     }
 
     @ViewBuilder
@@ -84,10 +113,8 @@ struct MeditationFlowView: View {
             case .session:
                 if let result {
                     MeditationSessionStage(result: result,
-                                           segmentIndex: $segmentIndex,
-                                           lang: lang) {
-                        advance(to: .completion)
-                    }
+                                           playback: playback,
+                                           lang: lang)
                 }
             case .completion:
                 completionStage
@@ -99,208 +126,93 @@ struct MeditationFlowView: View {
     }
 
     private func advance(to next: Stage) {
-        withAnimation(.easeInOut(duration: 0.3)) { stage = next }
+        withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.3)) { stage = next }
     }
 
-    // MARK: Header
+    // MARK: Header (no page title — Back, or a quiet session close)
 
     private var header: some View {
-        ZStack {
-            Text(MeditationStrings.title(lang))
-                .font(.system(.headline, design: .rounded))
-                .foregroundStyle(Color.textInverseToken)
-            HStack {
-                Button {
-                    if stage == .session {
-                        showingEndConfirm = true
-                    } else {
-                        dismiss()
-                    }
-                } label: {
-                    Image(systemName: stage == .session ? "xmark" : "chevron.backward")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(Color.textInverseToken.opacity(0.9))
-                        .frame(width: 44, height: 44)
-                        .contentShape(Rectangle())
+        HStack {
+            Button {
+                if stage == .session {
+                    playback.pause()
+                    showingEndConfirm = true
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                } else {
+                    dismiss()
                 }
-                .accessibilityLabel(Text(stage == .session
-                    ? MeditationStrings.endSession(lang)
-                    : (lang == .english ? "Back" : "返回")))
-                .accessibilityIdentifier("meditationBackButton")
-                Spacer()
+            } label: {
+                Image(systemName: stage == .session ? "xmark" : "chevron.backward")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(Color.textInverseToken.opacity(0.9))
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
             }
+            .accessibilityLabel(Text(stage == .session
+                ? MeditationStrings.endSession(lang)
+                : (lang == .english ? "Back" : "返回")))
+            .accessibilityIdentifier("meditationBackButton")
+            Spacer()
         }
         .padding(.horizontal, 8)
-        .frame(height: 48)
+        .frame(height: 44)
     }
 
-    // MARK: Setup
+    // MARK: Setup (compact — fits without scrolling on standard phones)
 
     private var setupStage: some View {
         ScrollView {
-            VStack(spacing: TwinkoSpacing.m) {
-                Image("twinko_meditation_calm_v1_transparent")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 128, height: 128)
-                    .padding(.top, TwinkoSpacing.s)
-                    .accessibilityHidden(true)
+            VStack(spacing: TwinkoSpacing.s) {
+                MeditationBreathingTwinko(size: 92)
 
-                VStack(spacing: 5) {
+                VStack(spacing: 4) {
                     Text(MeditationStrings.heroTitle(lang))
                         .font(.system(.title3, design: .rounded).weight(.semibold))
                         .foregroundStyle(Color.textInverseToken)
                     Text(MeditationStrings.heroSubtitle(lang))
-                        .font(.system(.subheadline, design: .rounded))
+                        .font(.system(.footnote, design: .rounded))
                         .foregroundStyle(Color.textInverseToken.opacity(0.75))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, TwinkoSpacing.l)
                 }
 
-                if let acknowledgment = sourceAcknowledgment {
+                if isPersonalized, let acknowledgment = sourceAcknowledgment {
                     sourceCard(acknowledgment)
-                }
-
-                // Focus themes (with Twinko's recommendation marked)
-                VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
-                    Text(MeditationStrings.focusSection(lang))
-                        .font(.system(.headline, design: .rounded))
-                        .foregroundStyle(Color.textInverseToken)
-                    if recommendedFocus != nil {
-                        Text(MeditationStrings.twinkoRecommends(lang))
-                            .font(.system(.caption, design: .rounded))
-                            .foregroundStyle(Color.twinkoGold.opacity(0.85))
-                    }
-                    FlowHStack(spacing: TwinkoSpacing.s) {
-                        ForEach(MeditationFocus.allCases) { option in
-                            let selected = focus == option
-                            let recommended = option == recommendedFocus
-                            Button {
-                                focus = option
-                            } label: {
-                                HStack(spacing: 5) {
-                                    Image(systemName: selected ? "checkmark.circle.fill" : option.icon)
-                                        .font(.system(size: 13))
-                                    Text(recommended
-                                         ? "\(option.label(lang)) · \(MeditationStrings.recommendedTag(lang))"
-                                         : option.label(lang))
-                                        .font(.system(.subheadline, design: .rounded))
-                                }
-                                .padding(.horizontal, 13)
-                                .padding(.vertical, 8)
-                                .frame(minHeight: 40)
-                                .background(
-                                    selected ? AnyShapeStyle(
-                                        LinearGradient(colors: [.brandPurple, .brandPurpleDeep],
-                                                       startPoint: .top, endPoint: .bottom))
-                                             : AnyShapeStyle(Color.deepSpace.opacity(0.4)),
-                                    in: Capsule()
-                                )
-                                .foregroundStyle(Color.textInverseToken)
-                                .overlay(Capsule().strokeBorder(
-                                    selected ? Color.twinkoGold.opacity(0.6) : Color.clear,
-                                    lineWidth: 1))
-                            }
-                            .accessibilityAddTraits(selected ? [.isSelected] : [])
-                            .accessibilityLabel(Text(accessibilityFocusLabel(option,
-                                                                              selected: selected,
-                                                                              recommended: recommended)))
-                            .accessibilityIdentifier("meditationFocus-\(option.rawValue)")
+                    Button {
+                        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.25)) {
+                            useGeneral = true
+                            focus = .calmDown
                         }
+                    } label: {
+                        Text(MeditationStrings.useGeneralInstead(lang))
+                            .font(.system(.footnote, design: .rounded))
+                            .foregroundStyle(Color.textInverseToken.opacity(0.7))
+                            .underline()
+                            .frame(minHeight: 32)
                     }
+                    .accessibilityIdentifier("meditationUseGeneral")
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, TwinkoSpacing.m)
 
-                // Duration (with recommendation marked)
-                VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
-                    Text(MeditationStrings.durationSection(lang))
-                        .font(.system(.headline, design: .rounded))
-                        .foregroundStyle(Color.textInverseToken)
-                    HStack(spacing: TwinkoSpacing.s) {
-                        ForEach(MeditationDuration.allCases) { option in
-                            let selected = duration == option
-                            let recommended = option == recommendedDuration
-                            Button {
-                                duration = option
-                            } label: {
-                                VStack(spacing: 1) {
-                                    HStack(spacing: 4) {
-                                        if selected {
-                                            Image(systemName: "checkmark")
-                                                .font(.system(size: 10, weight: .bold))
-                                        }
-                                        Text(option.label(lang))
-                                            .font(.system(.subheadline, design: .rounded).weight(.medium))
-                                    }
-                                    if recommended {
-                                        Text(MeditationStrings.recommendedTag(lang))
-                                            .font(.system(size: 9, design: .rounded))
-                                            .foregroundStyle(Color.twinkoGold)
-                                    }
-                                }
-                                .frame(maxWidth: .infinity, minHeight: 44)
-                                .background(
-                                    selected ? Color.menuDeep : Color.deepSpace.opacity(0.4),
-                                    in: RoundedRectangle(cornerRadius: 14)
-                                )
-                                .foregroundStyle(Color.textInverseToken)
-                                .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(
-                                    selected ? Color.twinkoGold.opacity(0.6) : Color.clear,
-                                    lineWidth: 1))
-                            }
-                            .accessibilityAddTraits(selected ? [.isSelected] : [])
-                            .accessibilityLabel(Text(accessibilityDurationLabel(option,
-                                                                                 selected: selected,
-                                                                                 recommended: recommended)))
-                            .accessibilityIdentifier("meditationDuration-\(option.rawValue)")
-                        }
-                    }
-                }
-                .padding(.horizontal, TwinkoSpacing.m)
-
-                // Optional supplemental input — never asks the user to
-                // re-explain accepted context.
-                VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
-                    Text(sourceContext.sourceType == .direct
-                         ? MeditationStrings.customInputLabel(lang)
-                         : MeditationStrings.supplementLabel(lang))
-                        .font(.system(.headline, design: .rounded))
-                        .foregroundStyle(Color.textInverseToken)
-                    TextField("", text: $customInput,
-                              prompt: Text(sourceContext.sourceType == .direct
-                                           ? MeditationStrings.customInputPlaceholder(lang)
-                                           : MeditationStrings.supplementPlaceholder(lang))
-                                  .foregroundStyle(Color.textInverseToken.opacity(0.45)),
-                              axis: .vertical)
-                        .font(.system(.body, design: .rounded))
-                        .foregroundStyle(Color.textInverseToken)
-                        .tint(.twinkoGold)
-                        .lineLimit(1...3)
-                        .padding(12)
-                        .background(Color.deepSpace.opacity(0.4),
-                                    in: RoundedRectangle(cornerRadius: 14))
-                        .accessibilityIdentifier("meditationCustomInput")
-                }
-                .padding(.horizontal, TwinkoSpacing.m)
-                .padding(.bottom, TwinkoSpacing.m)
+                focusSection
+                durationSection
+                noteSection
             }
+            .padding(.top, 2)
         }
         .scrollDismissesKeyboard(.interactively)
-        // Sticky generation CTA: content scrolls, the button stays
-        // pinned above the bottom safe area (and above the keyboard).
+        // Sticky CTA above the bottom safe area.
         .safeAreaInset(edge: .bottom) {
             Button {
                 advance(to: .generating)
                 Task { await generate() }
             } label: {
-                Text(MeditationStrings.start(lang))
+                Text(isPersonalized ? MeditationStrings.startPersonalized(lang)
+                                    : MeditationStrings.startGeneral(lang))
                     .frame(maxWidth: .infinity)
             }
-            .buttonStyle(.twinkoPrimary)
+            .buttonStyle(.tarotMagicPrimary)
             .padding(.horizontal, TwinkoSpacing.m)
-            .padding(.top, TwinkoSpacing.s)
-            .padding(.bottom, TwinkoSpacing.s)
+            .padding(.vertical, TwinkoSpacing.s)
             .background(
                 LinearGradient(colors: [Color.deepSpace.opacity(0), Color.deepSpace.opacity(0.55)],
                                startPoint: .top, endPoint: .bottom)
@@ -311,68 +223,160 @@ struct MeditationFlowView: View {
         }
     }
 
-    private func accessibilityFocusLabel(_ option: MeditationFocus, selected: Bool,
-                                         recommended: Bool) -> String {
-        var parts = [option.label(lang)]
-        if recommended {
-            parts.append(lang == .english ? "recommended" : "Twinko 建議")
+    /// Focus options in a stable 2-column grid: content never changes
+    /// with selection, and every cell reserves the caption line, so
+    /// choosing any option (準備入睡 included) cannot shift the layout.
+    private var focusSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(MeditationStrings.focusSection(lang))
+                .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                .foregroundStyle(Color.textInverseToken)
+            LazyVGrid(columns: [GridItem(.flexible(), spacing: 8),
+                                GridItem(.flexible(), spacing: 8)], spacing: 8) {
+                ForEach(MeditationFocus.allCases) { option in
+                    selectableOption(
+                        label: option.label(lang),
+                        icon: option.icon,
+                        selected: focus == option,
+                        recommended: option == recommendedFocus,
+                        identifier: "meditationFocus-\(option.rawValue)"
+                    ) { focus = option }
+                }
+            }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, TwinkoSpacing.m)
+    }
+
+    private var durationSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(MeditationStrings.durationSection(lang))
+                .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                .foregroundStyle(Color.textInverseToken)
+            HStack(spacing: 8) {
+                ForEach(MeditationDuration.allCases) { option in
+                    selectableOption(
+                        label: option.label(lang),
+                        icon: nil,
+                        selected: duration == option,
+                        recommended: option == recommendedDuration,
+                        identifier: "meditationDuration-\(option.rawValue)"
+                    ) { duration = option }
+                }
+            }
+        }
+        .padding(.horizontal, TwinkoSpacing.m)
+    }
+
+    /// One stable selectable cell: fixed content, a reserved secondary
+    /// caption row (建議 / blank), selection expressed by fill + border
+    /// + weight — never by inserting elements that move the frame.
+    private func selectableOption(label: String, icon: String?, selected: Bool,
+                                  recommended: Bool, identifier: String,
+                                  action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 1) {
+                HStack(spacing: 5) {
+                    if let icon {
+                        Image(systemName: icon)
+                            .font(.system(size: 12))
+                            .foregroundStyle(selected ? Color.twinkoGold
+                                                      : Color.textInverseToken.opacity(0.8))
+                    }
+                    Text(label)
+                        .font(.system(.subheadline, design: .rounded)
+                            .weight(selected ? .semibold : .regular))
+                }
+                // Reserved caption region keeps every cell's height
+                // identical whether or not it is recommended.
+                Text(recommended ? MeditationStrings.recommendedTag(lang) : " ")
+                    .font(.system(size: 9.5, design: .rounded))
+                    .foregroundStyle(Color.twinkoGold.opacity(recommended ? 0.9 : 0))
+            }
+            .frame(maxWidth: .infinity, minHeight: 46)
+            .background(
+                selected ? AnyShapeStyle(
+                    LinearGradient(colors: [.brandPurple, .brandPurpleDeep],
+                                   startPoint: .top, endPoint: .bottom))
+                         : AnyShapeStyle(Color.deepSpace.opacity(0.4)),
+                in: RoundedRectangle(cornerRadius: 14)
+            )
+            .foregroundStyle(Color.textInverseToken)
+            .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(
+                selected ? Color.twinkoGold.opacity(0.6)
+                         : Color.textInverseToken.opacity(0.12),
+                lineWidth: 1))
+            .contentShape(RoundedRectangle(cornerRadius: 14))
+        }
+        .accessibilityAddTraits(selected ? [.isSelected] : [])
+        .accessibilityLabel(Text(optionAccessibilityLabel(label, selected: selected,
+                                                          recommended: recommended)))
+        .accessibilityIdentifier(identifier)
+    }
+
+    private func optionAccessibilityLabel(_ label: String, selected: Bool,
+                                          recommended: Bool) -> String {
+        var parts = [label]
+        if recommended { parts.append(lang == .english ? "recommended" : "Twinko 建議") }
         if selected { parts.append(lang == .english ? "selected" : "已選取") }
         return parts.joined(separator: lang == .english ? ", " : "，")
     }
 
-    private func accessibilityDurationLabel(_ option: MeditationDuration, selected: Bool,
-                                            recommended: Bool) -> String {
-        var parts = [option.label(lang)]
-        if recommended {
-            parts.append(lang == .english ? "recommended" : "Twinko 建議")
+    private var noteSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(MeditationStrings.supplementLabel(lang))
+                .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                .foregroundStyle(Color.textInverseToken)
+            TextField("", text: $customInput,
+                      prompt: Text(MeditationStrings.supplementPlaceholder(lang))
+                          .foregroundStyle(Color.textInverseToken.opacity(0.45)),
+                      axis: .vertical)
+                .font(.system(.body, design: .rounded))
+                .foregroundStyle(Color.textInverseToken)
+                .tint(.twinkoGold)
+                .lineLimit(1...3)
+                .padding(10)
+                .background(Color.deepSpace.opacity(0.4),
+                            in: RoundedRectangle(cornerRadius: 14))
+                .accessibilityIdentifier("meditationCustomInput")
         }
-        if selected { parts.append(lang == .english ? "selected" : "已選取") }
-        return parts.joined(separator: lang == .english ? ", " : "，")
+        .padding(.horizontal, TwinkoSpacing.m)
+        .padding(.bottom, TwinkoSpacing.s)
     }
 
-    /// Subtle source acknowledgment. For Tarot-derived sessions this is
-    /// the adapted focus summary — never a copied or truncated reading
-    /// paragraph.
-    private var sourceAcknowledgment: (label: String, summary: String?, trust: String?)? {
+    /// Concise source context: label + one short emotional summary —
+    /// no raw source content, no processing explanation.
+    private var sourceAcknowledgment: (label: String, summary: String?)? {
         switch sourceContext.sourceType {
         case .direct:
             return nil
         case .chat:
             return (MeditationStrings.fromChat(lang),
-                    sourceContext.focusSummary ?? sourceContext.recentChatSummary,
-                    nil)
+                    sourceContext.focusSummary ?? sourceContext.recentChatSummary)
         case .tarot:
             return (MeditationStrings.fromTarot(lang),
-                    sourceContext.focusSummary ?? sourceContext.tarotQuestion,
-                    MeditationStrings.trustNote(lang))
+                    sourceContext.focusSummary)
         case .checkIn:
             return (MeditationStrings.fromCheckIn(lang),
-                    sourceContext.focusSummary,
-                    nil)
+                    sourceContext.focusSummary)
         }
     }
 
-    private func sourceCard(_ acknowledgment: (label: String, summary: String?, trust: String?)) -> some View {
-        VStack(alignment: .leading, spacing: 5) {
+    private func sourceCard(_ acknowledgment: (label: String, summary: String?)) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
             Label(acknowledgment.label, systemImage: "link")
                 .font(.system(.caption, design: .rounded).weight(.semibold))
                 .foregroundStyle(Color.twinkoGold)
             if let summary = acknowledgment.summary, !summary.isEmpty {
                 Text(summary)
-                    .font(.system(.subheadline, design: .rounded))
+                    .font(.system(.footnote, design: .rounded))
                     .foregroundStyle(Color.textInverseToken.opacity(0.9))
-                    .lineSpacing(3)
+                    .lineSpacing(2)
                     .fixedSize(horizontal: false, vertical: true)
-            }
-            if let trust = acknowledgment.trust {
-                Text(trust)
-                    .font(.system(.caption2, design: .rounded))
-                    .foregroundStyle(Color.textInverseToken.opacity(0.55))
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(TwinkoSpacing.m)
+        .padding(12)
         .background(Color.menuDeep.opacity(0.5),
                     in: RoundedRectangle(cornerRadius: TwinkoRadius.card))
         .overlay(RoundedRectangle(cornerRadius: TwinkoRadius.card)
@@ -393,7 +397,7 @@ struct MeditationFlowView: View {
                 .foregroundStyle(Color.textInverseToken.opacity(0.9))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, TwinkoSpacing.xl)
-            if let acknowledgment = sourceAcknowledgment {
+            if isPersonalized, let acknowledgment = sourceAcknowledgment {
                 Text(acknowledgment.label)
                     .font(.system(.caption, design: .rounded))
                     .foregroundStyle(Color.twinkoGold.opacity(0.8))
@@ -406,7 +410,7 @@ struct MeditationFlowView: View {
 
     private func generate() async {
         let request = MeditationGenerationRequest(
-            sourceContext: sourceContext,
+            sourceContext: effectiveContext,
             focusTopic: focus,
             duration: duration,
             customUserInput: customInput.isEmpty ? nil : customInput)
@@ -420,14 +424,67 @@ struct MeditationFlowView: View {
                 return
             }
             result = generated
-            segmentIndex = 0
-            advance(to: .session)
+            beginSession(with: generated)
         } catch {
             advance(to: .error)
         }
     }
 
-    // MARK: Completion
+    /// Starts playback and registers the session record.
+    private func beginSession(with generated: MeditationGenerationResult) {
+        endedEarly = false
+        mood = nil
+        recordID = recordStore.beginSession(
+            source: effectiveContext.sourceType,
+            sourceSummary: effectiveContext.focusSummary,
+            focus: focus, duration: duration,
+            optionalNote: customInput.isEmpty ? nil : customInput)
+        playback.onComplete = { finishSession(completed: true) }
+        playback.start(result: generated, lang: lang)
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        advance(to: .session)
+    }
+
+    /// One shared exit point for natural completion and early end.
+    private func finishSession(completed: Bool) {
+        endedEarly = !completed
+        if let recordID { recordStore.endSession(recordID, completed: completed) }
+        if completed {
+            UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+        }
+        advance(to: .completion)
+    }
+
+    // MARK: Exit confirmation (branded — never a system action sheet)
+
+    private var endConfirmModal: some View {
+        BrandedModal(
+            icon: "moon.stars.fill",
+            iconColor: .brandPurpleDeep,
+            title: MeditationStrings.endEarlyTitle(lang),
+            content: {
+                Text(MeditationStrings.endEarlyBody(lang))
+                    .font(.system(.body, design: .rounded))
+                    .foregroundStyle(Color.textSecondaryToken)
+                    .multilineTextAlignment(.center)
+            },
+            cancelTitle: MeditationStrings.keepGoing(lang),
+            confirmTitle: MeditationStrings.endSession(lang),
+            isDestructive: true,
+            onCancel: {
+                showingEndConfirm = false
+                playback.resume()
+            },
+            onConfirm: {
+                showingEndConfirm = false
+                playback.stop()
+                finishSession(completed: false)
+            }
+        )
+        .transition(.opacity)
+    }
+
+    // MARK: Completion + reflection
 
     private var completionStage: some View {
         ScrollView {
@@ -445,7 +502,7 @@ struct MeditationFlowView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, TwinkoSpacing.l)
 
-                if let result {
+                if !endedEarly, let result {
                     Text(result.closingMessage)
                         .font(.system(.body, design: .rounded))
                         .foregroundStyle(Color.textInverseToken.opacity(0.85))
@@ -462,18 +519,31 @@ struct MeditationFlowView: View {
                             let selected = mood == option
                             Button {
                                 mood = option
+                                if let recordID {
+                                    recordStore.setFinalFeeling(recordID, feeling: option)
+                                }
+                                UIImpactFeedbackGenerator(style: .soft).impactOccurred()
                             } label: {
-                                Text(option.label(lang))
-                                    .font(.system(.caption, design: .rounded).weight(.medium))
-                                    .frame(maxWidth: .infinity, minHeight: 44)
-                                    .background(
-                                        selected ? Color.menuDeep : Color.deepSpace.opacity(0.4),
-                                        in: RoundedRectangle(cornerRadius: 14)
-                                    )
-                                    .foregroundStyle(Color.textInverseToken)
-                                    .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(
-                                        selected ? Color.twinkoGold.opacity(0.6) : Color.clear,
-                                        lineWidth: 1))
+                                HStack(spacing: 4) {
+                                    if selected {
+                                        Image(systemName: "checkmark")
+                                            .font(.system(size: 10, weight: .bold))
+                                            .foregroundStyle(Color.twinkoGold)
+                                    }
+                                    Text(option.label(lang))
+                                        .font(.system(.caption, design: .rounded)
+                                            .weight(selected ? .semibold : .medium))
+                                }
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                                .background(
+                                    selected ? Color.menuDeep : Color.deepSpace.opacity(0.4),
+                                    in: RoundedRectangle(cornerRadius: 14)
+                                )
+                                .foregroundStyle(Color.textInverseToken)
+                                .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(
+                                    selected ? Color.twinkoGold.opacity(0.7)
+                                             : Color.textInverseToken.opacity(0.12),
+                                    lineWidth: selected ? 1.4 : 1))
                             }
                             .accessibilityAddTraits(selected ? [.isSelected] : [])
                             .accessibilityIdentifier("meditationMood-\(option.rawValue)")
@@ -489,7 +559,7 @@ struct MeditationFlowView: View {
                     Text(MeditationStrings.done(lang))
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.twinkoPrimary)
+                .buttonStyle(.tarotMagicPrimary)
                 .padding(.horizontal, TwinkoSpacing.m)
                 .padding(.bottom, TwinkoSpacing.xl)
                 .accessibilityIdentifier("meditationDoneButton")
@@ -518,7 +588,7 @@ struct MeditationFlowView: View {
             } label: {
                 Text(MeditationStrings.retry(lang)).frame(maxWidth: .infinity)
             }
-            .buttonStyle(.twinkoPrimary)
+            .buttonStyle(.tarotMagicPrimary)
             .padding(.horizontal, TwinkoSpacing.xl)
             Spacer()
             Spacer()
@@ -526,21 +596,28 @@ struct MeditationFlowView: View {
     }
 }
 
-// MARK: - Session stage
+// MARK: - Session stage (auto-progressing)
 
-/// Text-guided session: one segment at a time (grounding → breathing →
-/// reflection → affirmation → closing) with a simple Continue/Finish
-/// progression, progress dots, and the session title + duration.
+/// One continuous guided session: the playback controller's clock
+/// advances segments automatically, so the user can close their eyes
+/// after starting. Controls are limited to pause/resume, narration,
+/// ambient sound (when an approved track exists), and the header exit.
 private struct MeditationSessionStage: View {
     let result: MeditationGenerationResult
-    @Binding var segmentIndex: Int
+    @ObservedObject var playback: MeditationPlaybackController
     let lang: AppLanguage
-    let onFinished: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private var segment: MeditationSegment { result.segments[segmentIndex] }
-    private var isLast: Bool { segmentIndex == result.segments.count - 1 }
+    private var segment: MeditationSegment {
+        result.segments[min(playback.segmentIndex, result.segments.count - 1)]
+    }
+
+    private var remainingLabel: String {
+        let minutes = playback.remainingSeconds / 60
+        let seconds = playback.remainingSeconds % 60
+        return String(format: "%d:%02d", minutes, seconds)
+    }
 
     var body: some View {
         VStack(spacing: TwinkoSpacing.m) {
@@ -549,9 +626,11 @@ private struct MeditationSessionStage: View {
                     .font(.system(.title3, design: .rounded).weight(.semibold))
                     .foregroundStyle(Color.textInverseToken)
                     .multilineTextAlignment(.center)
-                Text(result.duration.label(lang))
+                Text(MeditationStrings.remaining(remainingLabel, lang))
                     .font(.system(.caption, design: .rounded))
                     .foregroundStyle(Color.textInverseToken.opacity(0.65))
+                    .monospacedDigit()
+                    .accessibilityLabel(Text(MeditationStrings.remaining(remainingLabel, lang)))
             }
             .padding(.horizontal, TwinkoSpacing.l)
 
@@ -561,7 +640,7 @@ private struct MeditationSessionStage: View {
             HStack(spacing: 7) {
                 ForEach(Array(result.segments.enumerated()), id: \.element.id) { index, _ in
                     Circle()
-                        .fill(index <= segmentIndex
+                        .fill(index <= playback.segmentIndex
                               ? Color.twinkoGold
                               : Color.textInverseToken.opacity(0.25))
                         .frame(width: 7, height: 7)
@@ -569,9 +648,9 @@ private struct MeditationSessionStage: View {
             }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(Text(MeditationStrings.segmentProgress(
-                segmentIndex + 1, result.segments.count, lang)))
+                playback.segmentIndex + 1, result.segments.count, lang)))
 
-            // Current segment
+            // Current segment — fades as the clock advances.
             VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
                 Label(segment.kind.label(lang), systemImage: segment.kind.icon)
                     .font(.system(.headline, design: .rounded))
@@ -590,27 +669,89 @@ private struct MeditationSessionStage: View {
             .padding(.horizontal, TwinkoSpacing.m)
             .id(segment.id)
             .transition(reduceMotion ? .identity : .opacity)
+            .animation(reduceMotion ? nil : .easeInOut(duration: 0.5),
+                       value: playback.segmentIndex)
             .accessibilityElement(children: .combine)
 
             Spacer()
 
-            Button {
-                if isLast {
-                    onFinished()
-                } else {
-                    withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.25)) {
-                        segmentIndex += 1
-                    }
-                }
-            } label: {
-                Text(isLast ? MeditationStrings.finish(lang) : MeditationStrings.next(lang))
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.twinkoPrimary)
-            .padding(.horizontal, TwinkoSpacing.m)
-            .padding(.bottom, TwinkoSpacing.xl)
-            .accessibilityIdentifier("meditationNextButton")
+            controls
         }
+    }
+
+    /// Quiet control row: pause/resume is the primary act; narration
+    /// and ambient toggles stay independent of the session clock.
+    private var controls: some View {
+        HStack(spacing: TwinkoSpacing.l) {
+            toggleControl(icon: playback.narrationEnabled
+                              ? "speaker.wave.2.fill" : "speaker.slash.fill",
+                          label: MeditationStrings.narration(lang),
+                          isOn: playback.narrationEnabled,
+                          identifier: "meditationNarrationToggle") {
+                playback.narrationEnabled.toggle()
+            }
+
+            Button {
+                if playback.isPaused {
+                    playback.resume()
+                } else {
+                    playback.pause()
+                }
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            } label: {
+                Image(systemName: playback.isPaused ? "play.fill" : "pause.fill")
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundStyle(Color.textInverseToken)
+                    .frame(width: 64, height: 64)
+                    .background(
+                        LinearGradient(colors: [.brandPurple, .brandPurpleDeep],
+                                       startPoint: .top, endPoint: .bottom),
+                        in: Circle())
+                    .overlay(Circle().strokeBorder(Color.twinkoGold.opacity(0.4),
+                                                   lineWidth: 1))
+                    .shadow(color: Color.brandPurpleDeep.opacity(0.4), radius: 8, y: 3)
+            }
+            .accessibilityLabel(Text(playback.isPaused
+                ? MeditationStrings.resume(lang) : MeditationStrings.pause(lang)))
+            .accessibilityIdentifier("meditationPauseResume")
+
+            if playback.ambientAvailable {
+                toggleControl(icon: playback.ambientEnabled
+                                  ? "music.note" : "music.note.list",
+                              label: MeditationStrings.ambientSound(lang),
+                              isOn: playback.ambientEnabled,
+                              identifier: "meditationAmbientToggle") {
+                    playback.ambientEnabled.toggle()
+                }
+            } else {
+                // Silent fallback: no approved ambient track is bundled
+                // yet, so the control is absent and the session flows on.
+                Color.clear.frame(width: 52, height: 52)
+            }
+        }
+        .padding(.bottom, TwinkoSpacing.xl)
+    }
+
+    private func toggleControl(icon: String, label: String, isOn: Bool,
+                               identifier: String,
+                               action: @escaping () -> Void) -> some View {
+        Button {
+            action()
+            UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+        } label: {
+            Image(systemName: icon)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundStyle(isOn ? Color.twinkoGold
+                                      : Color.textInverseToken.opacity(0.55))
+                .frame(width: 52, height: 52)
+                .background(Color.deepSpace.opacity(0.5), in: Circle())
+                .overlay(Circle().strokeBorder(
+                    isOn ? Color.twinkoGold.opacity(0.45)
+                         : Color.textInverseToken.opacity(0.15), lineWidth: 1))
+        }
+        .accessibilityLabel(Text(label))
+        .accessibilityValue(Text(isOn ? "on" : "off"))
+        .accessibilityIdentifier(identifier)
     }
 }
 
@@ -635,6 +776,7 @@ struct MeditationBreathingTwinko: View {
                 .scaledToFit()
                 .frame(width: size, height: size)
                 .scaleEffect(reduceMotion ? 1.0 : (breathing ? 1.03 : 0.99))
+                .offset(y: reduceMotion ? 0 : (breathing ? -3 : 3))
         }
         .accessibilityHidden(true)
         .onAppear {
@@ -650,5 +792,6 @@ struct MeditationBreathingTwinko: View {
     NavigationStack {
         MeditationFlowView()
             .environmentObject(PrefsStore())
+            .environmentObject(ShellChrome())
     }
 }

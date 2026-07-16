@@ -381,4 +381,12 @@ Basis：`docs/product/TWINKO_DECISION_LOG.md`（D-055）、Chairwoman Decision R
 - **導覽慣例：** Tarot 全程隱藏 bottom navigation；「回到首頁」一律回 Home root 並還原導覽列；「開始新的占卜」回主題設定。App-wide：非 root 的 pushed 頁面支援原生左緣滑動返回（Tarot 內部改為分段返回）。
 - 規格見 `docs/ux/TWINKOTALK_TAROT_JOURNEY_REDESIGN_V4.md`。
 
+
+### Meditation immersive session 與 exit flows（additive note — 2026-07-17）
+
+- **冥想改為連續自動推進的沉浸式體驗：已實作。** 三種入口（一般／聊天衍生／塔羅衍生）共用一條流程；個人化入口顯示精簡情緒摘要卡（不含原始內容），可一鍵「改用一般冥想」。Setup 無標題、全程隱藏 bottom navigation、選項推薦以次行「建議」標示且版面穩定、標準機型免捲動。
+- **Session 由單一 `MeditationPlaybackController` 時鐘驅動**：自動分段推進、暫停／繼續、完成僅觸發一次；旁白為可替換的 `AVSpeechSynthesizer` boundary（語言隨 locale）；環境音為可替換 boundary——**目前 repo 尚無核准的環境音檔**，故為靜音 fallback（不阻斷流程），待核准音檔交付即插入。
+- **完成與反思**：「你剛剛為自己留了一點空間」（無句號）＋現在感覺怎麼樣？選擇會連同完成／提前結束狀態寫入本機 `meditation_records`（不含逐字稿、不進 analytics）。結束確認為品牌化 modal（非系統 action sheet）。
+- **塔羅新增右上 X**：返回原始入口（Explore／Home 等，非強制回首頁）；洗牌後離開需品牌化確認（繼續占卜／離開占卜），閱讀狀態與已儲存小卡不受影響。
+
 - **Dogfooding distraction**：PM Workflow must prove value in a bounded Discovery-to-Decision slice before expanding。

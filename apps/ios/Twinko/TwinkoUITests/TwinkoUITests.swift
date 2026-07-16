@@ -1244,6 +1244,118 @@ final class TwinkoUITests: XCTestCase {
             NSPredicate(format: "label CONTAINS %@", "Cancel")).firstMatch)
     }
 
+    /// Focused Meditation walkthrough (2026-07-17): general + Chat +
+    /// Tarot entries, auto-progressing session with pause/resume,
+    /// branded exit modals, completion reflection, Tarot X.
+    /// -uiTestFastMeditation compresses the session clock (40 ms ticks)
+    /// without changing the session math.
+    func testMeditationImmersiveWalkthrough() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile", "-uiTestFastMeditation"]
+        app.launch()
+
+        // --- General entry from Explore: no context card, nav hidden.
+        XCTAssertTrue(app.buttons["tab-explore"].waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 3.0)
+        app.buttons["tab-explore"].tap()
+        XCTAssertTrue(app.buttons["explore-meditate"].waitForExistence(timeout: 5))
+        app.buttons["explore-meditate"].tap()
+        XCTAssertTrue(app.buttons["meditationStartButton"].waitForExistence(timeout: 5))
+        Thread.sleep(forTimeInterval: 0.8)
+        XCTAssertFalse(app.descendants(matching: .any)["meditationSourceCard"].exists,
+                       "General entry has no source context card")
+        XCTAssertFalse(app.buttons["tab-home"].exists,
+                       "Bottom navigation hidden throughout Meditation")
+        XCTAssertTrue(app.buttons["meditationFocus-sleep"].exists)
+        attach(name: "M1-general-setup")
+
+        // Start a three-minute session (fast clock in UI tests).
+        settleTap(app.buttons["meditationDuration-3"])
+        settleTap(app.buttons["meditationStartButton"])
+        let pauseResume = app.buttons["meditationPauseResume"]
+        XCTAssertTrue(pauseResume.waitForExistence(timeout: 8),
+                      "Session begins after generation")
+        attach(name: "M2-active-session")
+
+        // Pause / resume once.
+        settleTap(pauseResume)
+        Thread.sleep(forTimeInterval: 0.6)
+        settleTap(pauseResume)
+
+        // Exit once: branded modal appears; continue resumes.
+        settleTap(app.buttons["meditationBackButton"])
+        XCTAssertTrue(app.staticTexts["要先結束這段冥想嗎？"].waitForExistence(timeout: 4),
+                      "Branded Meditation exit modal")
+        attach(name: "M3-meditation-exit-modal")
+        settleTap(app.buttons["繼續冥想"])
+
+        // Auto progression completes on its own (fast clock ≈ 8 s).
+        XCTAssertTrue(app.staticTexts["你剛剛為自己留了一點空間"]
+            .waitForExistence(timeout: 30),
+            "Session auto-progresses to completion without Continue taps")
+        settleTap(app.buttons["meditationMood-calmer"])
+        settleTap(app.buttons["meditationDoneButton"])
+        XCTAssertTrue(app.buttons["tab-home"].waitForExistence(timeout: 5),
+                      "Bottom navigation restored after leaving Meditation")
+
+        // --- Chat-derived personalized entry.
+        app.buttons["tab-chat"].tap()
+        XCTAssertTrue(app.buttons["chatStarter-1"].waitForExistence(timeout: 5))
+        settleTap(app.buttons["chatStarter-1"])
+        let accept = app.buttons["chatMeditationAccept"]
+        XCTAssertTrue(accept.waitForExistence(timeout: 8),
+                      "Meditation offer follows the pressure prompt")
+        settleTap(accept)
+        XCTAssertTrue(app.descendants(matching: .any)["meditationSourceCard"]
+            .waitForExistence(timeout: 5), "Chat context card on personalized setup")
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "根據你剛剛的聊天")).firstMatch.exists)
+        XCTAssertTrue(app.buttons["meditationUseGeneral"].exists,
+                      "Quiet general-mode switch available")
+        XCTAssertFalse(app.buttons["tab-home"].exists,
+                       "Bottom navigation hidden on Chat-derived setup too")
+        attach(name: "M4-chat-personalized-setup")
+        settleTap(app.buttons["meditationBackButton"])
+        XCTAssertTrue(app.buttons["chatBackButton"].waitForExistence(timeout: 5))
+        settleTap(app.buttons["chatBackButton"])
+
+        // --- Tarot-derived personalized entry + Tarot X confirmation.
+        app.buttons["tab-explore"].tap()
+        XCTAssertTrue(app.buttons["explore-tarot"].waitForExistence(timeout: 5))
+        app.buttons["explore-tarot"].tap()
+        XCTAssertTrue(app.buttons["tarotTopic-relationships"].waitForExistence(timeout: 5))
+        Thread.sleep(forTimeInterval: 0.8)
+        scrollTap(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "下一步")).firstMatch, in: app)
+        XCTAssertTrue(app.buttons["tarotSpread-single"].waitForExistence(timeout: 5))
+        settleTap(app.buttons["tarotSpread-single"])
+        Thread.sleep(forTimeInterval: 4.6)
+        settleTap(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "蓋著的牌")).firstMatch)
+        scrollTap(app.buttons["tarotSeeReading"], in: app)
+        XCTAssertTrue(app.descendants(matching: .any)["tarotTwinkoMessage"]
+            .waitForExistence(timeout: 5))
+        scrollTap(app.buttons["tarotMeditationCTA"], in: app)
+        XCTAssertTrue(app.descendants(matching: .any)["meditationSourceCard"]
+            .waitForExistence(timeout: 5), "Tarot context card on personalized setup")
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "根據你剛剛的塔羅解讀")).firstMatch.exists)
+        settleTap(app.buttons["meditationBackButton"])
+
+        // In-progress Tarot X: branded confirmation, then exit to the
+        // original source (Explore) with the tab bar restored.
+        XCTAssertTrue(app.buttons["tarotExitButton"].waitForExistence(timeout: 5))
+        settleTap(app.buttons["tarotExitButton"])
+        XCTAssertTrue(app.staticTexts["要先離開這次占卜嗎？"].waitForExistence(timeout: 4),
+                      "Branded Tarot exit confirmation after meaningful progress")
+        attach(name: "M5-tarot-exit-modal")
+        settleTap(app.buttons["離開占卜"])
+        XCTAssertTrue(app.buttons["explore-tarot"].waitForExistence(timeout: 5),
+                      "Tarot X returns to its original source (Explore)")
+        XCTAssertTrue(app.buttons["tab-home"].waitForExistence(timeout: 4),
+                      "Bottom navigation restored after leaving Tarot")
+    }
+
     /// Waits out any in-flight transition, then taps via coordinate —
     /// coordinate taps skip the AX scroll-to-visible action that fails
     /// on animating elements.

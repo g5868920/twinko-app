@@ -271,3 +271,16 @@ no clipped text. Focused Three-Card walkthrough passed incl. Result→
 Back completed-reveal state, post-Guidance updates, and the three
 distinct sheet actions. Screenshots T1–T5. Single-card modes verified
 via unit tests + render probe.
+
+## 12. Flow exit control (2026-07-17)
+
+Top-right `X` on every Tarot stage (setup → guidance): Back = previous
+step, X = leave the whole flow to its **original source** (the flow is
+one pushed view, so dismiss returns to Explore, Home, or wherever it
+was entered — never forced to Home; the revealed root restores the tab
+bar). Before meaningful state (setup, spread) X exits directly; from
+the shuffle onward (`TarotFlowView.requiresExitConfirmation`) a branded
+confirmation appears: 「要先離開這次占卜嗎？」/「這次的占卜流程會先結
+束，你之後可以再重新開始。」· 繼續占卜 preserves all reading state /
+離開占卜 exits (saved Summary Cards untouched). Back, Back to Home, and
+Start a New Reading are unchanged.

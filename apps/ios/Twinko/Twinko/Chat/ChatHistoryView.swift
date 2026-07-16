@@ -6,6 +6,7 @@ import SwiftUI
 struct ChatHistoryView: View {
     @EnvironmentObject private var chatStore: ChatStore
     @EnvironmentObject private var prefs: PrefsStore
+    @EnvironmentObject private var chrome: ShellChrome
     @Environment(\.dismiss) private var dismiss
 
     @State private var renameTarget: ChatSession?
@@ -42,6 +43,12 @@ struct ChatHistoryView: View {
             }
         }
         .coordinateSpace(name: "historyRoot")
+        .onAppear {
+            // History is a landing-level screen: the bottom navigation
+            // is visible here (also restores it after leaving an
+            // active conversation opened from a row).
+            chrome.tabBarHidden = false
+        }
         .onPreferenceChange(MoreButtonFrameKey.self) { moreButtonFrames = $0 }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)

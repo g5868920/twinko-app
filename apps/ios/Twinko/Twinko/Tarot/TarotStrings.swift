@@ -84,6 +84,22 @@ enum TarotStrings {
         l == .english ? "Start a New Reading" : "開始新的占卜"
     }
     static func backHome(_ l: AppLanguage) -> String { l == .english ? "Back to Home" : "回到首頁" }
+
+    // Flow exit (top-right X, 2026-07-17)
+    static func exitConfirmTitle(_ l: AppLanguage) -> String {
+        l == .english ? "Leave this reading for now?" : "要先離開這次占卜嗎？"
+    }
+    static func exitConfirmBody(_ l: AppLanguage) -> String {
+        l == .english
+            ? "This reading will end for now — you can start again anytime."
+            : "這次的占卜流程會先結束，你之後可以再重新開始。"
+    }
+    static func exitConfirmStay(_ l: AppLanguage) -> String {
+        l == .english ? "Continue reading" : "繼續占卜"
+    }
+    static func exitConfirmLeave(_ l: AppLanguage) -> String {
+        l == .english ? "Leave reading" : "離開占卜"
+    }
     // Personalized Meditation section (one merged cross-feature card)
     static func meditationSectionTitle(_ l: AppLanguage) -> String {
         l == .english ? "Turn this guidance into a meditation" : "把這份指引化成一段冥想"

@@ -111,11 +111,11 @@ struct ChatView: View {
         .onChange(of: isConversationActive) { _, active in
             chrome.tabBarHidden = Self.hidesTabBar(conversationActive: active)
         }
-        .onDisappear {
-            // Landing-level screens (History, other pushes) show the
-            // bottom navigation again.
-            chrome.tabBarHidden = false
-        }
+        // No onDisappear reset: a pushed view's onAppear fires before
+        // this view's onDisappear, so resetting here would overwrite
+        // an immersive child (Meditation). Every destination declares
+        // its own chrome on appear instead (History below, Meditation,
+        // tab roots).
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { isDay = ChatDayNight.isDay() }
         }

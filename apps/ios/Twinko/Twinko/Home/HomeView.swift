@@ -73,7 +73,6 @@ struct HomeView: View {
             checkInCard
             twinkoAndBubble
             if let checkIn = todayCheckIn, !editingCheckIn {
-                recommendationActions(for: checkIn)
                 journeySection(for: checkIn)
             }
             Spacer(minLength: 0)
@@ -113,11 +112,19 @@ struct HomeView: View {
     }
 
     private var activeCheckIn: some View {
-        VStack(spacing: TwinkoSpacing.s) {
+        VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
+            // Reference header: ✨ 今日心情 + the state question.
+            HStack(spacing: 5) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 13))
+                    .foregroundStyle(Color.twinkoGold)
+                Text(HomeExperienceStrings.checkInTitle(lang))
+                    .font(.system(.subheadline, design: .rounded).weight(.bold))
+                    .foregroundStyle(Color.deepPlum)
+            }
             Text(HomeExperienceStrings.moodQuestion(lang))
-                .font(.system(.subheadline, design: .rounded).weight(.semibold))
-                .foregroundStyle(Color.deepPlum)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .font(.system(.footnote, design: .rounded))
+                .foregroundStyle(Color.deepPlum.opacity(0.7))
 
             HStack(spacing: 4) {
                 ForEach(CheckInMood.allCases) { mood in
@@ -128,7 +135,7 @@ struct HomeView: View {
                         }
                     } label: {
                         VStack(spacing: 3) {
-                            MoodOrbView(mood: mood, isSelected: selected, size: 44)
+                            MoodOrbView(mood: mood, isSelected: selected, size: 48)
                             Text(mood.label(lang))
                                 .font(.system(size: 11, design: .rounded)
                                     .weight(selected ? .bold : .regular))
@@ -147,10 +154,15 @@ struct HomeView: View {
             }
 
             if let mood = pendingMood {
+                Rectangle()
+                    .fill(Color.white.opacity(0.25))
+                    .frame(height: 1)
+                    .padding(.vertical, 1)
+                    .accessibilityHidden(true)
+                    .transition(.opacity)
                 Text(HomeExperienceStrings.needQuestion(lang))
                     .font(.system(.subheadline, design: .rounded).weight(.semibold))
                     .foregroundStyle(Color.deepPlum)
-                    .frame(maxWidth: .infinity, alignment: .leading)
                     .transition(.opacity)
 
                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 8),
@@ -164,14 +176,24 @@ struct HomeView: View {
                             }
                             UIImpactFeedbackGenerator(style: .light).impactOccurred()
                         } label: {
-                            HStack(spacing: 7) {
+                            // Reference chip: small filled icon square +
+                            // leading-aligned label.
+                            HStack(spacing: 8) {
                                 Image(systemName: need.icon)
-                                    .font(.system(size: 13, weight: .medium))
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundStyle(Color.softWhite)
+                                    .frame(width: 24, height: 24)
+                                    .background(Color.brandPurple.opacity(0.85),
+                                                in: RoundedRectangle(cornerRadius: 8))
                                 Text(need.label(lang))
                                     .font(.system(.subheadline, design: .rounded).weight(.medium))
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.8)
+                                Spacer(minLength: 0)
                             }
                             .foregroundStyle(Color.deepPlum)
-                            .frame(maxWidth: .infinity, minHeight: 42)
+                            .padding(.horizontal, 10)
+                            .frame(maxWidth: .infinity, minHeight: 44)
                             .twinkoGlass(cornerRadius: 16, tint: 0.3)
                             .contentShape(RoundedRectangle(cornerRadius: 16))
                         }
@@ -182,8 +204,9 @@ struct HomeView: View {
                 .transition(.opacity)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
-        .twinkoGlass(cornerRadius: 22, tint: 0.5)
+        .twinkoGlass(cornerRadius: 24, tint: 0.5)
         .accessibilityElement(children: .contain)
     }
 
@@ -230,9 +253,9 @@ struct HomeView: View {
             ZStack {
                 Circle()
                     .fill(Color(red: 1.0, green: 0.97, blue: 0.88))
-                    .frame(width: 118, height: 118)
-                    .blur(radius: 22)
-                    .opacity(0.32)
+                    .frame(width: 134, height: 134)
+                    .blur(radius: 24)
+                    .opacity(0.34)
                 if !reduceMotion {
                     ForEach(0..<3, id: \.self) { index in
                         Image(systemName: "sparkle")
@@ -245,7 +268,7 @@ struct HomeView: View {
                 Image("twinko_default_smile_v1_transparent")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 108, height: 108)
+                    .frame(width: 122, height: 122)
                     .offset(y: reduceMotion ? 0 : (floating ? -5 : 5))
                     .accessibilityLabel(Text("Twinko"))
             }
@@ -266,128 +289,162 @@ struct HomeView: View {
                 .twinkoGlass(cornerRadius: 10, tint: 0.4)
                 .accessibilityHidden(true)
 
+                // The reference embeds the recommendation inside the
+                // speech bubble: Twinko speaks, then offers the best
+                // next step and one quieter alternative. Existing
+                // provider and routing untouched.
                 TwinkoSpeechBubble {
-                    Text(recommender.twinkoMessage(context: personalizationContext, lang: lang))
-                        .font(.system(.footnote, design: .rounded).weight(.medium))
-                        .foregroundStyle(Color.deepPlum)
-                        .lineSpacing(2)
-                        .fixedSize(horizontal: false, vertical: true)
+                    VStack(alignment: .leading, spacing: 9) {
+                        Text(recommender.twinkoMessage(context: personalizationContext, lang: lang))
+                            .font(.system(.footnote, design: .rounded).weight(.medium))
+                            .foregroundStyle(Color.deepPlum)
+                            .lineSpacing(2)
+                            .fixedSize(horizontal: false, vertical: true)
+                        if let checkIn = todayCheckIn, !editingCheckIn {
+                            bubbleActions(for: checkIn)
+                        }
+                    }
                 }
                 .accessibilityIdentifier("homeTwinkoMessage")
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("homeRecommendationCard")
     }
 
-    // MARK: D — Primary recommendation (+ one quiet alternative)
+    // MARK: D — Recommendation actions inside the bubble (reference)
 
-    private func recommendationActions(for checkIn: DailyCheckIn) -> some View {
+    private func bubbleActions(for checkIn: DailyCheckIn) -> some View {
         let recommendation = recommender.recommendation(for: checkIn, lang: lang)
         return VStack(spacing: 4) {
             Button {
                 activeAction = recommendation.primaryAction
             } label: {
                 HStack(spacing: 7) {
-                    Image(systemName: "sparkles")
-                        .font(.system(size: 14))
-                        .foregroundStyle(Color.twinkoGold)
+                    Image(systemName: journeyIcon(recommendation.primaryAction))
+                        .font(.system(size: 13))
+                        .foregroundStyle(Color(hex: 0xE9DFFB))
                     Text(recommendation.primaryAction.label(lang))
-                        .font(.system(.headline, design: .rounded))
+                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
                         .foregroundStyle(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
                 }
-                .frame(maxWidth: .infinity, minHeight: 48)
+                .frame(maxWidth: .infinity, minHeight: 44)
                 .background(
                     LinearGradient(colors: [.brandPurpleDeep, .brandPurple],
                                    startPoint: .topLeading, endPoint: .bottomTrailing),
-                    in: RoundedRectangle(cornerRadius: 24)
+                    in: Capsule()
                 )
+                .overlay(Capsule().strokeBorder(Color(hex: 0xD9C8FF).opacity(0.6),
+                                                lineWidth: 1))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 24)
-                        .strokeBorder(Color(hex: 0xD9C8FF).opacity(0.6), lineWidth: 1)
+                    Capsule().fill(LinearGradient(
+                        colors: [Color.white.opacity(0.18), .clear],
+                        startPoint: .top, endPoint: .center))
                 )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 24)
-                        .fill(LinearGradient(colors: [Color.white.opacity(0.18), .clear],
-                                             startPoint: .top, endPoint: .center))
-                )
-                .shadow(color: Color.brandPurpleDeep.opacity(0.4), radius: 8, y: 3)
+                .shadow(color: Color.brandPurpleDeep.opacity(0.35), radius: 6, y: 2)
             }
             .buttonStyle(TwinkoGlassPressStyle())
             .accessibilityIdentifier("homePrimaryAction")
 
             if let secondary = recommendation.secondaryAction {
-                // Quieter ghost glass pill — clearly interactive, never
-                // plain floating text, still visually behind the CTA.
+                // Quieter in-bubble text link with a chevron.
                 Button {
                     activeAction = secondary
                 } label: {
-                    Text(secondary.label(lang))
-                        .font(.system(.footnote, design: .rounded).weight(.medium))
-                        .foregroundStyle(Color.softWhite.opacity(0.9))
-                        .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
-                        .padding(.horizontal, 16)
-                        .frame(minHeight: 34)
-                        .background(Color.white.opacity(0.10), in: Capsule())
-                        .overlay(Capsule().strokeBorder(
-                            Color.white.opacity(0.35), lineWidth: 1))
-                        .frame(minHeight: 44)
-                        .contentShape(Capsule())
+                    HStack(spacing: 3) {
+                        Text(secondary.label(lang))
+                            .font(.system(.footnote, design: .rounded).weight(.semibold))
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 10, weight: .bold))
+                    }
+                    .foregroundStyle(Color.brandPurpleDeep)
+                    .frame(maxWidth: .infinity, minHeight: 40)
+                    .contentShape(Rectangle())
                 }
-                .buttonStyle(TwinkoGlassPressStyle())
                 .accessibilityIdentifier("homeSecondaryAction")
             }
         }
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("homeRecommendationCard")
     }
 
     // MARK: E — Today's Companion Journey
 
+    /// One glass container per the reference: ✨ title + quiet
+    /// "pick freely" caption, then three connected step cards.
     private func journeySection(for checkIn: DailyCheckIn) -> some View {
         let steps = recommender.journey(for: checkIn, lang: lang)
-        return VStack(alignment: .leading, spacing: 6) {
-            Text(HomeExperienceStrings.journeyTitle(lang))
-                .font(.system(.subheadline, design: .rounded).weight(.semibold))
-                .foregroundStyle(Color.softWhite)
-                .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
+        return VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                HStack(spacing: 5) {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.twinkoGold)
+                    Text(HomeExperienceStrings.journeyTitle(lang))
+                        .font(.system(.subheadline, design: .rounded).weight(.bold))
+                        .foregroundStyle(Color.deepPlum)
+                }
+                Spacer()
+                HStack(spacing: 3) {
+                    Image(systemName: "heart")
+                        .font(.system(size: 9))
+                    Text(HomeExperienceStrings.journeyFreeChoice(lang))
+                        .font(.system(size: 10, design: .rounded))
+                }
+                .foregroundStyle(Color.deepPlum.opacity(0.55))
+            }
 
             HStack(spacing: 0) {
                 ForEach(steps) { step in
                     if step.index > 1 {
                         // Tiny constellation path between steps.
-                        VStack(spacing: 1) {
-                            Image(systemName: "sparkle")
-                                .font(.system(size: 7))
-                                .foregroundStyle(Color.twinkoGold.opacity(0.9))
-                            Rectangle()
-                                .fill(Color.twinkoGold.opacity(0.4))
-                                .frame(width: 12, height: 1)
-                        }
-                        .frame(width: 14)
-                        .accessibilityHidden(true)
+                        Image(systemName: "sparkle")
+                            .font(.system(size: 8))
+                            .foregroundStyle(Color.twinkoGold.opacity(0.9))
+                            .frame(width: 12)
+                            .accessibilityHidden(true)
                     }
                     journeyStepCard(step)
                 }
             }
         }
+        .padding(12)
+        .twinkoGlass(cornerRadius: 22, tint: 0.4)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("homeJourney")
     }
 
+    /// Reference card: tinted icon orb (numbered badge on its corner)
+    /// beside title + one-line purpose. Equal treatment for all three
+    /// steps — no fabricated progress state.
     private func journeyStepCard(_ step: HomeJourneyStep) -> some View {
-        Button {
+        let tint = journeyTint(step.action)
+        return Button {
             activeAction = step.action
         } label: {
-            VStack(spacing: 3) {
-                HStack(spacing: 4) {
+            VStack(spacing: 4) {
+                ZStack(alignment: .topLeading) {
+                    Circle()
+                        .fill(
+                            RadialGradient(colors: [tint.opacity(0.95), tint.opacity(0.7)],
+                                           center: .init(x: 0.35, y: 0.3),
+                                           startRadius: 2, endRadius: 22)
+                        )
+                        .overlay(Circle().strokeBorder(Color.white.opacity(0.4),
+                                                       lineWidth: 1))
+                        .frame(width: 32, height: 32)
+                        .overlay(
+                            Image(systemName: journeyIcon(step.action))
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundStyle(Color.softWhite)
+                        )
                     Text("\(step.index)")
-                        .font(.system(size: 10, weight: .bold, design: .rounded))
+                        .font(.system(size: 9, weight: .bold, design: .rounded))
                         .foregroundStyle(Color.inkNavy)
-                        .frame(width: 15, height: 15)
+                        .frame(width: 14, height: 14)
                         .background(Color.twinkoGold, in: Circle())
-                    Image(systemName: journeyIcon(step.action))
-                        .font(.system(size: 12))
-                        .foregroundStyle(Color.brandPurpleDeep)
+                        .offset(x: -4, y: -4)
                 }
                 Text(step.title)
                     .font(.system(size: 12, weight: .semibold, design: .rounded))
@@ -398,19 +455,29 @@ struct HomeView: View {
                     .font(.system(size: 10, design: .rounded))
                     .foregroundStyle(Color.deepPlum.opacity(0.6))
                     .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                    .minimumScaleFactor(0.75)
             }
-            .frame(maxWidth: .infinity, minHeight: 64)
-            .padding(.vertical, 6)
+            .frame(maxWidth: .infinity, minHeight: 72)
+            .padding(.vertical, 7)
             .padding(.horizontal, 4)
-            // Equal treatment for all three steps: no fabricated
-            // "current step" highlight — no real progress state exists.
-            .twinkoGlass(cornerRadius: 18, tint: 0.42)
-            .contentShape(RoundedRectangle(cornerRadius: 18))
+            .twinkoGlass(cornerRadius: 16, tint: 0.35)
+            .contentShape(RoundedRectangle(cornerRadius: 16))
         }
         .buttonStyle(TwinkoGlassPressStyle())
         .accessibilityIdentifier("journeyStep-\(step.index)")
         .accessibilityLabel(Text("\(step.index). \(step.title)，\(step.purpose)"))
+    }
+
+    /// Reference orb tints per destination family.
+    private func journeyTint(_ action: HomeAction) -> Color {
+        switch action {
+        case .chat: return Color(hex: 0x6B9BE8)
+        case .meditation: return Color(hex: 0x8E7AE6)
+        case .tarot: return Color(hex: 0x9A6FD0)
+        case .horoscope: return Color(hex: 0xF0A860)
+        case .music: return Color(hex: 0xC77BD0)
+        case .activities: return Color(hex: 0x5C6FD8)
+        }
     }
 
     private func journeyIcon(_ action: HomeAction) -> String {
@@ -420,18 +487,23 @@ struct HomeView: View {
         case .tarot: return "moon.stars.fill"
         case .horoscope: return "star.circle.fill"
         case .music: return "music.note"
-        case .activities: return "mappin.and.ellipse"
+        case .activities: return "location.fill"
         }
     }
 
     // MARK: F — Explore More (five cosmic orbs)
 
     private var exploreMore: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(HomeExperienceStrings.exploreMore(lang))
-                .font(.system(.caption, design: .rounded).weight(.semibold))
-                .foregroundStyle(Color.softWhite.opacity(0.85))
-                .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 5) {
+                Image(systemName: "sparkle")
+                    .font(.system(size: 11))
+                    .foregroundStyle(Color.twinkoGold)
+                Text(HomeExperienceStrings.exploreMore(lang))
+                    .font(.system(.subheadline, design: .rounded).weight(.bold))
+                    .foregroundStyle(Color.softWhite)
+                    .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
+            }
             HStack(spacing: 6) {
                 // Tarot uses the same mini-card-with-star identity as
                 // its Explore-map planet (spec icon concept).
@@ -473,11 +545,13 @@ struct HomeView: View {
                 exploreEntry(.music, glyph: "music.note", tint: Color(hex: 0x9A4FB0),
                              title: HomeExperienceStrings.entryMusic(lang),
                              desc: HomeExperienceStrings.entryMusicDesc(lang))
-                exploreEntry(.activities, glyph: "mappin.and.ellipse", tint: Color(hex: 0xC77B4E),
+                exploreEntry(.activities, glyph: "location.fill", tint: Color(hex: 0x5C6FD8),
                              title: HomeExperienceStrings.entryActivities(lang),
                              desc: HomeExperienceStrings.entryActivitiesDesc(lang))
             }
         }
+        .padding(10)
+        .twinkoGlass(cornerRadius: 22, tint: 0.28)
     }
 
     private func exploreEntry(_ action: HomeAction, glyph: String, tint: Color,

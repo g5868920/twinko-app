@@ -510,8 +510,12 @@ enum HomeExperienceStrings {
     static func greetingSupport(_ l: AppLanguage) -> String {
         l == .english ? "Which part of you needs care today?" : "今天想先照顧哪一部分的自己？"
     }
+    /// Section title + question copy per home_reference_v2.
+    static func checkInTitle(_ l: AppLanguage) -> String {
+        l == .english ? "Today's Mood" : "今日心情"
+    }
     static func moodQuestion(_ l: AppLanguage) -> String {
-        l == .english ? "How are you feeling right now?" : "你現在感覺如何？"
+        l == .english ? "Which state feels most like you right now?" : "現在的你比較像哪一種狀態？"
     }
     static func needQuestion(_ l: AppLanguage) -> String {
         l == .english ? "What do you need most right now?" : "現在最需要什麼？"
@@ -546,26 +550,30 @@ enum HomeExperienceStrings {
     static func journeyTitle(_ l: AppLanguage) -> String {
         l == .english ? "Today's Companion Journey" : "今天的陪伴旅程"
     }
+    /// Quiet right-side caption on the Journey header (reference).
+    static func journeyFreeChoice(_ l: AppLanguage) -> String {
+        l == .english ? "Pick freely, start anytime" : "自由選擇，隨時開始"
+    }
 
     // Explore More (Home)
     static func exploreMore(_ l: AppLanguage) -> String {
-        l == .english ? "Explore more" : "探索更多"
+        l == .english ? "Explore" : "探索"
     }
     static func entryTarot(_ l: AppLanguage) -> String { l == .english ? "Tarot" : "塔羅" }
     static func entryTarotDesc(_ l: AppLanguage) -> String {
-        l == .english ? "Find direction" : "陪你找方向"
+        l == .english ? "Find guidance" : "聆聽指引"
     }
     static func entryHoroscope(_ l: AppLanguage) -> String { l == .english ? "Horoscope" : "星座" }
     static func entryHoroscopeDesc(_ l: AppLanguage) -> String {
-        l == .english ? "See today" : "看看今天"
+        l == .english ? "Today’s energy" : "今日能量"
     }
     static func entryMeditation(_ l: AppLanguage) -> String { l == .english ? "Meditation" : "冥想" }
     static func entryMeditationDesc(_ l: AppLanguage) -> String {
-        l == .english ? "Feel grounded" : "安定身心"
+        l == .english ? "Calm your mind" : "平靜身心"
     }
     static func entryMusic(_ l: AppLanguage) -> String { l == .english ? "Music" : "音樂" }
     static func entryMusicDesc(_ l: AppLanguage) -> String {
-        l == .english ? "Gentle company" : "療癒陪伴"
+        l == .english ? "Healing rhythms" : "療癒旋律"
     }
     static func entryActivities(_ l: AppLanguage) -> String { l == .english ? "Activities" : "活動" }
     static func entryActivitiesDesc(_ l: AppLanguage) -> String {

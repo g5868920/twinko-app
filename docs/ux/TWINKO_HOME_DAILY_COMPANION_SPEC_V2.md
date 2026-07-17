@@ -188,3 +188,29 @@ screenshots were re-taken. EN spot check on the completed Home via
 dock label). Reduce Motion verified by code inspection (existing
 branches; no new motion system added). Three screenshots (S1–S3) plus
 one replacement capture after the Activities-glyph correction.
+
+## Addendum 2 — home_reference_v2 applied (2026-07-17)
+
+Gina supplied the actual `home_reference_v2` visual inline (not yet
+exported into `docs/ux/references/` — drop it there when convenient).
+Applied against it, preserving all working logic and `bg_home_screen_v2`:
+
+- Check-in card gains the ✨ 今日心情 / Today's Mood header + state
+  question 「現在的你比較像哪一種狀態？」; mood orbs enlarged (48 pt),
+  selected check moved to the reference position; a faint divider
+  precedes 現在最需要什麼？; need chips restyled as leading-aligned
+  rows with small filled icon squares. Instant save-and-collapse
+  behavior retained (founder decision).
+- Recommendation actions moved inside Twinko's speech bubble (primary
+  capsule CTA with its action icon + quieter text-link secondary with
+  chevron); Twinko enlarged to 122 pt. Provider/routing unchanged.
+- Journey wrapped in one glass container with the ♡ 自由選擇，隨時開始
+  caption; step cards use tinted icon orbs with corner number badges.
+- Explore wrapped in a glass container, title 探索 / Explore;
+  descriptors updated to the approved set (聆聽指引/今日能量/平靜身心/
+  療癒旋律/探索附近); Activities uses the reference's arrow glyph in a
+  blue orb (founder decision, supersedes the earlier no-arrow rule on
+  Home). Dock unchanged: rocket + drawn planet retained (founder
+  decision over the reference's two-planet dock).
+- Per founder instruction, no tests or walkthroughs were run for this
+  pass — one compile-check build only.

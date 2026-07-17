@@ -196,23 +196,25 @@ struct TwinkoGlassDock: View {
         .padding(.horizontal, 6)
         .frame(height: 68)
         .background {
+            // Brighter reference glass (2026-07-18): whiter, more
+            // luminous capsule — the world stays visible through it.
             RoundedRectangle(cornerRadius: 32, style: .continuous)
-                .fill(.thinMaterial)
+                .fill(.ultraThinMaterial)
                 .overlay(
                     RoundedRectangle(cornerRadius: 32, style: .continuous)
-                        .fill(Color(hex: 0xEFE7FA).opacity(0.16))
+                        .fill(Color(hex: 0xF6F0FC).opacity(0.30))
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 32, style: .continuous)
-                        .fill(LinearGradient(colors: [Color.white.opacity(0.18), .clear],
+                        .fill(LinearGradient(colors: [Color.white.opacity(0.28), .clear],
                                              startPoint: .top, endPoint: .center))
                 )
         }
         .overlay(
             RoundedRectangle(cornerRadius: 32, style: .continuous)
-                .strokeBorder(Color.white.opacity(0.4), lineWidth: 1)
+                .strokeBorder(Color.white.opacity(0.55), lineWidth: 1)
         )
-        .shadow(color: Color.deepSpace.opacity(0.25), radius: 14, y: 6)
+        .shadow(color: Color.deepSpace.opacity(0.20), radius: 14, y: 6)
         .padding(.horizontal, 16)
         .padding(.bottom, 4)
     }
@@ -232,12 +234,17 @@ struct TwinkoGlassDock: View {
                     .foregroundStyle(Color.twinkoGold.opacity(selected ? 1 : 0.55))
                     .offset(x: 9, y: -10)
             case .chat:
+                // Reference chat icon: bubble with two tiny stars
+                // inside (outline when inactive, filled when active).
                 Image(systemName: selected ? "bubble.left.fill" : "bubble.left")
                     .font(.system(size: 18, weight: .medium))
-                Image(systemName: "sparkle")
-                    .font(.system(size: 6))
-                    .foregroundStyle(Color.twinkoGold.opacity(selected ? 1 : 0.55))
-                    .offset(x: 8, y: -8)
+                HStack(spacing: 2) {
+                    Image(systemName: "star.fill").font(.system(size: 4.5))
+                    Image(systemName: "star.fill").font(.system(size: 3.5))
+                }
+                .foregroundStyle(selected ? Color.twinkoGold
+                                          : Color.twinkoGold.opacity(0.7))
+                .offset(x: -1, y: -3)
             case .explore:
                 // Cosmic navigator: a small drawn rocket ship with a
                 // gold trail — clearly "exploration", never a generic

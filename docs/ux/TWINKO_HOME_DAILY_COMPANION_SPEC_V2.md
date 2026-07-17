@@ -214,3 +214,33 @@ Applied against it, preserving all working logic and `bg_home_screen_v2`:
   decision over the reference's two-planet dock).
 - Per founder instruction, no tests or walkthroughs were run for this
   pass — one compile-check build only.
+
+## Addendum 2 — reference asset crops + brightened glass (2026-07-18)
+
+Founder-directed pass matching `home_reference_v2` (supplied in
+conversation; visually continuous with the committed
+`home_reference_v1.png`, which served as the crop source):
+
+- **Reference artwork in the UI.** Eleven circular crops from
+  `home_reference_v1.png` now live in the asset catalog
+  (`ref_mood_{happy,calm,anxious,tired,confused}_v1`,
+  `ref_icon_{chat,moon,star_orange,tarot,star_gold,music}_v1`) and are
+  used by the mood orbs (`MoodOrbView`), Journey step icons, and four
+  Explore orbs. They are placeholder-quality (≈45–50 pt source
+  resolution, circular masks) and should be swapped 1:1 when original
+  exports are provided. Activities has no crop in v1 and draws its
+  reference-style white-arrow blue orb in code (founder approved the
+  arrow, overriding the earlier beacon rule).
+- **Brightened glass.** `TwinkoGlassSurface` moved to ultraThin
+  material with a whiter lilac tint, stronger catch-light, and a
+  brighter border; Home's background readability veil dropped from
+  0.20/0.30 to 0.10/0.14; all Home container/bubble tints reduced —
+  surfaces now read as the reference's light translucent glass rather
+  than dulled panels. The shared dock uses the same brighter capsule
+  treatment; its chat icon carries the reference's two tiny stars
+  inside the bubble; Explore keeps the rocket (founder decision) and
+  My Planet the drawn ringed planet.
+- **Haptics.** Mood selection now fires the shared light haptic
+  (needs already did).
+- Per founder instruction, no tests or Simulator validation were run
+  for this pass beyond one compile-check build.

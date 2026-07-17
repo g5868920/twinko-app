@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "ref_mood_confused_v1.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

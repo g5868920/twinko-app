@@ -23,7 +23,8 @@ enum CheckInMood: String, Codable, CaseIterable, Identifiable {
         }
     }
 
-    /// Low-saturation orb base color (approved direction).
+    /// Low-saturation orb base color (approved direction) — still used
+    /// for the selected glow and shadows around the reference artwork.
     var orbColor: Color {
         switch self {
         case .happy: return Color(hex: 0xF4CF6E)      // warm yellow
@@ -33,6 +34,10 @@ enum CheckInMood: String, Codable, CaseIterable, Identifiable {
         case .confused: return Color(hex: 0xB6AFC9)   // lavender-gray
         }
     }
+
+    /// Reference-cropped mood face artwork (home_reference_v1, circular
+    /// crops in the asset catalog — replaceable with original exports).
+    var referenceAsset: String { "ref_mood_\(rawValue)_v1" }
 }
 
 /// Approved check-in needs.
@@ -377,28 +382,18 @@ struct MoodOrbView: View {
                     .blur(radius: size * 0.16)
                     .opacity(0.45)
             }
-            Circle()
-                .fill(
-                    RadialGradient(colors: [mood.orbColor.opacity(0.95),
-                                            mood.orbColor],
-                                   center: .init(x: 0.38, y: 0.3),
-                                   startRadius: 2, endRadius: size * 0.72)
-                )
+            // Reference artwork face (circular crop from
+            // home_reference_v1); glow/shadow stay code-rendered.
+            Image(mood.referenceAsset)
+                .resizable()
+                .scaledToFit()
+                .frame(width: size, height: size)
+                .clipShape(Circle())
                 .overlay(
                     Circle()
-                        .fill(Color.white.opacity(0.35))
-                        .frame(width: size * 0.26, height: size * 0.16)
-                        .blur(radius: 2)
-                        .offset(x: -size * 0.18, y: -size * 0.26)
-                )
-                .overlay(
-                    Circle()
-                        .strokeBorder(Color.white.opacity(isSelected ? 0.65 : 0), lineWidth: 1)
+                        .strokeBorder(Color.white.opacity(isSelected ? 0.6 : 0), lineWidth: 1)
                 )
                 .shadow(color: mood.orbColor.opacity(0.45), radius: isSelected ? 8 : 4, y: 2)
-
-            face
-                .offset(y: size * 0.02)
 
             if isSelected {
                 Image(systemName: "checkmark")

@@ -54,7 +54,7 @@ struct HomeView: View {
         }
         .background {
             TwinkoFullScreenBackground(imageName: TwinkoBackgrounds.homeResolved,
-                                       topOpacity: 0.20, bottomOpacity: 0.30)
+                                       topOpacity: 0.10, bottomOpacity: 0.14)
         }
         .dockClearance()
         .toolbar(.hidden, for: .navigationBar)
@@ -130,6 +130,7 @@ struct HomeView: View {
                 ForEach(CheckInMood.allCases) { mood in
                     let selected = pendingMood == mood
                     Button {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
                         withAnimation(reduceMotion ? nil : .easeOut(duration: 0.2)) {
                             pendingMood = mood
                         }
@@ -194,7 +195,7 @@ struct HomeView: View {
                             .foregroundStyle(Color.deepPlum)
                             .padding(.horizontal, 10)
                             .frame(maxWidth: .infinity, minHeight: 44)
-                            .twinkoGlass(cornerRadius: 16, tint: 0.3)
+                            .twinkoGlass(cornerRadius: 16, tint: 0.24)
                             .contentShape(RoundedRectangle(cornerRadius: 16))
                         }
                         .accessibilityIdentifier("need-\(need.rawValue)")
@@ -206,7 +207,7 @@ struct HomeView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
-        .twinkoGlass(cornerRadius: 24, tint: 0.5)
+        .twinkoGlass(cornerRadius: 24, tint: 0.34)
         .accessibilityElement(children: .contain)
     }
 
@@ -233,7 +234,7 @@ struct HomeView: View {
                     .foregroundStyle(Color.brandPurpleDeep)
                     .padding(.horizontal, 12)
                     .frame(minHeight: 30)
-                    .twinkoGlass(cornerRadius: 15, tint: 0.35)
+                    .twinkoGlass(cornerRadius: 15, tint: 0.28)
                     .frame(minHeight: 44)
                     .contentShape(Capsule())
             }
@@ -241,7 +242,7 @@ struct HomeView: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
-        .twinkoGlass(cornerRadius: 20, tint: 0.45)
+        .twinkoGlass(cornerRadius: 20, tint: 0.30)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("checkInSummary")
     }
@@ -286,7 +287,7 @@ struct HomeView: View {
                 }
                 .padding(.horizontal, 9)
                 .padding(.vertical, 3)
-                .twinkoGlass(cornerRadius: 10, tint: 0.4)
+                .twinkoGlass(cornerRadius: 10, tint: 0.3)
                 .accessibilityHidden(true)
 
                 // The reference embeds the recommendation inside the
@@ -410,7 +411,7 @@ struct HomeView: View {
             }
         }
         .padding(12)
-        .twinkoGlass(cornerRadius: 22, tint: 0.4)
+        .twinkoGlass(cornerRadius: 22, tint: 0.24)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("homeJourney")
     }
@@ -425,26 +426,37 @@ struct HomeView: View {
         } label: {
             VStack(spacing: 4) {
                 ZStack(alignment: .topLeading) {
-                    Circle()
-                        .fill(
-                            RadialGradient(colors: [tint.opacity(0.95), tint.opacity(0.7)],
-                                           center: .init(x: 0.35, y: 0.3),
-                                           startRadius: 2, endRadius: 22)
-                        )
-                        .overlay(Circle().strokeBorder(Color.white.opacity(0.4),
-                                                       lineWidth: 1))
-                        .frame(width: 32, height: 32)
-                        .overlay(
-                            Image(systemName: journeyIcon(step.action))
-                                .font(.system(size: 13, weight: .medium))
-                                .foregroundStyle(Color.softWhite)
-                        )
+                    // Reference-cropped icon orb; code-drawn fallback
+                    // for destinations without reference artwork.
+                    Group {
+                        if let asset = journeyAsset(step.action) {
+                            Image(asset)
+                                .resizable()
+                                .scaledToFit()
+                                .clipShape(Circle())
+                        } else {
+                            Circle()
+                                .fill(RadialGradient(
+                                    colors: [tint.opacity(0.95), tint.opacity(0.7)],
+                                    center: .init(x: 0.35, y: 0.3),
+                                    startRadius: 2, endRadius: 22))
+                                .overlay(
+                                    Image(systemName: journeyIcon(step.action))
+                                        .font(.system(size: 13, weight: .medium))
+                                        .foregroundStyle(Color.softWhite)
+                                )
+                        }
+                    }
+                    .frame(width: 34, height: 34)
+                    .shadow(color: tint.opacity(0.4), radius: 3, y: 1)
                     Text("\(step.index)")
                         .font(.system(size: 9, weight: .bold, design: .rounded))
-                        .foregroundStyle(Color.inkNavy)
-                        .frame(width: 14, height: 14)
-                        .background(Color.twinkoGold, in: Circle())
-                        .offset(x: -4, y: -4)
+                        .foregroundStyle(Color.softWhite)
+                        .frame(width: 15, height: 15)
+                        .background(tint, in: Circle())
+                        .overlay(Circle().strokeBorder(Color.white.opacity(0.7),
+                                                       lineWidth: 1))
+                        .offset(x: -5, y: -5)
                 }
                 Text(step.title)
                     .font(.system(size: 12, weight: .semibold, design: .rounded))
@@ -460,7 +472,7 @@ struct HomeView: View {
             .frame(maxWidth: .infinity, minHeight: 72)
             .padding(.vertical, 7)
             .padding(.horizontal, 4)
-            .twinkoGlass(cornerRadius: 16, tint: 0.35)
+            .twinkoGlass(cornerRadius: 16, tint: 0.26)
             .contentShape(RoundedRectangle(cornerRadius: 16))
         }
         .buttonStyle(TwinkoGlassPressStyle())
@@ -491,6 +503,19 @@ struct HomeView: View {
         }
     }
 
+    /// Reference-cropped orb artwork per destination (home_reference_v1
+    /// circular crops); nil falls back to the drawn orb.
+    private func journeyAsset(_ action: HomeAction) -> String? {
+        switch action {
+        case .chat: return "ref_icon_chat_v1"
+        case .meditation: return "ref_icon_moon_v1"
+        case .horoscope: return "ref_icon_star_orange_v1"
+        case .tarot: return "ref_icon_tarot_v1"
+        case .music: return "ref_icon_music_v1"
+        case .activities: return nil
+        }
+    }
+
     // MARK: F — Explore More (five cosmic orbs)
 
     private var exploreMore: some View {
@@ -505,64 +530,52 @@ struct HomeView: View {
                     .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
             }
             HStack(spacing: 6) {
-                // Tarot uses the same mini-card-with-star identity as
-                // its Explore-map planet (spec icon concept).
-                Button {
-                    activeAction = .tarot
-                } label: {
-                    VStack(spacing: 3) {
-                        TwinkoCosmicOrb(diameter: 42, tint: Color(hex: 0x6B4BA8)) {
-                            RoundedRectangle(cornerRadius: 2.5)
-                                .strokeBorder(Color(hex: 0xF6F0FF), lineWidth: 1.3)
-                                .frame(width: 13, height: 18)
-                                .overlay(Image(systemName: "star.fill").font(.system(size: 6)))
-                                .rotationEffect(.degrees(-8))
-                        }
-                        Text(HomeExperienceStrings.entryTarot(lang))
-                            .font(.system(size: 11, weight: .semibold, design: .rounded))
-                            .foregroundStyle(Color.softWhite)
-                            .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
-                        Text(HomeExperienceStrings.entryTarotDesc(lang))
-                            .font(.system(size: 9, design: .rounded))
-                            .foregroundStyle(Color.softWhite.opacity(0.75))
-                            .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.75)
-                    }
-                    .frame(maxWidth: .infinity, minHeight: 44)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(TwinkoGlassPressStyle())
-                .accessibilityIdentifier("homeEntry-\(HomeAction.tarot.id)")
-                .accessibilityLabel(Text("\(HomeExperienceStrings.entryTarot(lang))，\(HomeExperienceStrings.entryTarotDesc(lang))"))
-                exploreEntry(.horoscope, glyph: "star.circle.fill", tint: Color(hex: 0x4E5FB8),
+                exploreEntry(.tarot, asset: "ref_icon_tarot_v1",
+                             tint: Color(hex: 0x6B4BA8),
+                             title: HomeExperienceStrings.entryTarot(lang),
+                             desc: HomeExperienceStrings.entryTarotDesc(lang))
+                exploreEntry(.horoscope, asset: "ref_icon_star_gold_v1",
+                             tint: Color(hex: 0x4E5FB8),
                              title: HomeExperienceStrings.entryHoroscope(lang),
                              desc: HomeExperienceStrings.entryHoroscopeDesc(lang))
                 exploreEntry(.meditation(focus: .calmDown, duration: .five),
-                             glyph: "moon.zzz.fill", tint: Color(hex: 0x5D7BC8),
+                             asset: "ref_icon_moon_v1", tint: Color(hex: 0x5D7BC8),
                              title: HomeExperienceStrings.entryMeditation(lang),
                              desc: HomeExperienceStrings.entryMeditationDesc(lang))
-                exploreEntry(.music, glyph: "music.note", tint: Color(hex: 0x9A4FB0),
+                exploreEntry(.music, asset: "ref_icon_music_v1",
+                             tint: Color(hex: 0x9A4FB0),
                              title: HomeExperienceStrings.entryMusic(lang),
                              desc: HomeExperienceStrings.entryMusicDesc(lang))
-                exploreEntry(.activities, glyph: "location.fill", tint: Color(hex: 0x5C6FD8),
+                exploreEntry(.activities, asset: nil, tint: Color(hex: 0x5C6FD8),
                              title: HomeExperienceStrings.entryActivities(lang),
                              desc: HomeExperienceStrings.entryActivitiesDesc(lang))
             }
         }
         .padding(10)
-        .twinkoGlass(cornerRadius: 22, tint: 0.28)
+        .twinkoGlass(cornerRadius: 22, tint: 0.24)
     }
 
-    private func exploreEntry(_ action: HomeAction, glyph: String, tint: Color,
+    /// One explore item: reference-cropped orb artwork where available;
+    /// Activities draws its reference-style arrow orb in code (no crop
+    /// exists in home_reference_v1).
+    private func exploreEntry(_ action: HomeAction, asset: String?, tint: Color,
                               title: String, desc: String) -> some View {
         Button {
             activeAction = action
         } label: {
             VStack(spacing: 3) {
-                TwinkoCosmicOrb(diameter: 42, tint: tint) {
-                    Image(systemName: glyph).font(.system(size: 15, weight: .medium))
+                Group {
+                    if let asset {
+                        Image(asset)
+                            .resizable()
+                            .scaledToFit()
+                            .clipShape(Circle())
+                    } else {
+                        activitiesArrowOrb
+                    }
                 }
+                .frame(width: 44, height: 44)
+                .shadow(color: tint.opacity(0.45), radius: 4, y: 2)
                 Text(title)
                     .font(.system(size: 11, weight: .semibold, design: .rounded))
                     .foregroundStyle(Color.softWhite)
@@ -580,6 +593,34 @@ struct HomeView: View {
         .buttonStyle(TwinkoGlassPressStyle())
         .accessibilityIdentifier("homeEntry-\(action.id)")
         .accessibilityLabel(Text("\(title)，\(desc)"))
+    }
+
+    /// Reference-style Activities orb (white navigation arrow on a
+    /// blue-violet glossy sphere) drawn to match the cropped family.
+    private var activitiesArrowOrb: some View {
+        ZStack {
+            Circle()
+                .fill(RadialGradient(colors: [Color(hex: 0x8CA2F0),
+                                              Color(hex: 0x5C6FD8),
+                                              Color(hex: 0x4553B0)],
+                                     center: .init(x: 0.35, y: 0.28),
+                                     startRadius: 2, endRadius: 30))
+            Circle()
+                .fill(LinearGradient(stops: [
+                    .init(color: .white.opacity(0.45), location: 0),
+                    .init(color: .white.opacity(0), location: 0.5),
+                ], startPoint: .top, endPoint: .bottom))
+                .padding(2)
+            Image(systemName: "location.fill")
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(Color.white)
+                .shadow(color: Color(hex: 0x35418F).opacity(0.6), radius: 1, y: 1)
+            Image(systemName: "sparkle")
+                .font(.system(size: 6, weight: .bold))
+                .foregroundStyle(Color.twinkoGold.opacity(0.95))
+                .offset(x: 14, y: -14)
+        }
+        .accessibilityHidden(true)
     }
 
     // MARK: Routing
@@ -639,10 +680,10 @@ struct TwinkoSpeechBubble<Content: View>: View {
         content()
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
-            .twinkoGlass(cornerRadius: 18, tint: 0.5)
+            .twinkoGlass(cornerRadius: 18, tint: 0.32)
             .overlay(alignment: .leading) {
                 SpeechBubbleTail()
-                    .fill(Color(hex: 0xF3ECFA).opacity(0.85))
+                    .fill(Color(hex: 0xF8F3FD).opacity(0.9))
                     .frame(width: 10, height: 14)
                     .offset(x: -8)
                     .accessibilityHidden(true)

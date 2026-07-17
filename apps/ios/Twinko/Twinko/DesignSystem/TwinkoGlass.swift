@@ -64,21 +64,25 @@ struct TwinkoGlassSurface: ViewModifier {
     var selected: Bool = false
 
     func body(content: Content) -> some View {
+        // Brightened reference glass (home_reference_v2 pass,
+        // 2026-07-18): whiter lilac tint, stronger catch-light and
+        // border so surfaces read as light translucent glass instead of
+        // dulled panels — the illustrated world stays visible through.
         content
             .background {
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .fill(.thinMaterial)
+                    .fill(.ultraThinMaterial)
                     .overlay(
                         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                             .fill(selected
-                                  ? Color.brandPurple.opacity(0.22)
-                                  : Color(hex: 0xE7DDF6).opacity(tint))
+                                  ? Color.brandPurple.opacity(0.20)
+                                  : Color(hex: 0xF4EEFC).opacity(tint * 0.9))
                     )
                     .overlay(
-                        // Subtle top-leading inner highlight.
+                        // Soft top catch-light.
                         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                             .fill(LinearGradient(
-                                colors: [Color.white.opacity(0.16), .clear],
+                                colors: [Color.white.opacity(0.26), .clear],
                                 startPoint: .topLeading, endPoint: .center))
                     )
             }
@@ -86,10 +90,10 @@ struct TwinkoGlassSurface: ViewModifier {
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                     .strokeBorder(selected
                                   ? Color(hex: 0xD9C8FF).opacity(0.85)
-                                  : Color.white.opacity(0.32),
+                                  : Color.white.opacity(0.5),
                                   lineWidth: 1)
             )
-            .shadow(color: Color.deepSpace.opacity(0.18), radius: 10, y: 4)
+            .shadow(color: Color.deepSpace.opacity(0.14), radius: 10, y: 4)
     }
 }
 

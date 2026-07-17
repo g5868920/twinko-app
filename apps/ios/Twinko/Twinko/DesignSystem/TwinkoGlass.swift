@@ -62,12 +62,21 @@ struct TwinkoGlassSurface: ViewModifier {
     var cornerRadius: CGFloat = 24
     var tint: Double = 0.12
     var selected: Bool = false
+    /// Warm speech glass (Twinko's bubble family): ivory-lilac instead
+    /// of the atmospheric lavender — warmer, highest readability.
+    var warm: Bool = false
+
+    /// Atmospheric lavender tint pair (top slightly brighter — subtle
+    /// vertical tonal variation, never a strong gradient band).
+    private var tintTop: Color { warm ? Color(hex: 0xFFF2E2) : Color(hex: 0xDBCDFA) }
+    private var tintBottom: Color { warm ? Color(hex: 0xEFDDF2) : Color(hex: 0xBBA9EE) }
 
     func body(content: Content) -> some View {
-        // Brightened reference glass (home_reference_v2 pass,
-        // 2026-07-18): whiter lilac tint, stronger catch-light and
-        // border so surfaces read as light translucent glass instead of
-        // dulled panels — the illustrated world stays visible through.
+        // Container-material polish (2026-07-18): translucent
+        // lavender / blue-violet atmospheric glass over the material
+        // blur — the background bleeds through and shifts the glass
+        // cooler over purple sky and warmer over the peach clouds.
+        // Never milky white, gray, or beige.
         content
             .background {
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
@@ -75,22 +84,35 @@ struct TwinkoGlassSurface: ViewModifier {
                     .overlay(
                         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                             .fill(selected
-                                  ? Color.brandPurple.opacity(0.20)
-                                  : Color(hex: 0xF4EEFC).opacity(tint * 0.9))
+                                  ? AnyShapeStyle(Color.brandPurple.opacity(0.20))
+                                  : AnyShapeStyle(LinearGradient(
+                                        colors: [tintTop.opacity(tint * 0.95),
+                                                 tintBottom.opacity(tint * 0.7)],
+                                        startPoint: .top, endPoint: .bottom)))
                     )
                     .overlay(
-                        // Soft top catch-light.
+                        // Subtle inner top-edge highlight fading down —
+                        // dimensional glass depth, never a white sheet.
                         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                            .fill(LinearGradient(
-                                colors: [Color.white.opacity(0.26), .clear],
-                                startPoint: .topLeading, endPoint: .center))
+                            .fill(LinearGradient(stops: [
+                                .init(color: Color.white.opacity(0.22), location: 0),
+                                .init(color: Color.white.opacity(0), location: 0.32),
+                            ], startPoint: .top, endPoint: .bottom))
                     )
             }
             .overlay(
+                // Soft lilac-white border, slightly stronger along the
+                // top edge — luminous, never a neon ring.
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                     .strokeBorder(selected
-                                  ? Color(hex: 0xD9C8FF).opacity(0.85)
-                                  : Color.white.opacity(0.5),
+                                  ? AnyShapeStyle(Color(hex: 0xD9C8FF).opacity(0.85))
+                                  : AnyShapeStyle(LinearGradient(stops: [
+                                        .init(color: Color.white.opacity(0.65), location: 0),
+                                        .init(color: Color(hex: 0xD1C4FF).opacity(0.38),
+                                              location: 0.55),
+                                        .init(color: Color(hex: 0xD1C4FF).opacity(0.30),
+                                              location: 1),
+                                    ], startPoint: .top, endPoint: .bottom)),
                                   lineWidth: 1)
             )
             .shadow(color: Color.deepSpace.opacity(0.14), radius: 10, y: 4)
@@ -99,9 +121,9 @@ struct TwinkoGlassSurface: ViewModifier {
 
 extension View {
     func twinkoGlass(cornerRadius: CGFloat = 24, tint: Double = 0.12,
-                     selected: Bool = false) -> some View {
+                     selected: Bool = false, warm: Bool = false) -> some View {
         modifier(TwinkoGlassSurface(cornerRadius: cornerRadius, tint: tint,
-                                    selected: selected))
+                                    selected: selected, warm: warm))
     }
 }
 

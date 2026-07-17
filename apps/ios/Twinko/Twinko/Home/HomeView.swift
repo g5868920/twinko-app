@@ -680,10 +680,12 @@ struct TwinkoSpeechBubble<Content: View>: View {
         content()
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
-            .twinkoGlass(cornerRadius: 18, tint: 0.32)
+            // Warm speech glass — ivory-lilac, warmer and more
+            // readable than the atmospheric containers.
+            .twinkoGlass(cornerRadius: 18, tint: 0.34, warm: true)
             .overlay(alignment: .leading) {
                 SpeechBubbleTail()
-                    .fill(Color(hex: 0xF8F3FD).opacity(0.9))
+                    .fill(Color(hex: 0xFBF1E8).opacity(0.9))
                     .frame(width: 10, height: 14)
                     .offset(x: -8)
                     .accessibilityHidden(true)

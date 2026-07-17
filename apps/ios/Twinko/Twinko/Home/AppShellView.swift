@@ -196,25 +196,38 @@ struct TwinkoGlassDock: View {
         .padding(.horizontal, 6)
         .frame(height: 68)
         .background {
-            // Brighter reference glass (2026-07-18): whiter, more
-            // luminous capsule — the world stays visible through it.
+            // Floating navigation glass (material polish 2026-07-18):
+            // translucent lavender capsule in the same atmospheric
+            // family, slightly stronger separation than page cards —
+            // the world stays visible through it.
             RoundedRectangle(cornerRadius: 32, style: .continuous)
                 .fill(.ultraThinMaterial)
                 .overlay(
                     RoundedRectangle(cornerRadius: 32, style: .continuous)
-                        .fill(Color(hex: 0xF6F0FC).opacity(0.30))
+                        .fill(LinearGradient(
+                            colors: [Color(hex: 0xDBCDFA).opacity(0.34),
+                                     Color(hex: 0xBBA9EE).opacity(0.26)],
+                            startPoint: .top, endPoint: .bottom))
                 )
                 .overlay(
+                    // Soft top highlight fading down.
                     RoundedRectangle(cornerRadius: 32, style: .continuous)
-                        .fill(LinearGradient(colors: [Color.white.opacity(0.28), .clear],
-                                             startPoint: .top, endPoint: .center))
+                        .fill(LinearGradient(stops: [
+                            .init(color: Color.white.opacity(0.24), location: 0),
+                            .init(color: Color.white.opacity(0), location: 0.4),
+                        ], startPoint: .top, endPoint: .bottom))
                 )
         }
         .overlay(
             RoundedRectangle(cornerRadius: 32, style: .continuous)
-                .strokeBorder(Color.white.opacity(0.55), lineWidth: 1)
+                .strokeBorder(
+                    LinearGradient(stops: [
+                        .init(color: Color.white.opacity(0.6), location: 0),
+                        .init(color: Color(hex: 0xD1C4FF).opacity(0.35), location: 0.6),
+                    ], startPoint: .top, endPoint: .bottom),
+                    lineWidth: 1)
         )
-        .shadow(color: Color.deepSpace.opacity(0.20), radius: 14, y: 6)
+        .shadow(color: Color.deepSpace.opacity(0.22), radius: 14, y: 6)
         .padding(.horizontal, 16)
         .padding(.bottom, 4)
     }

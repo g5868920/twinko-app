@@ -136,6 +136,7 @@ struct ChatView: View {
                 Color.clear.frame(width: 44, height: 44)
             } else {
                 Button {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     if isTabRoot {
                         // Leave the active conversation back to the
                         // Chat landing (the conversation stays saved).
@@ -152,6 +153,7 @@ struct ChatView: View {
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
                 }
+                .buttonStyle(ChatControlPressStyle())
                 .accessibilityLabel(Text(lang == .english ? "Back" : "返回"))
                 .accessibilityIdentifier("chatBackButton")
             }
@@ -161,24 +163,37 @@ struct ChatView: View {
                 isInputFocused = false
                 withAnimation(.easeOut(duration: 0.2)) { showingQuickMenu.toggle() }
             } label: {
-                // Brighter, dimensional star: highlight-to-gold
-                // gradient with a restrained magical glow, clearly
-                // separated from its circular surface.
+                // Premium glass orb (refinement 2026-07-17): white-lilac
+                // translucent surface with a soft lilac border holding a
+                // richer dimensional gold star + tiny sparkle accent —
+                // never a flat opaque white circle.
                 Image(systemName: "star.fill")
                     .font(.system(size: 17))
                     .foregroundStyle(
-                        LinearGradient(colors: [Color(hex: 0xFFE9A6), .twinkoGold],
+                        LinearGradient(colors: [Color(hex: 0xFFE9A6), .twinkoGoldDeep],
                                        startPoint: .topLeading,
                                        endPoint: .bottomTrailing))
-                    .shadow(color: Color.twinkoGold.opacity(0.7), radius: 5)
+                    .shadow(color: Color.twinkoGold.opacity(0.75), radius: 4)
+                    .overlay(alignment: .topTrailing) {
+                        Image(systemName: "sparkle")
+                            .font(.system(size: 6, weight: .bold))
+                            .foregroundStyle(Color.white.opacity(0.9))
+                            .offset(x: 3, y: -2)
+                    }
                     .frame(width: 38, height: 38)
-                    .background(Color.surfacePrimary.opacity(0.92), in: Circle())
-                    .overlay(Circle().strokeBorder(Color.twinkoGold.opacity(0.35),
+                    .background(
+                        Circle().fill(
+                            LinearGradient(colors: [Color.white.opacity(0.80),
+                                                    Color(hex: 0xD9CFF2).opacity(0.60)],
+                                           startPoint: .top, endPoint: .bottom))
+                    )
+                    .overlay(Circle().strokeBorder(Color(hex: 0xB9A8E8).opacity(0.75),
                                                    lineWidth: 1))
-                    .shadow(color: Color.deepPlum.opacity(0.15), radius: 3, y: 1)
+                    .shadow(color: Color.brandPurpleDeep.opacity(0.22), radius: 4, y: 2)
                     .frame(width: 44, height: 44)
                     .contentShape(Circle())
             }
+            .buttonStyle(ChatControlPressStyle())
             .accessibilityLabel(Text(lang == .english ? "Chat menu" : "聊天選單"))
             .accessibilityIdentifier("chatMenuButton")
         }
@@ -188,100 +203,130 @@ struct ChatView: View {
 
     // MARK: Empty state
 
+    /// One-scene landing (refinement 2026-07-17): no normal vertical
+    /// scrolling — `ViewThatFits` measures the fixed hero content and
+    /// falls back to a controlled scroll only for very small screens,
+    /// Accessibility Dynamic Type, or the open keyboard. Flexible
+    /// spacers in the standard branch balance the scene between the
+    /// floating header and the composer.
     private var emptyState: some View {
-        GeometryReader { geo in
-            let compact = geo.size.width < 380
-            let twinkoWidth: CGFloat = compact ? 132 : 156
+        ViewThatFits(in: .vertical) {
+            VStack(spacing: 20) {
+                Spacer(minLength: 8)
+                landingHero
+                Spacer(minLength: 8)
+            }
             ScrollView {
                 VStack(spacing: 20) {
-                    Spacer(minLength: geo.size.height * 0.04)
-
-                    ZStack {
-                        Circle()
-                            .fill(Color(red: 1.0, green: 0.97, blue: 0.88))
-                            .frame(width: twinkoWidth * 1.1, height: twinkoWidth * 1.1)
-                            .blur(radius: 22)
-                            .opacity(0.22)
-                        Image(twinkoAsset)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: twinkoWidth, height: twinkoWidth)
-                            .offset(y: reduceMotion ? 0 : (floating ? -5 : 5))
-                            .accessibilityLabel(Text("Twinko"))
-                    }
-
-                    VStack(spacing: 6) {
-                        Text(ChatStrings.introLine1(lang))
-                            .font(.system(.title3, design: .rounded).weight(.semibold))
-                            .foregroundStyle(Color.deepPlum)
-                        Text(ChatStrings.introLine2(lang))
-                            .font(.system(.body, design: .rounded))
-                            .foregroundStyle(Color.textSecondaryToken)
-                    }
-                    .multilineTextAlignment(.center)
-
-                    VStack(spacing: 10) {
-                        ForEach(Array(ChatStrings.starters(lang).enumerated()), id: \.offset) { index, starter in
-                            Button {
-                                // Starts the conversation directly with
-                                // this prompt as the first user message.
-                                viewModel.draftText = starter
-                                viewModel.send(lang: lang)
-                            } label: {
-                                // Suggestion card: translucent lavender
-                                // surface, icon chip, chevron — clearly
-                                // distinct from the white composer field
-                                // (which stays the stronger affordance).
-                                HStack(spacing: 10) {
-                                    Image(systemName: starterIcon(index))
-                                        .font(.system(size: 13, weight: .semibold))
-                                        .foregroundStyle(Color.brandPurpleDeep)
-                                        .frame(width: 28, height: 28)
-                                        .background(Color.surfacePrimary.opacity(0.95),
-                                                    in: Circle())
-                                        .overlay(Circle().strokeBorder(
-                                            Color.brandPurple.opacity(0.35), lineWidth: 1))
-                                    Text(starter)
-                                        .font(.system(.subheadline, design: .rounded))
-                                        .foregroundStyle(Color.deepPlum)
-                                        .lineLimit(2)
-                                        .multilineTextAlignment(.leading)
-                                        .fixedSize(horizontal: false, vertical: true)
-                                    Spacer(minLength: 6)
-                                    Image(systemName: "chevron.right")
-                                        .font(.system(size: 12, weight: .bold))
-                                        .foregroundStyle(Color.brandPurpleDeep.opacity(0.85))
-                                }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
-                                .frame(maxWidth: .infinity, minHeight: 44)
-                                .background(Color.brandPurple.opacity(0.18),
-                                            in: RoundedRectangle(cornerRadius: 16))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .strokeBorder(Color.brandPurple.opacity(0.4),
-                                                      lineWidth: 1)
-                                )
-                                .shadow(color: Color.brandPurpleDeep.opacity(0.12),
-                                        radius: 5, y: 2)
-                                .contentShape(RoundedRectangle(cornerRadius: 16))
-                            }
-                            .buttonStyle(TarotSuggestionPressStyle())
-                            .accessibilityIdentifier("chatStarter-\(index)")
-                        }
-                    }
-                    .padding(.horizontal, 20)
-
-                    Spacer(minLength: 16)
+                    landingHero
                 }
-                .frame(minHeight: geo.size.height)
+                .padding(.vertical, 8)
             }
             .scrollDismissesKeyboard(.interactively)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var landingHero: some View {
+        VStack(spacing: 20) {
+            ZStack {
+                Circle()
+                    .fill(Color(red: 1.0, green: 0.97, blue: 0.88))
+                    .frame(width: 170, height: 170)
+                    .blur(radius: 22)
+                    .opacity(0.22)
+                Image(twinkoAsset)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 156, height: 156)
+                    .offset(y: reduceMotion ? 0 : (floating ? -3.5 : 3.5))
+                    .accessibilityLabel(Text("Twinko"))
+            }
+
+            VStack(spacing: 6) {
+                Text(ChatStrings.introLine1(lang))
+                    .font(.system(.title3, design: .rounded).weight(.semibold))
+                    .foregroundStyle(Color.deepPlum)
+                Text(ChatStrings.introLine2(lang))
+                    .font(.system(.body, design: .rounded))
+                    .foregroundStyle(Color.textSecondaryToken)
+            }
+            .multilineTextAlignment(.center)
+
+            VStack(spacing: 12) {
+                ForEach(Array(ChatStrings.starters(lang).enumerated()), id: \.offset) { index, starter in
+                    promptCard(starter, index: index)
+                }
+            }
+            .padding(.horizontal, 20)
+        }
+    }
+
+    /// One coherent family of soft glass prompt cards: icon orb, prompt
+    /// text, chevron — warm translucent glass with a very subtle
+    /// per-card emotional tint. Height adapts to wrapped text.
+    private func promptCard(_ starter: String, index: Int) -> some View {
+        let tint = starterTint(index)
+        return Button {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            // Starts the conversation directly with this prompt as the
+            // first user message (existing behavior).
+            viewModel.draftText = starter
+            viewModel.send(lang: lang)
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: starterIcon(index))
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Color.brandPurpleDeep)
+                    .frame(width: 30, height: 30)
+                    .background(Color.white.opacity(0.75), in: Circle())
+                    .overlay(Circle().strokeBorder(tint.opacity(0.55), lineWidth: 1))
+                Text(starter)
+                    .font(.system(.subheadline, design: .rounded))
+                    .foregroundStyle(Color.deepPlum)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 6)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(Color.brandPurpleDeep.opacity(0.75))
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+            .frame(maxWidth: .infinity, minHeight: 52)
+            .background(
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(Color.white.opacity(0.42))
+                    .overlay(RoundedRectangle(cornerRadius: 18)
+                        .fill(tint.opacity(0.20)))
+            )
+            .overlay(
+                // Soft top catch-light + tinted border: glass, not a
+                // flat outlined form row.
+                RoundedRectangle(cornerRadius: 18)
+                    .strokeBorder(
+                        LinearGradient(stops: [
+                            .init(color: .white.opacity(0.8), location: 0),
+                            .init(color: tint.opacity(0.45), location: 0.6),
+                        ], startPoint: .top, endPoint: .bottom),
+                        lineWidth: 1)
+            )
+            .shadow(color: Color.brandPurpleDeep.opacity(0.14), radius: 6, y: 3)
+            .contentShape(RoundedRectangle(cornerRadius: 18))
+        }
+        .buttonStyle(ChatPromptPressStyle())
+        .accessibilityIdentifier("chatStarter-\(index)")
     }
 
     private func starterIcon(_ index: Int) -> String {
         ["bubble.left", "heart", "star"][index % 3]
+    }
+
+    /// Very subtle emotional tints — one family, three moods:
+    /// today = blue-lilac, pressure = lavender, company = warm lilac.
+    private func starterTint(_ index: Int) -> Color {
+        [Color(hex: 0x8FA0E8), Color(hex: 0xA88BFE), Color(hex: 0xD9A0C0)][index % 3]
     }
 
     // MARK: Message list
@@ -479,21 +524,36 @@ struct ChatView: View {
                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 viewModel.send(lang: lang)
             } label: {
-                // Premium purple send action (polish 2026-07-17): a
-                // calm violet gradient with restrained glow; disabled
-                // stays visible and intentional.
+                // Premium purple send action (refinement 2026-07-17):
+                // saturated lavender→brand-purple fill, soft top
+                // catch-light, and a restrained warm inner border.
+                // Disabled reads quieter but still clearly the send
+                // control; validity comes from the existing draft rule.
                 Image(systemName: "paperplane.fill")
                     .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(Color.textInverseToken.opacity(canSend ? 1 : 0.75))
+                    .foregroundStyle(Color.textInverseToken.opacity(canSend ? 1 : 0.6))
                     .frame(width: 44, height: 44)
                     .background(
                         canSend
                             ? AnyShapeStyle(LinearGradient(
-                                colors: [.brandPurple, .brandPurpleDeep],
+                                colors: [.brandPurple, Color(hex: 0x6A53C4)],
                                 startPoint: .top, endPoint: .bottom))
-                            : AnyShapeStyle(Color.brandPurple.opacity(0.30)),
+                            : AnyShapeStyle(Color.brandPurple.opacity(0.28)),
                         in: Circle())
-                    .shadow(color: canSend ? Color.brandPurpleDeep.opacity(0.35) : .clear,
+                    .overlay(
+                        // Dimensional highlight along the upper edge.
+                        Circle()
+                            .fill(LinearGradient(stops: [
+                                .init(color: .white.opacity(canSend ? 0.30 : 0.10), location: 0),
+                                .init(color: .white.opacity(0), location: 0.45),
+                            ], startPoint: .top, endPoint: .bottom))
+                            .padding(2)
+                            .allowsHitTesting(false)
+                    )
+                    .overlay(Circle().strokeBorder(
+                        Color(hex: 0xFFF3D6).opacity(canSend ? 0.55 : 0.15),
+                        lineWidth: 1))
+                    .shadow(color: canSend ? Color.brandPurpleDeep.opacity(0.40) : .clear,
                             radius: 6, y: 2)
             }
             .buttonStyle(PurplePressStyle(enabled: canSend))
@@ -585,27 +645,62 @@ struct ChatView: View {
         withAnimation(.easeOut(duration: 0.2)) { showingQuickMenu = false }
     }
 
+    /// Gentle landing float: ~7 pt vertical travel over a ~3.2 s
+    /// ease-in-out cycle. Reduce Motion keeps Twinko static; the
+    /// repeating animation stops with the view when Chat disappears.
     private func startIdle() {
         guard !reduceMotion else { return }
-        withAnimation(.easeInOut(duration: 4.0).repeatForever(autoreverses: true)) {
+        withAnimation(.easeInOut(duration: 3.2).repeatForever(autoreverses: true)) {
             floating = true
         }
     }
 }
 
-/// Purple send-button press treatment (polish 2026-07-17).
+/// Purple send-button press treatment: slight scale, soft halo, and a
+/// brief restrained sparkle shimmer (Reduce Motion: scale only).
 private struct PurplePressStyle: ButtonStyle {
     let enabled: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     func makeBody(configuration: Configuration) -> some View {
+        let pressed = configuration.isPressed && enabled
         configuration.label
             .background(
                 Circle()
-                    .fill(configuration.isPressed && enabled
-                          ? Color.brandPurpleDeep.opacity(0.45) : Color.clear)
+                    .fill(pressed ? Color.brandPurpleDeep.opacity(0.45) : Color.clear)
             )
-            .scaleEffect(configuration.isPressed && enabled ? 0.95 : 1.0)
+            .overlay {
+                if pressed && !reduceMotion {
+                    TarotPressSparkles()
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
+                }
+            }
+            .scaleEffect(pressed ? 0.95 : 1.0)
             .animation(.easeOut(duration: 0.14), value: configuration.isPressed)
+    }
+}
+
+/// Quiet pressed feedback for Chat's floating controls (Back, star
+/// orb): subtle scale + brightness lift, no heavy background.
+private struct ChatControlPressStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .brightness(configuration.isPressed ? 0.06 : 0)
+            .scaleEffect(configuration.isPressed ? 0.94 : 1.0)
+            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
+    }
+}
+
+/// Prompt-card press: surface brightens slightly and nudges ~2.5 pt
+/// toward its chevron with a light settle.
+private struct ChatPromptPressStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .brightness(configuration.isPressed ? 0.05 : 0)
+            .offset(x: configuration.isPressed ? 2.5 : 0)
+            .scaleEffect(configuration.isPressed ? 0.99 : 1.0)
+            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
     }
 }
 

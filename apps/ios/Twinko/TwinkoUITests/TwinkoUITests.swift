@@ -1146,6 +1146,101 @@ final class TwinkoUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Begin Meditation"].exists, "English unified CTA")
     }
 
+    /// Focused Chat UX-refinement walkthrough (2026-07-17): landing
+    /// without scrolling or a header bar, glass prompt cards, send
+    /// states, star orb action, dock hiding in an active conversation,
+    /// keyboard round-trip, Back restoring the landing + dock, and an
+    /// EN-locale landing wrap check.
+    func testChatUXRefinementWalkthrough() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile"]
+        app.launch()
+
+        // Landing: dock visible, three prompt cards, disabled send.
+        XCTAssertTrue(app.buttons["tab-chat"].waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 3.0)
+        app.buttons["tab-chat"].tap()
+        XCTAssertTrue(app.staticTexts["我在這裡陪你"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["tab-home"].exists, "Dock stays on the landing")
+        for index in 0..<3 {
+            XCTAssertTrue(app.buttons["chatStarter-\(index)"].exists, "Card \(index)")
+        }
+        let send = app.buttons["chatSendButton"]
+        XCTAssertTrue(send.exists)
+        XCTAssertFalse(send.isEnabled, "Empty draft disables send")
+        attach(name: "C1-landing")
+
+        // Star orb: existing menu action still opens, then closes.
+        settleTap(app.buttons["chatMenuButton"])
+        XCTAssertTrue(app.buttons["menuNewChatRow"].waitForExistence(timeout: 4))
+        settleTap(app.buttons["chatMenuButton"])
+        Thread.sleep(forTimeInterval: 0.5)
+        XCTAssertFalse(app.buttons["menuNewChatRow"].exists)
+
+        // Enabled send state with text present.
+        let input = app.textFields["chatInputField"]
+        settleTap(input)
+        input.typeText("你好")
+        XCTAssertTrue(send.isEnabled, "Text enables send")
+        attach(name: "C2-send-enabled")
+        app.swipeDown()
+        Thread.sleep(forTimeInterval: 1.2)
+
+        // Active conversation via a prompt card: dock hides, Back
+        // appears; send one message; keyboard round-trip. Direct
+        // element tap — the landing reflows after keyboard dismissal,
+        // so a coordinate tap could aim at a stale frame.
+        let firstStarter = app.buttons["chatStarter-0"]
+        XCTAssertTrue(firstStarter.waitForExistence(timeout: 4))
+        firstStarter.tap()
+        XCTAssertTrue(app.buttons["chatBackButton"].waitForExistence(timeout: 6))
+        Thread.sleep(forTimeInterval: 1.0)
+        XCTAssertFalse(app.buttons["tab-home"].exists,
+                       "Active conversation hides the dock")
+        settleTap(input)
+        input.typeText("測試訊息")
+        send.tap()
+        XCTAssertTrue(app.staticTexts["測試訊息"].waitForExistence(timeout: 6),
+                      "Sending still works")
+        settleTap(input)                    // keyboard up once more
+        app.swipeDown()                     // dismiss
+        Thread.sleep(forTimeInterval: 0.8)
+        XCTAssertTrue(input.exists, "Input remains after keyboard dismissal")
+        XCTAssertFalse(app.buttons["tab-home"].exists,
+                       "Keyboard round-trip must not restore the dock")
+        attach(name: "C3-conversation-immersive")
+
+        // Back: landing returns with the dock restored.
+        settleTap(app.buttons["chatBackButton"])
+        XCTAssertTrue(app.staticTexts["我在這裡陪你"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["tab-home"].waitForExistence(timeout: 4),
+                      "Dock restored on the landing")
+
+        // EN-locale landing spot check lives in
+        // testChatLandingEnglishLocaleSpotCheck (own launch via the
+        // -uiTestEnglish hook — in-app settings navigation proved
+        // flaky under automation here).
+    }
+
+    /// Second-locale spot check for the refined Chat landing only:
+    /// English headline and prompt-card wrapping, launched directly in
+    /// English via the supported test hook.
+    func testChatLandingEnglishLocaleSpotCheck() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile", "-uiTestEnglish"]
+        app.launch()
+        XCTAssertTrue(app.buttons["tab-chat"].waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 3.0)
+        app.buttons["tab-chat"].tap()
+        XCTAssertTrue(app.staticTexts["I'm here with you"].waitForExistence(timeout: 6),
+                      "EN landing headline")
+        for index in 0..<3 {
+            XCTAssertTrue(app.buttons["chatStarter-\(index)"].exists,
+                          "EN prompt card \(index)")
+        }
+        attach(name: "C4-landing-english")
+    }
+
     // MARK: Helpers
 
     private func goBack(_ app: XCUIApplication) {

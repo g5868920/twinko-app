@@ -103,3 +103,67 @@ Supersedes the corresponding sections above where they conflict.
   `isMeaningful`; the display then falls back to the localized default
   新對話 / **New Chat** (EN default renamed from "New Conversation").
   Stored valid titles are never rewritten.
+
+## Implemented behavior — v1.3 Chat UI/UX refinement (2026-07-17)
+
+Focused refinement of the New Chat landing, active-conversation
+chrome, and Chat-specific controls. Message models, persistence, mock
+responses, Meditation offers, and Chat History remain untouched.
+
+- **One-scene landing.** The New Chat landing does not normally
+  scroll: `ViewThatFits` measures the fixed hero (floating Twinko →
+  headline → three prompt cards) and falls back to a controlled
+  scroll only for very small screens, Accessibility Dynamic Type, or
+  the open keyboard. Flexible spacers balance the scene between the
+  floating header and the composer; the composer stays above the
+  shared dock and bottom safe area.
+- **Top-bar artifact removed.** The prior landing hero lived in a
+  ScrollView whose top edge clipped Twinko under the transparent
+  header during scroll/keyboard movement; with the non-scrolling
+  scene there is no clip edge. The approved `chat_v1` background
+  (unchanged, intentionally preserved) extends through the top safe
+  area; Back and the star control float directly over it.
+- **Floating Twinko.** ~7 pt vertical travel, ~3.2 s ease-in-out
+  cycle; Reduce Motion shows Twinko static; the animation stops with
+  the view.
+- **Glass prompt cards.** One component family: translucent
+  warm-white glass with a top catch-light border, icon orb, prompt
+  text (wraps up to two lines, adaptive height, min 52 pt), and
+  chevron. Very subtle per-card emotional tints (today = blue-lilac,
+  pressure = lavender, company = warm lilac). Press: slight brighten
+  + ~2.5 pt nudge + light haptic. Tapping still starts the
+  conversation with the prompt as the first user message.
+- **Send-button states.** Enabled: saturated lavender→deep-purple
+  fill, white plane, soft top catch-light, restrained warm inner
+  border, soft depth. Disabled: same silhouette at low saturation /
+  reduced opacity, no glow — clearly distinct but still the send
+  control. Pressed: 0.95 scale, light haptic, brief restrained
+  sparkle shimmer (Reduce Motion: scale only). Validity still comes
+  solely from the existing draft-trimming rule; no second send path.
+- **Star control = glass orb.** White-lilac translucent orb with a
+  soft lilac border holding a dimensional gold star (highlight-to-
+  deep-gold gradient, tiny sparkle accent, restrained glow); press
+  scale + haptic. Same action (quick menu) — destination unchanged.
+- **Navigation chrome.** Landing = top-level destination with the
+  dock visible; any active conversation (new or from History — both
+  use the same `ChatView` shell) hides the dock via the existing
+  `ShellChrome` conversation flag; the floating Back control returns
+  through the existing stack and restores the dock at top level.
+  Keyboard presentation does not restore the hidden dock. No new
+  title was introduced. Chat History redesign is deferred pending a
+  separate visual reference; its behavior is functionally unchanged.
+
+### Validation (v1.3 pass — strictly minimal)
+
+Build clean. Directly affected tests:
+`testTabBarHiddenOnlyForActiveConversation` and
+`testEmptyOrWhitespaceDraftDoesNotSend` — pass. One focused scripted
+walkthrough (iPhone 16, zh-Hant): landing without a header bar or
+scrolling, three glass cards, star orb opens/closes its existing
+menu, disabled → enabled send with text, prompt card → immersive
+conversation (dock hidden, Back present), one message sent, keyboard
+round-trip with the dock still hidden, Back restoring landing +
+dock. EN-locale landing spot check via the `-uiTestEnglish` hook
+(prompt wrapping, no mixed language) — the in-app settings-switch
+path was flaky under automation and is documented as such. Four
+screenshots (C1–C4).

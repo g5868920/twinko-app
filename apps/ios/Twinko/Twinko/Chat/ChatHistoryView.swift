@@ -74,7 +74,7 @@ struct ChatHistoryView: View {
             // untouched and stays recognizably Chat-world.
             GeometryReader { geo in
                 ZStack {
-                    Image("chat_v1")
+                    Image("bg_chat_v5")
                         .resizable()
                         .scaledToFill()
                         .frame(width: geo.size.width, height: geo.size.height)

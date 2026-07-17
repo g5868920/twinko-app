@@ -16,7 +16,8 @@ struct MusicPlaceholderView: View {
             line: prefs.language == .english
                 ? "A quiet moment can be its own kind of music."
                 : "安靜的片刻，也是一種聲音。",
-            mood: .listening
+            mood: .listening,
+            backgroundImage: "bg_music_v1"
         )
     }
 }
@@ -25,11 +26,20 @@ private struct PlaceholderScaffold: View {
     let title: String
     let line: String
     let mood: TwinkoMood
+    /// Founder-approved full-screen background; nil keeps the legacy
+    /// cosmos gradient (Activities awaits its own approved asset).
+    var backgroundImage: String? = nil
 
     var body: some View {
         ZStack {
-            TwinkoBackground.cosmos.ignoresSafeArea()
-            StarFieldView()
+            if let backgroundImage {
+                // Approved artwork: aspect-fill, no added code stars.
+                TwinkoFullScreenBackground(imageName: backgroundImage,
+                                           topOpacity: 0.12, bottomOpacity: 0.18)
+            } else {
+                TwinkoBackground.cosmos.ignoresSafeArea()
+                StarFieldView()
+            }
 
             VStack(spacing: TwinkoSpacing.m) {
                 Spacer()
@@ -72,8 +82,10 @@ struct ActivitiesComingSoonView: View {
 
     var body: some View {
         ZStack {
-            TwinkoBackground.cosmos.ignoresSafeArea()
-            StarFieldView()
+            // Approved nearby-activities artwork (bg_activity_v1),
+            // aspect-fill behind the safe areas — no added code stars.
+            TwinkoFullScreenBackground(imageName: "bg_activity_v1",
+                                       topOpacity: 0.12, bottomOpacity: 0.18)
 
             VStack(spacing: TwinkoSpacing.m) {
                 Spacer()

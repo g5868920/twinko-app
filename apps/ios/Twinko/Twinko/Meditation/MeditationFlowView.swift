@@ -80,7 +80,7 @@ struct MeditationFlowView: View {
         }
         .background {
             GeometryReader { geo in
-                Image("bg_meditation_cosmic_calm_v1")
+                Image("bg_meditation_v2")
                     .resizable()
                     .scaledToFill()
                     .frame(width: geo.size.width, height: geo.size.height)

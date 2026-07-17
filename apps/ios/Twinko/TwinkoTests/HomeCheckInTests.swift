@@ -111,9 +111,10 @@ final class HomeCheckInTests: XCTestCase {
 
 extension HomeCheckInTests {
     func testCanonicalBackgroundConstants() {
-        XCTAssertEqual(TwinkoBackgrounds.home, "bg_home_screen_v2")
-        XCTAssertEqual(TwinkoBackgrounds.explore, "bg_explore_v1")
-        XCTAssertEqual(TwinkoBackgrounds.myPlanet, "bg_my_planet_v1")
+        // Founder-approved production backgrounds (2026-07-18).
+        XCTAssertEqual(TwinkoBackgrounds.home, "bg_home_screen_v3")
+        XCTAssertEqual(TwinkoBackgrounds.explore, "bg_explore_v3")
+        XCTAssertEqual(TwinkoBackgrounds.myPlanet, "bg_my_planet_v3")
     }
 
     func testTwinkoMessageFallsBackSafelyWithoutContext() {

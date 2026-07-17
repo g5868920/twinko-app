@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// TwinkoTalk Chat (chat-visual-primary reference): approved chat_v1
+/// TwinkoTalk Chat (chat-visual-primary reference): approved bg_chat_v5
 /// dreamy background, neutral warm-ivory reading surfaces, Day/Night
 /// Twinko in the empty state and message avatars, gold send action, and
 /// an elevated dark quick menu over a dimmed backdrop. Localized
@@ -82,10 +82,10 @@ struct ChatView: View {
             }
         }
         .background {
-            // Approved chat_v1.png — full-screen aspect fill behind the
+            // Approved bg_chat_v5.png — full-screen aspect fill behind the
             // safe areas, no recoloring or overlays.
             GeometryReader { geo in
-                Image("chat_v1")
+                Image("bg_chat_v5")
                     .resizable()
                     .scaledToFill()
                     .frame(width: geo.size.width, height: geo.size.height)

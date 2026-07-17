@@ -27,11 +27,11 @@ struct TarotFlowView: View {
     private var backgroundName: String {
         switch stage {
         case .setup, .spread:
-            return "bg_tarot_celestial_altar_setup_v1"
+            return "bg_tarot_celestial_altar_setup_v3"
         case .shuffle:
-            return "bg_tarot_observatory_shuffle_v1"
+            return "bg_tarot_observatory_shuffle_v3"
         case .reveal, .result, .guidanceReveal:
-            return "bg_tarot_moonlight_altar_result_v1"
+            return "bg_tarot_moonlight_altar_result_v3"
         }
     }
 

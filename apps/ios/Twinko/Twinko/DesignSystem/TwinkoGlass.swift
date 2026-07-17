@@ -10,9 +10,9 @@ import SwiftUI
 /// superseded as the Home background (`home_my_planet_v1` remains the
 /// distinct My Planet identity/icon artwork).
 enum TwinkoBackgrounds {
-    static let home = "bg_home_screen_v2"
-    static let explore = "bg_explore_v1"
-    static let myPlanet = "bg_my_planet_v1"
+    static let home = "bg_home_screen_v3"
+    static let explore = "bg_explore_v3"
+    static let myPlanet = "bg_my_planet_v3"
 
     // The canonical assets are delivered; screens reference them
     // directly (no runtime fallback mapping).

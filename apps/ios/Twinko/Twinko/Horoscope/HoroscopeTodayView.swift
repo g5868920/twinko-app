@@ -49,7 +49,7 @@ struct HoroscopeTodayView: View {
         .background {
             GeometryReader { geo in
                 ZStack {
-                    Image("bg_horoscope_cosmic_v1")
+                    Image("bg_horoscope_v3")
                         .resizable()
                         .scaledToFill()
                         .frame(width: geo.size.width, height: geo.size.height)

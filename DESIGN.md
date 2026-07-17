@@ -192,15 +192,29 @@ Governing rule (carried from the original background system):
 
 | Space | Purpose & direction | Canonical asset |
 |---|---|---|
-| **Home** | Warmth, reassurance, invitation. Warm cosmic sky; purple/pink/peach/soft-gold; rounded cloud hills; central warm light; open space for Twinko and UI; welcoming rather than mystical. | `bg_home_screen_v2` |
-| **Chat** | Intimacy and emotional safety. Dreamy indoor-outdoor companion space; soft pink/lilac/peach/warm light; window, curtains, clouds; gentle storybook dimensionality; low visual noise; warmest environment in the product. | `chat_v1` |
-| **Explore** | Curiosity and cosmic discovery. Darker than Home/Chat; deep indigo/blue-violet/restrained nebula; stylized not realistic; dark quiet center so interactive planets can glow; no large bright background planets competing with feature planets. | `bg_explore_v1` (replaceable if its rendering conflicts with this direction) |
-| **My Planet** | Ownership, reflection, memory, growth. Blue-green/teal/violet/soft luminous white; dreamlike personal-planet surface; rounded hills, memory paths, stations; soulful, quiet but not lonely. | `bg_my_planet_v1` |
-| **Meditation** | Silence, regulation, rest. Deep blue/blue-violet/moonlight/clouds/soft haze; less UI density; slow rhythm; calm negative space; minimal background movement. | — |
-| **Tarot** | Reflection, mystery, guidance. Purple/plum/restrained warm gold; celestial altar, moonlight, cards, soft architecture; mystical without becoming dark, threatening, or occult-heavy; keep softness. | — |
-| **Horoscope** | Celestial perspective and daily reflection. Deep violet/blue; luminous zodiac detail; fewer decorative layers than dense current implementations; clear card hierarchy; soft glow over heavy gold ornamentation. | — |
-| **Music** | Ambient healing space. Calm, low-density, atmospheric — same family, quiet rhythm. | — |
+| **Home** | Warmth, reassurance, invitation. Warm cosmic sky; purple/pink/peach/soft-gold; rounded cloud hills; central warm light; open space for Twinko and UI; welcoming rather than mystical. | `bg_home_screen_v3` |
+| **Chat** | Intimacy and emotional safety. Dreamy indoor-outdoor companion space; soft pink/lilac/peach/warm light; window, curtains, clouds; gentle storybook dimensionality; low visual noise; warmest environment in the product. | `bg_chat_v5` (Chat History reuses it with its softening overlay) |
+| **Explore** | Curiosity and cosmic discovery. Darker than Home/Chat; deep indigo/blue-violet/restrained nebula; stylized not realistic; dark quiet center so interactive planets can glow; no large bright background planets competing with feature planets. | `bg_explore_v3` |
+| **My Planet** | Ownership, reflection, memory, growth. Blue-green/teal/violet/soft luminous white; dreamlike personal-planet surface; rounded hills, memory paths, stations; soulful, quiet but not lonely. | `bg_my_planet_v3` |
+| **Meditation** | Silence, regulation, rest. Deep blue/blue-violet/moonlight/clouds/soft haze; less UI density; slow rhythm; calm negative space; minimal background movement. | `bg_meditation_v2` |
+| **Tarot** | Reflection, mystery, guidance. Purple/plum/restrained warm gold; celestial altar, moonlight, cards, soft architecture; mystical without becoming dark, threatening, or occult-heavy; keep softness. | Three per-state assets: `bg_tarot_celestial_altar_setup_v3` (setup/question/spread) · `bg_tarot_observatory_shuffle_v3` (shuffle/energy) · `bg_tarot_moonlight_altar_result_v3` (reveal/result/interpretation) — never one shared image for all three states |
+| **Horoscope** | Celestial perspective and daily reflection. Deep violet/blue; luminous zodiac detail; fewer decorative layers than dense current implementations; clear card hierarchy; soft glow over heavy gold ornamentation. | `bg_horoscope_v3` |
+| **Music** | Ambient healing space. Calm, low-density, atmospheric — same family, quiet rhythm. | `bg_music_v1` |
 | **Profile / Settings / Privacy** | Reading and decision-making first. Neutral surfaces, minimal decorative background, information hierarchy takes priority. | — |
+
+**Asset-integration notes (2026-07-18).** The table above reflects the
+founder-approved production backgrounds integrated on 2026-07-18. Defaults:
+aspect-fill, center alignment, full-bleed behind safe areas via the shared
+background components; readability overlays are added only where a specific
+screen objectively needs one, at the lowest effective opacity. `bg_activity_v1` (delivered 2026-07-18) now backs the
+nearby-activities screen (`ActivitiesComingSoonView`), distinct from
+`bg_explore_v3` on the Explore hub. One mapped asset is **not yet in the
+repository**: `twinko_world_style_anchor_v1.png` (style reference only; must
+never render at runtime). `bg_home_screen_v3` contains no embedded Twinko, so the Home
+foreground Twinko hero remains the character source. Superseded runtime
+assets (`bg_home_screen_v2`, `chat_v1`, `bg_explore_v1`, `bg_my_planet_v1`,
+`bg_meditation_cosmic_calm_v1`, `bg_horoscope_cosmic_v1`, Tarot `_v1`
+backgrounds) stay in the repo/catalog for history — no broad cleanup.
 
 Do not use the old detailed My Planet raster artwork (`home_my_planet_v1`) as
 the bottom-navigation icon; the raster remains valid as the My Planet

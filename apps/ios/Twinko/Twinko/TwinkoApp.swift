@@ -32,6 +32,12 @@ struct TwinkoApp: App {
             RootRouterView()
             // Locale is applied inside RootRouterView from the persisted
             // language preference (Traditional Chinese by default).
+            //
+            // The Twinko world is a fixed light illustrated environment
+            // with no designed dark theme: system Dark Mode turned every
+            // material surface into smoked gray glass. Lock light
+            // rendering until a real dark theme exists.
+            .preferredColorScheme(.light)
         }
     }
 }

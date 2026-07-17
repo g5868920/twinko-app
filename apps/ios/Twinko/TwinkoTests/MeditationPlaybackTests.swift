@@ -110,6 +110,23 @@ final class MeditationPlaybackTests: XCTestCase {
         XCTAssertNil(generalized.focusSummary)
     }
 
+    // MARK: Preparation minimum display (refinement 2026-07-17)
+
+    /// The preparation screen holds for the configured minimum even
+    /// when content is ready instantly, and adds no extra delay once
+    /// generation already took longer than the minimum.
+    func testPreparationHoldRespectsConfiguredMinimum() {
+        let minimum = MeditationFlowView.preparationMinimumSeconds
+        XCTAssertTrue((2.5...3.5).contains(minimum),
+                      "Preparation minimum stays within the approved 2.5–3.5 s window")
+        XCTAssertEqual(MeditationFlowView.remainingPreparationDelay(elapsed: 0),
+                       minimum, accuracy: 0.001)
+        XCTAssertEqual(MeditationFlowView.remainingPreparationDelay(elapsed: 1.0),
+                       minimum - 1.0, accuracy: 0.001)
+        XCTAssertEqual(MeditationFlowView.remainingPreparationDelay(elapsed: minimum + 5),
+                       0, "Slow generation adds no artificial extra delay")
+    }
+
     // MARK: Records
 
     func testRecordDistinguishesCompletedFromEarlyEndAndKeepsFeeling() {

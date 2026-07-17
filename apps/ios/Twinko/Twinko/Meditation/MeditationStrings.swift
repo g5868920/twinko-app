@@ -8,10 +8,12 @@ enum MeditationStrings {
     static func heroTitle(_ l: AppLanguage) -> String {
         l == .english ? "What do you need right now?" : "你現在最需要什麼？"
     }
+    /// Concise, warm setup subtitle (refinement 2026-07-17) — one
+    /// calm line, never product-explainer copy.
     static func heroSubtitle(_ l: AppLanguage) -> String {
         l == .english
-            ? "Twinko can create a meditation for what you're going through."
-            : "Twinko 可以根據你正在經歷的事，陪你做一段專屬冥想。"
+            ? "A meditation made for this moment."
+            : "為此刻的你，準備一段專屬冥想"
     }
     static func focusSection(_ l: AppLanguage) -> String {
         l == .english ? "Focus" : "想聚焦的方向"
@@ -27,12 +29,9 @@ enum MeditationStrings {
             ? "I'm feeling overwhelmed about work and want to feel more grounded."
             : "我最近對工作很焦慮，希望可以安定下來。"
     }
-    /// Setup CTA — personalized entry (Chat / Tarot / check-in).
-    static func startPersonalized(_ l: AppLanguage) -> String {
-        l == .english ? "Begin My Meditation" : "開始專屬冥想"
-    }
-    /// Setup CTA — general entry.
-    static func startGeneral(_ l: AppLanguage) -> String {
+    /// The one main Meditation CTA — identical for personalized and
+    /// general entries (unified 2026-07-17).
+    static func begin(_ l: AppLanguage) -> String {
         l == .english ? "Begin Meditation" : "開始冥想"
     }
     static func useGeneralInstead(_ l: AppLanguage) -> String {
@@ -67,11 +66,16 @@ enum MeditationStrings {
         l == .english ? "Focus" : "這次的重點"
     }
 
-    // Generating
+    // Preparation (ritual-like, never technical — 2026-07-17)
     static func generating(_ l: AppLanguage) -> String {
         l == .english
-            ? "Twinko is creating a meditation for what you're going through…"
-            : "Twinko 正在根據你現在的狀態，準備一段專屬冥想⋯"
+            ? "Twinko is gathering a little starlight for you…"
+            : "Twinko 正在為你收集此刻的星光⋯"
+    }
+    static func generatingSecondary(_ l: AppLanguage) -> String {
+        l == .english
+            ? "Preparing a gentle journey for this moment"
+            : "為此刻的你，準備一段溫柔的旅程"
     }
 
     // Session (auto-progressing playback, 2026-07-17)
@@ -99,19 +103,28 @@ enum MeditationStrings {
     static func finish(_ l: AppLanguage) -> String {
         l == .english ? "Finish" : "完成"
     }
+    // Exit modal — approved concise, reassuring copy (2026-07-17)
     static func endEarlyTitle(_ l: AppLanguage) -> String {
-        l == .english ? "End this meditation for now?" : "要先結束這段冥想嗎？"
+        l == .english ? "End this meditation?" : "要先結束冥想嗎？"
     }
     static func endEarlyBody(_ l: AppLanguage) -> String {
         l == .english
-            ? "That's okay — you can come back whenever you're ready."
-            : "沒關係，隨時準備好，都可以再回來。"
+            ? "You can come back whenever you're ready."
+            : "準備好時，隨時都能再回來。"
     }
     static func endSession(_ l: AppLanguage) -> String {
-        l == .english ? "End session" : "結束冥想"
+        l == .english ? "End Meditation" : "結束冥想"
     }
     static func keepGoing(_ l: AppLanguage) -> String {
-        l == .english ? "Continue meditation" : "繼續冥想"
+        l == .english ? "Continue" : "繼續冥想"
+    }
+    /// Accessible countdown value for the session ring, e.g.
+    /// "4 minutes 49 seconds remaining" / 「剩下 4 分 49 秒」.
+    static func remainingAccessible(_ minutes: Int, _ seconds: Int,
+                                    _ l: AppLanguage) -> String {
+        l == .english
+            ? "\(minutes) minutes \(seconds) seconds remaining"
+            : "剩下 \(minutes) 分 \(seconds) 秒"
     }
 
     // Completion
@@ -158,6 +171,16 @@ enum MeditationMood: String, CaseIterable, Identifiable {
         case (.aboutTheSame, .traditionalChinese): return "差不多"
         case (.stillUnsettled, .english): return "Still unsettled"
         case (.stillUnsettled, .traditionalChinese): return "還是有點不安"
+        }
+    }
+
+    /// Small neutral emotional glyphs from the system icon family —
+    /// decorative alongside the label, never the only signal.
+    var icon: String {
+        switch self {
+        case .calmer: return "sun.min.fill"
+        case .aboutTheSame: return "cloud.fill"
+        case .stillUnsettled: return "wind"
         }
     }
 }

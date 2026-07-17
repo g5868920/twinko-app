@@ -1024,6 +1024,128 @@ final class TwinkoUITests: XCTestCase {
                       "Continue Reading stays on the completed reveal")
     }
 
+    /// Focused Meditation UX-refinement walkthrough (2026-07-17):
+    /// one personalized (Chat) pass through setup → preparation →
+    /// player with countdown → exit modal → completion, plus a
+    /// general-mode setup spot check and an English setup spot check.
+    func testMeditationUXRefinementWalkthrough() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile", "-uiTestFastMeditation"]
+        app.launch()
+
+        // Contextual entry: explicit meditation request in Chat.
+        XCTAssertTrue(app.buttons["tab-chat"].waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 3.0)
+        app.buttons["tab-chat"].tap()
+        settleTap(app.buttons["chatStarter-0"])
+        let input = app.textFields["chatInputField"]
+        XCTAssertTrue(input.waitForExistence(timeout: 6))
+        settleTap(input)
+        input.typeText("我想要冥想")
+        settleTap(app.buttons["chatSendButton"])
+        let accept = app.buttons["chatMeditationAccept"]
+        XCTAssertTrue(accept.waitForExistence(timeout: 10))
+        settleTap(accept)
+
+        // Setup: context card, unified CTA, real recommendation tag,
+        // concise subtitle — one screen, no scrolling expected.
+        XCTAssertTrue(app.buttons["meditationStartButton"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.descendants(matching: .any)["meditationSourceCard"].exists,
+                      "Contextual entry shows the context card")
+        XCTAssertTrue(app.staticTexts["為此刻的你，準備一段專屬冥想"].exists,
+                      "Concise setup subtitle")
+        XCTAssertTrue(app.buttons["開始冥想"].exists, "Unified main CTA")
+        XCTAssertTrue(app.staticTexts["建議"].firstMatch.exists,
+                      "Real recommendation shows its sublabel")
+        attach(name: "M1-setup-contextual")
+
+        // Preparation: ritual copy, visible for the minimum duration.
+        Thread.sleep(forTimeInterval: 1.0)
+        app.buttons["meditationStartButton"].tap()
+        let preparationTapAt = Date()
+        let prepLine = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "收集此刻的星光")).firstMatch
+        XCTAssertTrue(prepLine.waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["為此刻的你，準備一段溫柔的旅程"].exists,
+                      "Secondary ritual line")
+        attach(name: "M2-preparation")
+
+        // Active player: countdown ring time, ticking via the existing
+        // playback clock (fast ticks compress wall time only). Mock
+        // generation is instant, so the session arriving no earlier
+        // than ~2.6 s after the tap proves the minimum hold works.
+        let pauseResume = app.buttons["meditationPauseResume"]
+        XCTAssertTrue(pauseResume.waitForExistence(timeout: 10))
+        XCTAssertGreaterThanOrEqual(Date().timeIntervalSince(preparationTapAt), 2.6,
+            "Preparation respects its minimum display duration")
+        let timeLabel = app.staticTexts.matching(
+            NSPredicate(format: "label MATCHES %@", "\\d:\\d{2}")).firstMatch
+        XCTAssertTrue(timeLabel.waitForExistence(timeout: 4), "Ring remaining time visible")
+        let firstValue = timeLabel.label
+        attach(name: "M3-player-countdown")
+        Thread.sleep(forTimeInterval: 1.0)
+        XCTAssertNotEqual(timeLabel.label, firstValue,
+                          "Countdown advances with the existing session clock")
+
+        // Exit modal: concise reassuring copy; continue resumes.
+        // Pause first (direct element taps — coordinate taps resolve
+        // stale frames on this animated screen) so the compressed
+        // fast-tick session cannot complete underneath the modal.
+        pauseResume.tap()
+        Thread.sleep(forTimeInterval: 0.6)
+        app.buttons["meditationBackButton"].tap()
+        XCTAssertTrue(app.staticTexts["要先結束冥想嗎？"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["準備好時，隨時都能再回來。"].exists)
+        let stay = app.buttons["繼續冥想"]
+        XCTAssertTrue(stay.exists)
+        stay.tap()
+        XCTAssertTrue(pauseResume.waitForExistence(timeout: 4),
+                      "Continue returns to the running session")
+
+        // Completion: floating Twinko scene, one roomy feeling choice.
+        let done = app.buttons["meditationDoneButton"]
+        XCTAssertTrue(done.waitForExistence(timeout: 30), "Session completes on its own")
+        let calmer = app.buttons["meditationMood-calmer"]
+        XCTAssertTrue(calmer.exists)
+        settleTap(calmer)
+        XCTAssertTrue(calmer.isSelected, "Selected feeling announces its state")
+        attach(name: "M4-completion-selected")
+        settleTap(done)
+
+        // General-mode spot check: no context card, no reserved space.
+        XCTAssertTrue(app.buttons["chatBackButton"].waitForExistence(timeout: 6))
+        settleTap(app.buttons["chatBackButton"])
+        XCTAssertTrue(app.buttons["tab-explore"].waitForExistence(timeout: 8))
+        settleTap(app.buttons["tab-explore"])
+        XCTAssertTrue(app.descendants(matching: .any)["explore-meditation"]
+            .waitForExistence(timeout: 5))
+        settleTap(app.descendants(matching: .any)["explore-meditation"])
+        XCTAssertTrue(app.buttons["meditationStartButton"].waitForExistence(timeout: 6))
+        XCTAssertFalse(app.descendants(matching: .any)["meditationSourceCard"].exists,
+                       "General entry shows no context card")
+        XCTAssertFalse(app.staticTexts["建議"].exists,
+                       "General entry has no recommendation tags")
+        settleTap(app.buttons["meditationBackButton"])
+
+        // Second-locale spot check on the setup state only.
+        XCTAssertTrue(app.buttons["tab-myplanet"].waitForExistence(timeout: 5))
+        app.buttons["tab-myplanet"].tap()
+        XCTAssertTrue(app.buttons["sheetSettingsRow"].waitForExistence(timeout: 5))
+        scrollTap(app.buttons["sheetSettingsRow"], in: app)
+        XCTAssertTrue(app.buttons["language-en"].waitForExistence(timeout: 5))
+        settleTap(app.buttons["language-en"])
+        Thread.sleep(forTimeInterval: 1.0)
+        XCTAssertTrue(app.buttons["tab-explore"].waitForExistence(timeout: 8))
+        settleTap(app.buttons["tab-explore"])
+        XCTAssertTrue(app.descendants(matching: .any)["explore-meditation"]
+            .waitForExistence(timeout: 5))
+        settleTap(app.descendants(matching: .any)["explore-meditation"])
+        XCTAssertTrue(app.buttons["meditationStartButton"].waitForExistence(timeout: 6))
+        XCTAssertTrue(app.staticTexts["A meditation made for this moment."].exists,
+                      "English subtitle, no mixed language")
+        XCTAssertTrue(app.buttons["Begin Meditation"].exists, "English unified CTA")
+    }
+
     // MARK: Helpers
 
     private func goBack(_ app: XCUIApplication) {

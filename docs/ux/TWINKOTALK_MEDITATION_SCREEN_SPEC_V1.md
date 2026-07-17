@@ -1006,3 +1006,96 @@ Claude Code must not:
 - [ ] Canonical Twinko asset is used consistently
 - [ ] One canonical background is used
 - [ ] No raw sensitive context appears in the UI
+
+---
+
+# 21. UI/UX refinement pass (2026-07-17)
+
+Focused polish of the five core Meditation states (setup, preparation,
+active player, exit modal, completion). Content generation, playback
+lifecycle, records, routing, and handoffs are unchanged.
+
+## Setup
+
+- **No reserved recommendation space:** the 建議 / Recommended
+  sublabel renders only when a real recommendation exists (handoff
+  entries). Without one, the option label is vertically centered — no
+  zero-opacity placeholder, no blank caption row. Shared `minHeight`
+  keeps rows visually consistent.
+- **One-screen behavior:** setup does not scroll at standard Dynamic
+  Type on a modern iPhone (`ViewThatFits`); a controlled scroll
+  fallback exists only for small screens, Accessibility Dynamic Type,
+  and the open keyboard. A greedy outer frame keeps the stage (and
+  background) full-screen — no top strip, no clipped Twinko.
+- **Concise subtitle:** 「為此刻的你，準備一段專屬冥想」/
+  "A meditation made for this moment."
+- **Unified main CTA:** 「開始冥想」/ "Begin Meditation" for both
+  personalized and general entries.
+- **Context card rules (unchanged, now normative):** shown only for
+  real contextual entries (Chat / Tarot / check-in) using only the
+  short locally derived summary already handed over; general entry
+  shows no card and reserves no space for it.
+
+## Preparation
+
+- **Minimum display duration:** ≈2.8 s
+  (`MeditationFlowView.preparationMinimumSeconds`, approved window
+  2.5–3.5 s). Instant (mock/fast) content still holds the state;
+  slower future generation simply keeps it visible until ready. No
+  main-thread blocking; no new orchestration layer.
+- **Ritual copy:** main 「Twinko 正在為你收集此刻的星光⋯」/
+  "Twinko is gathering a little starlight for you…"; secondary
+  「為此刻的你，準備一段溫柔的旅程」/
+  "Preparing a gentle journey for this moment".
+
+## Active player
+
+- **Countdown ring:** a soft lavender track with a lavender→gold
+  progress arc encircles the breathing Twinko; remaining time (m:ss)
+  sits beneath it. The ring is a visual representation only — progress
+  derives from `MeditationPlaybackController.remainingSeconds`; the
+  existing controller remains the single timer and source of truth
+  (pause/resume/completion/exit unchanged). Accessibility exposes one
+  combined value: 「剩下 X 分 X 秒」/ "X minutes X seconds remaining".
+- Close/X in the header remains the immersive-exit control and opens
+  the exit confirmation; Back remains the setup/completion control.
+
+## Exit modal
+
+- Approved concise copy: 「要先結束冥想嗎？」/「準備好時，隨時都能再
+  回來。」· 繼續冥想 / 結束冥想 — English "End this meditation?" /
+  "You can come back whenever you're ready." / Continue /
+  End Meditation. Branded modal, muted (non-alarming) destructive
+  treatment, unchanged action hierarchy.
+
+## Completion
+
+- **Layout:** non-scrolling reflection scene — floating Twinko, title
+  + closing, roomy vertically stacked feeling choices, quiet 完成 CTA;
+  background flows through the top safe area with the overlay Back
+  control (no boxed header).
+- **Twinko float:** the shared `MeditationBreathingTwinko` treatment
+  (≈6 pt vertical travel, ≈3 s ease-in-out cycle, soft glow breath).
+  Reduce Motion shows the static image with a fixed glow; the
+  animation stops with the view when the screen disappears.
+- **Feeling choices:** full-width ≥52 pt lavender selection family
+  (matching setup options): translucent purple selected fill, gold
+  border + check, small neutral SF glyphs, soft haptic — clearly
+  quieter than the primary CTA, never a flat opaque block.
+
+## Validation (pass, strictly minimal)
+
+Build clean. Directly affected unit tests:
+`testPreparationHoldRespectsConfiguredMinimum` (new, narrow) and
+`testEffectiveContextMapsGeneralChatAndTarot` — both pass. One focused
+scripted Simulator walkthrough (iPhone 16, zh-Hant, Chat contextual
+entry): context card, no reserved space, recommendation sublabels,
+one-screen setup, ≥2.6 s preparation hold observed, ritual copy,
+countdown ring ticking from the existing clock, exit modal copy +
+continue-resumes, completion float + lavender selected feeling; plus
+a general-mode setup spot check (no context card, no 建議 tags).
+Four screenshots (M1–M4). Known limitation: the English-locale setup
+spot check could not complete in-Simulator (repeated accessibility
+snapshot timeouts after the language switch); English strings verified
+by code inspection — all changed copy routes through
+`MeditationStrings(lang)` with no locale checks in views.

@@ -13,6 +13,12 @@ struct TwinkoApp: App {
             store.delete("prefs")
             store.delete("daily_checkin")
         }
+        if arguments.contains("-uiTestEnglish") {
+            let store = JSONStore()
+            var prefs = store.load(PrototypePrefs.self, from: "prefs") ?? PrototypePrefs()
+            prefs.language = .english
+            store.save(prefs, as: "prefs")
+        }
         if arguments.contains("-uiTestSeedProfile") {
             let store = JSONStore()
             let birthday = Calendar.current.date(from: DateComponents(year: 2000, month: 1, day: 1)) ?? .now

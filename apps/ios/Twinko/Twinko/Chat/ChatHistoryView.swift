@@ -42,6 +42,7 @@ struct ChatHistoryView: View {
             }
         }
         .coordinateSpace(name: "historyRoot")
+        .dockClearance()
         .onPreferenceChange(MoreButtonFrameKey.self) { moreButtonFrames = $0 }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)

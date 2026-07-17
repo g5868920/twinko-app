@@ -96,25 +96,32 @@ struct AppShellView: View {
     private var selectedTab: AppTab { chrome.selectedTab }
 
     var body: some View {
-        VStack(spacing: 0) {
-            ZStack {
-                // Keep tab contents alive so feature-internal state
-                // (e.g. an ongoing chat draft) survives tab switches.
-                NavigationStack { HomeView() }
-                    .opacity(selectedTab == .home ? 1 : 0)
-                    .allowsHitTesting(selectedTab == .home)
-                NavigationStack { ChatView(isTabRoot: true) }
-                    .opacity(selectedTab == .chat ? 1 : 0)
-                    .allowsHitTesting(selectedTab == .chat)
-                NavigationStack { ExploreView() }
-                    .opacity(selectedTab == .explore ? 1 : 0)
-                    .allowsHitTesting(selectedTab == .explore)
-                NavigationStack { MyPlanetTabView() }
-                    .opacity(selectedTab == .myPlanet ? 1 : 0)
-                    .allowsHitTesting(selectedTab == .myPlanet)
-            }
+        ZStack {
+            // Keep tab contents alive so feature-internal state
+            // (e.g. an ongoing chat draft) survives tab switches.
+            // Hidden tabs leave the accessibility tree entirely:
+            // VoiceOver must not read invisible screens, and the
+            // snapshot cost of four full worlds at once is real.
+            NavigationStack { HomeView() }
+                .opacity(selectedTab == .home ? 1 : 0)
+                .allowsHitTesting(selectedTab == .home)
+                .accessibilityHidden(selectedTab != .home)
+            NavigationStack { ChatView(isTabRoot: true) }
+                .opacity(selectedTab == .chat ? 1 : 0)
+                .allowsHitTesting(selectedTab == .chat)
+                .accessibilityHidden(selectedTab != .chat)
+            NavigationStack { ExploreView() }
+                .opacity(selectedTab == .explore ? 1 : 0)
+                .allowsHitTesting(selectedTab == .explore)
+                .accessibilityHidden(selectedTab != .explore)
+            NavigationStack { MyPlanetTabView() }
+                .opacity(selectedTab == .myPlanet ? 1 : 0)
+                .allowsHitTesting(selectedTab == .myPlanet)
+                .accessibilityHidden(selectedTab != .myPlanet)
+        }
+        .overlay(alignment: .bottom) {
             if !chrome.tabBarHidden {
-                tabBar
+                TwinkoGlassDock(chrome: chrome, lang: lang)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
@@ -123,36 +130,62 @@ struct AppShellView: View {
         .environmentObject(chrome)
     }
 
-    // MARK: Bottom bar (stable readable surface)
+}
 
-    private var tabBar: some View {
-        HStack {
+// MARK: - Floating glass dock (companion-universe redesign 2026-07-17)
+
+/// Premium floating glass dock: capsule of thin material above the
+/// bottom safe area, one coherent cosmic icon family, and a moving
+/// glass active indicator (matchedGeometryEffect). Light haptic on
+/// selection; the background artwork stays visible through the glass.
+struct TwinkoGlassDock: View {
+    @ObservedObject var chrome: ShellChrome
+    let lang: AppLanguage
+    @Namespace private var indicatorSpace
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        HStack(spacing: 0) {
             ForEach(AppTab.allCases) { tab in
-                let selected = selectedTab == tab
+                let selected = chrome.selectedTab == tab
                 Button {
-                    chrome.selectedTab = tab
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    withAnimation(reduceMotion ? nil
+                                  : .spring(response: 0.28, dampingFraction: 0.86)) {
+                        chrome.selectedTab = tab
+                    }
                 } label: {
-                    VStack(spacing: 3) {
-                        if tab == .myPlanet {
-                            Image("home_my_planet_v1_transparent")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 24, height: 24)
-                                .opacity(selected ? 1 : 0.62)
-                        } else {
-                            Image(systemName: selected ? tab.selectedIcon : tab.icon)
-                                .font(.system(size: 19, weight: .medium))
-                                .foregroundStyle(selected ? Color.brandPurpleDeep
-                                                          : Color.inkNavy.opacity(0.45))
-                        }
+                    VStack(spacing: 2) {
+                        dockIcon(tab, selected: selected)
                         Text(tab.label(lang))
                             .font(.system(size: 10,
                                           weight: selected ? .bold : .medium,
                                           design: .rounded))
                             .foregroundStyle(selected ? Color.brandPurpleDeep
-                                                      : Color.inkNavy.opacity(0.5))
+                                                      : Color.deepPlum.opacity(0.55))
                     }
-                    .frame(maxWidth: .infinity, minHeight: 48)
+                    .frame(maxWidth: .infinity, minHeight: 54)
+                    .background {
+                        if selected {
+                            // Moving liquid-glass indicator.
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .fill(Color.brandPurple.opacity(0.20))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                        .strokeBorder(Color(hex: 0xD9C8FF).opacity(0.8),
+                                                      lineWidth: 1)
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                        .fill(LinearGradient(
+                                            colors: [Color.white.opacity(0.2), .clear],
+                                            startPoint: .top, endPoint: .center))
+                                )
+                                .padding(4)
+                                .matchedGeometryEffect(id: "dockIndicator",
+                                                       in: indicatorSpace)
+                        }
+                    }
                     .contentShape(Rectangle())
                 }
                 .accessibilityIdentifier(tab.identifier)
@@ -160,101 +193,393 @@ struct AppShellView: View {
                 .accessibilityAddTraits(selected ? [.isSelected] : [])
             }
         }
-        .padding(.top, 6)
-        .padding(.horizontal, 8)
-        .background(
-            Color(red: 0.97, green: 0.95, blue: 0.99)
-                .overlay(Color.brandPurple.opacity(0.05))
-                .ignoresSafeArea(edges: .bottom)
+        .padding(.horizontal, 6)
+        .frame(height: 68)
+        .background {
+            RoundedRectangle(cornerRadius: 32, style: .continuous)
+                .fill(.thinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 32, style: .continuous)
+                        .fill(Color(hex: 0xEFE7FA).opacity(0.16))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 32, style: .continuous)
+                        .fill(LinearGradient(colors: [Color.white.opacity(0.18), .clear],
+                                             startPoint: .top, endPoint: .center))
+                )
+        }
+        .overlay(
+            RoundedRectangle(cornerRadius: 32, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.4), lineWidth: 1)
         )
-        .overlay(alignment: .top) {
-            Rectangle()
-                .fill(Color.borderSoft.opacity(0.6))
-                .frame(height: 0.7)
+        .shadow(color: Color.deepSpace.opacity(0.25), radius: 14, y: 6)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 4)
+    }
+
+    /// One coherent cosmic icon family: every glyph sits in the same
+    /// 30 pt bounding box with normalized scale — including the
+    /// My Planet raster identity.
+    @ViewBuilder
+    private func dockIcon(_ tab: AppTab, selected: Bool) -> some View {
+        ZStack {
+            switch tab {
+            case .home:
+                Image(systemName: selected ? "house.fill" : "house")
+                    .font(.system(size: 19, weight: .medium))
+                Image(systemName: "sparkle")
+                    .font(.system(size: 7))
+                    .foregroundStyle(Color.twinkoGold.opacity(selected ? 1 : 0.55))
+                    .offset(x: 9, y: -10)
+            case .chat:
+                Image(systemName: selected ? "bubble.left.fill" : "bubble.left")
+                    .font(.system(size: 18, weight: .medium))
+                Image(systemName: "sparkle")
+                    .font(.system(size: 6))
+                    .foregroundStyle(Color.twinkoGold.opacity(selected ? 1 : 0.55))
+                    .offset(x: 8, y: -8)
+            case .explore:
+                // Cosmic navigator: a small ship with a motion trail —
+                // clearly "exploration", not a generic sparkle.
+                Image(systemName: "paperplane.fill")
+                    .font(.system(size: 17, weight: .medium))
+                    .rotationEffect(.degrees(45))
+                HStack(spacing: 1.5) {
+                    Circle().frame(width: 2, height: 2)
+                    Circle().frame(width: 1.5, height: 1.5)
+                }
+                .foregroundStyle(Color.twinkoGold.opacity(selected ? 0.95 : 0.5))
+                .offset(x: -9, y: 9)
+            case .myPlanet:
+                Image("home_my_planet_v1_transparent")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 25, height: 25)
+                    .saturation(selected ? 1 : 0.55)
+                    .opacity(selected ? 1 : 0.75)
+            }
+        }
+        .frame(width: 30, height: 30)
+        .foregroundStyle(selected ? Color.brandPurpleDeep
+                                  : Color.deepPlum.opacity(0.5))
+        .shadow(color: selected ? Color.brandPurple.opacity(0.45) : .clear,
+                radius: 4)
+    }
+}
+
+// MARK: - Explore (immersive cosmic map, 2026-07-17)
+
+/// Explore — a cosmic navigation map: five floating feature planets
+/// over the approved deep-space background, faint orbit paths, a
+/// drifting navigator ship, glass label tags, and a calm star-travel
+/// activation. Routes into the existing feature flows; the dock stays
+/// visible on the map and immersive flows hide it themselves.
+struct ExploreView: View {
+    @EnvironmentObject private var prefs: PrefsStore
+    @EnvironmentObject private var chrome: ShellChrome
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    @State private var drifting = false
+    @State private var isVisible = false
+    @State private var activePlanet: ExplorePlanet?
+    @State private var launching: ExplorePlanet?
+
+    private var lang: AppLanguage { prefs.language }
+
+    var body: some View {
+        GeometryReader { geo in
+            ZStack {
+                orbitDecoration(in: geo.size)
+
+                ForEach(ExplorePlanet.allCases) { planet in
+                    planetView(planet, in: geo.size)
+                }
+
+                // Slow navigator ship drifting near the top.
+                Image(systemName: "paperplane.fill")
+                    .font(.system(size: 16))
+                    .foregroundStyle(Color(hex: 0xEFE7FA).opacity(0.8))
+                    .rotationEffect(.degrees(40))
+                    .shadow(color: Color.twinkoGold.opacity(0.5), radius: 4)
+                    .position(x: geo.size.width * 0.82,
+                              y: geo.size.height * 0.10)
+                    .offset(x: reduceMotion || !isVisible ? 0 : (drifting ? -14 : 6),
+                            y: reduceMotion || !isVisible ? 0 : (drifting ? 5 : -3))
+                    .accessibilityHidden(true)
+
+                VStack {
+                    Text(HomeExperienceStrings.exploreMapTitle(lang))
+                        .font(.system(size: 21, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color(hex: 0xF3ECFF))
+                        .shadow(color: .black.opacity(0.4), radius: 3, y: 1)
+                        .padding(.top, TwinkoSpacing.s)
+                        .accessibilityAddTraits(.isHeader)
+                    Spacer()
+                }
+            }
+        }
+        .background {
+            TwinkoFullScreenBackground(imageName: TwinkoBackgrounds.exploreResolved,
+                                       topOpacity: 0.25, bottomOpacity: 0.35)
+        }
+        .dockClearance()
+        .toolbar(.hidden, for: .navigationBar)
+        .navigationDestination(item: $activePlanet) { planet in
+            planet.destination
+        }
+        .onAppear { updateMotion(active: chrome.selectedTab == .explore) }
+        .onChange(of: chrome.selectedTab) { _, tab in
+            // Opacity-based tab switching never fires onDisappear, so
+            // nonessential motion is paused explicitly off-tab (both a
+            // performance rule and an accessibility-snapshot必要).
+            updateMotion(active: tab == .explore)
+        }
+        .onDisappear { updateMotion(active: false) }
+    }
+
+    /// Starts or cancels the continuous drift (an explicit short
+    /// animation interrupts an in-flight repeatForever).
+    private func updateMotion(active: Bool) {
+        isVisible = active
+        if active && !reduceMotion {
+            withAnimation(.easeInOut(duration: 4.6).repeatForever(autoreverses: true)) {
+                drifting = true
+            }
+        } else {
+            withAnimation(.linear(duration: 0.05)) { drifting = false }
+        }
+    }
+
+    // MARK: Decoration
+
+    private func orbitDecoration(in size: CGSize) -> some View {
+        ZStack {
+            ForEach(0..<2, id: \.self) { index in
+                Ellipse()
+                    .strokeBorder(Color(hex: 0xD9C8FF).opacity(0.10 + Double(index) * 0.04),
+                                  lineWidth: 1)
+                    .frame(width: size.width * (1.1 - Double(index) * 0.25),
+                           height: size.height * (0.55 - Double(index) * 0.12))
+                    .position(x: size.width * 0.5, y: size.height * 0.52)
+            }
+            ForEach(0..<6, id: \.self) { index in
+                Image(systemName: "sparkle")
+                    .font(.system(size: [6.0, 4.0, 5.0, 4.0, 6.0, 5.0][index]))
+                    .foregroundStyle(Color.twinkoGold
+                        .opacity([0.5, 0.35, 0.45, 0.3, 0.5, 0.4][index]))
+                    .position(x: size.width * [0.12, 0.88, 0.30, 0.72, 0.08, 0.92][index],
+                              y: size.height * [0.22, 0.34, 0.10, 0.16, 0.62, 0.72][index])
+            }
+        }
+        .accessibilityHidden(true)
+    }
+
+    // MARK: Planets
+
+    private func planetView(_ planet: ExplorePlanet, in size: CGSize) -> some View {
+        let point = planet.position
+        let phase = reduceMotion || !isVisible ? 0.0 : (drifting ? 1.0 : -1.0)
+        return Button {
+            activate(planet)
+        } label: {
+            VStack(spacing: 6) {
+                ZStack {
+                    // Atmospheric glow + activation halo.
+                    Circle()
+                        .fill(planet.tint)
+                        .frame(width: planet.size * 1.25, height: planet.size * 1.25)
+                        .blur(radius: 18)
+                        .opacity(launching == planet ? 0.55 : 0.28)
+                    // Planet body.
+                    Circle()
+                        .fill(RadialGradient(colors: [planet.tint.opacity(0.95),
+                                                      planet.tint.opacity(0.6),
+                                                      Color.deepSpace.opacity(0.7)],
+                                             center: .init(x: 0.35, y: 0.28),
+                                             startRadius: 3,
+                                             endRadius: planet.size * 0.8))
+                        .overlay(Circle().fill(LinearGradient(
+                            colors: [Color.white.opacity(0.25), .clear],
+                            startPoint: .topLeading, endPoint: .center)))
+                        .overlay(Circle().strokeBorder(
+                            Color(hex: 0xD9C8FF).opacity(0.5), lineWidth: 1))
+                    // Orbit ring detail.
+                    Ellipse()
+                        .strokeBorder(Color(hex: 0xE8DCFF).opacity(0.55), lineWidth: 1.2)
+                        .frame(width: planet.size * 1.35, height: planet.size * 0.42)
+                        .rotationEffect(.degrees(-16))
+                    // Feature glyph.
+                    planet.glyph
+                        .foregroundStyle(Color(hex: 0xF6F0FF))
+                        .shadow(color: .black.opacity(0.3), radius: 2)
+                    // Tiny gold star accent.
+                    Image(systemName: "sparkle")
+                        .font(.system(size: planet.size * 0.12))
+                        .foregroundStyle(Color.twinkoGold.opacity(0.95))
+                        .offset(x: planet.size * 0.36, y: -planet.size * 0.34)
+                }
+                .frame(width: planet.size, height: planet.size)
+                .scaleEffect(launching == planet ? 1.12 : 1.0)
+
+                // Glass label tag.
+                VStack(spacing: 0) {
+                    Text(planet.title(lang))
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color(hex: 0xF6F0FF))
+                    Text(planet.descriptor(lang))
+                        .font(.system(size: 10, design: .rounded))
+                        .foregroundStyle(Color(hex: 0xE8DCFF).opacity(0.85))
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .twinkoGlass(cornerRadius: 12, tint: 0.10)
+            }
+            .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .position(x: size.width * point.x, y: size.height * point.y)
+        .offset(y: CGFloat(phase) * planet.driftAmplitude)
+        .animation(reduceMotion || !isVisible ? .linear(duration: 0.05)
+                   : .easeInOut(duration: planet.driftDuration).repeatForever(autoreverses: true),
+                   value: drifting)
+        .accessibilityIdentifier("explore-\(planet.rawValue)")
+        .accessibilityLabel(Text(lang == .english
+            ? "Open \(planet.title(lang)). \(planet.descriptor(lang))"
+            : "開啟\(planet.title(lang))，\(planet.descriptor(lang))"))
+    }
+
+    /// Light haptic → brief halo/forward pulse → calm star-travel push.
+    private func activate(_ planet: ExplorePlanet) {
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        guard !reduceMotion else {
+            activePlanet = planet
+            return
+        }
+        withAnimation(.easeOut(duration: 0.22)) { launching = planet }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.32) {
+            activePlanet = planet
+            withAnimation(.easeOut(duration: 0.3)) { launching = nil }
         }
     }
 }
 
-// MARK: - Explore
+/// The five Explore worlds: one shared construction family with
+/// distinct identities, positioned as a fixed readable map.
+enum ExplorePlanet: String, CaseIterable, Identifiable, Hashable {
+    case tarot, horoscope, meditation, music, activities
 
-/// Explore: the full content and feature catalog. Reuses the existing
-/// feature flows and shared Home mode icons; the compact Home
-/// shortcuts point here for "View all".
-struct ExploreView: View {
-    @EnvironmentObject private var prefs: PrefsStore
+    var id: String { rawValue }
 
-    private var lang: AppLanguage { prefs.language }
-
-    private let entries: [HomeMode] = [.tarot, .zodiac, .meditate, .music]
-
-    var body: some View {
-        ZStack {
-            LinearGradient(
-                colors: [Color(red: 0.87, green: 0.82, blue: 0.97),
-                         Color(red: 0.95, green: 0.90, blue: 0.97)],
-                startPoint: .top, endPoint: .bottom
-            )
-            .ignoresSafeArea()
-            StarFieldView(tint: Color(red: 0.72, green: 0.60, blue: 0.92).opacity(0.6))
-                .accessibilityHidden(true)
-
-            ScrollView {
-                VStack(spacing: TwinkoSpacing.s) {
-                    Text(HomeExperienceStrings.tabExplore(lang))
-                        .font(.system(.title3, design: .rounded).weight(.bold))
-                        .foregroundStyle(Color.inkNavy)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.top, TwinkoSpacing.m)
-
-                    ForEach(entries) { mode in
-                        NavigationLink {
-                            destination(for: mode)
-                        } label: {
-                            HStack(spacing: TwinkoSpacing.m) {
-                                HomeModeIcon(mode: mode, diameter: 46)
-                                Text(HomeStrings.modeLabel(mode, lang))
-                                    .font(.twinkoHeadline)
-                                    .foregroundStyle(Color.inkNavy)
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .font(.system(size: 13, weight: .semibold))
-                                    .foregroundStyle(Color.inkNavy.opacity(0.35))
-                            }
-                            .padding(TwinkoSpacing.m)
-                            .background(Color.white.opacity(0.62),
-                                        in: RoundedRectangle(cornerRadius: 18))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 18)
-                                    .strokeBorder(Color.borderSoft.opacity(0.7), lineWidth: 1)
-                            )
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityIdentifier("explore-\(mode)")
-                    }
-                }
-                .padding(.horizontal, TwinkoSpacing.m)
-                .padding(.bottom, TwinkoSpacing.l)
-            }
+    /// Relative map position (portrait, below the title, above dock).
+    var position: CGPoint {
+        switch self {
+        case .tarot: return CGPoint(x: 0.28, y: 0.24)
+        case .horoscope: return CGPoint(x: 0.74, y: 0.33)
+        case .meditation: return CGPoint(x: 0.30, y: 0.55)
+        case .music: return CGPoint(x: 0.72, y: 0.66)
+        case .activities: return CGPoint(x: 0.42, y: 0.84)
         }
-        .toolbar(.hidden, for: .navigationBar)
+    }
+
+    var size: CGFloat {
+        switch self {
+        case .tarot: return 96
+        case .horoscope: return 88
+        case .meditation: return 92
+        case .music: return 82
+        case .activities: return 78
+        }
+    }
+
+    var tint: Color {
+        switch self {
+        case .tarot: return Color(hex: 0x6B4BA8)        // deep violet oracle
+        case .horoscope: return Color(hex: 0x4E5FB8)    // luminous blue-violet
+        case .meditation: return Color(hex: 0x5D7BC8)   // calm moon lilac-blue
+        case .music: return Color(hex: 0x9A4FB0)        // violet-magenta rhythm
+        case .activities: return Color(hex: 0xC77B4E)   // warm coral-gold social
+        }
+    }
+
+    var driftDuration: Double {
+        switch self {
+        case .tarot: return 4.0
+        case .horoscope: return 4.8
+        case .meditation: return 5.4
+        case .music: return 4.4
+        case .activities: return 5.0
+        }
+    }
+
+    var driftAmplitude: CGFloat {
+        switch self {
+        case .tarot, .meditation: return 5
+        case .horoscope, .activities: return 4
+        case .music: return 6
+        }
     }
 
     @ViewBuilder
-    private func destination(for mode: HomeMode) -> some View {
-        switch mode {
-        case .chat: ChatView()
+    var glyph: some View {
+        switch self {
+        case .tarot:
+            RoundedRectangle(cornerRadius: 3)
+                .strokeBorder(Color(hex: 0xF6F0FF), lineWidth: 1.4)
+                .frame(width: 18, height: 26)
+                .overlay(Image(systemName: "star.fill").font(.system(size: 8)))
+                .rotationEffect(.degrees(-8))
+        case .horoscope:
+            Image(systemName: "circle.hexagongrid")
+                .font(.system(size: 26, weight: .light))
+                .overlay(Image(systemName: "star.fill").font(.system(size: 8))
+                    .foregroundStyle(Color.twinkoGold))
+        case .meditation:
+            Image(systemName: "moon.fill")
+                .font(.system(size: 24, weight: .medium))
+        case .music:
+            Image(systemName: "music.note")
+                .font(.system(size: 24, weight: .medium))
+        case .activities:
+            Image(systemName: "location.fill")
+                .font(.system(size: 22, weight: .medium))
+        }
+    }
+
+    func title(_ lang: AppLanguage) -> String {
+        switch self {
+        case .tarot: return HomeExperienceStrings.entryTarot(lang)
+        case .horoscope: return HomeExperienceStrings.entryHoroscope(lang)
+        case .meditation: return HomeExperienceStrings.entryMeditation(lang)
+        case .music: return HomeExperienceStrings.entryMusic(lang)
+        case .activities: return HomeExperienceStrings.entryActivities(lang)
+        }
+    }
+
+    func descriptor(_ lang: AppLanguage) -> String {
+        switch self {
+        case .tarot: return HomeExperienceStrings.planetTarotDesc(lang)
+        case .horoscope: return HomeExperienceStrings.planetHoroscopeDesc(lang)
+        case .meditation: return HomeExperienceStrings.planetMeditationDesc(lang)
+        case .music: return HomeExperienceStrings.planetMusicDesc(lang)
+        case .activities: return HomeExperienceStrings.planetActivitiesDesc(lang)
+        }
+    }
+
+    @ViewBuilder
+    var destination: some View {
+        switch self {
         case .tarot: TarotFlowView()
-        case .zodiac: HoroscopeTodayView()
-        case .meditate: MeditationFlowView()
+        case .horoscope: HoroscopeTodayView()
+        case .meditation: MeditationFlowView()
         case .music: MusicPlaceholderView()
+        case .activities: ActivitiesComingSoonView()
         }
     }
 }
 
 // MARK: - My Planet tab host
 
-/// Hosts the existing My Planet content as a full tab destination
-/// (the sheet-presentation modifiers inside are inert here).
+/// Hosts the My Planet personal world as a full tab destination.
 struct MyPlanetTabView: View {
     var body: some View {
         MyPlanetContentView()

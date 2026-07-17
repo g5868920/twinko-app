@@ -77,6 +77,7 @@ struct ChatView: View {
             }
             .ignoresSafeArea()
         }
+        .dockClearance()
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
         .navigationDestination(isPresented: $goToHistory) {

@@ -135,6 +135,7 @@ enum HomeAction: Equatable, Identifiable, Hashable {
     case tarot
     case horoscope
     case music
+    case activities
 
     var id: String {
         switch self {
@@ -143,6 +144,7 @@ enum HomeAction: Equatable, Identifiable, Hashable {
         case .tarot: return "tarot"
         case .horoscope: return "horoscope"
         case .music: return "music"
+        case .activities: return "activities"
         }
     }
 
@@ -160,6 +162,8 @@ enum HomeAction: Equatable, Identifiable, Hashable {
         case (.horoscope, .traditionalChinese): return "看今日星座運勢"
         case (.music, .english): return "Quiet music"
         case (.music, .traditionalChinese): return "聽點安靜的音樂"
+        case (.activities, .english): return "Explore activities"
+        case (.activities, .traditionalChinese): return "探索附近活動"
         }
     }
 }
@@ -170,10 +174,41 @@ struct HomeRecommendation: Equatable {
     let secondaryAction: HomeAction?
 }
 
+/// One step of Today's Companion Journey.
+struct HomeJourneyStep: Equatable, Identifiable {
+    let index: Int
+    let action: HomeAction
+    let title: String
+    let purpose: String
+
+    var id: Int { index }
+}
+
+/// Locally available personal context for the Home message. Only real
+/// summaries and metadata that already exist flow in — never full
+/// transcripts, never fabricated events, and every field is optional
+/// so Home works with nothing but today's check-in (or nothing at
+/// all, via the neutral fallback).
+struct HomePersonalizationContext {
+    var checkIn: DailyCheckIn?
+    /// The most recent chat's short auto/user title (existing model).
+    var lastChatTitle: String?
+    /// The most recent meditation record (existing local store).
+    var lastMeditation: MeditationSessionRecord?
+    var hour: Int = Calendar.current.component(.hour, from: .now)
+
+    static let empty = HomePersonalizationContext()
+}
+
 /// Small provider boundary: deterministic local templates now, an
 /// AI-personalized provider later — views never hardwire the mapping.
 protocol HomeRecommendationProviding {
     func recommendation(for checkIn: DailyCheckIn, lang: AppLanguage) -> HomeRecommendation
+    /// Twinko's short Home message grounded only in real local
+    /// context; returns a neutral localized line when nothing exists.
+    func twinkoMessage(context: HomePersonalizationContext, lang: AppLanguage) -> String
+    /// Today's three-step Companion Journey for a completed check-in.
+    func journey(for checkIn: DailyCheckIn, lang: AppLanguage) -> [HomeJourneyStep]
 }
 
 /// Prototype provider: the primary action follows the selected need;
@@ -214,6 +249,75 @@ struct LocalHomeRecommendationProvider: HomeRecommendationProviding {
             return checkIn.mood == .confused ? .chat : .horoscope
         case .rest:
             return .music
+        }
+    }
+
+    // MARK: Twinko Home message (real context only)
+
+    func twinkoMessage(context: HomePersonalizationContext, lang: AppLanguage) -> String {
+        // 1. Today's check-in speaks first — it is the freshest state.
+        if let checkIn = context.checkIn {
+            return message(for: checkIn, lang: lang)
+        }
+        // 2. A real recent meditation reflection.
+        if let record = context.lastMeditation, record.completed {
+            if record.finalFeeling == MeditationMood.calmer.rawValue {
+                return lang == .english
+                    ? "Last time we sat together you said you felt calmer. Shall we keep a few quiet minutes for you today?"
+                    : "上次靜下來之後，你說有比較平靜。今天也想留幾分鐘給自己嗎？"
+            }
+            return lang == .english
+                ? "You made some quiet space for yourself recently. How is your heart today?"
+                : "你最近有為自己留過一段安靜的時間，今天心裡還好嗎？"
+        }
+        // 3. A real recent chat topic (short existing title only).
+        if let title = context.lastChatTitle, !title.isEmpty {
+            return lang == .english
+                ? "We talked about \u{201C}\(title)\u{201D} recently. I'm here whenever you want to pick it up again."
+                : "我們之前聊過「\(title)」，想繼續說說的時候，我都在。"
+        }
+        // 4. Neutral time-of-day fallback — never fabricated context.
+        switch (context.hour, lang) {
+        case (5..<12, .traditionalChinese): return "新的一天，先跟我說說你現在的感覺吧。"
+        case (12..<18, .traditionalChinese): return "午後了，要不要停一下，看看自己現在的狀態？"
+        case (_, .traditionalChinese): return "晚上了，今天辛苦了。想跟我說說今天過得怎麼樣嗎？"
+        case (5..<12, .english): return "A new day — tell me how you're feeling right now."
+        case (12..<18, .english): return "It's the afternoon. Want to pause and check in with yourself?"
+        case (_, .english): return "It's evening — you've carried today this far. How was it?"
+        }
+    }
+
+    // MARK: Today's Companion Journey (three connected steps)
+
+    func journey(for checkIn: DailyCheckIn, lang: AppLanguage) -> [HomeJourneyStep] {
+        let en = lang == .english
+        func step(_ index: Int, _ action: HomeAction, _ zhT: String, _ enT: String,
+                  _ zhP: String, _ enP: String) -> HomeJourneyStep {
+            HomeJourneyStep(index: index, action: action,
+                            title: en ? enT : zhT, purpose: en ? enP : zhP)
+        }
+        let meditationFocus: MeditationFocus =
+            checkIn.mood == .anxious ? .releaseAnxiety
+            : (checkIn.need == .rest ? .sleep : .calmDown)
+        let meditate = HomeAction.meditation(focus: meditationFocus, duration: .three)
+
+        switch checkIn.need {
+        case .talk:
+            return [step(1, .chat, "聊聊天", "A little talk", "把心裡的話說出來", "Say what's on your mind"),
+                    step(2, meditate, "3 分鐘冥想", "3-min meditation", "讓心慢慢沉澱", "Let it settle gently"),
+                    step(3, .horoscope, "今日星座", "Today's stars", "帶一點光收尾", "Close with a little light")]
+        case .ground:
+            return [step(1, .chat, "聊聊天", "A little talk", "先說說現在的感覺", "Name the feeling first"),
+                    step(2, meditate, "3 分鐘冥想", "3-min meditation", "安定呼吸與身體", "Steady your breath"),
+                    step(3, .horoscope, "今日星座", "Today's stars", "溫柔地看看今天", "A gentle look at today")]
+        case .direction:
+            return [step(1, .chat, "聊聊天", "A little talk", "整理心裡的問題", "Sort the question out"),
+                    step(2, .tarot, "塔羅指引", "Tarot guidance", "換個角度看看", "See another angle"),
+                    step(3, meditate, "冥想收尾", "Meditate to close", "把指引放進心裡", "Let it sink in")]
+        case .rest:
+            return [step(1, meditate, "冥想", "Meditation", "先放下今天的重量", "Set today down first"),
+                    step(2, .music, "音樂", "Music", "讓聲音陪著你", "Let sound keep you company"),
+                    step(3, .horoscope, "今日星座", "Today's stars", "輕輕看一眼就好", "Just a soft glance")]
         }
     }
 
@@ -419,6 +523,115 @@ enum HomeExperienceStrings {
     }
     static func viewAll(_ l: AppLanguage) -> String {
         l == .english ? "View all" : "看全部"
+    }
+
+    // Journey
+    static func journeyTitle(_ l: AppLanguage) -> String {
+        l == .english ? "Today's Companion Journey" : "今天的陪伴旅程"
+    }
+
+    // Explore More (Home)
+    static func exploreMore(_ l: AppLanguage) -> String {
+        l == .english ? "Explore more" : "探索更多"
+    }
+    static func entryTarot(_ l: AppLanguage) -> String { l == .english ? "Tarot" : "塔羅" }
+    static func entryTarotDesc(_ l: AppLanguage) -> String {
+        l == .english ? "Find direction" : "陪你找方向"
+    }
+    static func entryHoroscope(_ l: AppLanguage) -> String { l == .english ? "Horoscope" : "星座" }
+    static func entryHoroscopeDesc(_ l: AppLanguage) -> String {
+        l == .english ? "See today" : "看看今天"
+    }
+    static func entryMeditation(_ l: AppLanguage) -> String { l == .english ? "Meditation" : "冥想" }
+    static func entryMeditationDesc(_ l: AppLanguage) -> String {
+        l == .english ? "Feel grounded" : "安定身心"
+    }
+    static func entryMusic(_ l: AppLanguage) -> String { l == .english ? "Music" : "音樂" }
+    static func entryMusicDesc(_ l: AppLanguage) -> String {
+        l == .english ? "Gentle company" : "療癒陪伴"
+    }
+    static func entryActivities(_ l: AppLanguage) -> String { l == .english ? "Activities" : "活動" }
+    static func entryActivitiesDesc(_ l: AppLanguage) -> String {
+        l == .english ? "Explore nearby" : "探索附近"
+    }
+
+    // Explore cosmic map
+    static func exploreMapTitle(_ l: AppLanguage) -> String {
+        l == .english ? "Explore the Cosmos" : "探索宇宙"
+    }
+    static func planetTarotDesc(_ l: AppLanguage) -> String {
+        l == .english ? "Find guidance" : "尋找指引"
+    }
+    static func planetHoroscopeDesc(_ l: AppLanguage) -> String {
+        l == .english ? "Today's energy" : "今日能量"
+    }
+    static func planetMeditationDesc(_ l: AppLanguage) -> String {
+        l == .english ? "Find calm" : "安定內心"
+    }
+    static func planetMusicDesc(_ l: AppLanguage) -> String {
+        l == .english ? "Healing rhythm" : "療癒節奏"
+    }
+    static func planetActivitiesDesc(_ l: AppLanguage) -> String {
+        l == .english ? "Explore nearby" : "探索附近"
+    }
+
+    // Activities placeholder
+    static func activitiesComingSoon(_ l: AppLanguage) -> String {
+        l == .english
+            ? "Local wellbeing experiences will arrive here soon."
+            : "附近的療癒活動，很快會在這裡與你見面。"
+    }
+    static func backLabel(_ l: AppLanguage) -> String {
+        l == .english ? "Back" : "返回"
+    }
+
+    // My Planet
+    static func planetOf(_ name: String, _ l: AppLanguage) -> String {
+        l == .english ? "\(name)'s Planet" : "\(name) 的星球"
+    }
+    static func planetSubtitle(_ l: AppLanguage) -> String {
+        l == .english ? "Your quiet corner of the cosmos" : "宇宙裡屬於你的安靜角落"
+    }
+    static func hubJournal(_ l: AppLanguage) -> String {
+        l == .english ? "Reflection Journal" : "覺察紀錄"
+    }
+    static func hubJournalDesc(_ l: AppLanguage) -> String {
+        l == .english ? "Moments you noticed" : "你留意過的心情"
+    }
+    static func hubMeditation(_ l: AppLanguage) -> String {
+        l == .english ? "Meditation History" : "冥想紀錄"
+    }
+    static func hubMeditationDesc(_ l: AppLanguage) -> String {
+        l == .english ? "Quiet time you kept" : "你留下的安靜時光"
+    }
+    static func hubTarot(_ l: AppLanguage) -> String {
+        l == .english ? "Tarot History" : "塔羅紀錄"
+    }
+    static func hubTarotDesc(_ l: AppLanguage) -> String {
+        l == .english ? "Readings you drew" : "你抽過的指引"
+    }
+    static func hubCards(_ l: AppLanguage) -> String {
+        l == .english ? "Saved Guidance Cards" : "收藏小卡"
+    }
+    static func hubCardsDesc(_ l: AppLanguage) -> String {
+        l == .english ? "Cards kept close" : "留在身邊的小卡"
+    }
+    static func hubProfile(_ l: AppLanguage) -> String {
+        l == .english ? "Profile" : "個人資料"
+    }
+    static func hubProfileDesc(_ l: AppLanguage) -> String {
+        l == .english ? "Who you are here" : "在這顆星球上的你"
+    }
+    static func hubSettings(_ l: AppLanguage) -> String {
+        l == .english ? "Settings" : "設定"
+    }
+    static func hubSettingsDesc(_ l: AppLanguage) -> String {
+        l == .english ? "Language and controls" : "語言與偏好"
+    }
+    static func hubComingSoon(_ l: AppLanguage) -> String {
+        l == .english
+            ? "This little station is still being built — your records will live here soon."
+            : "這個小站還在建造中，你的紀錄很快會住進來。"
     }
 
     // Tabs

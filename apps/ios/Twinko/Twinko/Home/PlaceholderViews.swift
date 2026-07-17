@@ -43,6 +43,7 @@ private struct PlaceholderScaffold: View {
                 Spacer()
             }
         }
+        .dockClearance()
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbarColorScheme(.dark, for: .navigationBar)
@@ -55,5 +56,56 @@ private struct PlaceholderScaffold: View {
     NavigationStack {
         MusicPlaceholderView()
             .environmentObject(PrefsStore())
+    }
+}
+
+// MARK: - Activities coming soon (companion-universe redesign)
+
+/// Honest Twinko-styled coming-soon destination for Activities. No
+/// location permission, no city detection, no real event data — one
+/// warm glass card, a small Activities planet, and Back.
+struct ActivitiesComingSoonView: View {
+    @EnvironmentObject private var prefs: PrefsStore
+    @Environment(\.dismiss) private var dismiss
+
+    private var lang: AppLanguage { prefs.language }
+
+    var body: some View {
+        ZStack {
+            TwinkoBackground.cosmos.ignoresSafeArea()
+            StarFieldView()
+
+            VStack(spacing: TwinkoSpacing.m) {
+                Spacer()
+                TwinkoCosmicOrb(diameter: 96, tint: Color(hex: 0xC77B4E)) {
+                    Image(systemName: "location.fill")
+                        .font(.system(size: 32, weight: .medium))
+                }
+                Text(HomeExperienceStrings.entryActivities(lang))
+                    .font(.system(.title3, design: .rounded).weight(.semibold))
+                    .foregroundStyle(.white)
+                Text(HomeExperienceStrings.activitiesComingSoon(lang))
+                    .font(.system(.body, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.85))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
+                    .twinkoGlass(cornerRadius: 22, tint: 0.14)
+                    .padding(.horizontal, TwinkoSpacing.l)
+                Spacer()
+                Button {
+                    dismiss()
+                } label: {
+                    Text(HomeExperienceStrings.backLabel(lang))
+                        .font(.system(.headline, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.9))
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                }
+                .accessibilityIdentifier("activitiesBackButton")
+                .padding(.bottom, TwinkoSpacing.l)
+            }
+        }
+        .dockClearance()
+        .toolbar(.hidden, for: .navigationBar)
     }
 }

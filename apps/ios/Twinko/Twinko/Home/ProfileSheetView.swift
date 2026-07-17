@@ -67,68 +67,185 @@ private func sectionHeader(_ text: String) -> some View {
 struct MyPlanetContentView: View {
     @EnvironmentObject private var profileStore: ProfileStore
     @EnvironmentObject private var prefs: PrefsStore
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @StateObject private var sheetHeight = ProfileSheetHeight()
+    @State private var activeHub: MyPlanetHub?
+    @State private var showingPrivacy = false
 
     private var lang: AppLanguage { prefs.language }
 
     var body: some View {
         NavigationStack {
             ZStack {
-                DreamyBackground()
+                TwinkoFullScreenBackground(imageName: TwinkoBackgrounds.myPlanetResolved,
+                                           topOpacity: 0.18, bottomOpacity: 0.30)
                 ScrollView {
                     VStack(spacing: TwinkoSpacing.m) {
-                        header
-                            .padding(.top, TwinkoSpacing.l)
-
-                        VStack(spacing: TwinkoSpacing.s) {
-                            entryCard(HomeStrings.profile(lang),
-                                      subtitle: lang == .english ? "Who you are on this planet"
-                                                                 : "在這顆星球上的你",
-                                      icon: "person.fill",
-                                      tint: Color.brandPurpleDeep,
-                                      identifier: "sheetProfileRow") { profileDetail }
-                            entryCard(HomeStrings.settings(lang),
-                                      subtitle: lang == .english ? "Language and preferences"
-                                                                 : "語言與偏好",
-                                      icon: "slider.horizontal.3",
-                                      tint: Color.skyPurple,
-                                      identifier: "sheetSettingsRow") { settingsDetail }
-                            entryCard(HomeStrings.privacy(lang),
-                                      subtitle: lang == .english ? "Everything stays on this device"
-                                                                 : "一切都留在這台裝置",
-                                      icon: "hand.raised.fill",
-                                      tint: Color(red: 0.85, green: 0.55, blue: 0.58),
-                                      identifier: "sheetPrivacyRow") { privacyDetail }
-                        }
-                        .padding(.horizontal, TwinkoSpacing.m)
+                        hero
+                        hubGrid
+                        privacyLink
                     }
+                    .padding(.horizontal, 20)
+                    .padding(.top, TwinkoSpacing.l)
                     .padding(.bottom, TwinkoSpacing.l)
                 }
             }
+            .dockClearance()
             .toolbar(.hidden, for: .navigationBar)
+            // Lazy routing: destinations are built only when a station
+            // is opened — never eagerly on every body pass.
+            .navigationDestination(item: $activeHub) { hub in
+                hubDestination(hub)
+            }
+            .navigationDestination(isPresented: $showingPrivacy) {
+                privacyDetail
+            }
             .onAppear { sheetHeight.fraction = 0.55 }
         }
         .environmentObject(sheetHeight)
         .tint(.warmOrange)
     }
 
-    // MARK: Identity area
+    // MARK: Hero — arriving on your own planet
 
-    private var header: some View {
-        VStack(spacing: TwinkoSpacing.s) {
-            Image("home_my_planet_v1_transparent")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 64, height: 64)
-                .shadow(color: Color.brandPurpleDeep.opacity(0.25), radius: 8, y: 3)
-                .accessibilityHidden(true)
-            Text(profileStore.profile?.preferredName ?? (lang == .english ? "Friend" : "朋友"))
+    private var hero: some View {
+        VStack(spacing: 6) {
+            ZStack {
+                // Small glass platform + orbit ring beneath the planet.
+                Ellipse()
+                    .fill(Color.white.opacity(0.16))
+                    .frame(width: 96, height: 22)
+                    .blur(radius: 3)
+                    .offset(y: 38)
+                Ellipse()
+                    .strokeBorder(Color(hex: 0xD9C8FF).opacity(0.6), lineWidth: 1)
+                    .frame(width: 112, height: 34)
+                    .offset(y: 34)
+                ForEach(0..<3, id: \.self) { index in
+                    Image(systemName: "sparkle")
+                        .font(.system(size: [7.0, 5.0, 6.0][index]))
+                        .foregroundStyle(Color.twinkoGold.opacity(0.85))
+                        .offset(x: [-52.0, 56.0, -40.0][index],
+                                y: [-26.0, -8.0, 30.0][index])
+                }
+                Image("home_my_planet_v1_transparent")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 76, height: 76)
+                    .shadow(color: Color.brandPurpleDeep.opacity(0.35), radius: 10, y: 4)
+            }
+            .frame(height: 100)
+            .accessibilityHidden(true)
+
+            Text(HomeExperienceStrings.planetOf(
+                profileStore.profile?.preferredName ?? (lang == .english ? "Friend" : "朋友"),
+                lang))
                 .font(.system(size: 24, weight: .bold, design: .rounded))
-                .foregroundStyle(Color.inkNavy)
-            Text(lang == .english ? "Your little planet" : "你的小星球")
-                .font(.system(.caption, design: .rounded))
-                .foregroundStyle(Color.cosmicPurple.opacity(0.65))
+                .foregroundStyle(Color.softWhite)
+                .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
+            Text(HomeExperienceStrings.planetSubtitle(lang))
+                .font(.system(.footnote, design: .rounded))
+                .foregroundStyle(Color.softWhite.opacity(0.85))
+                .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
         }
+    }
+
+    // MARK: Hubs — six personal stations
+
+    private var hubGrid: some View {
+        LazyVGrid(columns: [GridItem(.flexible(), spacing: 12),
+                            GridItem(.flexible(), spacing: 12)], spacing: 12) {
+            ForEach(MyPlanetHub.allCases) { hub in
+                hubPod(hub)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func hubPod(_ hub: MyPlanetHub) -> some View {
+        Button {
+            activeHub = hub
+        } label: {
+            VStack(spacing: 6) {
+                TwinkoCosmicOrb(diameter: 46, tint: hub.tint, showStar: hub.showsStar) {
+                    Image(systemName: hub.glyph)
+                        .font(.system(size: 17, weight: .medium))
+                }
+                Text(hub.title(lang))
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .foregroundStyle(Color.softWhite)
+                    .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
+                Text(hub.descriptor(lang))
+                    .font(.system(size: 11, design: .rounded))
+                    .foregroundStyle(Color.softWhite.opacity(0.75))
+                    .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+            .frame(maxWidth: .infinity, minHeight: 108)
+            .padding(.vertical, 10)
+            .twinkoGlass(cornerRadius: 24, tint: 0.14)
+            .contentShape(RoundedRectangle(cornerRadius: 24))
+        }
+        .buttonStyle(TwinkoGlassPressStyle())
+        .accessibilityIdentifier(hub.identifier)
+        .accessibilityLabel(Text("\(hub.title(lang))，\(hub.descriptor(lang))"))
+    }
+
+    /// Real destinations where they exist; honest coming-soon stations
+    /// where record features are not yet implemented. Never fake data.
+    @ViewBuilder
+    private func hubDestination(_ hub: MyPlanetHub) -> some View {
+        switch hub {
+        case .profile: profileDetail
+        case .settings: settingsDetail
+        case .journal, .meditationHistory, .tarotHistory, .savedCards:
+            hubComingSoon(hub)
+        }
+    }
+
+    private func hubComingSoon(_ hub: MyPlanetHub) -> some View {
+        ZStack {
+            TwinkoFullScreenBackground(imageName: TwinkoBackgrounds.myPlanetResolved,
+                                       topOpacity: 0.22, bottomOpacity: 0.32)
+            VStack(spacing: TwinkoSpacing.m) {
+                Spacer()
+                TwinkoCosmicOrb(diameter: 84, tint: hub.tint, showStar: hub.showsStar) {
+                    Image(systemName: hub.glyph)
+                        .font(.system(size: 30, weight: .medium))
+                }
+                Text(hub.title(lang))
+                    .font(.system(.title3, design: .rounded).weight(.semibold))
+                    .foregroundStyle(Color.softWhite)
+                Text(HomeExperienceStrings.hubComingSoon(lang))
+                    .font(.system(.body, design: .rounded))
+                    .foregroundStyle(Color.softWhite.opacity(0.85))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 14)
+                    .twinkoGlass(cornerRadius: 22, tint: 0.14)
+                    .padding(.horizontal, TwinkoSpacing.l)
+                Spacer()
+                Spacer()
+            }
+        }
+        .dockClearance()
+        .accessibilityIdentifier("hubComingSoonState")
+    }
+
+    // MARK: Privacy (quiet link — content unchanged)
+
+    private var privacyLink: some View {
+        Button {
+            showingPrivacy = true
+        } label: {
+            Label(HomeStrings.privacy(lang), systemImage: "hand.raised.fill")
+                .font(.system(.footnote, design: .rounded).weight(.medium))
+                .foregroundStyle(Color.softWhite.opacity(0.8))
+                .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
+                .frame(minHeight: 44)
+        }
+        .accessibilityIdentifier("sheetPrivacyRow")
     }
 
     // MARK: Entry cards
@@ -641,4 +758,83 @@ struct SettingsSheetView: View {
     MyPlanetContentView()
         .environmentObject(ProfileStore())
         .environmentObject(PrefsStore())
+}
+
+
+// MARK: - My Planet hubs (companion-universe redesign 2026-07-17)
+
+/// The six personal stations on My Planet. Profile and Settings route
+/// to their existing destinations; the record hubs show honest
+/// coming-soon stations until their features are implemented.
+enum MyPlanetHub: String, CaseIterable, Identifiable, Hashable {
+    case journal, meditationHistory, tarotHistory, savedCards, profile, settings
+
+    var id: String { rawValue }
+
+    var identifier: String {
+        switch self {
+        case .journal: return "hubJournal"
+        case .meditationHistory: return "hubMeditation"
+        case .tarotHistory: return "hubTarot"
+        case .savedCards: return "hubCards"
+        case .profile: return "sheetProfileRow"
+        case .settings: return "sheetSettingsRow"
+        }
+    }
+
+    /// True when the hub routes to an existing real destination.
+    var routesToExistingDestination: Bool {
+        switch self {
+        case .profile, .settings: return true
+        case .journal, .meditationHistory, .tarotHistory, .savedCards: return false
+        }
+    }
+
+    var glyph: String {
+        switch self {
+        case .journal: return "book.closed.fill"
+        case .meditationHistory: return "moon.zzz.fill"
+        case .tarotHistory: return "rectangle.portrait.on.rectangle.portrait.fill"
+        case .savedCards: return "sparkles.rectangle.stack.fill"
+        case .profile: return "person.fill"
+        case .settings: return "gearshape.fill"
+        }
+    }
+
+    var tint: Color {
+        switch self {
+        case .journal: return Color(hex: 0x4FA3A0)           // teal-lilac memory
+        case .meditationHistory: return Color(hex: 0x5D7BC8) // calm blue-lilac
+        case .tarotHistory: return Color(hex: 0x6B4BA8)      // plum oracle
+        case .savedCards: return Color(hex: 0x4E5FB8)        // violet-blue vault
+        case .profile: return Color(hex: 0x9A6FD0)           // warm lilac identity
+        case .settings: return Color(hex: 0x7A6FA8)          // control station
+        }
+    }
+
+    var showsStar: Bool {
+        self == .savedCards || self == .journal
+    }
+
+    func title(_ lang: AppLanguage) -> String {
+        switch self {
+        case .journal: return HomeExperienceStrings.hubJournal(lang)
+        case .meditationHistory: return HomeExperienceStrings.hubMeditation(lang)
+        case .tarotHistory: return HomeExperienceStrings.hubTarot(lang)
+        case .savedCards: return HomeExperienceStrings.hubCards(lang)
+        case .profile: return HomeExperienceStrings.hubProfile(lang)
+        case .settings: return HomeExperienceStrings.hubSettings(lang)
+        }
+    }
+
+    func descriptor(_ lang: AppLanguage) -> String {
+        switch self {
+        case .journal: return HomeExperienceStrings.hubJournalDesc(lang)
+        case .meditationHistory: return HomeExperienceStrings.hubMeditationDesc(lang)
+        case .tarotHistory: return HomeExperienceStrings.hubTarotDesc(lang)
+        case .savedCards: return HomeExperienceStrings.hubCardsDesc(lang)
+        case .profile: return HomeExperienceStrings.hubProfileDesc(lang)
+        case .settings: return HomeExperienceStrings.hubSettingsDesc(lang)
+        }
+    }
 }

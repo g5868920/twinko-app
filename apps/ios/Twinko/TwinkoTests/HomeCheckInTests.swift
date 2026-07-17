@@ -106,3 +106,55 @@ final class HomeCheckInTests: XCTestCase {
         }
     }
 }
+
+// MARK: - Companion-universe redesign (2026-07-17)
+
+extension HomeCheckInTests {
+    func testCanonicalBackgroundConstants() {
+        XCTAssertEqual(TwinkoBackgrounds.home, "bg_home_screen_v2")
+        XCTAssertEqual(TwinkoBackgrounds.explore, "bg_explore_v1")
+        XCTAssertEqual(TwinkoBackgrounds.myPlanet, "bg_my_planet_v1")
+    }
+
+    func testTwinkoMessageFallsBackSafelyWithoutContext() {
+        let provider = LocalHomeRecommendationProvider()
+        for lang in [AppLanguage.traditionalChinese, .english] {
+            var context = HomePersonalizationContext.empty
+            context.hour = 9
+            let message = provider.twinkoMessage(context: context, lang: lang)
+            XCTAssertFalse(message.isEmpty)
+            let hasCJK = message.unicodeScalars.contains { (0x4E00...0x9FFF).contains($0.value) }
+            XCTAssertEqual(hasCJK, lang == .traditionalChinese,
+                           "Fallback matches the locale, never mixed: \(message)")
+        }
+    }
+
+    func testJourneyMapsRepresentativeMoodAndNeed() {
+        let provider = LocalHomeRecommendationProvider()
+        let checkIn = DailyCheckIn(localDate: DailyCheckIn.dateKey(),
+                                   mood: .anxious, need: .direction)
+        let steps = provider.journey(for: checkIn, lang: .traditionalChinese)
+        XCTAssertEqual(steps.count, 3, "The Companion Journey is exactly three steps")
+        XCTAssertEqual(steps.map(\.index), [1, 2, 3])
+        XCTAssertEqual(steps[0].action, .chat)
+        XCTAssertEqual(steps[1].action, .tarot)
+        if case .meditation = steps[2].action {} else {
+            XCTFail("Direction journeys close with a meditation")
+        }
+        // The same combination still yields a recommendation.
+        let recommendation = provider.recommendation(for: checkIn, lang: .traditionalChinese)
+        XCTAssertEqual(recommendation.primaryAction, .tarot)
+    }
+
+    func testMyPlanetHubRouting() {
+        XCTAssertEqual(MyPlanetHub.allCases.count, 6)
+        XCTAssertTrue(MyPlanetHub.profile.routesToExistingDestination,
+                      "Profile routes to the existing profile flow")
+        XCTAssertTrue(MyPlanetHub.settings.routesToExistingDestination,
+                      "Settings routes to the existing settings flow")
+        for hub in [MyPlanetHub.journal, .meditationHistory, .tarotHistory, .savedCards] {
+            XCTAssertFalse(hub.routesToExistingDestination,
+                           "\(hub) shows an honest coming-soon station")
+        }
+    }
+}

@@ -964,7 +964,8 @@ final class TwinkoUITests: XCTestCase {
         // Initial Home: greeting, mood question, four tabs, Settings gear
         let firstMood = app.descendants(matching: .any)["mood-happy"]
         XCTAssertTrue(firstMood.waitForExistence(timeout: 10))
-        XCTAssertTrue(app.buttons["homeSettingsButton"].exists)
+        XCTAssertFalse(app.buttons["homeSettingsButton"].exists,
+                       "No Settings icon on Home — Settings lives in My Planet")
         XCTAssertTrue(app.buttons["tab-home"].exists)
         XCTAssertTrue(app.buttons["tab-chat"].exists)
         XCTAssertTrue(app.buttons["tab-explore"].exists)
@@ -994,17 +995,13 @@ final class TwinkoUITests: XCTestCase {
         XCTAssertTrue(app.descendants(matching: .any)["homePrimaryAction"].exists)
         attach(name: "H3-checkin-complete-recommendation")
 
-        // Settings gear opens Settings directly (language rows) —
-        // a different destination from the My Planet tab.
-        settleTap(app.buttons["homeSettingsButton"])
-        XCTAssertTrue(app.buttons["language-zh-Hant"].waitForExistence(timeout: 5))
-        attach(name: "H4-settings-sheet")
-        app.swipeDown(velocity: .fast)
-
-        // My Planet tab shows the planet landing, not Settings
+        // Settings is reached through My Planet (no Home gear).
         settleTap(app.buttons["tab-myplanet"])
         XCTAssertTrue(app.buttons["sheetProfileRow"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["小雅"].exists)
+        settleTap(app.buttons["sheetSettingsRow"])
+        XCTAssertTrue(app.buttons["language-zh-Hant"].waitForExistence(timeout: 5))
+        attach(name: "H4-settings-station")
+        settleTap(app.navigationBars.buttons.firstMatch)
 
         // Back to Home: check-in stays collapsed (no re-ask same day)
         settleTap(app.buttons["tab-home"])
@@ -1187,14 +1184,13 @@ final class TwinkoUITests: XCTestCase {
         XCTAssertTrue(app.buttons["tab-home"].exists, "Bottom nav visible on landing")
         attach(name: "C1-zh-landing")
 
-        // Switch to English via Home settings.
-        app.buttons["tab-home"].tap()
+        // Switch to English via My Planet settings (no Home gear).
+        app.buttons["tab-myplanet"].tap()
         Thread.sleep(forTimeInterval: 1.0)
-        settleTap(app.buttons["homeSettingsButton"])
+        settleTap(app.buttons["sheetSettingsRow"])
         XCTAssertTrue(app.buttons["language-en"].waitForExistence(timeout: 5))
         settleTap(app.buttons["language-en"])
-        app.swipeDown(velocity: .fast)
-        Thread.sleep(forTimeInterval: 1.0)
+        Thread.sleep(forTimeInterval: 0.6)
         app.buttons["tab-chat"].tap()
         XCTAssertTrue(app.staticTexts["I'm here with you"].waitForExistence(timeout: 5),
                       "Approved EN welcome headline")
@@ -1384,6 +1380,125 @@ final class TwinkoUITests: XCTestCase {
                       "X returns to Explore")
         XCTAssertTrue(app.buttons["tab-home"].waitForExistence(timeout: 4),
                       "Tab bar restored after leaving Tarot")
+    }
+
+    /// Focused companion-universe walkthrough (2026-07-17): one-screen
+    /// Home with journey, cosmic Explore map, My Planet hubs, floating
+    /// dock, and second-locale spot check.
+    func testCompanionUniverseWalkthrough() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile"]
+        app.launch()
+
+        // --- Home: initial check-in, complete it, journey appears.
+        let firstMood = app.descendants(matching: .any)["mood-calm"]
+        XCTAssertTrue(firstMood.waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 3.0)
+        XCTAssertFalse(app.buttons["homeSettingsButton"].exists,
+                       "No Settings icon on Home")
+        XCTAssertTrue(app.buttons["tab-home"].exists, "Floating dock visible")
+        settleTap(app.descendants(matching: .any)["mood-calm"])
+        let need = app.descendants(matching: .any)["need-direction"]
+        XCTAssertTrue(need.waitForExistence(timeout: 4))
+        settleTap(need)
+        XCTAssertTrue(app.descendants(matching: .any)["checkInSummary"]
+            .waitForExistence(timeout: 5), "Check-in collapses after completion")
+        XCTAssertTrue(app.descendants(matching: .any)["homePrimaryAction"].exists,
+                      "One personalized recommendation")
+        XCTAssertTrue(app.descendants(matching: .any)["journeyStep-1"].exists
+                      && app.descendants(matching: .any)["journeyStep-3"].exists,
+                      "Three-step Companion Journey")
+        XCTAssertTrue(app.descendants(matching: .any)["homeEntry-tarot"].exists,
+                      "Explore More entries present")
+        attach(name: "U1-home-completed")
+
+        // Edit reopens the selectors, then completes again.
+        settleTap(app.descendants(matching: .any)["checkInEditButton"])
+        if !app.descendants(matching: .any)["need-direction"].waitForExistence(timeout: 3) {
+            settleTap(app.descendants(matching: .any)["checkInEditButton"]) // dropped-tap retry
+        }
+        XCTAssertTrue(app.descendants(matching: .any)["need-direction"]
+            .waitForExistence(timeout: 4), "Edit re-expands the check-in")
+        settleTap(app.descendants(matching: .any)["need-direction"])
+        XCTAssertTrue(app.descendants(matching: .any)["checkInSummary"]
+            .waitForExistence(timeout: 4))
+
+        // --- Explore: cosmic map, one real planet, Activities.
+        app.buttons["tab-explore"].tap()
+        XCTAssertTrue(app.staticTexts["探索宇宙"].waitForExistence(timeout: 5))
+        for planet in ["tarot", "horoscope", "meditation", "music", "activities"] {
+            XCTAssertTrue(app.descendants(matching: .any)["explore-\(planet)"].exists,
+                          planet)
+        }
+        attach(name: "U2-explore-map")
+        settleTap(app.descendants(matching: .any)["explore-meditation"])
+        XCTAssertTrue(app.buttons["meditationStartButton"].waitForExistence(timeout: 6))
+        Thread.sleep(forTimeInterval: 0.8)
+        XCTAssertFalse(app.buttons["tab-home"].exists,
+                       "Immersive flow hides the dock")
+        settleTap(app.buttons["meditationBackButton"])
+        XCTAssertTrue(app.staticTexts["探索宇宙"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["tab-home"].waitForExistence(timeout: 4),
+                      "Dock restored on the Explore map")
+        settleTap(app.descendants(matching: .any)["explore-activities"])
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "附近的療癒活動")).firstMatch
+            .waitForExistence(timeout: 5), "Honest Activities coming-soon state")
+        settleTap(app.buttons["activitiesBackButton"])
+        XCTAssertTrue(app.staticTexts["探索宇宙"].waitForExistence(timeout: 5))
+
+        // --- My Planet: hero, six hubs, Profile, Settings, one record hub.
+        app.buttons["tab-myplanet"].tap()
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "小雅 的星球")).firstMatch
+            .waitForExistence(timeout: 5), "Personal planet hero")
+        for hub in ["hubJournal", "hubMeditation", "hubTarot", "hubCards",
+                    "sheetProfileRow", "sheetSettingsRow"] {
+            XCTAssertTrue(app.descendants(matching: .any)[hub].exists, hub)
+        }
+        attach(name: "U3-my-planet-hubs")
+        settleTap(app.buttons["sheetProfileRow"])
+        XCTAssertTrue(app.buttons["profileCard-name"].waitForExistence(timeout: 5),
+                      "Existing Profile destination")
+        settleTap(app.navigationBars.buttons.firstMatch)
+        XCTAssertTrue(app.buttons["sheetSettingsRow"].waitForExistence(timeout: 5))
+        scrollTap(app.buttons["hubJournal"], in: app)
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "還在建造中")).firstMatch
+            .waitForExistence(timeout: 5), "Honest coming-soon record station")
+        settleTap(app.navigationBars.buttons.firstMatch)
+
+    }
+
+    /// Second-locale top-level spot check (own launch: the locale
+    /// switch re-renders every tab, which is cleanest from a fresh
+    /// session).
+    func testCompanionUniverseEnglishLocale() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile"]
+        app.launch()
+        XCTAssertTrue(app.buttons["tab-myplanet"].waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 3.0)
+
+        // Complete a check-in first (zh), so the EN summary state shows.
+        settleTap(app.descendants(matching: .any)["mood-calm"])
+        settleTap(app.descendants(matching: .any)["need-direction"])
+        XCTAssertTrue(app.descendants(matching: .any)["checkInSummary"]
+            .waitForExistence(timeout: 5))
+
+        app.buttons["tab-myplanet"].tap()
+        XCTAssertTrue(app.buttons["sheetSettingsRow"].waitForExistence(timeout: 5))
+        scrollTap(app.buttons["sheetSettingsRow"], in: app)
+        XCTAssertTrue(app.buttons["language-en"].waitForExistence(timeout: 5))
+        settleTap(app.buttons["language-en"])
+        Thread.sleep(forTimeInterval: 1.0)
+        settleTap(app.buttons["tab-home"])
+        XCTAssertTrue(app.staticTexts["Today's Companion Journey"]
+            .waitForExistence(timeout: 6), "EN journey title, no mixed language")
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "Feeling today")).firstMatch.exists,
+            "EN check-in summary")
+        attach(name: "U4-home-english")
     }
 
     /// Focused Chat/Horoscope/Tarot polish walkthrough (2026-07-17).

@@ -68,6 +68,7 @@
 		9D6D707A287714E51AA577A4 /* TarotResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E298F3D429266D6C304720 /* TarotResultView.swift */; };
 		A0431E3214BF86544C2BFD93 /* ProfileStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AB9ADFEDC86900F8F9C16C9 /* ProfileStoreTests.swift */; };
 		A1E1F1A13D31D5D33644A362 /* TwinkoComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA675190F8FC6A3EB7A89BBF /* TwinkoComponents.swift */; };
+		DC1D5114C7AB4BBA9CF3B8CF /* TwinkoGlass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E70C59D69B2E7501D96B7A1 /* TwinkoGlass.swift */; };
 		A6A6F3234F4A5F16627D71E8 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B54A5296B263EEC25CE166 /* WelcomeView.swift */; };
 		BCA2FE3D9D34F29F4D106FC5 /* PrefsStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8407D12EF8F41951B8F2C0D8 /* PrefsStoreTests.swift */; };
 		C9DA3CD18CD59ED211CFDDBD /* MockChatService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F858C155845D7B7FD3D9859 /* MockChatService.swift */; };
@@ -159,6 +160,7 @@
 		A2629A099DF1889B93EEE8C5 /* PlaceholderViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderViews.swift; sourceTree = "<group>"; };
 		A3977084055B601B38042C00 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
 		AA675190F8FC6A3EB7A89BBF /* TwinkoComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoComponents.swift; sourceTree = "<group>"; };
+		5E70C59D69B2E7501D96B7A1 /* TwinkoGlass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoGlass.swift; sourceTree = "<group>"; };
 		BFE37BF80B16B65650AA928F /* RootRouterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootRouterView.swift; sourceTree = "<group>"; };
 		231779486AA2778ABB55F8F6 /* InteractivePopSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractivePopSupport.swift; sourceTree = "<group>"; };
 		C869FED0EE7DF16E701A0D0C /* ChatStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatStore.swift; sourceTree = "<group>"; };
@@ -379,6 +381,7 @@
 				31CF6A79089091B71DD9385C /* BrandedModal.swift */,
 				5D8B8160D8C7C289308214D3 /* BrandedActionPopover.swift */,
 				AA675190F8FC6A3EB7A89BBF /* TwinkoComponents.swift */,
+				5E70C59D69B2E7501D96B7A1 /* TwinkoGlass.swift */,
 			);
 			path = DesignSystem;
 			sourceTree = "<group>";
@@ -518,6 +521,7 @@
 				EDD952713936C139D49E83FE /* BrandedModal.swift in Sources */,
 				2E346086A99DFED44ADBB65B /* BrandedActionPopover.swift in Sources */,
 				A1E1F1A13D31D5D33644A362 /* TwinkoComponents.swift in Sources */,
+				DC1D5114C7AB4BBA9CF3B8CF /* TwinkoGlass.swift in Sources */,
 				4E07BD3D0661A9D70DBE8519 /* TwinkoStar.swift in Sources */,
 				E66FE230DBB4A7FE02D94AFF /* TwinkoCharacterView.swift in Sources */,
 				08DBD8DE79C03092D70BE2C8 /* ChatView.swift in Sources */,

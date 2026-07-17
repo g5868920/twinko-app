@@ -940,6 +940,90 @@ final class TwinkoUITests: XCTestCase {
         attach(name: "T8-tarot-single-result")
     }
 
+    /// Focused Tarot UX-fixes walkthrough (2026-07-17): floating
+    /// header, three-card reading, longer sparkle shuffle, Result →
+    /// Back revealed-state persistence (the critical bug), and the
+    /// concise exit modal. Single-pass — not an end-to-end suite.
+    func testTarotUXFixesWalkthrough() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile"]
+        app.launch()
+
+        // Open Tarot from the Explore More entry; the setup header
+        // floats (Back + X, no bar).
+        let tarotEntry = app.descendants(matching: .any)["homeEntry-tarot"]
+        XCTAssertTrue(tarotEntry.waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 3.0)
+        var entryScrolls = 0
+        while !tarotEntry.isHittable && entryScrolls < 6 {
+            app.swipeUp()
+            entryScrolls += 1
+        }
+        settleTap(tarotEntry)
+        let next = app.buttons["下一步"]
+        XCTAssertTrue(next.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["tarotBackButton"].exists)
+        XCTAssertTrue(app.buttons["tarotExitButton"].exists)
+        attach(name: "W1-setup-floating-header")
+        next.tap()
+
+        // Three-card spread → longer shuffle with blue sparkles.
+        let threeSpread = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "三張牌")).firstMatch
+        XCTAssertTrue(threeSpread.waitForExistence(timeout: 5))
+        threeSpread.tap()
+        Thread.sleep(forTimeInterval: 2.6)
+        attach(name: "W2-shuffle-blue-sparkles")
+
+        // Reveal all three cards, then record their identity labels
+        // (name ＋ orientation) in layout order.
+        let facedownQuery = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "蓋著的牌"))
+        XCTAssertTrue(facedownQuery.firstMatch.waitForExistence(timeout: 14),
+                      "Shuffle must resolve into face-down cards")
+        for _ in 0..<3 {
+            let card = facedownQuery.firstMatch
+            XCTAssertTrue(card.waitForExistence(timeout: 8))
+            settleTap(card)
+        }
+        let revealedQuery = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@ OR label CONTAINS %@", "正位", "逆位"))
+        XCTAssertEqual(revealedQuery.count, 3, "All three cards face-up before the result")
+        let labelsBefore = revealedQuery.allElementsBoundByIndex.map(\.label)
+
+        // Open the Result and check the refined reading surfaces.
+        let seeResult = app.buttons["看看牌想說什麼"]
+        XCTAssertTrue(seeResult.waitForExistence(timeout: 5))
+        seeResult.tap()
+        XCTAssertTrue(app.descendants(matching: .any)["tarotSynthesis"]
+            .waitForExistence(timeout: 5))
+        XCTAssertTrue(app.descendants(matching: .any)["tarotTwinkoMessage"].exists)
+        attach(name: "W3-result-hierarchy")
+
+        // CRITICAL: Result → Back shows the exact same face-up cards —
+        // same names, orientations, and order; never card backs again.
+        settleTap(app.buttons["tarotBackButton"])
+        XCTAssertTrue(app.staticTexts["這就是你本次抽到的牌"].waitForExistence(timeout: 5),
+                      "Back re-enters the completed reveal, not a fresh one")
+        XCTAssertEqual(facedownQuery.count, 0, "No card may revert to its back")
+        let labelsAfter = revealedQuery.allElementsBoundByIndex.map(\.label)
+        XCTAssertEqual(labelsAfter, labelsBefore,
+                       "Same cards, orientations, and positions after Back")
+        XCTAssertTrue(app.buttons["查看完整解讀"].exists)
+        attach(name: "W4-revealed-after-back")
+
+        // Exit confirmation: concise copy, Twinko-world modal actions.
+        settleTap(app.buttons["tarotExitButton"])
+        XCTAssertTrue(app.staticTexts["要先離開占卜嗎？"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["這次占卜會結束。"].exists)
+        XCTAssertTrue(app.buttons["離開占卜"].exists)
+        let stay = app.buttons["繼續占卜"]
+        XCTAssertTrue(stay.exists)
+        stay.tap()
+        XCTAssertTrue(app.buttons["查看完整解讀"].waitForExistence(timeout: 5),
+                      "Continue Reading stays on the completed reveal")
+    }
+
     // MARK: Helpers
 
     private func goBack(_ app: XCUIApplication) {

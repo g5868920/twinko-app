@@ -124,6 +124,12 @@ struct TarotReadingSession: Equatable {
     var spread: TarotSpreadType = .single
     var cards: [TarotDrawnCard] = []
     var guidanceCard: TarotDrawnCard?
+    /// Whether this reading's cards were already revealed once.
+    /// Session-owned (not view `@State`) so Back from the Result always
+    /// shows the same face-up cards — backward navigation never
+    /// re-hides, redraws, or rerandomizes a reading (§41). Cleared only
+    /// by an explicit new draw or a new reading.
+    var revealSeen = false
     var createdAt: Date = .now
 
     var allCards: [TarotDrawnCard] {

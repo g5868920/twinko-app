@@ -8,8 +8,9 @@ import SwiftUI
 /// exactly the drawn number of cards (one or three) while the rest
 /// dissolve. Card identities come from the draw engine — choreography
 /// never selects cards. Reduce Motion shows a simple rising fade with
-/// the same timing/state logic. Total ≈ 2.9 s: calm, premium,
-/// ritualistic — never frantic or slot-machine-like.
+/// the same timing/state logic. Animation ≈ 3.7 s plus a ≈ 0.7 s
+/// suspended hold: a calm magical ritual — never frantic or
+/// slot-machine-like.
 struct TarotShuffleStage: View {
     let cardCount: Int
     let onFinished: () -> Void
@@ -26,11 +27,12 @@ struct TarotShuffleStage: View {
     /// Shuffle-state Twinko is deliberately larger than the standard
     /// hero — it should feel like it is channeling the reading.
     static let twinkoSize: CGFloat = 216
-    private static let totalDuration: TimeInterval = 3.5
-    private static let convergeStart: TimeInterval = 2.15
-    private static let convergeDuration: TimeInterval = 0.55
-    /// Convergence completes ≈2.7 s; the settled cards hold ≈0.8 s
-    /// before the transition (spec hold 0.7–1.1 s).
+    private static let totalDuration: TimeInterval = 4.4
+    private static let convergeStart: TimeInterval = 3.1
+    private static let convergeDuration: TimeInterval = 0.6
+    /// Convergence completes ≈3.7 s (spec: 3.2–4.2 s animation); the
+    /// settled cards then hold suspended ≈0.7 s before the transition
+    /// (spec hold 0.5–0.8 s).
 
     /// Settled cards hover clearly above Twinko's hat, positioned
     /// relative to the character frame (half size 108 + clearance +
@@ -103,6 +105,12 @@ struct TarotShuffleStage: View {
                     .frame(width: 250, height: 300)
                     .opacity(0.7)
 
+                // Icy-blue / blue-violet star glints twinkling at the
+                // vortex edges — visible but never noisy, kept off
+                // Twinko's face, and gone once the cards converge.
+                TarotShuffleGlints(t: t, fade: 1 - easeInOut(converge(t)))
+                    .frame(width: 370, height: 460)
+
                 // Phase B/C — the card vortex: varied depth, scale,
                 // rotation, delay and speed; selected cards converge,
                 // the rest dissolve and fall away.
@@ -159,7 +167,9 @@ struct TarotShuffleStage: View {
             .frame(width: 274, height: 274)
             .rotationEffect(.degrees(t * 26))
             .scaleEffect(0.5 + 0.65 * riseIn(t, from: 0.2, over: 0.9))
-            .opacity(riseIn(t, from: 0.2, over: 0.6) * (1 - riseIn(t, from: 1.6, over: 0.7)))
+            // The blue ring accompanies most of the longer ritual and
+            // dissolves as convergence begins.
+            .opacity(riseIn(t, from: 0.2, over: 0.6) * (1 - riseIn(t, from: 2.6, over: 0.7)))
             Circle()
                 .fill(TarotCTAPalette.violetGlow)
                 .frame(width: 190, height: 190)
@@ -177,8 +187,8 @@ struct TarotShuffleStage: View {
         -> (x: CGFloat, y: CGFloat, scale: CGFloat, rotation: Double,
             opacity: Double, z: Double) {
         let delay = Double(index) * 0.07
-        let speed = 0.34 + Double((index * 13) % 5) * 0.055     // revolutions/s (−~20%)
-        let radius = 135.0 + Double((index * 37) % 90)          // +~25% orbit
+        let speed = 0.29 + Double((index * 13) % 5) * 0.048     // revolutions/s (slower ritual)
+        let radius = 155.0 + Double((index * 37) % 100)         // wider orbit around Twinko
         let baseScale = 0.58 + Double((index * 23) % 35) / 100
         let baseAngle = Double(index) / Double(Self.poolCount) * 2 * .pi
 
@@ -223,9 +233,20 @@ struct TarotShuffleStage: View {
     // MARK: Reduce Motion fallback (§19)
 
     /// Several cards fading gently upward, converging through scale
-    /// and opacity — same draw result, same completion timing.
+    /// and opacity — same draw result, with a static blue-violet glow
+    /// standing in for the sparkle layer (§19).
     private var reducedVortex: some View {
         ZStack {
+            Circle()
+                .fill(
+                    RadialGradient(colors: [TarotCTAPalette.violetGlow.opacity(0.35),
+                                            Color(hex: 0x5B7BE8).opacity(0.18),
+                                            .clear],
+                                   center: .center, startRadius: 10, endRadius: 190)
+                )
+                .frame(width: 380, height: 380)
+                .blur(radius: 12)
+                .accessibilityHidden(true)
             ForEach(0..<5, id: \.self) { index in
                 let selectedSlot = TarotShuffleChoreography
                     .selectedIndices(fanCount: 5, pick: cardCount)
@@ -252,19 +273,23 @@ struct TarotShuffleStage: View {
         if reduceMotion {
             withAnimation { reducedCardsUp = true }
             Task {
-                try? await Task.sleep(nanoseconds: 1_400_000_000)
+                // Long enough to still communicate ritual progress.
+                try? await Task.sleep(nanoseconds: 1_800_000_000)
                 emerged = true
-                try? await Task.sleep(nanoseconds: 900_000_000)
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
                 onFinished()
             }
             return
         }
         Task {
             // Copy switches once convergence completes; the settled
-            // cards hold before the transition to Reveal.
+            // cards hold suspended before the transition to Reveal,
+            // marked with one light completion haptic.
             let emergeAt = Self.convergeStart + Self.convergeDuration + 0.1
             try? await Task.sleep(nanoseconds: UInt64(emergeAt * 1_000_000_000))
             emerged = true
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
             try? await Task.sleep(nanoseconds:
                 UInt64((Self.totalDuration - emergeAt) * 1_000_000_000))
             onFinished()
@@ -310,6 +335,49 @@ struct TarotStardust: View {
                     .position(x: geo.size.width * p.x, y: geo.size.height * p.y)
                     .offset(y: active ? -26 : 0)
                     .animation(.easeOut(duration: 1.4).delay(p.d), value: active)
+            }
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+}
+
+/// Icy-blue and blue-violet star glints for the shuffle ritual: a
+/// fixed constellation of small sparkles with phase-offset opacity
+/// pulses and a gentle vertical shimmer, driven by the vortex clock —
+/// deterministic, no particle system. Positions ring the vortex edges
+/// so nothing sits over Twinko's face; `fade` removes the layer as the
+/// shuffle converges.
+struct TarotShuffleGlints: View {
+    let t: TimeInterval
+    let fade: Double
+
+    static let iceBlue = Color(hex: 0x9FD4FF)
+    private static let points: [(x: CGFloat, y: CGFloat, size: CGFloat,
+                                 phase: Double, blueViolet: Bool)] = [
+        (0.10, 0.18, 17, 0.0, false), (0.88, 0.14, 14, 1.6, true),
+        (0.16, 0.62, 13, 2.9, true),  (0.90, 0.55, 18, 0.9, false),
+        (0.30, 0.06, 13, 2.1, false), (0.68, 0.04, 14, 3.4, true),
+        (0.05, 0.40, 14, 4.1, false), (0.94, 0.34, 13, 5.0, true),
+        (0.24, 0.88, 15, 1.2, false), (0.76, 0.90, 13, 3.8, true),
+    ]
+
+    var body: some View {
+        GeometryReader { geo in
+            ForEach(Array(Self.points.enumerated()), id: \.offset) { _, p in
+                let tint = p.blueViolet ? TarotCTAPalette.violetGlow : Self.iceBlue
+                let pulse = max(0, sin(t * 1.3 + p.phase))
+                // A soft floor keeps the constellation gently present
+                // between twinkles so the blue layer reads on the busy
+                // illustrated background.
+                Image(systemName: "sparkle")
+                    .font(.system(size: p.size))
+                    .foregroundStyle(tint)
+                    .opacity((0.30 + 0.60 * pulse * pulse) * fade)
+                    .shadow(color: tint.opacity((0.25 + 0.55 * pulse) * fade), radius: 5)
+                    .position(x: geo.size.width * p.x,
+                              y: geo.size.height * p.y
+                                  + CGFloat(sin(t * 0.7 + p.phase)) * 6)
             }
         }
         .allowsHitTesting(false)

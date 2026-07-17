@@ -15,10 +15,9 @@ struct TarotFlowView: View {
     @EnvironmentObject private var chrome: ShellChrome
 
     @State private var stage: Stage = .setup
+    /// Owns the whole reading, including `revealSeen` — reveal state
+    /// lives on the session, never in stage-local view `@State` (§41).
     @State private var session = TarotReadingSession()
-    /// Whether this reading's cards were already revealed once, so
-    /// Back from the result never re-hides them (§41).
-    @State private var revealSeen = false
     @State private var showingExitConfirm = false
     @State private var immersiveToken = UUID()
     private let provider: TarotInterpretationProviding = MockTarotInterpretationProvider()
@@ -142,7 +141,7 @@ struct TarotFlowView: View {
                     session.cards = engine.draw(spread: spread)
                     session.guidanceCard = nil
                     session.createdAt = .now
-                    revealSeen = false
+                    session.revealSeen = false
                     advance(to: .shuffle)
                 }
             case .shuffle:
@@ -152,8 +151,8 @@ struct TarotFlowView: View {
                                  heading: session.spread == .single
                                      ? TarotStrings.revealSingle(lang)
                                      : TarotStrings.revealThree(lang),
-                                 initiallyRevealed: revealSeen) {
-                    revealSeen = true
+                                 initiallyRevealed: session.revealSeen) {
+                    session.revealSeen = true
                     advance(to: .result)
                 }
             case .result:
@@ -166,7 +165,6 @@ struct TarotFlowView: View {
                     advance(to: .guidanceReveal)
                 }, onRestart: {
                     session = TarotReadingSession(topic: session.topic)
-                    revealSeen = false
                     advance(to: .setup)
                 }, onHome: {
                     goHome()
@@ -190,37 +188,35 @@ struct TarotFlowView: View {
     /// whole flow back to its original source (Explore, Home, …) —
     /// with a branded confirmation once meaningful reading state
     /// exists (2026-07-17).
+    /// One coherent floating control system (§ unified Back/X): both
+    /// icons share the restrained warm-gold treatment, size, weight,
+    /// 44×44 target, press feedback, and light haptic — no local bar,
+    /// background, or safe-area fill behind them.
     private var header: some View {
-        ZStack {
-            HStack {
-                Button {
-                    goBack()
-                } label: {
-                    Image(systemName: "chevron.backward")
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(Color.accentGold)
-                        .frame(width: 44, height: 44)
-                        .contentShape(Rectangle())
-                }
-                .accessibilityLabel(Text(lang == .english ? "Back" : "上一步"))
-                .accessibilityIdentifier("tarotBackButton")
-                Spacer()
-                Button {
-                    if Self.requiresExitConfirmation(stage: stage) {
-                        showingExitConfirm = true
-                    } else {
-                        exitFlow()
-                    }
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(Color.textInverseToken.opacity(0.85))
-                        .frame(width: 44, height: 44)
-                        .contentShape(Rectangle())
-                }
-                .accessibilityLabel(Text(lang == .english ? "Leave Tarot" : "離開塔羅"))
-                .accessibilityIdentifier("tarotExitButton")
+        HStack {
+            Button {
+                goBack()
+            } label: {
+                Image(systemName: "chevron.backward")
+                    .tarotHeaderControlIcon()
             }
+            .buttonStyle(TarotHeaderControlStyle())
+            .accessibilityLabel(Text(lang == .english ? "Back" : "上一步"))
+            .accessibilityIdentifier("tarotBackButton")
+            Spacer()
+            Button {
+                if Self.requiresExitConfirmation(stage: stage) {
+                    showingExitConfirm = true
+                } else {
+                    exitFlow()
+                }
+            } label: {
+                Image(systemName: "xmark")
+                    .tarotHeaderControlIcon()
+            }
+            .buttonStyle(TarotHeaderControlStyle())
+            .accessibilityLabel(Text(lang == .english ? "Leave Tarot" : "離開塔羅"))
+            .accessibilityIdentifier("tarotExitButton")
         }
         .padding(.horizontal, 8)
         .frame(height: 48)
@@ -285,8 +281,25 @@ private struct TarotSetupStage: View {
 
     private var lang: AppLanguage { prefs.language }
 
+    /// Guided stages read as scenes, not documents (§ no-scroll rule):
+    /// at standard Dynamic Type on a modern iPhone the setup fits
+    /// without scrolling; `ViewThatFits` falls back to a scroll only
+    /// for small devices, Accessibility Dynamic Type, or the keyboard.
     var body: some View {
-        ScrollView {
+        ViewThatFits(in: .vertical) {
+            content
+            ScrollView {
+                content
+            }
+            .scrollDismissesKeyboard(.interactively)
+        }
+        // Greedy outer frame: the stage keeps filling the screen (the
+        // flow background sizes to it) while ViewThatFits still
+        // measures the fixed-height content for the scroll decision.
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    }
+
+    private var content: some View {
             VStack(spacing: TwinkoSpacing.m) {
                 TarotTwinkoView(state: .idle, size: TarotTwinkoSize.supporting,
                                 effect: .idleGlow)
@@ -416,10 +429,8 @@ private struct TarotSetupStage: View {
                 }
                 .buttonStyle(.tarotMagicPrimary)
                 .padding(.horizontal, TwinkoSpacing.m)
-                .padding(.bottom, TwinkoSpacing.xl)
+                .padding(.bottom, TwinkoSpacing.m)
             }
-        }
-        .scrollDismissesKeyboard(.interactively)
     }
 }
 

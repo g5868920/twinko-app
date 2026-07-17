@@ -224,6 +224,40 @@ final class TarotDrawTests: XCTestCase {
                        "Once drawn, no further Guidance Card is offered")
     }
 
+    /// Result → Back must show the exact same face-up cards (§41):
+    /// reveal state is session-owned, so within one active reading the
+    /// card IDs, orientations, and positions never change and the
+    /// face-up state is never lost — for one- and three-card flows.
+    func testCompletedRevealStatePersistsWhenReturningFromResult() {
+        for spread in TarotSpreadType.allCases {
+            var session = makeSession(spread: spread)
+            XCTAssertFalse(session.revealSeen, "A fresh draw starts face-down (\(spread))")
+
+            let ids = session.cards.map(\.card.id)
+            let orientations = session.cards.map(\.orientation)
+            let positions = session.cards.map(\.position)
+
+            // Entering the Result marks the session's reading revealed;
+            // a later guidance draw must not disturb any of it.
+            session.revealSeen = true
+            var engine = TarotDrawEngine(rng: SeededRNG(state: 3))
+            session.guidanceCard = engine.drawGuidance(excluding: session.cards)
+
+            XCTAssertTrue(session.revealSeen,
+                          "Backward navigation re-enters reveal face-up (\(spread))")
+            XCTAssertEqual(session.cards.map(\.card.id), ids,
+                           "Same cards — never redrawn (\(spread))")
+            XCTAssertEqual(session.cards.map(\.orientation), orientations,
+                           "Orientation unchanged (\(spread))")
+            XCTAssertEqual(session.cards.map(\.position), positions,
+                           "Spread positions unchanged (\(spread))")
+
+            // Only an explicit new reading resets the revealed state.
+            let restarted = TarotReadingSession(topic: session.topic)
+            XCTAssertFalse(restarted.revealSeen)
+        }
+    }
+
     func testStartNewReadingResetsToTopicSetupState() {
         let finished = makeSession(spread: .three, guidance: true)
         // Mirrors the flow's restart: a fresh session keeps the topic

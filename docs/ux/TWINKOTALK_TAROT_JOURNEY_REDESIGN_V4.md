@@ -1,8 +1,8 @@
 # TwinkoTalk Tarot Journey Redesign
 
-**Version:** v4.2
+**Version:** v4.3
 **Status:** Implemented (prototype) — founder/CPO decisions 2026-07-16,
-refinement passes 2026-07-17 (see §10–§11)
+refinement passes 2026-07-17 (see §10–§14)
 **Supersedes:** the flow-, layout-, shuffle-, and result-structure
 sections of `TWINKOTALK_TAROT_SCREEN_SPEC_V3.md` and
 `TWINKOTALK_TAROT_ANIMATION_SPEC_V1.md`. Data models, the 78-card
@@ -295,3 +295,102 @@ Start a New Reading are unchanged.
   (no card backs, no shuffle replay, no redraw) with the
   查看完整解讀 completed-state CTA; reveal state remains the single
   source of truth (`revealSeen` + `initiallyRevealed`).
+
+## 14. UX fixes + focused visual polish (2026-07-17, pass 5)
+
+### Header and navigation
+- **Floating header controls:** no local bar, background, safe-area
+  fill, or top strip on any Tarot stage — Back (left) and Close/X
+  (right) float directly over the illustrated scene, inside the safe
+  area, never overlapping Twinko, cards, or headings.
+- **Unified Back/X styling:** one control system — restrained warm
+  gold (`TarotCTAPalette.antiqueGold`), identical size/weight
+  (16 pt semibold), a faint deep-space halo for contrast, 44×44 pt tap
+  targets, shared subtle press feedback + light haptic
+  (`tarotHeaderControlIcon()` + `TarotHeaderControlStyle`). Never one
+  gold icon and one flat white icon.
+
+### No-scroll rule for guided stages
+- Topic/question setup, spread selection, shuffle, reveal, the
+  completed-reveal landing, and the exit modal fit **without vertical
+  scrolling** at standard Dynamic Type on a modern iPhone.
+- Setup uses `ViewThatFits` with a scroll fallback reserved for small
+  devices, Accessibility Dynamic Type, and the open keyboard; a greedy
+  outer frame keeps the stage (and the flow background) full-screen.
+- **Result-page exception:** genuinely long interpretation content
+  remains scrollable — one curated journey, never truncated, no
+  expand/collapse controls.
+
+### Revealed-state persistence (critical rule)
+- Reveal state is **session-owned**: `TarotReadingSession.revealSeen`
+  (never stage-local view `@State`). Result → Back always shows the
+  same face-up cards — IDs, orientations, and spread positions
+  unchanged; cards are never redrawn, rerandomized, or re-hidden by
+  backward navigation. Reveal → Back returns to spread selection where
+  a new draw may be started explicitly.
+- Root-cause note (this pass): the session state was already correct,
+  but `FlipTarotCard` only showed the card front once its flip angle
+  passed 90°, and the angle was view-local starting at 0 — so a
+  re-entered completed reveal *reported* face-up while *rendering*
+  card backs. Cards created already-revealed now start at the flipped
+  angle. Unit test `testCompletedRevealStatePersistsWhenReturningFrom
+  Result` plus UI walkthrough `testTarotUXFixesWalkthrough` guard both
+  layers.
+
+### Exit modal (approved concise copy)
+- 「要先離開占卜嗎？」/「這次占卜會結束。」· 繼續占卜 / 離開占卜 —
+  English: "Leave this reading?" / "This reading will end." /
+  Continue Reading / Leave Reading. Branded compact modal (never a
+  native alert); the leave action keeps the muted-coral destructive
+  token, not bright red. Supersedes the longer §12 copy.
+
+### Shuffle ritual (calm magical ritual)
+- **Duration:** convergence completes ≈3.7 s; the settled cards hold
+  suspended ≈0.7 s before the transition (total ≈4.4 s). Supersedes
+  the §11 ≈3.5 s timing.
+- **Motion:** wider orbit (radius 155–255) and slower revolutions
+  (≈0.29–0.48 rev/s); selected cards still separate clearly above
+  Twinko's head and enlarge on settle; one light haptic marks
+  convergence.
+- **Blue/blue-violet sparkle layer:** deterministic icy-blue
+  (#9FD4FF) and blue-violet (`violetGlow`) star glints
+  (`TarotShuffleGlints`) ring the vortex edges with phase-offset
+  twinkle pulses and a soft presence floor — visible but restrained,
+  never over Twinko's face, no particle system, removed as the cards
+  converge. The blue-violet arc ring now accompanies most of the
+  ritual and dissolves into convergence.
+- **Reduce Motion:** simplified lift/fade with a static blue-violet
+  glow, extended timing (≈2.8 s) so the ritual still reads.
+
+### Result page (warm matte glass + hierarchy)
+- **One surface system** (`tarotReadingCard`): warm ivory→lilac-ivory
+  gradient at 0.82 opacity (never pure white), soft internal top
+  highlight, low-opacity antique-gold border, restrained shadow — no
+  strong floating-card halo. The `.companion` variant warms the tint
+  slightly for Twinko's message only.
+- **Hierarchy:** cards → per-card readings (lead sentence emphasized
+  by weight, supporting text regular) → 整體來看 elevated one type
+  step as the synthesis → Twinko 想對你說 (companion) → guidance /
+  save / meditation actions → quiet exits → single short disclaimer
+  (「內容僅供反思與娛樂」/ "For reflection and entertainment only").
+- **Star = Twinko guidance, moon = Meditation:** 「Twinko 想對你說」
+  uses a small refined gold star (subtle sparkle accent) plus a tiny
+  three-star signature divider; the Meditation section keeps
+  `moon.stars.fill`. Magical dividers remain reserved for major
+  chapter breaks — never between paragraphs, and containers are not
+  added to solve hierarchy.
+- CTA hierarchy unchanged (§11 system): one dominant primary per
+  stage, secondary glass, text actions for low-priority navigation.
+
+### Validation (pass 5 — strictly minimal)
+Build clean. Targeted unit test
+`testCompletedRevealStatePersistsWhenReturningFromResult` passed (one-
+and three-card sessions). One focused three-card Simulator walkthrough
+(`testTarotUXFixesWalkthrough`, iPhone 16 — scripted because host
+assistive access for manual clicks was unavailable): floating header,
+longer sparkle shuffle, reveal, result hierarchy, **Result → Back
+same-cards verification** (labels, orientations, order; zero card
+backs), exit-modal copy. Four screenshots (W1–W4). One-card flow
+shares the same session-state path (verified by code inspection + the
+unit test). Export logic, Meditation handoff, and interpretation
+generation untouched.

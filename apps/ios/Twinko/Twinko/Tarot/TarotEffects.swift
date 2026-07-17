@@ -201,6 +201,39 @@ extension ButtonStyle where Self == TarotMagicSecondaryButtonStyle {
     }
 }
 
+// MARK: - Floating header controls (unified Back / X)
+
+extension Image {
+    /// The one icon treatment for Tarot's floating header controls:
+    /// restrained warm gold with a faint dark halo for contrast over
+    /// bright background areas — identical for Back and Close/X.
+    func tarotHeaderControlIcon() -> some View {
+        self
+            .font(.system(size: 16, weight: .semibold))
+            .foregroundStyle(TarotCTAPalette.antiqueGold)
+            .shadow(color: Color.deepSpace.opacity(0.6), radius: 3)
+            .frame(width: 44, height: 44)
+            .contentShape(Rectangle())
+    }
+}
+
+/// Quiet pressed feedback for the floating Back/X controls: a subtle
+/// dim + scale plus the shared light haptic — no heavy circular
+/// button background.
+struct TarotHeaderControlStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .opacity(configuration.isPressed ? 0.55 : 1.0)
+            .scaleEffect(configuration.isPressed ? 0.92 : 1.0)
+            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
+            .onChange(of: configuration.isPressed) { _, isPressed in
+                if isPressed {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                }
+            }
+    }
+}
+
 // MARK: - Magical divider (redesign §29)
 
 /// Reusable subtle divider for major result-page group transitions:
@@ -276,26 +309,50 @@ extension View {
         modifier(TarotRevealedGlow(active: active))
     }
 
-    /// The one moonlit-ivory matte reading surface used by every
-    /// result group: warm ivory with a subtle lavender undertone —
-    /// never pure white — restrained shadow, consistent radius, and
-    /// generous inner padding. One editorial system.
-    func tarotReadingCard() -> some View {
-        self
+    /// The one warm matte-glass reading surface used by every result
+    /// group: warm ivory with a subtle lavender undertone — never pure
+    /// white — slightly translucent over the illustrated background,
+    /// with a soft internal top highlight, a delicate low-opacity gold
+    /// border, and a restrained shadow (no heavy floating-card halo).
+    /// One editorial system; `.companion` warms the tint slightly for
+    /// Twinko's own message without becoming a different container.
+    func tarotReadingCard(_ style: TarotReadingSurfaceStyle = .standard) -> some View {
+        let tint: [Color] = style == .companion
+            ? [Color(hex: 0xFFF6E8), Color(hex: 0xF6EDF6)]
+            : [Color(hex: 0xFFF9EE), Color(hex: 0xF7F0F8)]
+        return self
             .padding(TwinkoSpacing.m)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
-                LinearGradient(colors: [Color(hex: 0xFFF9EE),
-                                        Color(hex: 0xF7F0F8)],
+                LinearGradient(colors: tint,
                                startPoint: .top, endPoint: .bottom)
-                    .opacity(0.88),
+                    .opacity(style == .companion ? 0.86 : 0.82),
                 in: RoundedRectangle(cornerRadius: TwinkoRadius.card)
+            )
+            .overlay(
+                // Soft internal highlight along the top edge — the
+                // "matte glass" catch-light.
+                RoundedRectangle(cornerRadius: TwinkoRadius.card)
+                    .strokeBorder(
+                        LinearGradient(stops: [
+                            .init(color: .white.opacity(0.55), location: 0),
+                            .init(color: .white.opacity(0.0), location: 0.25),
+                        ], startPoint: .top, endPoint: .bottom),
+                        lineWidth: 1.2)
+                    .padding(1)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: TwinkoRadius.card)
                     .strokeBorder(Color(hex: 0xD8B36A).opacity(0.30), lineWidth: 1)
             )
-            .shadow(color: Color.deepPlum.opacity(0.16), radius: 7, y: 3)
+            .shadow(color: Color.deepPlum.opacity(0.12), radius: 6, y: 2)
             .padding(.horizontal, TwinkoSpacing.m)
     }
+}
+
+/// Result reading-surface variants: one coherent system, two tints.
+enum TarotReadingSurfaceStyle {
+    case standard
+    /// Slightly warmer tint for Twinko's companion message.
+    case companion
 }

@@ -166,9 +166,23 @@ struct FlipTarotCard: View {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @EnvironmentObject private var prefs: PrefsStore
-    @State private var angle: Double = 0
+    @State private var angle: Double
     @State private var lifted = false
     @State private var breathing = false
+
+    /// A card that is already revealed when this view is created (Back
+    /// from the Result re-entering a completed reveal) must start at
+    /// the flipped angle: `reveal()` never runs for it, so a zero
+    /// start angle would visually show the card back while the state
+    /// says face-up (§41 — the exact reported bug).
+    init(drawn: TarotDrawnCard, isRevealed: Binding<Bool>,
+         width: CGFloat = 120, isFinalRequired: Bool = false) {
+        self.drawn = drawn
+        self._isRevealed = isRevealed
+        self.width = width
+        self.isFinalRequired = isFinalRequired
+        _angle = State(initialValue: isRevealed.wrappedValue ? 180 : 0)
+    }
 
     var body: some View {
         ZStack {

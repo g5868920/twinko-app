@@ -155,14 +155,16 @@ struct TarotResultStage: View {
                 Spacer(minLength: 0)
             }
 
+            // Lead meaning first — emphasized by weight, not size —
+            // then the supporting interpretation as regular body.
             Text(interp.core)
-                .font(.system(.body, design: .rounded))
+                .font(.system(.body, design: .rounded).weight(.medium))
                 .foregroundStyle(Color.textPrimaryToken)
                 .lineSpacing(5)
 
             Text(interp.detail)
                 .font(.system(.body, design: .rounded))
-                .foregroundStyle(Color.textPrimaryToken.opacity(0.9))
+                .foregroundStyle(Color.textPrimaryToken.opacity(0.88))
                 .lineSpacing(5)
         }
         .tarotReadingCard()
@@ -177,13 +179,15 @@ struct TarotResultStage: View {
     /// expanded combined summary of the whole current reading.
     private var synthesisSection: some View {
         VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
+            // Elevated as the reading's synthesis: one step up from
+            // the per-card headers (type scale, not extra container).
             HStack(spacing: 7) {
                 Image(systemName: "sparkles")
                     .foregroundStyle(Color.accentGold)
                 Text(TarotStrings.overallTitle(lang))
                     .foregroundStyle(Color.deepPlum)
             }
-            .font(.system(.headline, design: .rounded))
+            .font(.system(.title3, design: .rounded).weight(.semibold))
             Text(session.guidanceCard == nil
                  ? provider.synthesis(for: session, lang: lang)
                  : provider.combinedSummary(for: session, lang: lang))
@@ -197,11 +201,22 @@ struct TarotResultStage: View {
 
     // MARK: Group 3 — Twinko wants to tell you
 
+    /// Companion speech, not another analysis block: star icon (star =
+    /// Twinko guidance; moon stays with Meditation), a slightly warmer
+    /// tint of the same surface system, roomier conversational line
+    /// spacing, and a small star-signature accent under the message.
     private var twinkoMessageSection: some View {
         VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
             HStack(spacing: 7) {
-                Image(systemName: "moon.stars.fill")
+                Image(systemName: "star.fill")
+                    .font(.system(size: 15))
                     .foregroundStyle(Color.accentGold)
+                    .overlay(alignment: .topTrailing) {
+                        Image(systemName: "sparkle")
+                            .font(.system(size: 6))
+                            .foregroundStyle(Color.accentGold.opacity(0.8))
+                            .offset(x: 4, y: -3)
+                    }
                 Text(TarotStrings.finalSummaryTitle(lang))
                     .foregroundStyle(Color.deepPlum)
             }
@@ -209,12 +224,20 @@ struct TarotResultStage: View {
             Text(provider.twinkoMessage(for: session, lang: lang))
                 .font(.system(.body, design: .rounded))
                 .foregroundStyle(Color.textPrimaryToken)
-                .lineSpacing(5)
+                .lineSpacing(7)
             Text(provider.closingLine(lang: lang))
                 .font(.system(.subheadline, design: .rounded))
                 .foregroundStyle(Color.textSecondaryToken)
+            HStack(spacing: 5) {
+                Image(systemName: "star.fill").font(.system(size: 6))
+                Image(systemName: "star.fill").font(.system(size: 8))
+                Image(systemName: "star.fill").font(.system(size: 6))
+            }
+            .foregroundStyle(Color.accentGold.opacity(0.55))
+            .frame(maxWidth: .infinity)
+            .accessibilityHidden(true)
         }
-        .tarotReadingCard()
+        .tarotReadingCard(.companion)
         .accessibilityIdentifier("tarotTwinkoMessage")
     }
 

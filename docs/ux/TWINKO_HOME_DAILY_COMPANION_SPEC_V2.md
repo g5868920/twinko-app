@@ -118,3 +118,73 @@ token-based derivation is idempotent and makes nested handoffs
 (Tarot → Meditation) seamless. Visibility map: tab roots + Chat
 History + Chat landing = visible; active conversation, Tarot (all
 stages), Meditation (whole flow), Horoscope content = hidden.
+
+---
+
+# Addendum — Home + dock reference-alignment pass (2026-07-17)
+
+**Reference.** The canonical combined visual reference for this pass is
+`docs/ux/references/home_reference_v1.png` (the task brief named it
+`home_reference_v2`, but no such file exists in the repository — v1 is
+the file that contains the described combined concept: airy greeting,
+large Twinko with a real speech bubble, compact Journey, polished mood
+orbs, Explore row, floating glass dock). Guidance, not pixel-copying;
+working product behavior wins over the image.
+
+## What this pass changed
+
+- **Mood selected state** (`MoodOrbView`): the thick gold ring +
+  gold-check badge became a soft warm-gold halo behind the orb, a ~5%
+  orb scale, a refined thin white highlight, and a small warm-white
+  check at the upper-right — "gently illuminated", never form
+  validation. The check remains the non-color signal.
+- **Twinko prominence:** hero enlarged 96 → 108 pt with a slightly
+  wider glow; the reference's small 「Twinko 建議 / Twinko Suggests」
+  glass tag (one tiny star) now sits above the speech bubble.
+  Floating motion, Reduce Motion behavior, and message logic
+  unchanged.
+- **Secondary action:** now a quiet ghost glass pill (translucent
+  fill + white outline, 44 pt target) — clearly interactive, still
+  visually behind the primary CTA. Routing unchanged.
+- **Journey steps:** the fabricated "current step" highlight on step 1
+  was removed — all three steps use equal treatment because no real
+  progress state exists (no-fabrication rule).
+- **Explore More:** Tarot now uses the same mini-card-with-star glyph
+  as its Explore-map planet; Activities uses a place-beacon glyph
+  (`mappin.and.ellipse`) instead of the forbidden navigation-arrow
+  style. Labels/descriptors and routes unchanged (探索更多 retained).
+- **Dock icon family:** Explore is a small drawn rocket ship
+  (`DockRocketIcon` — explicitly not a paper-plane) with its gold
+  trail; My Planet is a normalized drawn planet-and-ring
+  (`DockPlanetIcon`) with a sparkle accent. **`home_my_planet_v1`
+  (and its transparent derivative) is no longer referenced by the
+  bottom navigation**; the raster assets remain in the repository and
+  everywhere else they are used. All four icons share the 30 pt
+  bounding box, weight, highlight, and active/inactive treatment.
+  Dock structure, matchedGeometryEffect capsule, haptics, tab state,
+  and feature dock-hiding untouched.
+
+Unchanged and re-confirmed: `bg_home_screen_v2` background, one-screen
+rule with the accessibility/edit scroll fallback, single-container
+Check-in, need-chip 2×2 grid and icon family, collapsed summary +
+Edit round-trip, recommendation/journey providers, no Settings on
+Home.
+
+## Validation (pass — strictly minimal)
+
+Build clean. Directly affected existing tests:
+`testSaveCreatesTodayCheckInAndPersists`,
+`testSameDayEditUpdatesRecordInsteadOfCreatingNew`,
+`testFourTabsAndSettingsIsNotATab` — all pass. One focused scripted
+walkthrough (iPhone 16, zh-Hant): uncompleted greeting state → mood +
+need selection → collapsed summary → Twinko/CTA/secondary/journey/
+explore inspection → Edit round-trip → dock icons → one top-level tab
+transition (Explore) → one immersive dock hide/restore (Explore →
+Meditation → back). A first run silently used a stale app binary
+(identifiers matched the old UI); after clearing DerivedData
+intermediates the walkthrough passed against the new UI and the
+screenshots were re-taken. EN spot check on the completed Home via
+`-uiTestEnglish` (greeting, summary, journey title, explore label,
+dock label). Reduce Motion verified by code inspection (existing
+branches; no new motion system added). Three screenshots (S1–S3) plus
+one replacement capture after the Activities-glyph correction.

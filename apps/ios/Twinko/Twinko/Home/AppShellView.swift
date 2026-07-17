@@ -239,11 +239,10 @@ struct TwinkoGlassDock: View {
                     .foregroundStyle(Color.twinkoGold.opacity(selected ? 1 : 0.55))
                     .offset(x: 8, y: -8)
             case .explore:
-                // Cosmic navigator: a small ship with a motion trail —
-                // clearly "exploration", not a generic sparkle.
-                Image(systemName: "paperplane.fill")
-                    .font(.system(size: 17, weight: .medium))
-                    .rotationEffect(.degrees(45))
+                // Cosmic navigator: a small drawn rocket ship with a
+                // gold trail — clearly "exploration", never a generic
+                // paper-plane send icon.
+                DockRocketIcon(selected: selected)
                 HStack(spacing: 1.5) {
                     Circle().frame(width: 2, height: 2)
                     Circle().frame(width: 1.5, height: 1.5)
@@ -251,12 +250,14 @@ struct TwinkoGlassDock: View {
                 .foregroundStyle(Color.twinkoGold.opacity(selected ? 0.95 : 0.5))
                 .offset(x: -9, y: 9)
             case .myPlanet:
-                Image("home_my_planet_v1_transparent")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 25, height: 25)
-                    .saturation(selected ? 1 : 0.55)
-                    .opacity(selected ? 1 : 0.75)
+                // Normalized planet-and-ring drawn in code — matches
+                // the family weight; the old raster identity
+                // (home_my_planet_v1) is intentionally not used here.
+                DockPlanetIcon(selected: selected)
+                Image(systemName: "sparkle")
+                    .font(.system(size: 6))
+                    .foregroundStyle(Color.twinkoGold.opacity(selected ? 1 : 0.55))
+                    .offset(x: 10, y: -9)
             }
         }
         .frame(width: 30, height: 30)
@@ -264,6 +265,77 @@ struct TwinkoGlassDock: View {
                                   : Color.deepPlum.opacity(0.5))
         .shadow(color: selected ? Color.brandPurple.opacity(0.45) : .clear,
                 radius: 4)
+    }
+}
+
+// MARK: - Dock icon family (drawn members)
+
+/// Small drawn rocket for the Explore tab: rounded nose-up body,
+/// window, and side fins, angled like a ship in flight. Inherits the
+/// dock's foreground style so active/inactive states match the family.
+struct DockRocketIcon: View {
+    let selected: Bool
+
+    var body: some View {
+        ZStack {
+            // Body with rounded nose.
+            Capsule()
+                .fill(selected ? AnyShapeStyle(.foreground)
+                               : AnyShapeStyle(.foreground.opacity(0.9)))
+                .frame(width: 9.5, height: 18)
+            // Side fins.
+            ForEach([-1.0, 1.0], id: \.self) { side in
+                Triangle()
+                    .fill(.foreground)
+                    .frame(width: 5, height: 7)
+                    .scaleEffect(x: side, y: 1)
+                    .offset(x: side * 6, y: 4.5)
+            }
+            // Window.
+            Circle()
+                .fill(Color.white.opacity(selected ? 0.95 : 0.75))
+                .frame(width: 4.5, height: 4.5)
+                .offset(y: -2.5)
+        }
+        .rotationEffect(.degrees(38))
+    }
+}
+
+private struct Triangle: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.midX, y: rect.minY))
+        path.addQuadCurve(to: CGPoint(x: rect.minX, y: rect.maxY),
+                          control: CGPoint(x: rect.minX + rect.width * 0.2, y: rect.midY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        path.closeSubpath()
+        return path
+    }
+}
+
+/// Normalized planet-and-ring for the My Planet tab: simple circle
+/// body with one elliptical ring, drawn to the same optical size and
+/// weight as the other dock icons (replaces the old raster icon in
+/// the dock only).
+struct DockPlanetIcon: View {
+    let selected: Bool
+
+    var body: some View {
+        ZStack {
+            if selected {
+                Circle()
+                    .fill(.foreground)
+                    .frame(width: 15, height: 15)
+            } else {
+                Circle()
+                    .strokeBorder(.foreground, lineWidth: 1.7)
+                    .frame(width: 15, height: 15)
+            }
+            Ellipse()
+                .strokeBorder(.foreground, lineWidth: 1.4)
+                .frame(width: 25, height: 9)
+                .rotationEffect(.degrees(-18))
+        }
     }
 }
 

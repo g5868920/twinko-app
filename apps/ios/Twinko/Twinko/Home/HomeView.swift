@@ -230,34 +230,51 @@ struct HomeView: View {
             ZStack {
                 Circle()
                     .fill(Color(red: 1.0, green: 0.97, blue: 0.88))
-                    .frame(width: 104, height: 104)
-                    .blur(radius: 20)
-                    .opacity(0.30)
+                    .frame(width: 118, height: 118)
+                    .blur(radius: 22)
+                    .opacity(0.32)
                 if !reduceMotion {
                     ForEach(0..<3, id: \.self) { index in
                         Image(systemName: "sparkle")
                             .font(.system(size: [7.0, 5.0, 6.0][index]))
                             .foregroundStyle(Color.twinkoGold.opacity(0.75))
-                            .offset(x: [-40.0, 44.0, -30.0][index],
-                                    y: [-30.0, -12.0, 34.0][index])
+                            .offset(x: [-46.0, 50.0, -34.0][index],
+                                    y: [-34.0, -14.0, 38.0][index])
                     }
                 }
                 Image("twinko_default_smile_v1_transparent")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 96, height: 96)
+                    .frame(width: 108, height: 108)
                     .offset(y: reduceMotion ? 0 : (floating ? -5 : 5))
                     .accessibilityLabel(Text("Twinko"))
             }
 
-            TwinkoSpeechBubble {
-                Text(recommender.twinkoMessage(context: personalizationContext, lang: lang))
-                    .font(.system(.footnote, design: .rounded).weight(.medium))
-                    .foregroundStyle(Color.deepPlum)
-                    .lineSpacing(2)
-                    .fixedSize(horizontal: false, vertical: true)
+            VStack(alignment: .leading, spacing: 3) {
+                // Small "Twinko Suggests" tag from the reference —
+                // one tiny star, never another header card.
+                HStack(spacing: 3) {
+                    Image(systemName: "star.fill")
+                        .font(.system(size: 8))
+                        .foregroundStyle(Color.twinkoGold)
+                    Text(HomeExperienceStrings.twinkoSuggests(lang))
+                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                        .foregroundStyle(Color.deepPlum.opacity(0.8))
+                }
+                .padding(.horizontal, 9)
+                .padding(.vertical, 3)
+                .twinkoGlass(cornerRadius: 10, tint: 0.4)
+                .accessibilityHidden(true)
+
+                TwinkoSpeechBubble {
+                    Text(recommender.twinkoMessage(context: personalizationContext, lang: lang))
+                        .font(.system(.footnote, design: .rounded).weight(.medium))
+                        .foregroundStyle(Color.deepPlum)
+                        .lineSpacing(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .accessibilityIdentifier("homeTwinkoMessage")
             }
-            .accessibilityIdentifier("homeTwinkoMessage")
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -299,15 +316,24 @@ struct HomeView: View {
             .accessibilityIdentifier("homePrimaryAction")
 
             if let secondary = recommendation.secondaryAction {
+                // Quieter ghost glass pill — clearly interactive, never
+                // plain floating text, still visually behind the CTA.
                 Button {
                     activeAction = secondary
                 } label: {
                     Text(secondary.label(lang))
                         .font(.system(.footnote, design: .rounded).weight(.medium))
-                        .foregroundStyle(Color.softWhite.opacity(0.85))
-                        .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
-                        .frame(minHeight: 32)
+                        .foregroundStyle(Color.softWhite.opacity(0.9))
+                        .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
+                        .padding(.horizontal, 16)
+                        .frame(minHeight: 34)
+                        .background(Color.white.opacity(0.10), in: Capsule())
+                        .overlay(Capsule().strokeBorder(
+                            Color.white.opacity(0.35), lineWidth: 1))
+                        .frame(minHeight: 44)
+                        .contentShape(Capsule())
                 }
+                .buttonStyle(TwinkoGlassPressStyle())
                 .accessibilityIdentifier("homeSecondaryAction")
             }
         }
@@ -377,7 +403,9 @@ struct HomeView: View {
             .frame(maxWidth: .infinity, minHeight: 64)
             .padding(.vertical, 6)
             .padding(.horizontal, 4)
-            .twinkoGlass(cornerRadius: 18, tint: 0.42, selected: step.index == 1)
+            // Equal treatment for all three steps: no fabricated
+            // "current step" highlight — no real progress state exists.
+            .twinkoGlass(cornerRadius: 18, tint: 0.42)
             .contentShape(RoundedRectangle(cornerRadius: 18))
         }
         .buttonStyle(TwinkoGlassPressStyle())
@@ -392,7 +420,7 @@ struct HomeView: View {
         case .tarot: return "moon.stars.fill"
         case .horoscope: return "star.circle.fill"
         case .music: return "music.note"
-        case .activities: return "location.fill"
+        case .activities: return "mappin.and.ellipse"
         }
     }
 
@@ -405,9 +433,36 @@ struct HomeView: View {
                 .foregroundStyle(Color.softWhite.opacity(0.85))
                 .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
             HStack(spacing: 6) {
-                exploreEntry(.tarot, glyph: "moon.stars.fill", tint: Color(hex: 0x6B4BA8),
-                             title: HomeExperienceStrings.entryTarot(lang),
-                             desc: HomeExperienceStrings.entryTarotDesc(lang))
+                // Tarot uses the same mini-card-with-star identity as
+                // its Explore-map planet (spec icon concept).
+                Button {
+                    activeAction = .tarot
+                } label: {
+                    VStack(spacing: 3) {
+                        TwinkoCosmicOrb(diameter: 42, tint: Color(hex: 0x6B4BA8)) {
+                            RoundedRectangle(cornerRadius: 2.5)
+                                .strokeBorder(Color(hex: 0xF6F0FF), lineWidth: 1.3)
+                                .frame(width: 13, height: 18)
+                                .overlay(Image(systemName: "star.fill").font(.system(size: 6)))
+                                .rotationEffect(.degrees(-8))
+                        }
+                        Text(HomeExperienceStrings.entryTarot(lang))
+                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                            .foregroundStyle(Color.softWhite)
+                            .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
+                        Text(HomeExperienceStrings.entryTarotDesc(lang))
+                            .font(.system(size: 9, design: .rounded))
+                            .foregroundStyle(Color.softWhite.opacity(0.75))
+                            .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(TwinkoGlassPressStyle())
+                .accessibilityIdentifier("homeEntry-\(HomeAction.tarot.id)")
+                .accessibilityLabel(Text("\(HomeExperienceStrings.entryTarot(lang))，\(HomeExperienceStrings.entryTarotDesc(lang))"))
                 exploreEntry(.horoscope, glyph: "star.circle.fill", tint: Color(hex: 0x4E5FB8),
                              title: HomeExperienceStrings.entryHoroscope(lang),
                              desc: HomeExperienceStrings.entryHoroscopeDesc(lang))
@@ -418,7 +473,7 @@ struct HomeView: View {
                 exploreEntry(.music, glyph: "music.note", tint: Color(hex: 0x9A4FB0),
                              title: HomeExperienceStrings.entryMusic(lang),
                              desc: HomeExperienceStrings.entryMusicDesc(lang))
-                exploreEntry(.activities, glyph: "location.fill", tint: Color(hex: 0xC77B4E),
+                exploreEntry(.activities, glyph: "mappin.and.ellipse", tint: Color(hex: 0xC77B4E),
                              title: HomeExperienceStrings.entryActivities(lang),
                              desc: HomeExperienceStrings.entryActivitiesDesc(lang))
             }

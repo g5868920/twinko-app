@@ -359,7 +359,10 @@ struct LocalHomeRecommendationProvider: HomeRecommendationProviding {
 /// Reusable code-rendered Mood Orb: rounded dimensional orb, glossy
 /// eyes, gentle cheeks, simple mouth per mood — no body, costume, or
 /// accessories, so it never competes with the Twinko hero. Selected
-/// state adds a ring and checkmark (never color alone).
+/// state: soft warm-gold halo behind the orb, ~5% scale, refined thin
+/// highlight, and a small warm-white check — "gently illuminated",
+/// never a thick validation ring (never color alone: the check is the
+/// non-color signal).
 struct MoodOrbView: View {
     let mood: CheckInMood
     let isSelected: Bool
@@ -367,6 +370,13 @@ struct MoodOrbView: View {
 
     var body: some View {
         ZStack {
+            if isSelected {
+                Circle()
+                    .fill(Color.twinkoGold)
+                    .frame(width: size * 1.35, height: size * 1.35)
+                    .blur(radius: size * 0.16)
+                    .opacity(0.45)
+            }
             Circle()
                 .fill(
                     RadialGradient(colors: [mood.orbColor.opacity(0.95),
@@ -381,22 +391,25 @@ struct MoodOrbView: View {
                         .blur(radius: 2)
                         .offset(x: -size * 0.18, y: -size * 0.26)
                 )
+                .overlay(
+                    Circle()
+                        .strokeBorder(Color.white.opacity(isSelected ? 0.65 : 0), lineWidth: 1)
+                )
                 .shadow(color: mood.orbColor.opacity(0.45), radius: isSelected ? 8 : 4, y: 2)
 
             face
                 .offset(y: size * 0.02)
 
             if isSelected {
-                Circle()
-                    .strokeBorder(Color.twinkoGold, lineWidth: 2.5)
-                    .frame(width: size + 8, height: size + 8)
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: size * 0.30))
-                    .foregroundStyle(Color.twinkoGold)
-                    .background(Circle().fill(.white).padding(2))
+                Image(systemName: "checkmark")
+                    .font(.system(size: size * 0.17, weight: .bold))
+                    .foregroundStyle(Color(hex: 0xFFF8E8))
+                    .frame(width: size * 0.30, height: size * 0.30)
+                    .background(Color.twinkoGold.opacity(0.95), in: Circle())
                     .offset(x: size * 0.36, y: -size * 0.36)
             }
         }
+        .scaleEffect(isSelected ? 1.05 : 1.0)
         .frame(width: size + 10, height: size + 10)
         .accessibilityHidden(true)
     }
@@ -526,6 +539,10 @@ enum HomeExperienceStrings {
     }
 
     // Journey
+    /// Small tag above Twinko's speech bubble (reference label).
+    static func twinkoSuggests(_ l: AppLanguage) -> String {
+        l == .english ? "Twinko Suggests" : "Twinko 建議"
+    }
     static func journeyTitle(_ l: AppLanguage) -> String {
         l == .english ? "Today's Companion Journey" : "今天的陪伴旅程"
     }

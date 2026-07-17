@@ -1376,6 +1376,116 @@ final class TwinkoUITests: XCTestCase {
         settleTap(app.buttons["Cancel"])
     }
 
+    /// Focused Home + dock refinement walkthrough (2026-07-17):
+    /// uncompleted check-in → selection → completed summary → Edit
+    /// round-trip → Twinko/CTA/journey/explore inspection → dock icon
+    /// family, one top-level tab transition, one immersive dock
+    /// hide/restore.
+    func testHomeRefinementWalkthrough() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile"]
+        app.launch()
+
+        // Uncompleted state: greeting + subtitle + mood orbs; fits
+        // without scrolling (content asserted present, not scrolled).
+        let firstMood = app.descendants(matching: .any)["mood-happy"]
+        XCTAssertTrue(firstMood.waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 3.0)
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "小雅")).firstMatch.exists,
+            "Time-aware greeting with name")
+        XCTAssertTrue(app.staticTexts["今天想先照顧哪一部分的自己？"].exists)
+        XCTAssertFalse(app.buttons["homeSettingsButton"].exists,
+                       "No Settings control on Home")
+        attach(name: "S1-home-before-checkin")
+
+        // Mood → need → completed summary (dropped-first-tap retry).
+        let mood = app.descendants(matching: .any)["mood-anxious"]
+        settleTap(mood)
+        if !app.descendants(matching: .any)["need-rest"].waitForExistence(timeout: 3) {
+            settleTap(mood)
+        }
+        let need = app.descendants(matching: .any)["need-rest"]
+        XCTAssertTrue(need.waitForExistence(timeout: 4))
+        settleTap(need)
+        XCTAssertTrue(app.descendants(matching: .any)["checkInSummary"]
+            .waitForExistence(timeout: 5), "Completed check-in collapses")
+
+        // Completed composition: Twinko message, one primary CTA, one
+        // secondary pill, three journey steps, five explore entries.
+        XCTAssertTrue(app.descendants(matching: .any)["homeTwinkoMessage"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["homePrimaryAction"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["homeSecondaryAction"].exists)
+        for step in 1...3 {
+            XCTAssertTrue(app.descendants(matching: .any)["journeyStep-\(step)"].exists,
+                          "Journey step \(step)")
+        }
+        for entry in ["tarot", "horoscope", "music", "activities"] {
+            XCTAssertTrue(app.descendants(matching: .any)
+                .matching(NSPredicate(format: "identifier BEGINSWITH %@",
+                                      "homeEntry-\(entry)")).firstMatch.exists,
+                "Explore entry \(entry)")
+        }
+        attach(name: "S2-home-after-checkin")
+
+        // Edit round-trip.
+        settleTap(app.descendants(matching: .any)["checkInEditButton"])
+        if !app.descendants(matching: .any)["need-rest"].waitForExistence(timeout: 3) {
+            settleTap(app.descendants(matching: .any)["checkInEditButton"])
+        }
+        XCTAssertTrue(app.descendants(matching: .any)["need-rest"]
+            .waitForExistence(timeout: 4), "Edit restores the full selector")
+        settleTap(app.descendants(matching: .any)["need-rest"])
+        XCTAssertTrue(app.descendants(matching: .any)["checkInSummary"]
+            .waitForExistence(timeout: 4), "Summary returns after re-selection")
+
+        // Dock: four tabs, one top-level transition (alternate active
+        // state), then one immersive hide/restore via Explore.
+        for tab in ["tab-home", "tab-chat", "tab-explore", "tab-myplanet"] {
+            XCTAssertTrue(app.buttons[tab].exists, tab)
+        }
+        app.buttons["tab-explore"].tap()
+        XCTAssertTrue(app.staticTexts["探索宇宙"].waitForExistence(timeout: 5))
+        attach(name: "S3-dock-explore-active")
+        settleTap(app.descendants(matching: .any)["explore-meditation"])
+        XCTAssertTrue(app.buttons["meditationStartButton"].waitForExistence(timeout: 6))
+        Thread.sleep(forTimeInterval: 0.8)
+        XCTAssertFalse(app.buttons["tab-home"].exists,
+                       "Immersive flow hides the dock")
+        settleTap(app.buttons["meditationBackButton"])
+        XCTAssertTrue(app.buttons["tab-home"].waitForExistence(timeout: 5),
+                      "Dock restored on the Explore map")
+    }
+
+    /// Second-locale spot check on the completed Home state only
+    /// (own launch via -uiTestEnglish).
+    func testHomeEnglishLocaleSpotCheck() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile", "-uiTestEnglish"]
+        app.launch()
+        let mood = app.descendants(matching: .any)["mood-calm"]
+        XCTAssertTrue(mood.waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 3.0)
+        settleTap(mood)
+        if !app.descendants(matching: .any)["need-rest"].waitForExistence(timeout: 3) {
+            settleTap(mood)
+        }
+        settleTap(app.descendants(matching: .any)["need-rest"])
+        XCTAssertTrue(app.descendants(matching: .any)["checkInSummary"]
+            .waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label BEGINSWITH %@", "Good")).firstMatch.exists,
+            "EN greeting")
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "Feeling today")).firstMatch.exists,
+            "EN summary (existing approved copy)")
+        XCTAssertTrue(app.staticTexts["Today’s Companion Journey"].exists
+                      || app.staticTexts["Today's Companion Journey"].exists)
+        XCTAssertTrue(app.staticTexts["Tarot"].firstMatch.exists, "EN explore label")
+        XCTAssertTrue(app.buttons["tab-myplanet"].label.contains("My Planet"),
+                      "EN dock label")
+    }
+
     // MARK: Helpers
 
     private func goBack(_ app: XCUIApplication) {

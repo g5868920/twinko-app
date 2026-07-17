@@ -40,10 +40,27 @@ struct ChatView: View {
     private var twinkoAsset: String { ChatDayNight.twinkoAssetName() }
     private var isConversationActive: Bool { !viewModel.messages.isEmpty }
 
-    /// Bottom navigation stays on the Chat landing and hides only
-    /// while an active conversation is open (polish 2026-07-17).
-    static func hidesTabBar(conversationActive: Bool) -> Bool {
-        conversationActive
+    /// Immersive Chat (refinement 2026-07-17): the shared dock hides
+    /// whenever any Chat surface — landing or active conversation — is
+    /// frontmost, and returns when the user leaves (Back to Home /
+    /// Chat History push / another tab). Uses the existing shared
+    /// chrome flag; no second visibility state.
+    static func hidesTabBar(chatSurfaceVisible: Bool) -> Bool {
+        chatSurfaceVisible
+    }
+
+    /// Whether this instance is currently the frontmost Chat surface:
+    /// pushed instances are visible by definition while on screen; the
+    /// tab-root instance stays alive across tab switches, so it is
+    /// visible only while the Chat tab is selected.
+    private var isFrontmostChatSurface: Bool {
+        isTabRoot ? chrome.selectedTab == .chat : true
+    }
+
+    private func reportChromeAndMotion() {
+        chrome.setChatConversationActive(
+            Self.hidesTabBar(chatSurfaceVisible: isFrontmostChatSurface))
+        updateFloating(active: isFrontmostChatSurface)
     }
 
     var body: some View {
@@ -106,19 +123,21 @@ struct ChatView: View {
             if !viewModel.messages.isEmpty && !chatStore.contains(viewModel.sessionID) {
                 viewModel.startNewSession()
             }
-            startIdle()
-            chrome.setChatConversationActive(
-                Self.hidesTabBar(conversationActive: isConversationActive))
+            reportChromeAndMotion()
         }
-        .onChange(of: isConversationActive) { _, active in
-            chrome.setChatConversationActive(Self.hidesTabBar(conversationActive: active))
+        .onChange(of: chrome.selectedTab) { _, _ in
+            // The tab-root instance stays alive (opacity-switched), so
+            // tab changes re-report visibility and pause the float
+            // off-tab; pushed instances are unaffected.
+            if isTabRoot { reportChromeAndMotion() }
         }
         .onDisappear {
             // Leaving this chat surface (pop to History, push into an
-            // immersive child) clears the conversation flag; immersive
-            // children keep the bar hidden through their own tokens,
-            // and re-appearing re-reports the state above.
+            // immersive child) clears the flag; immersive children keep
+            // the bar hidden through their own tokens, and re-appearing
+            // re-reports the state above.
             chrome.setChatConversationActive(false)
+            updateFloating(active: false)
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { isDay = ChatDayNight.isDay() }
@@ -132,64 +151,88 @@ struct ChatView: View {
     /// 2026-07-17) — just Back where meaningful and the star menu.
     private var header: some View {
         HStack {
-            if isTabRoot && !isConversationActive {
-                Color.clear.frame(width: 44, height: 44)
-            } else {
-                Button {
-                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                    if isTabRoot {
-                        // Leave the active conversation back to the
-                        // Chat landing (the conversation stays saved).
-                        withAnimation(.easeOut(duration: 0.25)) {
-                            viewModel.startNewSession()
-                        }
-                    } else {
-                        dismiss()
+            // Back is always present (immersive landing, 2026-07-17):
+            // pushed instances pop the existing stack; the tab-root
+            // conversation returns to the landing; the tab-root landing
+            // returns to Home — the existing route ownership in every
+            // case, no new tracker.
+            Button {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                if !isTabRoot {
+                    dismiss()
+                } else if isConversationActive {
+                    // Leave the active conversation back to the Chat
+                    // landing (the conversation stays saved).
+                    withAnimation(.easeOut(duration: 0.25)) {
+                        viewModel.startNewSession()
                     }
-                } label: {
-                    Image(systemName: "chevron.backward")
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(Color.deepPlum)
-                        .frame(width: 44, height: 44)
-                        .contentShape(Rectangle())
+                } else {
+                    withAnimation(.easeOut(duration: 0.25)) {
+                        chrome.selectedTab = .home
+                    }
                 }
-                .buttonStyle(ChatControlPressStyle())
-                .accessibilityLabel(Text(lang == .english ? "Back" : "返回"))
-                .accessibilityIdentifier("chatBackButton")
+            } label: {
+                Image(systemName: "chevron.backward")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(Color.deepPlum)
+                    .frame(width: 38, height: 38)
+                    .background(
+                        Circle().fill(
+                            LinearGradient(colors: [Color.white.opacity(0.55),
+                                                    Color(hex: 0xC9B8EE).opacity(0.45)],
+                                           startPoint: .top, endPoint: .bottom))
+                    )
+                    .overlay(Circle().strokeBorder(Color(hex: 0xB9A8E8).opacity(0.6),
+                                                   lineWidth: 1))
+                    .shadow(color: Color.brandPurpleDeep.opacity(0.18), radius: 3, y: 1)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Circle())
             }
+            .buttonStyle(ChatControlPressStyle())
+            .accessibilityLabel(Text(lang == .english ? "Back" : "返回"))
+            .accessibilityIdentifier("chatBackButton")
             Spacer()
             Button {
                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 isInputFocused = false
                 withAnimation(.easeOut(duration: 0.2)) { showingQuickMenu.toggle() }
             } label: {
-                // Premium glass orb (refinement 2026-07-17): white-lilac
-                // translucent surface with a soft lilac border holding a
-                // richer dimensional gold star + tiny sparkle accent —
-                // never a flat opaque white circle.
+                // Clearly interactive star orb (refinement 2026-07-17):
+                // saturated lavender-purple glass with a top highlight,
+                // holding a brighter dimensional gold star — reads as a
+                // control, never background decoration. Balanced with
+                // the Back orb.
                 Image(systemName: "star.fill")
-                    .font(.system(size: 17))
+                    .font(.system(size: 18))
                     .foregroundStyle(
-                        LinearGradient(colors: [Color(hex: 0xFFE9A6), .twinkoGoldDeep],
+                        LinearGradient(colors: [Color(hex: 0xFFEDB0), .twinkoGoldDeep],
                                        startPoint: .topLeading,
                                        endPoint: .bottomTrailing))
-                    .shadow(color: Color.twinkoGold.opacity(0.75), radius: 4)
+                    .shadow(color: Color.twinkoGoldDeep.opacity(0.85), radius: 3, y: 1)
                     .overlay(alignment: .topTrailing) {
                         Image(systemName: "sparkle")
                             .font(.system(size: 6, weight: .bold))
-                            .foregroundStyle(Color.white.opacity(0.9))
+                            .foregroundStyle(Color.white.opacity(0.95))
                             .offset(x: 3, y: -2)
                     }
                     .frame(width: 38, height: 38)
                     .background(
                         Circle().fill(
-                            LinearGradient(colors: [Color.white.opacity(0.80),
-                                                    Color(hex: 0xD9CFF2).opacity(0.60)],
+                            LinearGradient(colors: [Color(hex: 0xC9B8EE).opacity(0.9),
+                                                    Color(hex: 0x9A85DE).opacity(0.8)],
                                            startPoint: .top, endPoint: .bottom))
                     )
-                    .overlay(Circle().strokeBorder(Color(hex: 0xB9A8E8).opacity(0.75),
-                                                   lineWidth: 1))
-                    .shadow(color: Color.brandPurpleDeep.opacity(0.22), radius: 4, y: 2)
+                    .overlay(
+                        Circle()
+                            .strokeBorder(
+                                LinearGradient(stops: [
+                                    .init(color: .white.opacity(0.85), location: 0),
+                                    .init(color: Color(hex: 0x8E7AE6).opacity(0.6),
+                                          location: 0.7),
+                                ], startPoint: .top, endPoint: .bottom),
+                                lineWidth: 1)
+                    )
+                    .shadow(color: Color.brandPurpleDeep.opacity(0.3), radius: 4, y: 2)
                     .frame(width: 44, height: 44)
                     .contentShape(Circle())
             }
@@ -258,7 +301,7 @@ struct ChatView: View {
                     promptCard(starter, index: index)
                 }
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 30)
         }
     }
 
@@ -275,12 +318,26 @@ struct ChatView: View {
             viewModel.send(lang: lang)
         } label: {
             HStack(spacing: 12) {
+                // Lavender glass icon orb — one cohesive family, never
+                // a bright solid-white circle.
                 Image(systemName: starterIcon(index))
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(Color.brandPurpleDeep)
                     .frame(width: 30, height: 30)
-                    .background(Color.white.opacity(0.75), in: Circle())
-                    .overlay(Circle().strokeBorder(tint.opacity(0.55), lineWidth: 1))
+                    .background(
+                        Circle()
+                            .fill(Color(hex: 0xD9CFF2).opacity(0.75))
+                            .overlay(
+                                Circle()
+                                    .fill(LinearGradient(stops: [
+                                        .init(color: .white.opacity(0.55), location: 0),
+                                        .init(color: .white.opacity(0), location: 0.55),
+                                    ], startPoint: .top, endPoint: .bottom))
+                                    .padding(1)
+                            )
+                    )
+                    .overlay(Circle().strokeBorder(tint.opacity(0.6), lineWidth: 1))
+                    .shadow(color: Color.brandPurpleDeep.opacity(0.15), radius: 2, y: 1)
                 Text(starter)
                     .font(.system(.subheadline, design: .rounded))
                     .foregroundStyle(Color.deepPlum)
@@ -290,16 +347,19 @@ struct ChatView: View {
                 Spacer(minLength: 6)
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12, weight: .bold))
-                    .foregroundStyle(Color.brandPurpleDeep.opacity(0.75))
+                    .foregroundStyle(Color.brandPurpleDeep.opacity(0.9))
             }
             .padding(.horizontal, 14)
-            .padding(.vertical, 12)
-            .frame(maxWidth: .infinity, minHeight: 52)
+            .padding(.vertical, 13)
+            .frame(maxWidth: .infinity, minHeight: 56)
             .background(
+                // Distinctly darker lavender glass over the pink
+                // background — Twinko's suggested ways to begin, never
+                // settings rows.
                 RoundedRectangle(cornerRadius: 18)
-                    .fill(Color.white.opacity(0.42))
+                    .fill(Color(hex: 0xB9A8E8).opacity(0.38))
                     .overlay(RoundedRectangle(cornerRadius: 18)
-                        .fill(tint.opacity(0.20)))
+                        .fill(tint.opacity(0.16)))
             )
             .overlay(
                 // Soft top catch-light + tinted border: glass, not a
@@ -307,12 +367,12 @@ struct ChatView: View {
                 RoundedRectangle(cornerRadius: 18)
                     .strokeBorder(
                         LinearGradient(stops: [
-                            .init(color: .white.opacity(0.8), location: 0),
-                            .init(color: tint.opacity(0.45), location: 0.6),
+                            .init(color: .white.opacity(0.75), location: 0),
+                            .init(color: Color(hex: 0x9A85DE).opacity(0.55), location: 0.6),
                         ], startPoint: .top, endPoint: .bottom),
                         lineWidth: 1)
             )
-            .shadow(color: Color.brandPurpleDeep.opacity(0.14), radius: 6, y: 3)
+            .shadow(color: Color.brandPurpleDeep.opacity(0.16), radius: 6, y: 3)
             .contentShape(RoundedRectangle(cornerRadius: 18))
         }
         .buttonStyle(ChatPromptPressStyle())
@@ -531,14 +591,15 @@ struct ChatView: View {
                 // control; validity comes from the existing draft rule.
                 Image(systemName: "paperplane.fill")
                     .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(Color.textInverseToken.opacity(canSend ? 1 : 0.6))
+                    .foregroundStyle(canSend ? Color.textInverseToken
+                                             : Color(hex: 0xF3EDFF).opacity(0.9))
                     .frame(width: 44, height: 44)
                     .background(
                         canSend
                             ? AnyShapeStyle(LinearGradient(
                                 colors: [.brandPurple, Color(hex: 0x6A53C4)],
                                 startPoint: .top, endPoint: .bottom))
-                            : AnyShapeStyle(Color.brandPurple.opacity(0.28)),
+                            : AnyShapeStyle(Color.brandPurple.opacity(0.55)),
                         in: Circle())
                     .overlay(
                         // Dimensional highlight along the upper edge.
@@ -551,7 +612,8 @@ struct ChatView: View {
                             .allowsHitTesting(false)
                     )
                     .overlay(Circle().strokeBorder(
-                        Color(hex: 0xFFF3D6).opacity(canSend ? 0.55 : 0.15),
+                        canSend ? Color(hex: 0xFFF3D6).opacity(0.55)
+                                : Color.white.opacity(0.4),
                         lineWidth: 1))
                     .shadow(color: canSend ? Color.brandPurpleDeep.opacity(0.40) : .clear,
                             radius: 6, y: 2)
@@ -646,12 +708,16 @@ struct ChatView: View {
     }
 
     /// Gentle landing float: ~7 pt vertical travel over a ~3.2 s
-    /// ease-in-out cycle. Reduce Motion keeps Twinko static; the
-    /// repeating animation stops with the view when Chat disappears.
-    private func startIdle() {
-        guard !reduceMotion else { return }
-        withAnimation(.easeInOut(duration: 3.2).repeatForever(autoreverses: true)) {
-            floating = true
+    /// ease-in-out cycle. Reduce Motion keeps Twinko static; the float
+    /// pauses whenever this surface is not frontmost (off-tab or
+    /// covered) — one animation, no timers.
+    private func updateFloating(active: Bool) {
+        if active && !reduceMotion {
+            withAnimation(.easeInOut(duration: 3.2).repeatForever(autoreverses: true)) {
+                floating = true
+            }
+        } else {
+            withAnimation(.linear(duration: 0.05)) { floating = false }
         }
     }
 }

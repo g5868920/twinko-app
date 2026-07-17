@@ -1161,7 +1161,8 @@ final class TwinkoUITests: XCTestCase {
         Thread.sleep(forTimeInterval: 3.0)
         app.buttons["tab-chat"].tap()
         XCTAssertTrue(app.staticTexts["我在這裡陪你"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["tab-home"].exists, "Dock stays on the landing")
+        XCTAssertFalse(app.buttons["tab-home"].exists,
+                       "Immersive landing hides the dock (2026-07-17)")
         for index in 0..<3 {
             XCTAssertTrue(app.buttons["chatStarter-\(index)"].exists, "Card \(index)")
         }
@@ -1210,11 +1211,11 @@ final class TwinkoUITests: XCTestCase {
                        "Keyboard round-trip must not restore the dock")
         attach(name: "C3-conversation-immersive")
 
-        // Back: landing returns with the dock restored.
+        // Back: landing returns (still immersive — dock stays hidden).
         settleTap(app.buttons["chatBackButton"])
         XCTAssertTrue(app.staticTexts["我在這裡陪你"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["tab-home"].waitForExistence(timeout: 4),
-                      "Dock restored on the landing")
+        XCTAssertFalse(app.buttons["tab-home"].exists,
+                       "Landing remains immersive after leaving a conversation")
 
         // EN-locale landing spot check lives in
         // testChatLandingEnglishLocaleSpotCheck (own launch via the
@@ -1484,6 +1485,80 @@ final class TwinkoUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Tarot"].firstMatch.exists, "EN explore label")
         XCTAssertTrue(app.buttons["tab-myplanet"].label.contains("My Planet"),
                       "EN dock label")
+    }
+
+    /// Focused immersive-Chat-landing walkthrough (2026-07-17): dock
+    /// absent on the landing, Back + star orbs over the background,
+    /// glass prompt cards, send states, one message, keyboard
+    /// round-trip, then Back restoring Home with the dock.
+    func testChatImmersiveLandingWalkthrough() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile"]
+        app.launch()
+
+        // Home → Chat tab: the landing is immersive.
+        XCTAssertTrue(app.buttons["tab-chat"].waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 3.0)
+        app.buttons["tab-chat"].tap()
+        XCTAssertTrue(app.staticTexts["我在這裡陪你"].waitForExistence(timeout: 5))
+        Thread.sleep(forTimeInterval: 0.8)
+        XCTAssertFalse(app.buttons["tab-home"].exists, "Dock absent on landing")
+        XCTAssertTrue(app.buttons["chatBackButton"].exists, "Back control present")
+        XCTAssertTrue(app.buttons["chatMenuButton"].exists, "Star control present")
+        for index in 0..<3 {
+            XCTAssertTrue(app.buttons["chatStarter-\(index)"].exists, "Card \(index)")
+        }
+        let send = app.buttons["chatSendButton"]
+        XCTAssertFalse(send.isEnabled, "Empty draft disables send")
+        attach(name: "I1-landing-empty")
+
+        // Enabled send + one message; keyboard round-trip.
+        let input = app.textFields["chatInputField"]
+        settleTap(input)
+        input.typeText("你好")
+        XCTAssertTrue(send.isEnabled, "Text enables send")
+        attach(name: "I2-send-enabled")
+        send.tap()
+        XCTAssertTrue(app.staticTexts["你好"].waitForExistence(timeout: 6),
+                      "Message sent")
+        app.swipeDown()
+        Thread.sleep(forTimeInterval: 0.8)
+        XCTAssertTrue(input.exists, "Composer intact after keyboard dismissal")
+        XCTAssertFalse(app.buttons["tab-home"].exists,
+                       "Keyboard round-trip keeps the dock hidden")
+
+        // Back to landing, then Back to Home: dock restored.
+        settleTap(app.buttons["chatBackButton"])
+        XCTAssertTrue(app.staticTexts["我在這裡陪你"].waitForExistence(timeout: 5))
+        settleTap(app.buttons["chatBackButton"])
+        XCTAssertTrue(app.staticTexts["今天想先照顧哪一部分的自己？"]
+            .waitForExistence(timeout: 5), "Back returns to Home")
+        XCTAssertTrue(app.buttons["tab-home"].waitForExistence(timeout: 4),
+                      "Dock restored on Home")
+    }
+
+    /// EN-locale landing spot check for the immersive Chat landing.
+    func testChatImmersiveLandingEnglishSpotCheck() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile", "-uiTestEnglish"]
+        app.launch()
+        XCTAssertTrue(app.buttons["tab-chat"].waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 3.0)
+        app.buttons["tab-chat"].tap()
+        XCTAssertTrue(app.staticTexts["I'm here with you"].waitForExistence(timeout: 6))
+        // Chrome propagation can trail the headline by >1 s — wait on
+        // the predicate instead of a fixed sleep.
+        let dockGone = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "exists == false"),
+            object: app.buttons["tab-home"])
+        XCTAssertEqual(XCTWaiter().wait(for: [dockGone], timeout: 6), .completed,
+                       "Dock hides on the EN landing")
+        for index in 0..<3 {
+            XCTAssertTrue(app.buttons["chatStarter-\(index)"].exists,
+                          "EN card \(index) wraps without truncation")
+        }
+        XCTAssertFalse(app.buttons["chatSendButton"].isEnabled,
+                       "EN disabled send announced")
     }
 
     // MARK: Helpers
@@ -2058,7 +2133,8 @@ final class TwinkoUITests: XCTestCase {
         Thread.sleep(forTimeInterval: 3.0)
         app.buttons["tab-chat"].tap()
         XCTAssertTrue(app.staticTexts["我在這裡陪你"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["tab-home"].exists, "Landing keeps the tab bar")
+        XCTAssertFalse(app.buttons["tab-home"].exists,
+                       "Immersive landing hides the tab bar (2026-07-17)")
         attach(name: "P1-chat-landing")
 
         // Active conversation: hidden tab bar + stable keyboard.
@@ -2076,7 +2152,7 @@ final class TwinkoUITests: XCTestCase {
 
         // History + delete modal typography.
         settleTap(app.buttons["chatBackButton"])
-        XCTAssertTrue(app.buttons["tab-home"].waitForExistence(timeout: 4))
+        Thread.sleep(forTimeInterval: 0.8)
         settleTap(app.buttons["chatMenuButton"])
         settleTap(app.buttons["menuHistoryRow"])
         XCTAssertTrue(app.staticTexts["聊天紀錄"].waitForExistence(timeout: 5))

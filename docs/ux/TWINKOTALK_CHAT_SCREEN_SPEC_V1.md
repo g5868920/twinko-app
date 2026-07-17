@@ -251,3 +251,60 @@ opened + cancelled → conversation opened (dock hidden) → Back
 header, Today group, menu labels, rename-modal title. Destructive
 delete verified at the wiring/store level only (existing
 `ChatStore.delete` untouched). Four screenshots (H1–H4).
+
+## Implemented behavior — v1.5 immersive Chat landing (2026-07-18)
+
+- **Immersive landing.** The shared bottom navigation hides whenever
+  any Chat surface (landing or active conversation) is frontmost and
+  its reserved layout space collapses (existing `ShellChrome` flag +
+  `DockClearance`; `ChatView.hidesTabBar(chatSurfaceVisible:)`). The
+  tab-root instance re-reports on tab changes (it stays alive across
+  opacity-based tab switching) and pauses the Twinko float off-tab;
+  pushed instances report on appear/disappear. Keyboard presentation
+  cannot resurface the dock. No second chrome state, router,
+  coordinator, or NavigationStack.
+- **Back control.** Always present top-left (44 pt, light haptic,
+  lavender glass orb balanced with the star control): pushed instances
+  pop the existing stack; tab-root conversation returns to the
+  landing; tab-root landing returns to Home via the existing shared
+  tab state. No new title, no previous-screen tracker.
+- **Top area.** No opaque block; the unchanged `chat_v1` background
+  runs through the top safe area with floating controls. The landing
+  keeps its one-screen `ViewThatFits` rule (scroll fallback only for
+  small screens / Accessibility Dynamic Type / keyboard).
+- **Example cards.** Darker translucent lavender glass (clearly
+  separated from the pink background), lavender glass icon orbs (no
+  white circles), readable purple chevrons, 30 pt page margins,
+  ≥56 pt adaptive height with natural EN two-line wrapping; press =
+  brighten + ~2.5 pt nudge + light haptic; actions unchanged.
+- **Send button.** Disabled: visible lavender-purple circle (~55–68%
+  perceived), pale-lilac plane, white border — recognizably the Send
+  control, still disabled for accessibility. Enabled: saturated
+  purple gradient, warm-white plane, catch-light, warm inner border,
+  press scale + haptic + one-shot sparkle. Validity remains the
+  existing draft-trimming rule.
+- **Star control.** Saturated lavender-purple glass orb with brighter
+  dimensional gold star + sparkle accent — reads as a control, same
+  quick-menu action, light haptic.
+- **Twinko floating.** Landing Twinko keeps the ~7 pt / ~3.2 s float
+  (static under Reduce Motion), now paused when Chat is not the
+  frontmost tab. The active conversation contains no prominent
+  standalone Twinko (per-message avatars only), so no conversation
+  motion was added and avatars stay static. Chat History Twinko
+  states are explicitly out of scope and untouched.
+
+### Validation (v1.5 — strictly minimal)
+
+Build clean. Directly affected tests:
+`testDockHiddenWheneverChatSurfaceIsFrontmost` (updated for the new
+rule) and `testEmptyOrWhitespaceDraftDoesNotSend` — pass. Focused
+scripted walkthrough (iPhone 16, zh-Hant) passed: immersive landing
+(no dock, no reserved space), controls visible, three cards, disabled
+→ enabled send, one message sent, keyboard round-trip with dock still
+hidden, Back → landing → Home with the dock restored. EN spot check
+passed (cards, disabled send; dock-hide waited via predicate — chrome
+propagation can trail the headline, a test-timing note, not a product
+issue). Two screenshots (I1 landing, I2 enabled send); no third — no
+standalone conversation Twinko exists. Pre-existing walkthrough
+assertions that encoded the old "dock visible on landing" rule were
+updated in place.

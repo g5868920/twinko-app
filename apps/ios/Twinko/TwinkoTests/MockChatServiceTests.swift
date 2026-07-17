@@ -106,12 +106,15 @@ extension MockChatServiceTests {
                        "Delete this conversation permanently?")
     }
 
+    /// Immersive Chat (2026-07-17): the dock hides whenever any Chat
+    /// surface is frontmost — landing included — and returns when the
+    /// user leaves the Chat surface.
     @MainActor
-    func testTabBarHiddenOnlyForActiveConversation() {
-        XCTAssertFalse(ChatView.hidesTabBar(conversationActive: false),
-                       "Chat landing keeps the bottom navigation")
-        XCTAssertTrue(ChatView.hidesTabBar(conversationActive: true),
-                      "Active conversation hides the bottom navigation")
+    func testDockHiddenWheneverChatSurfaceIsFrontmost() {
+        XCTAssertTrue(ChatView.hidesTabBar(chatSurfaceVisible: true),
+                      "Any frontmost Chat surface hides the bottom navigation")
+        XCTAssertFalse(ChatView.hidesTabBar(chatSurfaceVisible: false),
+                       "Leaving the Chat surface restores the bottom navigation")
     }
 }
 

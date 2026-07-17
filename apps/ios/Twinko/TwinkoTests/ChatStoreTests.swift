@@ -22,6 +22,42 @@ final class ChatStoreTests: XCTestCase {
         ChatSession(messages: [ChatMessage(sender: .user, text: text)])
     }
 
+    // MARK: History local search (redesign 2026-07-17)
+
+    /// Search matches display title and last-message preview only,
+    /// case-insensitively, with trimmed queries; clearing the query
+    /// restores the full collection; no-match yields an empty result
+    /// (driving the no-results state, distinct from true empty).
+    func testHistorySearchMatchesTitleAndPreviewAndClearsCleanly() {
+        var work = ChatSession(messages: [ChatMessage(sender: .user, text: "最近工作好忙")])
+        work.title = "壓力有點大的日子"
+        var life = ChatSession(messages: [ChatMessage(sender: .user, text: "Today was a Good Day")])
+        life.title = "Small joys"
+        let sessions = [work, life]
+
+        // Title match (zh) and preview match (zh).
+        XCTAssertEqual(ChatHistorySearch.filter(sessions, query: "壓力",
+                                                lang: .traditionalChinese).map(\.id), [work.id])
+        XCTAssertEqual(ChatHistorySearch.filter(sessions, query: "工作",
+                                                lang: .traditionalChinese).map(\.id), [work.id])
+        // Case-insensitive EN title + preview matches.
+        XCTAssertEqual(ChatHistorySearch.filter(sessions, query: "small JOYS",
+                                                lang: .english).map(\.id), [life.id])
+        XCTAssertEqual(ChatHistorySearch.filter(sessions, query: "good day",
+                                                lang: .english).map(\.id), [life.id])
+        // Outer whitespace trimmed.
+        XCTAssertEqual(ChatHistorySearch.filter(sessions, query: "  壓力  ",
+                                                lang: .traditionalChinese).count, 1)
+        // Empty / whitespace query returns the full collection.
+        XCTAssertEqual(ChatHistorySearch.filter(sessions, query: "",
+                                                lang: .english).count, 2)
+        XCTAssertEqual(ChatHistorySearch.filter(sessions, query: "   ",
+                                                lang: .english).count, 2)
+        // No match: empty result — never fabricated.
+        XCTAssertTrue(ChatHistorySearch.filter(sessions, query: "旅行",
+                                               lang: .traditionalChinese).isEmpty)
+    }
+
     func testSessionsPersistAcrossStoreInstances() {
         let first = ChatStore(store: jsonStore)
         first.upsert(makeSession(text: "今天有點累"))

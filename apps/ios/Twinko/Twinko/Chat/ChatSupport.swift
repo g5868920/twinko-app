@@ -84,7 +84,7 @@ enum ChatStrings {
         lang == .english ? "New Chat" : "新對話"
     }
     static func history(_ lang: AppLanguage) -> String {
-        lang == .english ? "History" : "聊天紀錄"
+        lang == .english ? "Chat History" : "聊天紀錄"
     }
     static func temporaryTitle(_ lang: AppLanguage) -> String {
         lang == .english ? "New Chat" : "新對話"
@@ -122,8 +122,42 @@ enum ChatStrings {
     }
     static func emptyHistoryBody(_ lang: AppLanguage) -> String {
         lang == .english
-            ? "Chats with Twinko are kept quietly here, only on this device."
-            : "跟 Twinko 聊過的話，會安安靜靜地收在這裡，只留在這台裝置上。"
+            ? "Your moments with Twinko will appear here."
+            : "和 Twinko 聊聊，這裡會慢慢收藏你們的對話。"
+    }
+
+    // Chat History redesign (2026-07-17)
+    static func historySubtitle(_ lang: AppLanguage) -> String {
+        lang == .english ? "Moments you’ve shared with Twinko"
+                         : "你和 Twinko 留下的每一段星光"
+    }
+    static func searchPlaceholder(_ lang: AppLanguage) -> String {
+        lang == .english ? "Search conversations" : "搜尋聊天紀錄"
+    }
+    static func searchResults(_ lang: AppLanguage) -> String {
+        lang == .english ? "Search Results" : "搜尋結果"
+    }
+    static func noResultsTitle(_ lang: AppLanguage) -> String {
+        lang == .english ? "No matching conversations" : "沒有找到相關對話"
+    }
+    static func noResultsBody(_ lang: AppLanguage) -> String {
+        lang == .english ? "Try another keyword or clear your search."
+                         : "試試其他關鍵字，或清除搜尋內容。"
+    }
+    static func clearSearch(_ lang: AppLanguage) -> String {
+        lang == .english ? "Clear Search" : "清除搜尋"
+    }
+    static func startChatting(_ lang: AppLanguage) -> String {
+        lang == .english ? "Start Chatting" : "開始聊天"
+    }
+    static func renameModalTitle(_ lang: AppLanguage) -> String {
+        lang == .english ? "Rename Conversation" : "重新命名這段對話"
+    }
+    static func deleteConversation(_ lang: AppLanguage) -> String {
+        lang == .english ? "Delete Conversation" : "刪除對話"
+    }
+    static func deletedToast(_ lang: AppLanguage) -> String {
+        lang == .english ? "Conversation deleted" : "已刪除對話"
     }
     static func errorRetry(_ lang: AppLanguage) -> String {
         lang == .english ? "Something went wrong. Tap to try again."
@@ -298,6 +332,29 @@ enum ChatHistoryGroup: Int, CaseIterable {
         return ChatHistoryGroup.allCases.compactMap { group in
             guard let items = buckets[group], !items.isEmpty else { return nil }
             return (group, items.sorted { $0.updatedAt > $1.updatedAt })
+        }
+    }
+}
+
+// MARK: - History local search
+
+/// Pure local Chat History search over metadata the list already
+/// renders: display title and last-message preview. Case-insensitive,
+/// locale-friendly, outer whitespace trimmed. Never touches message
+/// bodies beyond the existing preview, never queries persistence —
+/// no indexing, no backend (redesign 2026-07-17).
+enum ChatHistorySearch {
+    /// Sessions matching `query`, newest first. An effectively empty
+    /// query returns the full collection unchanged.
+    static func filter(_ sessions: [ChatSession], query: String,
+                       lang: AppLanguage) -> [ChatSession] {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return sessions }
+        return sessions.filter { session in
+            session.displayTitle(for: lang)
+                .localizedCaseInsensitiveContains(trimmed)
+                || session.lastMessagePreview
+                    .localizedCaseInsensitiveContains(trimmed)
         }
     }
 }

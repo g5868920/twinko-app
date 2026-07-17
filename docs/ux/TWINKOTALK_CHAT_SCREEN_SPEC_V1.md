@@ -167,3 +167,87 @@ dock. EN-locale landing spot check via the `-uiTestEnglish` hook
 (prompt wrapping, no mixed language) — the in-app settings-switch
 path was flaky under automation and is documented as such. Four
 screenshots (C1–C4).
+
+## Implemented behavior — v1.4 Chat History redesign (2026-07-17)
+
+**Purpose.** Chat History is a calm archive of moments shared with
+Twinko: scan, search, reopen, rename, delete. It is a management
+destination (dock visible), not an immersive conversation.
+
+**Reference.** `docs/ux/references/chat_history_reference_v1.png` is
+authoritative for atmosphere, hierarchy, spacing, glass materials,
+card proportions, search placement, grouping, modal tone, and the
+empty-state composition. Intentional deviations: one standardized
+chat-bubble icon in a lavender glass circle for every row (no
+decorative hearts/moons/plants/wands/orbs, no topic icons); no
+unread/favorite/collectible/notification states; existing Twinko
+typography and tokens throughout.
+
+- **Background.** The same `chat_v1` Chat-room asset (source
+  untouched), quieted by a code-only translucent lilac/warm-mist
+  gradient overlay so cards read clearly while the scene stays
+  recognizably Chat-world. Extends through both safe areas.
+- **No native list styling.** Custom ScrollView + LazyVStack; no
+  `List`/`Form`, separators, large titles, default search bar,
+  system context menu, or system alerts anywhere in the flow.
+- **Floating header.** Back (44 pt, light haptic, press style) +
+  centered 聊天紀錄 / Chat History with the one-line subtitle
+  你和 Twinko 留下的每一段星光 / "Moments you've shared with Twinko".
+  No opaque bar.
+- **Search.** Custom glass field (search icon, clear control when
+  text exists, lavender focus border, localized placeholder
+  搜尋聊天紀錄 / Search conversations). Pure local metadata search
+  (`ChatHistorySearch.filter`): display title + last-message preview,
+  case-insensitive, trimmed, live-updating; clearing restores the
+  grouped list. No indexing, no backend, no per-keystroke persistence
+  queries. Hidden entirely when zero conversations exist.
+- **Grouping.** Existing 今天/昨天/過去 7 天/更早 groups with a quiet
+  sparkle marker + fading gold hairline — no bold native headers, no
+  pinned styling. While searching, a flat 搜尋結果 / Search Results
+  list reuses the same card component.
+- **Cards.** Warm ivory-lilac glass (≈78% opacity, 22 pt radius, top
+  catch-light border, restrained shadow), standardized bubble icon
+  orb, semibold deep-plum title (16.5 pt, one line), muted preview
+  (14 pt, one line), quiet relative time (existing formatter), and a
+  44 pt ellipsis menu separate from the card-open target. Press:
+  0.985 scale + slight brighten + light haptic. Rows insert/remove
+  with a soft fade/scale (opacity-only under Reduce Motion).
+- **Navigation.** Card opens the existing conversation via a
+  `navigationDestination(item:)` push in the same stack (dock hides
+  through the existing `ShellChrome` conversation flag; Back restores
+  History and the dock). History itself keeps the dock visible with
+  Chat selected; Back pops to the Chat landing.
+- **Actions.** Branded popover: 重新命名 / Rename and 刪除對話 /
+  Delete Conversation. Rename modal (重新命名這段對話 / Rename
+  Conversation) keeps the existing validation/persistence and adds a
+  success haptic. Delete keeps the one-sentence confirmation
+  (確定要永久刪除這段對話嗎？) with muted-coral action, animated row
+  removal, and a short non-blocking 已刪除對話 / Conversation deleted
+  toast.
+- **Empty states.** True empty: Twinko with restrained memory-light
+  dots, 還沒有聊天紀錄 copy, and a 開始聊天 / Start Chatting CTA
+  that pops back to the New Chat landing (existing route); search is
+  hidden. No-results: compact search-orb state (沒有找到相關對話)
+  with 清除搜尋 / Clear Search; the field stays available. The two
+  states are visually and behaviorally distinct.
+- **Performance.** Lazy rendering, no timers, no continuous effects,
+  no per-row queries. Accessibility: 44 pt targets, localized labels
+  for back/search/clear/cards/menu/actions, header traits on
+  sections, Reduce Motion fallbacks.
+
+### Validation (v1.4 pass — strictly minimal)
+
+Build clean. New narrow unit test
+`testHistorySearchMatchesTitleAndPreviewAndClearsCleanly` (title +
+preview matching, case-insensitivity, trimming, clear-restores-all,
+no-match-empty) — passes. One focused scripted walkthrough (iPhone
+16, zh-Hant) passed end-to-end after a simulator reboot cleared
+degraded accessibility snapshots: true empty state (no search, Start
+Chatting routes to the landing) → two disposable conversations →
+normal list (groups, cards, dock) → search match → clear → no-match
+state → clear → rename opened + cancelled → delete confirmation
+opened + cancelled → conversation opened (dock hidden) → Back
+(History + dock restored). EN spot check via `-uiTestEnglish`:
+header, Today group, menu labels, rename-modal title. Destructive
+delete verified at the wiring/store level only (existing
+`ChatStore.delete` untouched). Four screenshots (H1–H4).

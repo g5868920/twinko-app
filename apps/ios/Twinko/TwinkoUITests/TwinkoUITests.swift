@@ -1241,6 +1241,141 @@ final class TwinkoUITests: XCTestCase {
         attach(name: "C4-landing-english")
     }
 
+    /// Focused Chat History redesign walkthrough (2026-07-17): true
+    /// empty state → two disposable conversations → glass list with
+    /// search (match, clear, no-results) → rename/delete modals
+    /// (cancelled) → conversation round-trip with dock behavior.
+    func testChatHistoryRedesignWalkthrough() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile"]
+        app.launch()
+
+        // True empty state on a fresh install: no search, CTA routes
+        // back to the New Chat landing.
+        XCTAssertTrue(app.buttons["tab-chat"].waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 3.0)
+        app.buttons["tab-chat"].tap()
+        XCTAssertTrue(app.staticTexts["我在這裡陪你"].waitForExistence(timeout: 5))
+        settleTap(app.buttons["chatMenuButton"])
+        XCTAssertTrue(app.buttons["menuHistoryRow"].waitForExistence(timeout: 4))
+        settleTap(app.buttons["menuHistoryRow"])
+        XCTAssertTrue(app.staticTexts["還沒有聊天紀錄"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.textFields["historySearchField"].exists,
+                       "No search field when zero conversations exist")
+        let startChatting = app.buttons["historyStartChatting"]
+        XCTAssertTrue(startChatting.exists)
+        attach(name: "H3-empty-state")
+        settleTap(startChatting)
+        XCTAssertTrue(app.staticTexts["我在這裡陪你"].waitForExistence(timeout: 5),
+                      "Start Chatting returns to the New Chat landing")
+
+        // Two disposable conversations via prompt cards.
+        for index in 0..<2 {
+            let starter = app.buttons["chatStarter-\(index)"]
+            XCTAssertTrue(starter.waitForExistence(timeout: 5))
+            starter.tap()
+            XCTAssertTrue(app.buttons["chatBackButton"].waitForExistence(timeout: 6))
+            Thread.sleep(forTimeInterval: 2.0)   // reply lands
+            settleTap(app.buttons["chatBackButton"])
+            XCTAssertTrue(app.staticTexts["我在這裡陪你"].waitForExistence(timeout: 5))
+        }
+
+        // Normal Chat History: search field, 今天 group, glass cards.
+        settleTap(app.buttons["chatMenuButton"])
+        XCTAssertTrue(app.buttons["menuHistoryRow"].waitForExistence(timeout: 4))
+        settleTap(app.buttons["menuHistoryRow"])
+        let search = app.textFields["historySearchField"]
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["今天"].exists, "Date group present")
+        XCTAssertTrue(app.buttons["tab-home"].exists, "Dock visible in History")
+        attach(name: "H1-history-normal")
+
+        // Search: preview match → results; clear; no-match → distinct
+        // no-results state; clear again.
+        settleTap(search)
+        search.typeText("聽懂")
+        XCTAssertTrue(app.staticTexts["搜尋結果"].waitForExistence(timeout: 4))
+        settleTap(app.buttons["historySearchClear"])
+        XCTAssertTrue(app.staticTexts["今天"].waitForExistence(timeout: 4),
+                      "Clearing restores the grouped list")
+        settleTap(search)
+        search.typeText("旅行")
+        XCTAssertTrue(app.staticTexts["沒有找到相關對話"].waitForExistence(timeout: 4))
+        XCTAssertTrue(search.exists, "Search stays available in no-results")
+        attach(name: "H2-search-no-results")
+        settleTap(app.buttons["historyClearSearch"])
+        XCTAssertTrue(app.staticTexts["今天"].waitForExistence(timeout: 4))
+
+        // Row menu → Rename (cancel) → Delete (cancel).
+        let more = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "更多選項")).firstMatch
+        XCTAssertTrue(more.waitForExistence(timeout: 4))
+        settleTap(more)
+        let renameRow = app.buttons["重新命名"]
+        XCTAssertTrue(renameRow.waitForExistence(timeout: 4))
+        settleTap(renameRow)
+        XCTAssertTrue(app.textFields["renameTitleField"].waitForExistence(timeout: 4))
+        XCTAssertTrue(app.staticTexts["重新命名這段對話"].exists)
+        settleTap(app.buttons["取消"])
+        Thread.sleep(forTimeInterval: 0.5)
+        XCTAssertFalse(app.textFields["renameTitleField"].exists)
+        settleTap(more)
+        let deleteRow = app.buttons["刪除對話"]
+        XCTAssertTrue(deleteRow.waitForExistence(timeout: 4))
+        settleTap(deleteRow)
+        XCTAssertTrue(app.staticTexts["確定要永久刪除這段對話嗎？"]
+            .waitForExistence(timeout: 4))
+        attach(name: "H4-delete-modal")
+        settleTap(app.buttons["取消"])
+        Thread.sleep(forTimeInterval: 0.5)
+
+        // Open one conversation: dock hides; Back restores History.
+        let card = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "聽懂")).firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 4))
+        card.tap()
+        XCTAssertTrue(app.buttons["chatBackButton"].waitForExistence(timeout: 6))
+        Thread.sleep(forTimeInterval: 1.0)
+        XCTAssertFalse(app.buttons["tab-home"].exists,
+                       "Conversation hides the dock")
+        settleTap(app.buttons["chatBackButton"])
+        XCTAssertTrue(app.staticTexts["聊天紀錄"].waitForExistence(timeout: 5),
+                      "Back returns to Chat History")
+        XCTAssertTrue(app.buttons["tab-home"].waitForExistence(timeout: 4),
+                      "Dock restored in History")
+    }
+
+    /// Second-locale spot check for the redesigned Chat History only
+    /// (own launch via -uiTestEnglish): header, date group, menu and
+    /// modal labels.
+    func testChatHistoryEnglishLocaleSpotCheck() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile", "-uiTestEnglish"]
+        app.launch()
+        XCTAssertTrue(app.buttons["tab-chat"].waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 3.0)
+        app.buttons["tab-chat"].tap()
+        let starter = app.buttons["chatStarter-0"]
+        XCTAssertTrue(starter.waitForExistence(timeout: 5))
+        starter.tap()
+        XCTAssertTrue(app.buttons["chatBackButton"].waitForExistence(timeout: 6))
+        Thread.sleep(forTimeInterval: 2.0)
+        settleTap(app.buttons["chatBackButton"])
+        settleTap(app.buttons["chatMenuButton"])
+        XCTAssertTrue(app.buttons["menuHistoryRow"].waitForExistence(timeout: 4))
+        settleTap(app.buttons["menuHistoryRow"])
+        XCTAssertTrue(app.staticTexts["Chat History"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.textFields["historySearchField"].exists)
+        XCTAssertTrue(app.staticTexts["Today"].exists)
+        settleTap(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "More options")).firstMatch)
+        XCTAssertTrue(app.buttons["Rename"].waitForExistence(timeout: 4))
+        XCTAssertTrue(app.buttons["Delete Conversation"].exists)
+        settleTap(app.buttons["Rename"])
+        XCTAssertTrue(app.staticTexts["Rename Conversation"].waitForExistence(timeout: 4))
+        settleTap(app.buttons["Cancel"])
+    }
+
     // MARK: Helpers
 
     private func goBack(_ app: XCUIApplication) {

@@ -556,7 +556,7 @@ enum HomeExperienceStrings {
     }
     static func entryTarot(_ l: AppLanguage) -> String { l == .english ? "Tarot" : "塔羅" }
     static func entryTarotDesc(_ l: AppLanguage) -> String {
-        l == .english ? "Find guidance" : "聆聽指引"
+        l == .english ? "Find guidance" : "尋找指引"
     }
     static func entryHoroscope(_ l: AppLanguage) -> String { l == .english ? "Zodiac" : "星座" }
     static func entryHoroscopeDesc(_ l: AppLanguage) -> String {
@@ -578,21 +578,6 @@ enum HomeExperienceStrings {
     // Explore cosmic map
     static func exploreMapTitle(_ l: AppLanguage) -> String {
         l == .english ? "Explore the Cosmos" : "探索宇宙"
-    }
-    static func planetTarotDesc(_ l: AppLanguage) -> String {
-        l == .english ? "Find guidance" : "尋找指引"
-    }
-    static func planetHoroscopeDesc(_ l: AppLanguage) -> String {
-        l == .english ? "Today's energy" : "今日能量"
-    }
-    static func planetMeditationDesc(_ l: AppLanguage) -> String {
-        l == .english ? "Find calm" : "安定內心"
-    }
-    static func planetMusicDesc(_ l: AppLanguage) -> String {
-        l == .english ? "Healing rhythm" : "療癒節奏"
-    }
-    static func planetActivitiesDesc(_ l: AppLanguage) -> String {
-        l == .english ? "Explore nearby" : "探索附近"
     }
 
     // Activities placeholder

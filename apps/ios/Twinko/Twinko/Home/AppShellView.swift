@@ -862,11 +862,14 @@ enum ExplorePlanet: String, CaseIterable, Identifiable, Hashable {
 
     func descriptor(_ lang: AppLanguage) -> String {
         switch self {
-        case .tarot: return HomeExperienceStrings.planetTarotDesc(lang)
-        case .horoscope: return HomeExperienceStrings.planetHoroscopeDesc(lang)
-        case .meditation: return HomeExperienceStrings.planetMeditationDesc(lang)
-        case .music: return HomeExperienceStrings.planetMusicDesc(lang)
-        case .activities: return HomeExperienceStrings.planetActivitiesDesc(lang)
+        // One shared descriptor set with the Home explore entries
+        // (founder decision 2026-07-18): 尋找指引 / 今日能量 / 平靜身心 /
+        // 療癒旋律 / 探索附近.
+        case .tarot: return HomeExperienceStrings.entryTarotDesc(lang)
+        case .horoscope: return HomeExperienceStrings.entryHoroscopeDesc(lang)
+        case .meditation: return HomeExperienceStrings.entryMeditationDesc(lang)
+        case .music: return HomeExperienceStrings.entryMusicDesc(lang)
+        case .activities: return HomeExperienceStrings.entryActivitiesDesc(lang)
         }
     }
 

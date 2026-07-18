@@ -195,8 +195,14 @@ struct HoroscopeTodayView: View {
             VStack(spacing: TwinkoSpacing.m) {
                 hero(sign: sign, horoscope: horoscope)
 
+                // Four reading zones separated by the shared magical
+                // divider (same design as the Tarot result page):
+                // Twinko 想說 / the four dimensions / 今日幸運 /
+                // save-card + disclaimer.
                 TwinkoMessageBlock(message: horoscope.twinkoMessage, lang: lang)
                     .padding(.horizontal, TwinkoSpacing.m)
+
+                TarotMagicalDivider()
 
                 VStack(spacing: TwinkoSpacing.s) {
                     ForEach(HoroscopeDimensionKind.allCases, id: \.self) { kind in
@@ -208,12 +214,14 @@ struct HoroscopeTodayView: View {
                 }
                 .padding(.horizontal, TwinkoSpacing.m)
 
+                TarotMagicalDivider()
+
                 LuckyDetailsGrid(lucky: horoscope.lucky, lang: lang)
                     .padding(.horizontal, TwinkoSpacing.m)
-                    .padding(.top, 2)
+
+                TarotMagicalDivider()
 
                 actions
-                    .padding(.top, TwinkoSpacing.s)
 
                 Text(HoroscopeStrings.disclaimer(lang))
                     .font(.system(.caption2, design: .rounded))

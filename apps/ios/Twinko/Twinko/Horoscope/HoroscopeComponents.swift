@@ -13,6 +13,9 @@ enum HoroscopeCTAPalette {
     static let warmLightText = Color(hex: 0xF7EFDD)
 }
 
+/// Same construction as Tarot's magic primary (capsule, gradient
+/// fill, antique-gold gradient rim, glow shadow, press sparkles +
+/// light haptic) — only the hue stays Horoscope's grape.
 struct HoroscopeGrapePrimaryButtonStyle: ButtonStyle {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.isEnabled) private var isEnabled
@@ -21,23 +24,45 @@ struct HoroscopeGrapePrimaryButtonStyle: ButtonStyle {
         let pressed = configuration.isPressed && isEnabled
         configuration.label
             .labelStyle(HoroscopeGoldIconLabelStyle())
-            .font(.system(.headline, design: .rounded))
+            .font(.twinkoHeadline)
             .foregroundStyle(HoroscopeCTAPalette.warmLightText)
-            .frame(minHeight: 48)
-            .padding(.horizontal, TwinkoSpacing.l)
+            .padding(.vertical, 15)
+            .padding(.horizontal, TwinkoSpacing.xl)
+            .frame(minHeight: 44)
             .background(
                 LinearGradient(colors: [HoroscopeCTAPalette.grapeTop,
                                         HoroscopeCTAPalette.grapeBottom],
                                startPoint: .top, endPoint: .bottom),
-                in: RoundedRectangle(cornerRadius: 24)
+                in: Capsule()
             )
-            .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(
-                HoroscopeCTAPalette.antiqueGold.opacity(0.55), lineWidth: 1.2))
-            .shadow(color: HoroscopeCTAPalette.grapeBottom.opacity(0.45),
-                    radius: 8, y: 3)
+            .overlay(
+                Capsule().strokeBorder(
+                    LinearGradient(colors: [HoroscopeCTAPalette.antiqueGold.opacity(0.95),
+                                            HoroscopeCTAPalette.antiqueGold.opacity(0.45)],
+                                   startPoint: .top, endPoint: .bottom),
+                    lineWidth: 1.4)
+            )
+            .background {
+                if pressed && !reduceMotion {
+                    Capsule()
+                        .fill(TarotCTAPalette.violetGlow)
+                        .blur(radius: 18)
+                        .opacity(0.45)
+                        .padding(-4)
+                        .allowsHitTesting(false)
+                }
+            }
+            .overlay {
+                if pressed && !reduceMotion {
+                    TarotPressSparkles()
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
+                }
+            }
+            .shadow(color: TarotCTAPalette.violetGlow.opacity(0.4), radius: 10, y: 4)
             .opacity(isEnabled ? 1 : 0.55)
-            .scaleEffect(pressed && !reduceMotion ? 0.97 : 1)
-            .animation(.easeOut(duration: 0.15), value: pressed)
+            .scaleEffect(pressed ? 0.97 : 1)
+            .animation(.easeOut(duration: TwinkoMotion.quick), value: pressed)
             .onChange(of: configuration.isPressed) { _, isPressed in
                 if isPressed && isEnabled {
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
@@ -46,21 +71,57 @@ struct HoroscopeGrapePrimaryButtonStyle: ButtonStyle {
     }
 }
 
+/// Clear night-glass capsule secondary — identical construction to
+/// Tarot's magic secondary.
 struct HoroscopeGrapeSecondaryButtonStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.isEnabled) private var isEnabled
+
     func makeBody(configuration: Configuration) -> some View {
+        let pressed = configuration.isPressed && isEnabled
         configuration.label
             .labelStyle(HoroscopeGoldIconLabelStyle())
             .font(.system(.headline, design: .rounded))
             .foregroundStyle(HoroscopeCTAPalette.warmLightText.opacity(0.95))
-            .frame(minHeight: 48)
+            .padding(.vertical, 13)
             .padding(.horizontal, TwinkoSpacing.l)
-            .background(HoroscopeCTAPalette.grapeBottom.opacity(0.55),
-                        in: RoundedRectangle(cornerRadius: 24))
-            .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(
-                HoroscopeCTAPalette.antiqueGold.opacity(0.4), lineWidth: 1))
-            .opacity(configuration.isPressed ? 0.75 : 1)
-            .scaleEffect(configuration.isPressed ? 0.98 : 1)
-            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
+            .frame(minHeight: 44)
+            .background {
+                Capsule()
+                    .fill(LinearGradient(colors: [Color(hex: 0x9C8CD8).opacity(0.42),
+                                                  Color(hex: 0x6E5FB0).opacity(0.34)],
+                                         startPoint: .top, endPoint: .bottom))
+                    .overlay(
+                        Capsule().fill(LinearGradient(stops: [
+                            .init(color: Color.white.opacity(0.14), location: 0),
+                            .init(color: Color.white.opacity(0), location: 0.35),
+                        ], startPoint: .top, endPoint: .bottom))
+                    )
+            }
+            .overlay(
+                Capsule().strokeBorder(
+                    LinearGradient(stops: [
+                        .init(color: Color.white.opacity(0.40), location: 0),
+                        .init(color: Color(hex: 0xD1C4FF).opacity(0.18), location: 1),
+                    ], startPoint: .top, endPoint: .bottom),
+                    lineWidth: 1)
+            )
+            .shadow(color: Color.deepSpace.opacity(0.18), radius: 6, y: 3)
+            .overlay {
+                if pressed && !reduceMotion {
+                    TarotPressSparkles()
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
+                }
+            }
+            .opacity(isEnabled ? 1 : 0.55)
+            .scaleEffect(pressed ? 0.97 : 1)
+            .animation(.easeOut(duration: TwinkoMotion.quick), value: pressed)
+            .onChange(of: configuration.isPressed) { _, isPressed in
+                if isPressed && isEnabled {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                }
+            }
     }
 }
 

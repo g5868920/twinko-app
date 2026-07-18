@@ -162,25 +162,34 @@ struct TwinkoGlassDock: View {
                                           weight: selected ? .bold : .medium,
                                           design: .rounded))
                             .foregroundStyle(selected ? Color.brandPurpleDeep
-                                                      : Color.deepPlum.opacity(0.55))
+                                                      : Color.deepPlum.opacity(0.65))
                     }
                     .frame(maxWidth: .infinity, minHeight: 54)
                     .background {
                         if selected {
-                            // Moving liquid-glass indicator.
+                            // Moving liquid-glass indicator — bright
+                            // lavender-white so the active tab reads on
+                            // dark worlds (Explore) as clearly as on the
+                            // light ones; the old deep-purple fill sank
+                            // into the Explore night sky.
                             RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                .fill(Color.brandPurple.opacity(0.20))
+                                .fill(LinearGradient(
+                                    colors: [Color.white.opacity(0.60),
+                                             Color(hex: 0xE6DCFC).opacity(0.48)],
+                                    startPoint: .top, endPoint: .bottom))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                        .strokeBorder(Color(hex: 0xD9C8FF).opacity(0.8),
+                                        .strokeBorder(Color(hex: 0xD9C8FF).opacity(0.9),
                                                       lineWidth: 1)
                                 )
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 20, style: .continuous)
                                         .fill(LinearGradient(
-                                            colors: [Color.white.opacity(0.2), .clear],
+                                            colors: [Color.white.opacity(0.25), .clear],
                                             startPoint: .top, endPoint: .center))
                                 )
+                                .shadow(color: Color.brandPurpleDeep.opacity(0.20),
+                                        radius: 4, y: 2)
                                 .padding(4)
                                 .matchedGeometryEffect(id: "dockIndicator",
                                                        in: indicatorSpace)
@@ -196,20 +205,20 @@ struct TwinkoGlassDock: View {
         .padding(.horizontal, 6)
         .frame(height: 68)
         .background {
-            // Floating navigation glass (material polish 2026-07-18):
-            // translucent lavender capsule in the same atmospheric
-            // family, slightly stronger separation than page cards —
-            // the world stays visible through it.
+            // Floating navigation glass (visibility pass 2026-07-18):
+            // a denser lavender capsule with a brighter rim so the dock
+            // stays legible over dark worlds (Explore) as well as the
+            // light ones — the world still shows through it.
             RoundedRectangle(cornerRadius: 32, style: .continuous)
                 .fill(LinearGradient(
-                    colors: [Color(hex: 0xE6DCFC).opacity(0.40),
-                             Color(hex: 0xC3AFF2).opacity(0.30)],
+                    colors: [Color(hex: 0xE6DCFC).opacity(0.52),
+                             Color(hex: 0xC3AFF2).opacity(0.40)],
                     startPoint: .top, endPoint: .bottom))
                 .overlay(
                     // Soft top highlight fading down.
                     RoundedRectangle(cornerRadius: 32, style: .continuous)
                         .fill(LinearGradient(stops: [
-                            .init(color: Color.white.opacity(0.24), location: 0),
+                            .init(color: Color.white.opacity(0.26), location: 0),
                             .init(color: Color.white.opacity(0), location: 0.4),
                         ], startPoint: .top, endPoint: .bottom))
                 )
@@ -218,11 +227,14 @@ struct TwinkoGlassDock: View {
             RoundedRectangle(cornerRadius: 32, style: .continuous)
                 .strokeBorder(
                     LinearGradient(stops: [
-                        .init(color: Color.white.opacity(0.7), location: 0),
-                        .init(color: Color(hex: 0xD1C4FF).opacity(0.32), location: 0.7),
+                        .init(color: Color.white.opacity(0.85), location: 0),
+                        .init(color: Color(hex: 0xD1C4FF).opacity(0.40), location: 0.7),
                     ], startPoint: .top, endPoint: .bottom),
                     lineWidth: 1)
         )
+        // Faint lavender halo: lifts the dock off dark scenes, nearly
+        // invisible over the light ones.
+        .shadow(color: Color(hex: 0xD9C8FF).opacity(0.35), radius: 10)
         .shadow(color: Color.deepSpace.opacity(0.16), radius: 18, y: 8)
         .padding(.horizontal, 16)
         .padding(.bottom, 4)
@@ -278,7 +290,7 @@ struct TwinkoGlassDock: View {
         }
         .frame(width: 30, height: 30)
         .foregroundStyle(selected ? Color.brandPurpleDeep
-                                  : Color.deepPlum.opacity(0.5))
+                                  : Color.deepPlum.opacity(0.6))
         .shadow(color: selected ? Color.brandPurple.opacity(0.45) : .clear,
                 radius: 4)
     }

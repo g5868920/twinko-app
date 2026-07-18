@@ -7,58 +7,90 @@ import SwiftUI
 // authorized and built. (The Meditate placeholder was replaced by the
 // real Meditation flow.)
 
-struct MusicPlaceholderView: View {
-    @EnvironmentObject private var prefs: PrefsStore
-
-    var body: some View {
-        PlaceholderScaffold(
-            title: HomeStrings.modeLabel(.music, prefs.language),
-            line: prefs.language == .english
-                ? "A quiet moment can be its own kind of music."
-                : "安靜的片刻，也是一種聲音。",
-            mood: .listening,
-            backgroundImage: "bg_music_v1"
-        )
-    }
-}
-
-private struct PlaceholderScaffold: View {
+/// Shared floating header for dark-world placeholder pages: the same
+/// warm-gold Back treatment as Tarot / Horoscope / Meditation, with a
+/// centered rounded title — never the system navigation bar.
+private struct PlaceholderHeader: View {
     let title: String
-    let line: String
-    let mood: TwinkoMood
-    /// Founder-approved full-screen background; nil keeps the legacy
-    /// cosmos gradient (Activities awaits its own approved asset).
-    var backgroundImage: String? = nil
+    let backLabel: String
+    let backIdentifier: String
+    let onBack: () -> Void
 
     var body: some View {
         ZStack {
-            if let backgroundImage {
-                // Approved artwork: aspect-fill, no added code stars.
-                TwinkoFullScreenBackground(imageName: backgroundImage,
-                                           topOpacity: 0.12, bottomOpacity: 0.18)
-            } else {
-                TwinkoBackground.cosmos.ignoresSafeArea()
-                StarFieldView()
-            }
-
-            VStack(spacing: TwinkoSpacing.m) {
-                Spacer()
-                TwinkoCharacterView(mood: mood, size: 140)
-                Text(line)
-                    .font(.twinkoBody)
-                    .foregroundStyle(.white.opacity(0.9))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, TwinkoSpacing.xl)
-                Spacer()
+            Text(title)
+                .font(.system(.headline, design: .rounded))
+                .foregroundStyle(Color.textInverseToken)
+            HStack {
+                Button {
+                    onBack()
+                } label: {
+                    Image(systemName: "chevron.backward")
+                        .tarotHeaderControlIcon()
+                }
+                .buttonStyle(TarotHeaderControlStyle())
+                .accessibilityLabel(Text(backLabel))
+                .accessibilityIdentifier(backIdentifier)
                 Spacer()
             }
         }
+        .padding(.horizontal, 8)
+        .frame(height: 48)
+    }
+}
+
+struct MusicPlaceholderView: View {
+    @EnvironmentObject private var prefs: PrefsStore
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var floating = false
+
+    private var lang: AppLanguage { prefs.language }
+
+    var body: some View {
+        ZStack {
+            // Approved artwork: aspect-fill, no added code stars.
+            TwinkoFullScreenBackground(imageName: "bg_music_v1",
+                                       topOpacity: 0.12, bottomOpacity: 0.18)
+
+            VStack(spacing: 0) {
+                PlaceholderHeader(
+                    title: HomeStrings.modeLabel(.music, lang),
+                    backLabel: lang == .english ? "Back" : "返回",
+                    backIdentifier: "musicBackButton",
+                    onBack: { dismiss() })
+
+                VStack(spacing: TwinkoSpacing.m) {
+                    Spacer()
+                    // Founder-approved music Twinko, gently floating —
+                    // the shared companion motion language.
+                    Image("twinko_music_v1")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 150, height: 150)
+                        .offset(y: reduceMotion ? 0 : (floating ? -4 : 4))
+                        .accessibilityLabel(Text("Twinko"))
+                    Text(lang == .english
+                         ? "A quiet moment can be its own kind of music."
+                         : "安靜的片刻，也是一種聲音。")
+                        .font(.twinkoBody)
+                        .foregroundStyle(.white.opacity(0.9))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, TwinkoSpacing.xl)
+                    Spacer()
+                    Spacer()
+                }
+            }
+        }
         .dockClearance()
-        .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarColorScheme(.dark, for: .navigationBar)
-        .toolbarBackground(Color.cosmicDeep.opacity(0.6), for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbar(.hidden, for: .navigationBar)
+        .navigationBarBackButtonHidden(true)
+        .onAppear {
+            guard !reduceMotion else { return }
+            withAnimation(.easeInOut(duration: 3.2).repeatForever(autoreverses: true)) {
+                floating = true
+            }
+        }
     }
 }
 
@@ -73,7 +105,8 @@ private struct PlaceholderScaffold: View {
 
 /// Honest Twinko-styled coming-soon destination for Activities. No
 /// location permission, no city detection, no real event data — one
-/// warm glass card, a small Activities planet, and Back.
+/// warm glass card, a small Activities planet, and the standard
+/// top-left Back (the bottom Back button was retired 2026-07-18).
 struct ActivitiesComingSoonView: View {
     @EnvironmentObject private var prefs: PrefsStore
     @Environment(\.dismiss) private var dismiss
@@ -87,37 +120,37 @@ struct ActivitiesComingSoonView: View {
             TwinkoFullScreenBackground(imageName: "bg_activity_v1",
                                        topOpacity: 0.12, bottomOpacity: 0.18)
 
-            VStack(spacing: TwinkoSpacing.m) {
-                Spacer()
-                TwinkoCosmicOrb(diameter: 96, tint: Color(hex: 0xC77B4E)) {
-                    Image(systemName: "location.fill")
-                        .font(.system(size: 32, weight: .medium))
+            VStack(spacing: 0) {
+                PlaceholderHeader(
+                    title: HomeExperienceStrings.entryActivities(lang),
+                    backLabel: lang == .english ? "Back" : "返回",
+                    backIdentifier: "activitiesBackButton",
+                    onBack: { dismiss() })
+
+                VStack(spacing: TwinkoSpacing.m) {
+                    Spacer()
+                    TwinkoCosmicOrb(diameter: 96, tint: Color(hex: 0xC77B4E)) {
+                        Image(systemName: "location.fill")
+                            .font(.system(size: 32, weight: .medium))
+                    }
+                    Text(HomeExperienceStrings.entryActivities(lang))
+                        .font(.system(.title3, design: .rounded).weight(.semibold))
+                        .foregroundStyle(.white)
+                    Text(HomeExperienceStrings.activitiesComingSoon(lang))
+                        .font(.system(.body, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.85))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 16)
+                        .twinkoGlass(cornerRadius: 22, tint: 0.14)
+                        .padding(.horizontal, TwinkoSpacing.l)
+                    Spacer()
+                    Spacer()
                 }
-                Text(HomeExperienceStrings.entryActivities(lang))
-                    .font(.system(.title3, design: .rounded).weight(.semibold))
-                    .foregroundStyle(.white)
-                Text(HomeExperienceStrings.activitiesComingSoon(lang))
-                    .font(.system(.body, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.85))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 16)
-                    .twinkoGlass(cornerRadius: 22, tint: 0.14)
-                    .padding(.horizontal, TwinkoSpacing.l)
-                Spacer()
-                Button {
-                    dismiss()
-                } label: {
-                    Text(HomeExperienceStrings.backLabel(lang))
-                        .font(.system(.headline, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.9))
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                }
-                .accessibilityIdentifier("activitiesBackButton")
-                .padding(.bottom, TwinkoSpacing.l)
             }
         }
         .dockClearance()
         .toolbar(.hidden, for: .navigationBar)
+        .navigationBarBackButtonHidden(true)
     }
 }

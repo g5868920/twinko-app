@@ -199,7 +199,7 @@ struct MeditationFlowView: View {
 
     private var setupContent: some View {
         VStack(spacing: TwinkoSpacing.s) {
-            MeditationBreathingTwinko(size: 92)
+            MeditationBreathingTwinko(size: 104)
 
             VStack(spacing: 4) {
                 Text(MeditationStrings.heroTitle(lang))
@@ -245,9 +245,11 @@ struct MeditationFlowView: View {
             Text(MeditationStrings.focusSection(lang))
                 .font(.system(.subheadline, design: .rounded).weight(.semibold))
                 .foregroundStyle(Color.textInverseToken)
+            // 2×2 grid + a full-width fifth row — no orphan cell with
+            // an empty slot beside it.
             LazyVGrid(columns: [GridItem(.flexible(), spacing: 8),
                                 GridItem(.flexible(), spacing: 8)], spacing: 8) {
-                ForEach(MeditationFocus.allCases) { option in
+                ForEach(Array(MeditationFocus.allCases.prefix(4))) { option in
                     selectableOption(
                         label: option.label(lang),
                         icon: option.icon,
@@ -256,6 +258,15 @@ struct MeditationFlowView: View {
                         identifier: "meditationFocus-\(option.rawValue)"
                     ) { focus = option }
                 }
+            }
+            if let last = MeditationFocus.allCases.last {
+                selectableOption(
+                    label: last.label(lang),
+                    icon: last.icon,
+                    selected: focus == last,
+                    recommended: last == recommendedFocus,
+                    identifier: "meditationFocus-\(last.rawValue)"
+                ) { focus = last }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -306,22 +317,48 @@ struct MeditationFlowView: View {
                 if recommended {
                     Text(MeditationStrings.recommendedTag(lang))
                         .font(.system(size: 9.5, design: .rounded))
-                        .foregroundStyle(Color.twinkoGold.opacity(0.9))
+                        .foregroundStyle(selected ? Color(hex: 0xFFF3D6)
+                                                  : Color.twinkoGold.opacity(0.9))
                 }
             }
             .frame(maxWidth: .infinity, minHeight: 46)
             .background(
-                selected ? AnyShapeStyle(
-                    LinearGradient(colors: [.brandPurple, .brandPurpleDeep],
-                                   startPoint: .top, endPoint: .bottom))
-                         : AnyShapeStyle(Color.deepSpace.opacity(0.4)),
-                in: RoundedRectangle(cornerRadius: 14)
+                // Night clear glass; selection is "gently illuminated"
+                // translucent lavender, never a solid filled block.
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(selected
+                          ? AnyShapeStyle(LinearGradient(
+                                colors: [Color.brandPurple.opacity(0.55),
+                                         Color.brandPurpleDeep.opacity(0.48)],
+                                startPoint: .top, endPoint: .bottom))
+                          : AnyShapeStyle(LinearGradient(
+                                colors: [Color(hex: 0x9C8CD8).opacity(0.30),
+                                         Color(hex: 0x6E5FB0).opacity(0.22)],
+                                startPoint: .top, endPoint: .bottom)))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(LinearGradient(stops: [
+                                .init(color: Color.white.opacity(selected ? 0.20 : 0.14),
+                                      location: 0),
+                                .init(color: Color.white.opacity(0), location: 0.35),
+                            ], startPoint: .top, endPoint: .bottom))
+                    )
             )
             .foregroundStyle(Color.textInverseToken)
-            .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(
-                selected ? Color.twinkoGold.opacity(0.6)
-                         : Color.textInverseToken.opacity(0.12),
+            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(
+                selected
+                    ? AnyShapeStyle(LinearGradient(
+                          colors: [Color.twinkoGold.opacity(0.85),
+                                   Color.twinkoGold.opacity(0.45)],
+                          startPoint: .top, endPoint: .bottom))
+                    : AnyShapeStyle(LinearGradient(stops: [
+                          .init(color: Color.white.opacity(0.40), location: 0),
+                          .init(color: Color(hex: 0xD1C4FF).opacity(0.18), location: 1),
+                      ], startPoint: .top, endPoint: .bottom)),
                 lineWidth: 1))
+            .shadow(color: selected ? Color.twinkoGold.opacity(0.30)
+                                    : Color.deepSpace.opacity(0.18),
+                    radius: selected ? 9 : 6, y: 3)
             .contentShape(RoundedRectangle(cornerRadius: 14))
         }
         .accessibilityAddTraits(selected ? [.isSelected] : [])
@@ -352,8 +389,7 @@ struct MeditationFlowView: View {
                 .tint(.twinkoGold)
                 .lineLimit(1...3)
                 .padding(10)
-                .background(Color.deepSpace.opacity(0.4),
-                            in: RoundedRectangle(cornerRadius: 14))
+                .twinkoGlass(cornerRadius: 14, tint: 0.36, night: true)
                 .accessibilityIdentifier("meditationCustomInput")
         }
         .padding(.horizontal, TwinkoSpacing.m)
@@ -380,7 +416,7 @@ struct MeditationFlowView: View {
 
     private func sourceCard(_ acknowledgment: (label: String, summary: String?)) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Label(acknowledgment.label, systemImage: "link")
+            Label(acknowledgment.label, systemImage: "star.fill")
                 .font(.system(.caption, design: .rounded).weight(.semibold))
                 .foregroundStyle(Color.twinkoGold)
             if let summary = acknowledgment.summary, !summary.isEmpty {
@@ -393,10 +429,8 @@ struct MeditationFlowView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(12)
-        .background(Color.menuDeep.opacity(0.5),
-                    in: RoundedRectangle(cornerRadius: TwinkoRadius.card))
-        .overlay(RoundedRectangle(cornerRadius: TwinkoRadius.card)
-            .strokeBorder(Color.twinkoGold.opacity(0.3), lineWidth: 1))
+        .twinkoGlass(cornerRadius: TwinkoRadius.card, tint: 0.30,
+                     warm: true, night: true)
         .padding(.horizontal, TwinkoSpacing.m)
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier("meditationSourceCard")

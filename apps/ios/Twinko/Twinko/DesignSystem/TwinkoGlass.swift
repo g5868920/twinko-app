@@ -65,11 +65,24 @@ struct TwinkoGlassSurface: ViewModifier {
     /// Warm speech glass (Twinko's bubble family): ivory-lilac instead
     /// of the atmospheric lavender — warmer, highest readability.
     var warm: Bool = false
+    /// Night variant for moonlit worlds (Meditation): deeper cool
+    /// violet tints and a dimmer rim so the glass belongs to the dark
+    /// scene while keeping the same material language.
+    var night: Bool = false
 
-    /// Atmospheric lavender tint pair (top slightly brighter — subtle
-    /// vertical tonal variation, never a strong gradient band).
-    private var tintTop: Color { warm ? Color(hex: 0xFFF3E6) : Color(hex: 0xE6DCFC) }
-    private var tintBottom: Color { warm ? Color(hex: 0xEFD9EE) : Color(hex: 0xC3AFF2) }
+    /// Tint pair (top slightly brighter — subtle vertical tonal
+    /// variation, never a strong gradient band).
+    private var tintTop: Color {
+        if warm { return night ? Color(hex: 0xF6E8DC) : Color(hex: 0xFFF3E6) }
+        return night ? Color(hex: 0x9C8CD8) : Color(hex: 0xE6DCFC)
+    }
+    private var tintBottom: Color {
+        if warm { return night ? Color(hex: 0xE3CFE8) : Color(hex: 0xEFD9EE) }
+        return night ? Color(hex: 0x6E5FB0) : Color(hex: 0xC3AFF2)
+    }
+    private var rimTop: Double { night ? 0.5 : 0.75 }
+    private var rimMid: Double { night ? 0.22 : 0.35 }
+    private var innerHighlight: Double { night ? 0.16 : 0.24 }
 
     func body(content: Content) -> some View {
         // Clear-glass polish (2026-07-18, second pass): the system
@@ -93,7 +106,7 @@ struct TwinkoGlassSurface: ViewModifier {
                         // dimensional glass depth, never a white sheet.
                         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                             .fill(LinearGradient(stops: [
-                                .init(color: Color.white.opacity(0.24), location: 0),
+                                .init(color: Color.white.opacity(innerHighlight), location: 0),
                                 .init(color: Color.white.opacity(0), location: 0.30),
                             ], startPoint: .top, endPoint: .bottom))
                     )
@@ -105,9 +118,9 @@ struct TwinkoGlassSurface: ViewModifier {
                     .strokeBorder(selected
                                   ? AnyShapeStyle(Color(hex: 0xD9C8FF).opacity(0.85))
                                   : AnyShapeStyle(LinearGradient(stops: [
-                                        .init(color: Color.white.opacity(0.75), location: 0),
-                                        .init(color: Color.white.opacity(0.35), location: 0.3),
-                                        .init(color: Color(hex: 0xD1C4FF).opacity(0.30),
+                                        .init(color: Color.white.opacity(rimTop), location: 0),
+                                        .init(color: Color.white.opacity(rimMid), location: 0.3),
+                                        .init(color: Color(hex: 0xD1C4FF).opacity(night ? 0.22 : 0.30),
                                               location: 1),
                                     ], startPoint: .top, endPoint: .bottom)),
                                   lineWidth: 1)
@@ -118,9 +131,10 @@ struct TwinkoGlassSurface: ViewModifier {
 
 extension View {
     func twinkoGlass(cornerRadius: CGFloat = 24, tint: Double = 0.12,
-                     selected: Bool = false, warm: Bool = false) -> some View {
+                     selected: Bool = false, warm: Bool = false,
+                     night: Bool = false) -> some View {
         modifier(TwinkoGlassSurface(cornerRadius: cornerRadius, tint: tint,
-                                    selected: selected, warm: warm))
+                                    selected: selected, warm: warm, night: night))
     }
 }
 

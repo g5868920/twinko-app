@@ -335,24 +335,10 @@ private struct TarotSetupStage: View {
                             }
                             .padding(.horizontal, 10)
                             .frame(maxWidth: .infinity, minHeight: 48)
-                            .background(
-                                selected ? AnyShapeStyle(
-                                    LinearGradient(colors: [TarotCTAPalette.amethystTop,
-                                                            TarotCTAPalette.amethystBottom],
-                                                   startPoint: .top, endPoint: .bottom))
-                                         : AnyShapeStyle(
-                                    TarotCTAPalette.deepSurface.opacity(0.55)),
-                                in: RoundedRectangle(cornerRadius: 14)
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 14)
-                                    .strokeBorder(TarotCTAPalette.antiqueGold
-                                        .opacity(selected ? 0.7 : 0.25),
-                                        lineWidth: selected ? 1.2 : 1)
-                            )
+                            // Shared illuminated night-glass selection
+                            // language (same recipe as Meditation setup).
+                            .twinkoNightChoice(cornerRadius: 14, selected: selected)
                             .foregroundStyle(TarotCTAPalette.warmLightText)
-                            .shadow(color: TarotCTAPalette.violetGlow
-                                .opacity(selected ? 0.35 : 0), radius: 8)
                             .contentShape(RoundedRectangle(cornerRadius: 14))
                         }
                         .accessibilityIdentifier("tarotTopic-\(option.rawValue)")
@@ -372,10 +358,10 @@ private struct TarotSetupStage: View {
                     TextField("", text: $session.question, axis: .vertical)
                         .font(.system(.body, design: .rounded))
                         .padding(10)
-                        .background(Color.deepSpace.opacity(0.55),
-                                    in: RoundedRectangle(cornerRadius: 12))
-                        .overlay(RoundedRectangle(cornerRadius: 12)
-                            .strokeBorder(Color.textInverseToken.opacity(0.18), lineWidth: 1))
+                        // Night glass instead of a dead dark slab — the
+                        // rim light and inner highlight keep the field
+                        // clearly alive/enabled.
+                        .twinkoGlass(cornerRadius: 12, tint: 0.46, night: true)
                         .foregroundStyle(Color.textInverseToken)
                         .tint(.accentGold)
                         .lineLimit(1...3)
@@ -395,9 +381,12 @@ private struct TarotSetupStage: View {
                                     .font(.system(size: 13))
                                     .foregroundStyle(Color.twinkoGold.opacity(0.85))
                                     .padding(.top, 2)
+                                // Warm-white copy with gold reserved for
+                                // the icon + thin border accents — all-gold
+                                // rows were too loud side by side.
                                 Text(suggestion)
                                     .font(.system(.subheadline, design: .rounded))
-                                    .foregroundStyle(Color.twinkoGold)
+                                    .foregroundStyle(TarotCTAPalette.warmLightText)
                                     .multilineTextAlignment(.leading)
                                     .lineLimit(2)
                                 Spacer(minLength: 0)
@@ -405,10 +394,13 @@ private struct TarotSetupStage: View {
                             .padding(.horizontal, 12)
                             .padding(.vertical, 10)
                             .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-                            .background(Color.twinkoGold.opacity(0.10),
-                                        in: RoundedRectangle(cornerRadius: 12))
+                            .background(
+                                LinearGradient(colors: [Color(hex: 0x9C8CD8).opacity(0.28),
+                                                        Color(hex: 0x6E5FB0).opacity(0.22)],
+                                               startPoint: .top, endPoint: .bottom),
+                                in: RoundedRectangle(cornerRadius: 12))
                             .overlay(RoundedRectangle(cornerRadius: 12)
-                                .strokeBorder(Color.twinkoGold.opacity(0.35), lineWidth: 1))
+                                .strokeBorder(Color.twinkoGold.opacity(0.30), lineWidth: 1))
                             .contentShape(RoundedRectangle(cornerRadius: 12))
                         }
                         .buttonStyle(TarotSuggestionPressStyle())
@@ -417,8 +409,7 @@ private struct TarotSetupStage: View {
                     }
                 }
                 .padding(TwinkoSpacing.m)
-                .background(Color.deepSpace.opacity(0.5),
-                            in: RoundedRectangle(cornerRadius: TwinkoRadius.card))
+                .twinkoGlass(cornerRadius: TwinkoRadius.card, tint: 0.32, night: true)
                 .padding(.horizontal, TwinkoSpacing.m)
 
                 Button {
@@ -504,13 +495,11 @@ private struct TarotSpreadStage: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, TwinkoSpacing.m)
             .padding(.horizontal, TwinkoSpacing.s)
-            .background(Color.deepSpace.opacity(0.5),
-                        in: RoundedRectangle(cornerRadius: TwinkoRadius.card))
-            .overlay(
-                RoundedRectangle(cornerRadius: TwinkoRadius.card)
-                    .strokeBorder(Color.accentGold.opacity(pressed == spread ? 0.9 : 0.45),
-                                  lineWidth: pressed == spread ? 2 : 1)
-            )
+            // Night glass at rest; the chosen card briefly "lights up"
+            // (illuminated fill + gold rim) before the stage advances —
+            // the same selection moment as every other night chip.
+            .twinkoNightChoice(cornerRadius: TwinkoRadius.card,
+                               selected: pressed == spread)
         }
         .buttonStyle(TarotMagicPressStyle())
         .accessibilityIdentifier("tarotSpread-\(spread.rawValue)")

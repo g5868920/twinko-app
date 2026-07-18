@@ -155,9 +155,10 @@ struct TarotGoldIconLabelStyle: LabelStyle {
     }
 }
 
-/// Secondary Tarot CTA (儲存指引小卡 / 開始新的占卜): quieter deep-
-/// purple surface with a thin antique-gold border — same family and
-/// hierarchy as the primary, with the same restrained press feedback.
+/// Secondary Tarot CTA (儲存指引小卡 / 開始新的占卜): clear night-glass
+/// capsule with a lilac-white rim — one visible step quieter than the
+/// solid amethyst primary, gold reserved for the icon accent. Same
+/// restrained press feedback as the primary.
 struct TarotMagicSecondaryButtonStyle: ButtonStyle {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.isEnabled) private var isEnabled
@@ -171,11 +172,27 @@ struct TarotMagicSecondaryButtonStyle: ButtonStyle {
             .padding(.vertical, 13)
             .padding(.horizontal, TwinkoSpacing.l)
             .frame(minHeight: 44)
-            .background(TarotCTAPalette.deepSurface.opacity(0.72), in: Capsule())
+            .background {
+                Capsule()
+                    .fill(LinearGradient(colors: [Color(hex: 0x9C8CD8).opacity(0.42),
+                                                  Color(hex: 0x6E5FB0).opacity(0.34)],
+                                         startPoint: .top, endPoint: .bottom))
+                    .overlay(
+                        Capsule().fill(LinearGradient(stops: [
+                            .init(color: Color.white.opacity(0.14), location: 0),
+                            .init(color: Color.white.opacity(0), location: 0.35),
+                        ], startPoint: .top, endPoint: .bottom))
+                    )
+            }
             .overlay(
-                Capsule().strokeBorder(TarotCTAPalette.antiqueGold.opacity(0.5),
-                                       lineWidth: 1)
+                Capsule().strokeBorder(
+                    LinearGradient(stops: [
+                        .init(color: Color.white.opacity(0.40), location: 0),
+                        .init(color: Color(hex: 0xD1C4FF).opacity(0.18), location: 1),
+                    ], startPoint: .top, endPoint: .bottom),
+                    lineWidth: 1)
             )
+            .shadow(color: Color.deepSpace.opacity(0.18), radius: 6, y: 3)
 
             .overlay {
                 if pressed && !reduceMotion {
@@ -278,8 +295,10 @@ struct TarotMagicalDivider: View {
 // MARK: - Revealed-card magic effect (redesign §22)
 
 /// Subtle confirmation that a card has been revealed and activated:
-/// a soft warm-gold outer glow with a faint slow breathing shimmer.
-/// Static glow under Reduce Motion; never neon, flashing, or a burst.
+/// a layered warm-gold glow — a brighter tight halo hugging the card
+/// edge plus a wide faint outer bloom — with a slow breathing shimmer.
+/// The two layers read as light emitted by the card, not a flat
+/// sticker ring. Static under Reduce Motion; never neon or a burst.
 struct TarotRevealedGlow: ViewModifier {
     let active: Bool
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -287,8 +306,10 @@ struct TarotRevealedGlow: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .shadow(color: Color.twinkoGold.opacity(active ? (breathing ? 0.55 : 0.35) : 0),
-                    radius: active ? 10 : 0)
+            .shadow(color: Color.twinkoGold.opacity(active ? (breathing ? 0.60 : 0.42) : 0),
+                    radius: active ? 6 : 0)
+            .shadow(color: Color.twinkoGold.opacity(active ? (breathing ? 0.32 : 0.20) : 0),
+                    radius: active ? 18 : 0)
             .onChange(of: active) { _, nowActive in
                 guard nowActive, !reduceMotion else { return }
                 withAnimation(.easeInOut(duration: 2.2).repeatForever(autoreverses: true)) {
@@ -324,9 +345,12 @@ extension View {
             .padding(TwinkoSpacing.m)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
+                // Slightly more translucent than the first pass so the
+                // violet scene bleeds through — a warm glass pane
+                // floating in the night, not a white sheet on top of it.
                 LinearGradient(colors: tint,
                                startPoint: .top, endPoint: .bottom)
-                    .opacity(style == .companion ? 0.86 : 0.82),
+                    .opacity(style == .companion ? 0.76 : 0.72),
                 in: RoundedRectangle(cornerRadius: TwinkoRadius.card)
             )
             .overlay(
@@ -335,7 +359,7 @@ extension View {
                 RoundedRectangle(cornerRadius: TwinkoRadius.card)
                     .strokeBorder(
                         LinearGradient(stops: [
-                            .init(color: .white.opacity(0.55), location: 0),
+                            .init(color: .white.opacity(0.60), location: 0),
                             .init(color: .white.opacity(0.0), location: 0.25),
                         ], startPoint: .top, endPoint: .bottom),
                         lineWidth: 1.2)
@@ -345,7 +369,7 @@ extension View {
                 RoundedRectangle(cornerRadius: TwinkoRadius.card)
                     .strokeBorder(Color(hex: 0xD8B36A).opacity(0.30), lineWidth: 1)
             )
-            .shadow(color: Color.deepPlum.opacity(0.12), radius: 6, y: 2)
+            .shadow(color: Color.deepPlum.opacity(0.14), radius: 12, y: 5)
             .padding(.horizontal, TwinkoSpacing.m)
     }
 }

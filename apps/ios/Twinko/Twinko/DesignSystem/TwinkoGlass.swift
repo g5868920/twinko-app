@@ -138,6 +138,66 @@ extension View {
     }
 }
 
+// MARK: - Illuminated night choice (shared selectable-chip recipe)
+
+/// The shared selectable-surface treatment for night worlds
+/// (Meditation setup/completion, Tarot): clear night glass at rest;
+/// selected surfaces "light up" — a translucent lavender fill, a gold
+/// gradient rim, and a soft gold halo. Matches the Meditation setup
+/// chips exactly so every night flow speaks one selection language.
+struct TwinkoNightChoiceSurface: ViewModifier {
+    var cornerRadius: CGFloat = 14
+    var selected: Bool = false
+
+    func body(content: Content) -> some View {
+        content
+            .background(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .fill(selected
+                          ? AnyShapeStyle(LinearGradient(
+                                colors: [Color.brandPurple.opacity(0.55),
+                                         Color.brandPurpleDeep.opacity(0.48)],
+                                startPoint: .top, endPoint: .bottom))
+                          : AnyShapeStyle(LinearGradient(
+                                colors: [Color(hex: 0x9C8CD8).opacity(0.42),
+                                         Color(hex: 0x6E5FB0).opacity(0.34)],
+                                startPoint: .top, endPoint: .bottom)))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                            .fill(LinearGradient(stops: [
+                                .init(color: Color.white.opacity(selected ? 0.20 : 0.14),
+                                      location: 0),
+                                .init(color: Color.white.opacity(0), location: 0.35),
+                            ], startPoint: .top, endPoint: .bottom))
+                    )
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .strokeBorder(selected
+                        ? AnyShapeStyle(LinearGradient(
+                              colors: [Color.twinkoGold.opacity(0.85),
+                                       Color.twinkoGold.opacity(0.45)],
+                              startPoint: .top, endPoint: .bottom))
+                        : AnyShapeStyle(LinearGradient(stops: [
+                              .init(color: Color.white.opacity(0.40), location: 0),
+                              .init(color: Color(hex: 0xD1C4FF).opacity(0.18), location: 1),
+                          ], startPoint: .top, endPoint: .bottom)),
+                        lineWidth: 1)
+            )
+            .shadow(color: selected ? Color.twinkoGold.opacity(0.30)
+                                    : Color.deepSpace.opacity(0.18),
+                    radius: selected ? 9 : 6, y: 3)
+    }
+}
+
+extension View {
+    func twinkoNightChoice(cornerRadius: CGFloat = 14,
+                           selected: Bool = false) -> some View {
+        modifier(TwinkoNightChoiceSurface(cornerRadius: cornerRadius,
+                                          selected: selected))
+    }
+}
+
 /// Quiet pressed feedback shared by glass controls: 0.97 scale,
 /// slight dim, light haptic.
 struct TwinkoGlassPressStyle: ButtonStyle {

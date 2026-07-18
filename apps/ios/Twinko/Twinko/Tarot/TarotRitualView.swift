@@ -418,6 +418,10 @@ struct TarotRevealStage: View {
     private var allRevealed: Bool { revealed.allSatisfy { $0 } }
 
     var body: some View {
+        // Weighted spacers sink the composition toward the altar
+        // platform: the flexible top spacer absorbs the free space, the
+        // bounded gaps below keep the CTA close to the cards instead of
+        // leaving a dead band in the middle of the screen.
         VStack(spacing: TwinkoSpacing.l) {
             Spacer()
 
@@ -454,7 +458,8 @@ struct TarotRevealStage: View {
                 }
             }
 
-            Spacer()
+            Spacer(minLength: TwinkoSpacing.xl)
+                .frame(maxHeight: 96)
 
             if allRevealed {
                 Button {
@@ -473,12 +478,24 @@ struct TarotRevealStage: View {
                      ? TarotStrings.tapNextCard(lang)
                      : TarotStrings.tapToFlip(lang))
                     .font(.system(.body, design: .rounded))
-                    .foregroundStyle(Color.textInverseToken.opacity(0.8))
+                    .foregroundStyle(Color.textInverseToken.opacity(0.85))
                     .padding(.horizontal, 16)
                     .padding(.vertical, 6)
-                    .background(Color.deepSpace.opacity(0.35), in: Capsule())
+                    .background {
+                        Capsule()
+                            .fill(LinearGradient(colors: [Color(hex: 0x9C8CD8).opacity(0.38),
+                                                          Color(hex: 0x6E5FB0).opacity(0.30)],
+                                                 startPoint: .top, endPoint: .bottom))
+                    }
+                    .overlay(Capsule().strokeBorder(
+                        LinearGradient(stops: [
+                            .init(color: Color.white.opacity(0.35), location: 0),
+                            .init(color: Color(hex: 0xD1C4FF).opacity(0.16), location: 1),
+                        ], startPoint: .top, endPoint: .bottom),
+                        lineWidth: 1))
             }
-            Spacer(minLength: TwinkoSpacing.xl)
+            Spacer(minLength: TwinkoSpacing.l)
+                .frame(maxHeight: 44)
         }
         .animation(.easeOut(duration: 0.25), value: revealed)
     }

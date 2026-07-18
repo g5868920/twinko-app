@@ -214,6 +214,41 @@ struct TwinkoGlassPressStyle: ButtonStyle {
     }
 }
 
+// MARK: - Floating glass Back orb (light worlds)
+
+/// The floating Back control for light illustrated worlds (Chat, My
+/// Planet subpages): a lavender glass orb with a deep-plum chevron —
+/// never the system navigation-bar back item.
+struct TwinkoGlassBackButton: View {
+    var label: String = "返回"
+    let action: () -> Void
+
+    var body: some View {
+        Button {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            action()
+        } label: {
+            Image(systemName: "chevron.backward")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(Color.deepPlum)
+                .frame(width: 38, height: 38)
+                .background(
+                    Circle().fill(
+                        LinearGradient(colors: [Color.white.opacity(0.55),
+                                                Color(hex: 0xC9B8EE).opacity(0.45)],
+                                       startPoint: .top, endPoint: .bottom))
+                )
+                .overlay(Circle().strokeBorder(Color(hex: 0xB9A8E8).opacity(0.6),
+                                               lineWidth: 1))
+                .shadow(color: Color.brandPurpleDeep.opacity(0.18), radius: 3, y: 1)
+                .frame(width: 44, height: 44)
+                .contentShape(Circle())
+        }
+        .buttonStyle(TwinkoGlassPressStyle())
+        .accessibilityLabel(Text(label))
+    }
+}
+
 // MARK: - Dock clearance
 
 /// Bottom clearance for the floating glass dock. `safeAreaInset`

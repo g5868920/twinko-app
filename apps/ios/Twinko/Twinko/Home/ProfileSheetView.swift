@@ -1,45 +1,51 @@
 import SwiftUI
 
-// MARK: - Shared dreamy styling
+// MARK: - Shared My Planet subpage scaffold (Twinko language, 2026-07-18)
 
-/// Dreamy lavender-to-misty-pink backdrop with soft star accents, used
-/// on every My Planet screen so the area reads as a personal cosmic
-/// space rather than a system settings flow.
-private struct DreamyBackground: View {
+/// Every My Planet subpage rides the planet-world background with a
+/// floating glass Back orb and a centered rounded title — never the
+/// system navigation bar. The founder flagged the previous
+/// DreamyBackground + system-bar pages as reading like stock iPhone
+/// UI; this scaffold is the replacement.
+private struct MyPlanetSubpage<Trailing: View, Content: View>: View {
+    let title: String
+    let backLabel: String
+    let onBack: () -> Void
+    @ViewBuilder var trailing: () -> Trailing
+    @ViewBuilder var content: () -> Content
+
     var body: some View {
         ZStack {
-            LinearGradient(
-                colors: [Color(red: 0.87, green: 0.82, blue: 0.97),
-                         Color(red: 0.94, green: 0.88, blue: 0.96),
-                         Color(red: 0.98, green: 0.91, blue: 0.93)],
-                startPoint: .top, endPoint: .bottom
-            )
-            StarFieldView(tint: Color(red: 0.72, green: 0.60, blue: 0.92).opacity(0.7))
+            TwinkoFullScreenBackground(imageName: TwinkoBackgrounds.myPlanetResolved,
+                                       topOpacity: 0.20, bottomOpacity: 0.32)
+            VStack(spacing: 0) {
+                ZStack {
+                    Text(title)
+                        .font(.system(.headline, design: .rounded))
+                        .foregroundStyle(Color.softWhite)
+                        .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
+                    HStack {
+                        TwinkoGlassBackButton(label: backLabel, action: onBack)
+                        Spacer()
+                        trailing()
+                    }
+                }
+                .padding(.horizontal, 8)
+                .frame(height: 48)
+
+                content()
+            }
         }
-        .ignoresSafeArea()
+        .toolbar(.hidden, for: .navigationBar)
+        .navigationBarBackButtonHidden(true)
     }
 }
 
-private let dreamyCardFill = Color.white.opacity(0.62)
-private let dreamyCardBorder = Color(red: 0.66, green: 0.55, blue: 0.88).opacity(0.45)
-
-private struct DreamyCard: ViewModifier {
-    var cornerRadius: CGFloat = 18
-    func body(content: Content) -> some View {
-        content
-            .background(dreamyCardFill, in: RoundedRectangle(cornerRadius: cornerRadius))
-            .overlay(
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .strokeBorder(dreamyCardBorder, lineWidth: 1)
-            )
-            .shadow(color: Color(red: 0.45, green: 0.35, blue: 0.65).opacity(0.10),
-                    radius: 8, y: 3)
-    }
-}
-
-private extension View {
-    func dreamyCard(cornerRadius: CGFloat = 18) -> some View {
-        modifier(DreamyCard(cornerRadius: cornerRadius))
+extension MyPlanetSubpage where Trailing == EmptyView {
+    init(title: String, backLabel: String, onBack: @escaping () -> Void,
+         @ViewBuilder content: @escaping () -> Content) {
+        self.init(title: title, backLabel: backLabel, onBack: onBack,
+                  trailing: { EmptyView() }, content: content)
     }
 }
 
@@ -50,10 +56,12 @@ private final class ProfileSheetHeight: ObservableObject {
     @Published var fraction: CGFloat = 0.55
 }
 
+/// Section label readable over the bright valley artwork.
 private func sectionHeader(_ text: String) -> some View {
     Text(text)
         .font(.system(.caption, design: .rounded).weight(.semibold))
-        .foregroundStyle(Color.cosmicPurple.opacity(0.75))
+        .foregroundStyle(Color.softWhite.opacity(0.92))
+        .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.leading, TwinkoSpacing.s)
 }
@@ -61,15 +69,17 @@ private func sectionHeader(_ text: String) -> some View {
 // MARK: - My Planet landing
 
 /// My Planet: the personal cosmic space on the My Planet tab.
-/// Identity area (planet + name + subtitle) above three large branded
-/// entry cards — Profile, Settings, Privacy. Editing is reached by
-/// tapping profile cards directly; no prominent Edit button.
+/// Identity hero above the 2×2 record collection, one merged
+/// Profile & Settings card, and the quiet Privacy link (founder
+/// structure decision 2026-07-18): "my world + utilities", never six
+/// equal admin tiles.
 struct MyPlanetContentView: View {
     @EnvironmentObject private var profileStore: ProfileStore
     @EnvironmentObject private var prefs: PrefsStore
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @StateObject private var sheetHeight = ProfileSheetHeight()
     @State private var activeHub: MyPlanetHub?
+    @State private var showingProfileSettings = false
     @State private var showingPrivacy = false
 
     private var lang: AppLanguage { prefs.language }
@@ -82,7 +92,8 @@ struct MyPlanetContentView: View {
                 ScrollView {
                     VStack(spacing: TwinkoSpacing.m) {
                         hero
-                        hubGrid
+                        recordGrid
+                        profileSettingsCard
                         privacyLink
                     }
                     .padding(.horizontal, 20)
@@ -96,6 +107,9 @@ struct MyPlanetContentView: View {
             // is opened — never eagerly on every body pass.
             .navigationDestination(item: $activeHub) { hub in
                 hubDestination(hub)
+            }
+            .navigationDestination(isPresented: $showingProfileSettings) {
+                profileSettingsDetail
             }
             .navigationDestination(isPresented: $showingPrivacy) {
                 privacyDetail
@@ -111,30 +125,32 @@ struct MyPlanetContentView: View {
     private var hero: some View {
         VStack(spacing: 6) {
             ZStack {
-                // Small glass platform + orbit ring beneath the planet.
+                // Soft luminous halo beneath the planet — a glow, not
+                // a stroked sketch line.
                 Ellipse()
-                    .fill(Color.white.opacity(0.16))
-                    .frame(width: 96, height: 22)
-                    .blur(radius: 3)
+                    .fill(Color(hex: 0xD9C8FF).opacity(0.45))
+                    .frame(width: 118, height: 34)
+                    .blur(radius: 9)
                     .offset(y: 38)
                 Ellipse()
-                    .strokeBorder(Color(hex: 0xD9C8FF).opacity(0.6), lineWidth: 1)
-                    .frame(width: 112, height: 34)
-                    .offset(y: 34)
+                    .fill(Color.white.opacity(0.18))
+                    .frame(width: 92, height: 20)
+                    .blur(radius: 3)
+                    .offset(y: 40)
                 ForEach(0..<3, id: \.self) { index in
                     Image(systemName: "sparkle")
                         .font(.system(size: [7.0, 5.0, 6.0][index]))
                         .foregroundStyle(Color.twinkoGold.opacity(0.85))
-                        .offset(x: [-52.0, 56.0, -40.0][index],
-                                y: [-26.0, -8.0, 30.0][index])
+                        .offset(x: [-56.0, 60.0, -42.0][index],
+                                y: [-28.0, -8.0, 32.0][index])
                 }
                 Image("home_my_planet_v1_transparent")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 76, height: 76)
+                    .frame(width: 90, height: 90)
                     .shadow(color: Color.brandPurpleDeep.opacity(0.35), radius: 10, y: 4)
             }
-            .frame(height: 100)
+            .frame(height: 112)
             .accessibilityHidden(true)
 
             Text(HomeExperienceStrings.planetOf(
@@ -150,12 +166,12 @@ struct MyPlanetContentView: View {
         }
     }
 
-    // MARK: Hubs — six personal stations
+    // MARK: Records — what you've left on this planet
 
-    private var hubGrid: some View {
+    private var recordGrid: some View {
         LazyVGrid(columns: [GridItem(.flexible(), spacing: 12),
                             GridItem(.flexible(), spacing: 12)], spacing: 12) {
-            ForEach(MyPlanetHub.allCases) { hub in
+            ForEach(MyPlanetHub.records) { hub in
                 hubPod(hub)
             }
         }
@@ -173,18 +189,16 @@ struct MyPlanetContentView: View {
                 }
                 Text(hub.title(lang))
                     .font(.system(size: 14, weight: .semibold, design: .rounded))
-                    .foregroundStyle(Color.softWhite)
-                    .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
+                    .foregroundStyle(Color.deepPlum)
                 Text(hub.descriptor(lang))
                     .font(.system(size: 11, design: .rounded))
-                    .foregroundStyle(Color.softWhite.opacity(0.75))
-                    .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
+                    .foregroundStyle(Color.deepPlum.opacity(0.65))
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
             }
             .frame(maxWidth: .infinity, minHeight: 108)
             .padding(.vertical, 10)
-            .twinkoGlass(cornerRadius: 24, tint: 0.14)
+            .twinkoGlass(cornerRadius: 24, tint: 0.10)
             .contentShape(RoundedRectangle(cornerRadius: 24))
         }
         .buttonStyle(TwinkoGlassPressStyle())
@@ -192,22 +206,57 @@ struct MyPlanetContentView: View {
         .accessibilityLabel(Text("\(hub.title(lang))，\(hub.descriptor(lang))"))
     }
 
-    /// Real destinations where they exist; honest coming-soon stations
-    /// where record features are not yet implemented. Never fake data.
+    /// One merged utility card: Profile & Settings live behind a
+    /// single quiet full-width row (founder decision 2026-07-18).
+    private var profileSettingsCard: some View {
+        Button {
+            showingProfileSettings = true
+        } label: {
+            HStack(spacing: TwinkoSpacing.m) {
+                TwinkoCosmicOrb(diameter: 46, tint: Color(hex: 0x9A6FD0),
+                                showStar: false) {
+                    Image(systemName: "person.fill")
+                        .font(.system(size: 17, weight: .medium))
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(lang == .english ? "Profile & Settings" : "個人資料與設定")
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .foregroundStyle(Color.deepPlum)
+                    Text(lang == .english ? "About you, language & preferences"
+                                          : "關於你・語言與偏好")
+                        .font(.system(size: 11, design: .rounded))
+                        .foregroundStyle(Color.deepPlum.opacity(0.65))
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Color.deepPlum.opacity(0.45))
+            }
+            .padding(.horizontal, TwinkoSpacing.m)
+            .frame(maxWidth: .infinity, minHeight: 64)
+            .twinkoGlass(cornerRadius: 20, tint: 0.10)
+            .contentShape(RoundedRectangle(cornerRadius: 20))
+        }
+        .buttonStyle(TwinkoGlassPressStyle())
+        .accessibilityIdentifier("profileSettingsCard")
+    }
+
+    /// Coming-soon stations for the record hubs — honest, never fake
+    /// data — on the shared Twinko subpage scaffold.
     @ViewBuilder
     private func hubDestination(_ hub: MyPlanetHub) -> some View {
         switch hub {
-        case .profile: profileDetail
-        case .settings: settingsDetail
+        case .profile, .settings:
+            profileSettingsDetail
         case .journal, .meditationHistory, .tarotHistory, .savedCards:
             hubComingSoon(hub)
         }
     }
 
     private func hubComingSoon(_ hub: MyPlanetHub) -> some View {
-        ZStack {
-            TwinkoFullScreenBackground(imageName: TwinkoBackgrounds.myPlanetResolved,
-                                       topOpacity: 0.22, bottomOpacity: 0.32)
+        MyPlanetSubpage(title: hub.title(lang),
+                        backLabel: lang == .english ? "Back" : "返回",
+                        onBack: { activeHub = nil }) {
             VStack(spacing: TwinkoSpacing.m) {
                 Spacer()
                 TwinkoCosmicOrb(diameter: 84, tint: hub.tint, showStar: hub.showsStar) {
@@ -217,9 +266,10 @@ struct MyPlanetContentView: View {
                 Text(hub.title(lang))
                     .font(.system(.title3, design: .rounded).weight(.semibold))
                     .foregroundStyle(Color.softWhite)
+                    .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
                 Text(HomeExperienceStrings.hubComingSoon(lang))
                     .font(.system(.body, design: .rounded))
-                    .foregroundStyle(Color.softWhite.opacity(0.85))
+                    .foregroundStyle(Color.deepPlum.opacity(0.9))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 14)
@@ -228,6 +278,7 @@ struct MyPlanetContentView: View {
                 Spacer()
                 Spacer()
             }
+            .frame(maxWidth: .infinity)
         }
         .dockClearance()
         .accessibilityIdentifier("hubComingSoonState")
@@ -239,91 +290,65 @@ struct MyPlanetContentView: View {
         Button {
             showingPrivacy = true
         } label: {
-            Label(HomeStrings.privacy(lang), systemImage: "hand.raised.fill")
-                .font(.system(.footnote, design: .rounded).weight(.medium))
-                .foregroundStyle(Color.softWhite.opacity(0.8))
-                .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
-                .frame(minHeight: 44)
+            HStack(spacing: 5) {
+                Image(systemName: "hand.raised.fill")
+                    .font(.system(size: 11))
+                    .foregroundStyle(Color(hex: 0xE8DCFF).opacity(0.85))
+                Text(HomeStrings.privacy(lang))
+                    .font(.system(.footnote, design: .rounded).weight(.medium))
+                    .foregroundStyle(Color.softWhite.opacity(0.85))
+            }
+            .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
+            .frame(minHeight: 44)
         }
         .accessibilityIdentifier("sheetPrivacyRow")
     }
 
-    // MARK: Entry cards
+    // MARK: Profile & Settings (one merged Twinko-styled page)
 
-    @ViewBuilder
-    private func entryCard<Destination: View>(
-        _ title: String, subtitle: String, icon: String, tint: Color, identifier: String,
-        @ViewBuilder destination: () -> Destination
-    ) -> some View {
-        NavigationLink {
-            destination()
-        } label: {
-            HStack(spacing: TwinkoSpacing.m) {
-                Image(systemName: icon)
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(tint)
-                    .frame(width: 36, height: 36)
-                    .background(tint.opacity(0.14), in: Circle())
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
-                        .font(.twinkoHeadline)
-                        .foregroundStyle(Color.inkNavy)
-                    Text(subtitle)
-                        .font(.system(.caption, design: .rounded))
-                        .foregroundStyle(Color.inkNavy.opacity(0.55))
-                }
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(Color.inkNavy.opacity(0.35))
-            }
-            .padding(TwinkoSpacing.m)
-            .frame(minHeight: 62)
-            .dreamyCard()
-        }
-        .buttonStyle(.plain)
-        .accessibilityIdentifier(identifier)
-    }
-
-    // MARK: Profile detail (tappable cards — tap to edit directly)
-
-    private var profileDetail: some View {
-        ZStack {
-            DreamyBackground()
+    private var profileSettingsDetail: some View {
+        MyPlanetSubpage(title: lang == .english ? "Profile & Settings" : "個人資料與設定",
+                        backLabel: lang == .english ? "Back" : "返回",
+                        onBack: { showingProfileSettings = false; activeHub = nil }) {
             ScrollView {
                 VStack(spacing: TwinkoSpacing.m) {
-                    if let profile = profileStore.profile {
-                        let sign = ZodiacSign.from(date: profile.birthday)
+                    VStack(spacing: TwinkoSpacing.s) {
                         sectionHeader(lang == .english
                                       ? "About you — tap a card to edit"
                                       : "關於你——輕點卡片就能修改")
-                        LazyVGrid(columns: [GridItem(.flexible(), spacing: TwinkoSpacing.s),
-                                            GridItem(.flexible(), spacing: TwinkoSpacing.s)],
-                                  spacing: TwinkoSpacing.s) {
-                            profileCard(lang == .english ? "Name" : "稱呼",
-                                        profile.preferredName,
-                                        focus: .name, identifier: "profileCard-name")
-                            profileCard(lang == .english ? "Birthday" : "生日",
-                                        profile.birthday.formatted(
-                                            Date.FormatStyle(locale: prefs.locale).year().month().day()),
-                                        focus: .birthday, identifier: "profileCard-birthday")
-                            zodiacCard(sign)
-                            profileCard(lang == .english ? "Gender" : "性別",
-                                        profile.gender.displayName(for: lang),
-                                        focus: .gender, identifier: "profileCard-gender")
+                        if let profile = profileStore.profile {
+                            let sign = ZodiacSign.from(date: profile.birthday)
+                            LazyVGrid(columns: [GridItem(.flexible(), spacing: TwinkoSpacing.s),
+                                                GridItem(.flexible(), spacing: TwinkoSpacing.s)],
+                                      spacing: TwinkoSpacing.s) {
+                                profileCard(lang == .english ? "Name" : "稱呼",
+                                            profile.preferredName,
+                                            focus: .name, identifier: "profileCard-name")
+                                profileCard(lang == .english ? "Birthday" : "生日",
+                                            profile.birthday.formatted(
+                                                Date.FormatStyle(locale: prefs.locale).year().month().day()),
+                                            focus: .birthday, identifier: "profileCard-birthday")
+                                zodiacCard(sign)
+                                profileCard(lang == .english ? "Gender" : "性別",
+                                            profile.gender.displayName(for: lang),
+                                            focus: .gender, identifier: "profileCard-gender")
+                            }
+                        } else {
+                            Text(lang == .english ? "No local profile yet." : "還沒有本機資料。")
+                                .font(.twinkoBody)
+                                .foregroundStyle(Color.deepPlum.opacity(0.7))
+                                .frame(maxWidth: .infinity)
+                                .padding(TwinkoSpacing.m)
+                                .twinkoGlass(cornerRadius: 18, tint: 0.14)
                         }
-                    } else {
-                        Text(lang == .english ? "No local profile yet." : "還沒有本機資料。")
-                            .font(.twinkoBody)
-                            .foregroundStyle(Color.inkNavy.opacity(0.6))
                     }
+
+                    MyPlanetLanguageSection()
                 }
                 .padding(TwinkoSpacing.m)
             }
         }
-        .navigationTitle(HomeStrings.profile(lang))
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
+        .dockClearance()
         .onAppear { sheetHeight.fraction = 0.62 }
     }
 
@@ -339,20 +364,20 @@ struct MyPlanetContentView: View {
                 HStack(spacing: 4) {
                     Text(title)
                         .font(.twinkoCaption)
-                        .foregroundStyle(Color.cosmicPurple.opacity(0.65))
+                        .foregroundStyle(Color.deepPlum.opacity(0.6))
                     Image(systemName: "pencil")
                         .font(.system(size: 9, weight: .semibold))
                         .foregroundStyle(Color.warmOrange.opacity(0.85))
                 }
                 Text(value)
                     .font(.twinkoHeadline)
-                    .foregroundStyle(Color.inkNavy)
+                    .foregroundStyle(Color.deepPlum)
                     .multilineTextAlignment(.center)
                     .minimumScaleFactor(0.8)
             }
             .frame(maxWidth: .infinity, minHeight: 74)
             .padding(TwinkoSpacing.s)
-            .dreamyCard()
+            .twinkoGlass(cornerRadius: 18, tint: 0.14)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -365,29 +390,24 @@ struct MyPlanetContentView: View {
         VStack(spacing: 5) {
             Text(lang == .english ? "Zodiac (auto)" : "星座（自動）")
                 .font(.twinkoCaption)
-                .foregroundStyle(Color.cosmicPurple.opacity(0.65))
+                .foregroundStyle(Color.deepPlum.opacity(0.6))
             Text("\(sign.symbol) \(sign.displayName(for: lang))")
                 .font(.twinkoHeadline)
-                .foregroundStyle(Color.inkNavy)
+                .foregroundStyle(Color.deepPlum)
                 .minimumScaleFactor(0.8)
         }
         .frame(maxWidth: .infinity, minHeight: 74)
         .padding(TwinkoSpacing.s)
-        .dreamyCard()
+        .twinkoGlass(cornerRadius: 18, tint: 0.14)
         .accessibilityElement(children: .combine)
-    }
-
-    // MARK: Settings (Option B — designed, minimal)
-
-    private var settingsDetail: some View {
-        MyPlanetSettingsDetail()
     }
 
     // MARK: Privacy (sectioned reading experience)
 
     private var privacyDetail: some View {
-        ZStack {
-            DreamyBackground()
+        MyPlanetSubpage(title: HomeStrings.privacy(lang),
+                        backLabel: lang == .english ? "Back" : "返回",
+                        onBack: { showingPrivacy = false }) {
             ScrollView {
                 VStack(spacing: TwinkoSpacing.s) {
                     privacyRow(icon: "iphone",
@@ -406,7 +426,8 @@ struct MyPlanetContentView: View {
                          ? "This describes the prototype only; it is not a production privacy policy."
                          : "以上僅描述此原型的行為，不是正式產品的隱私權政策。")
                         .font(.twinkoCaption)
-                        .foregroundStyle(Color.inkNavy.opacity(0.55))
+                        .foregroundStyle(Color.softWhite.opacity(0.8))
+                        .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, TwinkoSpacing.s)
                         .padding(.top, 2)
@@ -414,9 +435,7 @@ struct MyPlanetContentView: View {
                 .padding(TwinkoSpacing.m)
             }
         }
-        .navigationTitle(HomeStrings.privacy(lang))
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
+        .dockClearance()
         .onAppear { sheetHeight.fraction = 0.58 }
     }
 
@@ -430,33 +449,34 @@ struct MyPlanetContentView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
                     .font(.twinkoHeadline)
-                    .foregroundStyle(Color.inkNavy)
+                    .foregroundStyle(Color.deepPlum)
                 Text(body)
                     .font(.system(.subheadline, design: .rounded))
-                    .foregroundStyle(Color.inkNavy.opacity(0.7))
+                    .foregroundStyle(Color.deepPlum.opacity(0.75))
                     .lineSpacing(3)
             }
             Spacer(minLength: 0)
         }
         .padding(TwinkoSpacing.m)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .dreamyCard()
+        .twinkoGlass(cornerRadius: 18, tint: 0.14)
         .accessibilityElement(children: .combine)
     }
 }
 
 // MARK: - Edit Profile
 
-/// Twinko-themed Edit Profile, entered by tapping a profile card.
-/// The tapped field receives focus; birthday uses a wheel picker so
-/// year, month, and day are adjustable in one coherent flow. Save
-/// persists and returns; Back never saves silently.
+/// Twinko-themed Edit Profile on the shared subpage scaffold: glass
+/// Back orb (with an unsaved-changes guard), a gold Save pill, and
+/// clear-glass field cards over the planet world. The tapped field
+/// receives focus; birthday uses a wheel picker so year, month, and
+/// day are adjustable in one coherent flow. Save persists and
+/// returns; Back never saves silently.
 struct EditProfileView: View {
     enum Focus { case name, birthday, gender }
 
     @EnvironmentObject private var profileStore: ProfileStore
     @EnvironmentObject private var prefs: PrefsStore
-    @EnvironmentObject private var sheetHeight: ProfileSheetHeight
     @Environment(\.dismiss) private var dismiss
 
     let initialFocus: Focus
@@ -490,98 +510,114 @@ struct EditProfileView: View {
     }
 
     var body: some View {
-        ZStack {
-            DreamyBackground()
-            ScrollViewReader { proxy in
-                ScrollView {
-                    VStack(spacing: TwinkoSpacing.m) {
-                        fieldCard(lang == .english ? "Name" : "稱呼") {
-                            VStack(alignment: .leading, spacing: 6) {
-                                TextField(lang == .english ? "Your name" : "你的名字或暱稱", text: $name)
-                                    .font(.twinkoBody)
-                                    .padding(10)
-                                    .background(Color.white.opacity(0.85),
-                                                in: RoundedRectangle(cornerRadius: 10))
-                                    .focused($nameFieldFocused)
-                                    .accessibilityIdentifier("editNameField")
-                                if !canSave {
-                                    Text(lang == .english ? "Name can't be empty" : "名字不能是空白喔")
-                                        .font(.twinkoCaption)
-                                        .foregroundStyle(Color.cheekOrange)
-                                }
+        MyPlanetSubpage(title: lang == .english ? "Edit Profile" : "編輯資料",
+                        backLabel: lang == .english ? "Back" : "返回",
+                        onBack: {
+                            if hasUnsavedChanges {
+                                showingDiscardDialog = true
+                            } else {
+                                dismiss()
                             }
-                        }
-                        .id(Focus.name)
-
-                        fieldCard(lang == .english ? "Birthday" : "生日") {
-                            // Wheel picker: year / month / day visible
-                            // and adjustable in one coherent flow — no
-                            // month-then-hunt-for-the-day calendar hops.
-                            DatePicker("", selection: $birthday, in: ...Date.now,
-                                       displayedComponents: .date)
-                                .datePickerStyle(.wheel)
-                                .labelsHidden()
-                                .frame(maxHeight: 148)
-                                .clipped()
-                                .environment(\.locale, prefs.locale)
-                                .tint(.brandPurpleDeep)
-                                .accessibilityIdentifier("editBirthdayPicker")
-                        }
-                        .id(Focus.birthday)
-
-                        fieldCard(lang == .english ? "Zodiac (auto)" : "星座（自動計算）") {
-                            let sign = ZodiacSign.from(date: birthday)
-                            Text("\(sign.symbol) \(sign.displayName(for: lang))")
-                                .font(.twinkoHeadline)
-                                .foregroundStyle(Color.inkNavy.opacity(0.75))
-                                .accessibilityIdentifier("editZodiacValue")
-                        }
-
-                        fieldCard(lang == .english ? "Gender" : "性別") {
-                            FlowHStack(spacing: TwinkoSpacing.s) {
-                                ForEach(Gender.allCases) { option in
-                                    let selected = gender == option
-                                    Button {
-                                        gender = option
-                                    } label: {
-                                        Text(option.displayName(for: lang))
-                                            .font(.twinkoBody)
-                                            .padding(.horizontal, 13)
-                                            .padding(.vertical, 8)
-                                            .frame(minHeight: 38)
-                                            .background(
-                                                selected ? AnyShapeStyle(
-                                                    LinearGradient(colors: [.twinkoGold, .warmOrange],
-                                                                   startPoint: .top, endPoint: .bottom))
-                                                         : AnyShapeStyle(Color.white.opacity(0.6)),
-                                                in: Capsule()
-                                            )
-                                            .foregroundStyle(selected ? .white : Color.inkNavy)
+                        },
+                        trailing: { saveButton }) {
+            ZStack(alignment: .top) {
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        VStack(spacing: TwinkoSpacing.m) {
+                            fieldCard(lang == .english ? "Name" : "稱呼") {
+                                VStack(alignment: .leading, spacing: 6) {
+                                    TextField(lang == .english ? "Your name" : "你的名字或暱稱", text: $name)
+                                        .font(.twinkoBody)
+                                        .foregroundStyle(Color.deepPlum)
+                                        .padding(10)
+                                        .background(Color.white.opacity(0.7),
+                                                    in: RoundedRectangle(cornerRadius: 10))
+                                        .overlay(RoundedRectangle(cornerRadius: 10)
+                                            .strokeBorder(Color(hex: 0xB9A8E8).opacity(0.5),
+                                                          lineWidth: 1))
+                                        .focused($nameFieldFocused)
+                                        .accessibilityIdentifier("editNameField")
+                                    if !canSave {
+                                        Text(lang == .english ? "Name can't be empty" : "名字不能是空白喔")
+                                            .font(.twinkoCaption)
+                                            .foregroundStyle(Color.cheekOrange)
                                     }
-                                    .accessibilityAddTraits(selected ? [.isSelected] : [])
                                 }
                             }
-                        }
-                        .id(Focus.gender)
-                    }
-                    .padding(TwinkoSpacing.m)
-                    .padding(.bottom, TwinkoSpacing.xl)
-                }
-                .onAppear {
-                    // Land on the tapped field.
-                    switch initialFocus {
-                    case .name:
-                        nameFieldFocused = false
-                    case .birthday, .gender:
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                            withAnimation { proxy.scrollTo(initialFocus, anchor: .top) }
-                        }
-                    }
-                }
-            }
+                            .id(Focus.name)
 
-            if showingSavedToast {
-                VStack {
+                            fieldCard(lang == .english ? "Birthday" : "生日") {
+                                // Wheel picker: year / month / day visible
+                                // and adjustable in one coherent flow — no
+                                // month-then-hunt-for-the-day calendar hops.
+                                DatePicker("", selection: $birthday, in: ...Date.now,
+                                           displayedComponents: .date)
+                                    .datePickerStyle(.wheel)
+                                    .labelsHidden()
+                                    .frame(maxHeight: 148)
+                                    .clipped()
+                                    .environment(\.locale, prefs.locale)
+                                    .tint(.brandPurpleDeep)
+                                    .accessibilityIdentifier("editBirthdayPicker")
+                            }
+                            .id(Focus.birthday)
+
+                            fieldCard(lang == .english ? "Zodiac (auto)" : "星座（自動計算）") {
+                                let sign = ZodiacSign.from(date: birthday)
+                                Text("\(sign.symbol) \(sign.displayName(for: lang))")
+                                    .font(.twinkoHeadline)
+                                    .foregroundStyle(Color.deepPlum.opacity(0.8))
+                                    .accessibilityIdentifier("editZodiacValue")
+                            }
+
+                            fieldCard(lang == .english ? "Gender" : "性別") {
+                                FlowHStack(spacing: TwinkoSpacing.s) {
+                                    ForEach(Gender.allCases) { option in
+                                        let selected = gender == option
+                                        Button {
+                                            gender = option
+                                        } label: {
+                                            Text(option.displayName(for: lang))
+                                                .font(.twinkoBody)
+                                                .padding(.horizontal, 13)
+                                                .padding(.vertical, 8)
+                                                .frame(minHeight: 38)
+                                                .background(
+                                                    selected ? AnyShapeStyle(
+                                                        LinearGradient(colors: [.twinkoGold, .warmOrange],
+                                                                       startPoint: .top, endPoint: .bottom))
+                                                             : AnyShapeStyle(Color.white.opacity(0.55)),
+                                                    in: Capsule()
+                                                )
+                                                .overlay(Capsule().strokeBorder(
+                                                    selected ? Color.white.opacity(0.6)
+                                                             : Color(hex: 0xB9A8E8).opacity(0.5),
+                                                    lineWidth: 1))
+                                                .foregroundStyle(selected ? .white : Color.deepPlum)
+                                        }
+                                        .accessibilityAddTraits(selected ? [.isSelected] : [])
+                                    }
+                                }
+                            }
+                            .id(Focus.gender)
+                        }
+                        .padding(TwinkoSpacing.m)
+                        .padding(.bottom, TwinkoSpacing.xl)
+                    }
+                    .onAppear {
+                        // Land on the tapped field.
+                        switch initialFocus {
+                        case .name:
+                            nameFieldFocused = false
+                        case .birthday, .gender:
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                                withAnimation { proxy.scrollTo(initialFocus, anchor: .top) }
+                            }
+                        }
+                    }
+                }
+
+                if showingSavedToast {
                     Text(lang == .english ? "Saved" : "已儲存")
                         .font(.twinkoHeadline)
                         .foregroundStyle(.white)
@@ -590,41 +626,9 @@ struct EditProfileView: View {
                         .background(Color.cosmicPurple.opacity(0.92), in: Capsule())
                         .shadow(color: .black.opacity(0.2), radius: 6, y: 2)
                         .accessibilityIdentifier("savedToast")
-                    Spacer()
+                        .padding(.top, TwinkoSpacing.s)
+                        .transition(.move(edge: .top).combined(with: .opacity))
                 }
-                .padding(.top, TwinkoSpacing.m)
-                .transition(.move(edge: .top).combined(with: .opacity))
-            }
-        }
-        .navigationTitle(lang == .english ? "Edit Profile" : "編輯資料")
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
-        .toolbarBackground(.hidden, for: .navigationBar)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    if hasUnsavedChanges {
-                        showingDiscardDialog = true
-                    } else {
-                        dismiss()
-                    }
-                } label: {
-                    Image(systemName: "chevron.backward")
-                        .foregroundStyle(Color.cosmicPurple)
-                }
-                .accessibilityLabel(Text(lang == .english ? "Back" : "返回"))
-                .accessibilityIdentifier("editBackButton")
-            }
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    save()
-                } label: {
-                    Text(lang == .english ? "Save" : "儲存")
-                        .font(.twinkoHeadline)
-                        .foregroundStyle(canSave ? Color.warmOrange : Color.inkNavy.opacity(0.3))
-                }
-                .disabled(!canSave)
-                .accessibilityIdentifier("editSaveButton")
             }
         }
         .confirmationDialog(
@@ -640,7 +644,6 @@ struct EditProfileView: View {
         .scrollDismissesKeyboard(.interactively)
         .interactiveDismissDisabled(hasUnsavedChanges)
         .onAppear {
-            sheetHeight.fraction = 0.85
             guard !loaded else { return }
             loaded = true
             if let profile = profileStore.profile {
@@ -649,6 +652,34 @@ struct EditProfileView: View {
                 gender = profile.gender
             }
         }
+    }
+
+    /// Gold Save pill — the page's single primary action, floating in
+    /// the header instead of a system toolbar item.
+    private var saveButton: some View {
+        Button {
+            save()
+        } label: {
+            Text(lang == .english ? "Save" : "儲存")
+                .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                .foregroundStyle(canSave ? .white : Color.deepPlum.opacity(0.4))
+                .padding(.horizontal, 14)
+                .frame(minHeight: 34)
+                .background(
+                    canSave
+                        ? AnyShapeStyle(LinearGradient(colors: [.twinkoGold, .warmOrange],
+                                                       startPoint: .top, endPoint: .bottom))
+                        : AnyShapeStyle(Color.white.opacity(0.4)),
+                    in: Capsule())
+                .overlay(Capsule().strokeBorder(
+                    canSave ? Color.white.opacity(0.6)
+                            : Color(hex: 0xB9A8E8).opacity(0.4),
+                    lineWidth: 1))
+                .shadow(color: canSave ? Color.warmOrange.opacity(0.35) : .clear,
+                        radius: 4, y: 2)
+        }
+        .disabled(!canSave)
+        .accessibilityIdentifier("editSaveButton")
     }
 
     private func save() {
@@ -673,79 +704,85 @@ struct EditProfileView: View {
         }
         .padding(TwinkoSpacing.m)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .dreamyCard()
+        .twinkoGlass(cornerRadius: 18, tint: 0.14)
     }
 }
 
-// MARK: - Settings detail (shared by My Planet and the Home gear)
+// MARK: - Language section (shared by the merged page and Home gear)
 
-struct MyPlanetSettingsDetail: View {
+struct MyPlanetLanguageSection: View {
     @EnvironmentObject private var prefs: PrefsStore
 
     private var lang: AppLanguage { prefs.language }
 
     var body: some View {
-        ZStack {
-            DreamyBackground()
-            ScrollView {
-                VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
-                    sectionHeader(HomeStrings.language(lang))
-                    ForEach(AppLanguage.allCases) { option in
-                        let selected = prefs.language == option
-                        Button {
-                            prefs.language = option
-                        } label: {
-                            HStack(spacing: TwinkoSpacing.m) {
-                                Text(option == .traditionalChinese ? "繁" : "EN")
-                                    .font(.system(size: 14, weight: .bold, design: .rounded))
-                                    .foregroundStyle(selected ? .white : Color.brandPurpleDeep)
-                                    .frame(width: 36, height: 36)
-                                    .background(
-                                        selected
-                                            ? AnyShapeStyle(LinearGradient(
-                                                colors: [.brandPurple, .brandPurpleDeep],
-                                                startPoint: .top, endPoint: .bottom))
-                                            : AnyShapeStyle(Color.brandPurple.opacity(0.14)),
-                                        in: Circle())
-                                Text(option.displayName)
-                                    .font(.twinkoHeadline)
-                                    .foregroundStyle(Color.inkNavy)
-                                Spacer()
-                                Image(systemName: selected ? "checkmark.circle.fill" : "circle")
-                                    .font(.system(size: 20))
-                                    .foregroundStyle(selected
-                                                     ? Color.brandPurpleDeep
-                                                     : Color.inkNavy.opacity(0.2))
-                            }
-                            .padding(TwinkoSpacing.m)
-                            .frame(minHeight: 60)
-                            .dreamyCard()
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 18)
-                                    .strokeBorder(selected ? Color.brandPurple.opacity(0.6)
-                                                           : Color.clear,
-                                                  lineWidth: 1.5)
-                            )
-                        }
-                        .accessibilityIdentifier("language-\(option.rawValue)")
-                        .accessibilityAddTraits(prefs.language == option ? [.isSelected] : [])
+        VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
+            sectionHeader(HomeStrings.language(lang))
+            ForEach(AppLanguage.allCases) { option in
+                let selected = prefs.language == option
+                Button {
+                    prefs.language = option
+                } label: {
+                    HStack(spacing: TwinkoSpacing.m) {
+                        Text(option == .traditionalChinese ? "繁" : "EN")
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .foregroundStyle(selected ? .white : Color.brandPurpleDeep)
+                            .frame(width: 36, height: 36)
+                            .background(
+                                selected
+                                    ? AnyShapeStyle(LinearGradient(
+                                        colors: [.brandPurple, .brandPurpleDeep],
+                                        startPoint: .top, endPoint: .bottom))
+                                    : AnyShapeStyle(Color.brandPurple.opacity(0.14)),
+                                in: Circle())
+                        Text(option.displayName)
+                            .font(.twinkoHeadline)
+                            .foregroundStyle(Color.deepPlum)
+                        Spacer()
+                        Image(systemName: selected ? "checkmark.circle.fill" : "circle")
+                            .font(.system(size: 20))
+                            .foregroundStyle(selected
+                                             ? Color.brandPurpleDeep
+                                             : Color.deepPlum.opacity(0.25))
                     }
+                    .padding(TwinkoSpacing.m)
+                    .frame(minHeight: 60)
+                    .twinkoGlass(cornerRadius: 18, tint: selected ? 0.18 : 0.12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 18)
+                            .strokeBorder(selected ? Color.brandPurple.opacity(0.6)
+                                                   : Color.clear,
+                                          lineWidth: 1.5)
+                    )
                 }
-                .padding(TwinkoSpacing.m)
+                .accessibilityIdentifier("language-\(option.rawValue)")
+                .accessibilityAddTraits(prefs.language == option ? [.isSelected] : [])
             }
         }
-        .navigationTitle(HomeStrings.settings(lang))
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
     }
 }
 
 /// Direct Settings sheet for the Home top-right gear — a different
 /// destination from the My Planet tab.
 struct SettingsSheetView: View {
+    @EnvironmentObject private var prefs: PrefsStore
+
     var body: some View {
-        NavigationStack {
-            MyPlanetSettingsDetail()
+        ZStack {
+            TwinkoFullScreenBackground(imageName: TwinkoBackgrounds.myPlanetResolved,
+                                       topOpacity: 0.20, bottomOpacity: 0.32)
+            ScrollView {
+                VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
+                    Text(HomeStrings.settings(prefs.language))
+                        .font(.system(.headline, design: .rounded))
+                        .foregroundStyle(Color.softWhite)
+                        .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, TwinkoSpacing.m)
+                    MyPlanetLanguageSection()
+                }
+                .padding(TwinkoSpacing.m)
+            }
         }
         .presentationDetents([.fraction(0.55)])
         .presentationCornerRadius(28)
@@ -763,13 +800,18 @@ struct SettingsSheetView: View {
 
 // MARK: - My Planet hubs (companion-universe redesign 2026-07-17)
 
-/// The six personal stations on My Planet. Profile and Settings route
-/// to their existing destinations; the record hubs show honest
-/// coming-soon stations until their features are implemented.
+/// The personal stations on My Planet. The four record hubs form the
+/// 2×2 collection grid (honest coming-soon stations until their
+/// features are implemented); Profile and Settings remain as cases for
+/// routing but present as one merged utility card.
 enum MyPlanetHub: String, CaseIterable, Identifiable, Hashable {
     case journal, meditationHistory, tarotHistory, savedCards, profile, settings
 
     var id: String { rawValue }
+
+    /// The 2×2 record collection shown on the landing grid.
+    static let records: [MyPlanetHub] = [.journal, .meditationHistory,
+                                         .tarotHistory, .savedCards]
 
     var identifier: String {
         switch self {
@@ -803,7 +845,7 @@ enum MyPlanetHub: String, CaseIterable, Identifiable, Hashable {
 
     var tint: Color {
         switch self {
-        case .journal: return Color(hex: 0x4FA3A0)           // teal-lilac memory
+        case .journal: return Color(hex: 0x8F7BD8)           // violet memory
         case .meditationHistory: return Color(hex: 0x5D7BC8) // calm blue-lilac
         case .tarotHistory: return Color(hex: 0x6B4BA8)      // plum oracle
         case .savedCards: return Color(hex: 0x4E5FB8)        // violet-blue vault

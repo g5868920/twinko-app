@@ -2214,6 +2214,166 @@ final class TwinkoUITests: XCTestCase {
         attach(name: "P5-tarot-result-surfaces")
     }
 
+    /// Phase 1 focused pre-reading walkthrough (dev-gated flow behind
+    /// `-tarotPreReadingV2`): primary Core Clarity path + Change Spread
+    /// + Setup Review + draft preservation, then the bounded Two-Choice
+    /// validation spot check. Ends at the review — never enters
+    /// shuffle, draw, reveal, or result.
+    func testTarotPreReadingWalkthrough() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile", "-tarotPreReadingV2"]
+        app.launch()
+
+        // Enter Tarot from Explore.
+        XCTAssertTrue(app.descendants(matching: .any)["mood-calm"]
+            .waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 2.0)
+        app.buttons["tab-explore"].tap()
+        XCTAssertTrue(app.staticTexts["探索宇宙"].waitForExistence(timeout: 5))
+        settleTap(app.descendants(matching: .any)["explore-tarot"])
+
+        // Intent landing: seven entries, no ten-spread directory.
+        XCTAssertTrue(app.staticTexts["這次想從哪個角度看看？"].waitForExistence(timeout: 6))
+        for intent in ["quickReflection", "understandProgression", "missingPerspective",
+                       "nextStepOrDirection", "understandMyself", "compareTwoChoices",
+                       "romanticRelationship"] {
+            XCTAssertTrue(app.descendants(matching: .any)["tarotIntent-\(intent)"].exists,
+                          intent)
+        }
+        attach(name: "T1-intent-landing")
+
+        // Refinement: exactly the three next-step options.
+        settleTap(app.descendants(matching: .any)["tarotIntent-nextStepOrDirection"])
+        XCTAssertTrue(app.descendants(matching: .any)["tarotRefinement-understandWhyStuck"]
+            .waitForExistence(timeout: 4))
+        XCTAssertTrue(app.descendants(matching: .any)["tarotRefinement-practicalNextAction"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["tarotRefinement-knownDirectionUnknownPath"].exists)
+        attach(name: "T2-refinement")
+
+        // Feeling stuck → Core Clarity recommended setup.
+        settleTap(app.descendants(matching: .any)["tarotRefinement-understandWhyStuck"])
+        XCTAssertTrue(app.staticTexts["直指核心"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.descendants(matching: .any)["tarotSuggestsBadge"].exists,
+                      "Twinko Suggests badge (not embedded in the title)")
+        XCTAssertTrue(app.staticTexts["4 張牌"].exists, "Supporting card count")
+        XCTAssertTrue(app.descendants(matching: .any)["tarotSpreadPreview-coreClarityFour"].exists,
+                      "Four-position preview")
+        XCTAssertTrue(app.staticTexts["你想看清哪個問題的核心與突破方向？"].exists,
+                      "Spread-specific question guidance")
+        attach(name: "T3-core-clarity-setup")
+
+        // Example prefills (never submits); the draft keeps the text.
+        settleTap(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "真正卡住的地方是什麼")).firstMatch)
+        let questionField = app.descendants(matching: .any)["tarotPreQuestionField"].firstMatch
+        XCTAssertTrue(((questionField.value as? String) ?? "").contains("卡住"),
+                      "Example prefilled the question")
+
+        // Change Spread: grouped selector, switch to Timeline.
+        scrollTap(app.descendants(matching: .any)["tarotChangeSpreadButton"], in: app)
+        XCTAssertTrue(app.staticTexts["三張牌視角"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["快速反思"].exists)
+        XCTAssertTrue(app.staticTexts["深入反思"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["tarotSpreadOption-relationshipFive"].exists)
+        XCTAssertTrue(app.staticTexts["感情限定"].exists, "Romantic-domain caption")
+        settleTap(app.descendants(matching: .any)["tarotSpreadOption-timelineThree"])
+
+        // Setup updated; manual choice is not mislabeled as recommended.
+        XCTAssertTrue(app.staticTexts["事情的發展脈絡"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["你想了解哪件事的發展脈絡？"].exists,
+                      "Guidance updated with the spread")
+        XCTAssertFalse(app.descendants(matching: .any)["tarotSuggestsBadge"].exists,
+                       "Manual selection is not labeled as the recommendation")
+        XCTAssertTrue(((questionField.value as? String) ?? "").contains("卡住"),
+                      "Compatible general question preserved across Change Spread")
+
+        // Return to Core Clarity; the same draft continues.
+        scrollTap(app.descendants(matching: .any)["tarotChangeSpreadButton"], in: app)
+        XCTAssertTrue(app.descendants(matching: .any)["tarotSpreadOption-coreClarityFour"]
+            .waitForExistence(timeout: 5))
+        settleTap(app.descendants(matching: .any)["tarotSpreadOption-coreClarityFour"])
+        XCTAssertTrue(app.staticTexts["直指核心"].waitForExistence(timeout: 5))
+        XCTAssertTrue(((questionField.value as? String) ?? "").contains("卡住"))
+
+        // Setup Review: complete summary; Edit Question keeps the draft.
+        scrollTap(app.descendants(matching: .any)["tarotSetupContinue"], in: app)
+        XCTAssertTrue(app.descendants(matching: .any)["tarotReviewTitle"]
+            .waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["直指核心"].exists)
+        XCTAssertTrue(app.staticTexts["牌位意義"].exists)
+        XCTAssertTrue(app.staticTexts["問題核心"].exists
+                      && app.staticTexts["可運用的優勢"].exists,
+                      "Ordered position meanings on review")
+        scrollTap(app.descendants(matching: .any)["tarotReviewEditQuestion"], in: app)
+        XCTAssertTrue(app.descendants(matching: .any)["tarotSetupContinue"]
+            .waitForExistence(timeout: 5), "Edit Question returns to setup")
+        XCTAssertTrue(((questionField.value as? String) ?? "").contains("卡住"),
+                      "Draft survives Edit Question")
+
+        // --- Bounded Two-Choice spot check (§35D). Back to intents.
+        settleTap(app.descendants(matching: .any)["tarotPreBackButton"])
+        XCTAssertTrue(app.staticTexts["這次想從哪個角度看看？"].waitForExistence(timeout: 5))
+        settleTap(app.descendants(matching: .any)["tarotIntent-compareTwoChoices"])
+        XCTAssertTrue(app.staticTexts["二選一抉擇"].waitForExistence(timeout: 5))
+
+        settleTap(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "我正在比較兩個工作選擇")).firstMatch)
+        let optionA = app.textFields["tarotOptionAField"]
+        scrollTap(optionA, in: app)
+        optionA.typeText("留在目前公司\n") // return dismisses the keyboard
+
+        // Empty Option B blocks continuation with inline validation.
+        scrollTap(app.descendants(matching: .any)["tarotSetupContinue"], in: app)
+        XCTAssertTrue(app.staticTexts["選項 B 不能是空白"].waitForExistence(timeout: 4),
+                      "Inline validation, no native alert")
+        XCTAssertFalse(app.descendants(matching: .any)["tarotReviewTitle"].exists,
+                       "Continuation blocked while Option B is empty")
+
+        let optionB = app.textFields["tarotOptionBField"]
+        scrollTap(optionB, in: app)
+        optionB.typeText("接受新的工作邀請\n")
+        scrollTap(app.descendants(matching: .any)["tarotSetupContinue"], in: app)
+        XCTAssertTrue(app.descendants(matching: .any)["tarotReviewTitle"]
+            .waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["留在目前公司"].exists
+                      && app.staticTexts["接受新的工作邀請"].exists,
+                      "A/B values shown on review")
+        attach(name: "T4-two-choice-review")
+        // Stop here: no Begin Reading, no draw (Phase 1 boundary).
+    }
+
+    /// Second-locale spot check (§35F): landing, one recommended
+    /// setup, and the Change Spread sheet in English — assertions only,
+    /// no repeated flow or validation checks.
+    func testTarotPreReadingEnglishSpotCheck() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile",
+                               "-uiTestEnglish", "-tarotPreReadingV2"]
+        app.launch()
+
+        XCTAssertTrue(app.descendants(matching: .any)["mood-calm"]
+            .waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 2.0)
+        app.buttons["tab-explore"].tap()
+        Thread.sleep(forTimeInterval: 1.0)
+        settleTap(app.descendants(matching: .any)["explore-tarot"])
+
+        XCTAssertTrue(app.staticTexts["What would you like clarity on?"]
+            .waitForExistence(timeout: 6))
+        XCTAssertTrue(app.staticTexts["Find a next step or direction"].exists)
+
+        settleTap(app.descendants(matching: .any)["tarotIntent-quickReflection"])
+        XCTAssertTrue(app.staticTexts["One-Card Reflection"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["1 card"].exists)
+        XCTAssertTrue(app.staticTexts["Twinko Suggests"].exists)
+        XCTAssertTrue(app.staticTexts["What would you like a little clarity on right now?"].exists)
+
+        scrollTap(app.descendants(matching: .any)["tarotChangeSpreadButton"], in: app)
+        XCTAssertTrue(app.staticTexts["Three-Card Perspectives"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Romantic relationships"].exists)
+        XCTAssertTrue(app.staticTexts["Two-Choice Reflection"].exists)
+    }
+
     /// Waits out any in-flight transition, then taps via coordinate —
     /// coordinate taps skip the AX scroll-to-visible action that fails
     /// on animating elements.

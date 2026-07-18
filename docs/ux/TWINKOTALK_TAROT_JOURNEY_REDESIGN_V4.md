@@ -394,3 +394,113 @@ backs), exit-modal copy. Four screenshots (W1–W4). One-card flow
 shares the same session-state path (verified by code inspection + the
 unit test). Export logic, Meditation handoff, and interpretation
 generation untouched.
+
+---
+
+## 15. Phase 1 — Canonical spread library + intent-first pre-reading (2026-07-19)
+
+**Status:** Implemented, **not publicly activated** (development-gated).
+**Canonical product source:** `docs/features/tarot/TWINKOTALK_TAROT_USAGE_SPEC.md`
+(v2.0) — product logic, copy, and future draw/result/premium contracts live
+there; this section records only what Phase 1 implemented and its boundary.
+
+### 15.1 Implementation boundary
+
+Phase 1 delivers the complete pre-reading experience up to a validated launch
+boundary and intentionally stops there. Not implemented (deferred): generalized
+draw (Task 2), 4-/5-card drawing (Task 2), reveal/result generalization and
+position-aware interpretation (Task 2), Guidance Card generalization (Task 2),
+Daily Tarot entry/limits/persistence (Task 3), Chat/Home contextual handoffs
+(Task 3), reading history, premium/periodic spreads (`weeklyGuidanceSeven`,
+`monthlyGuidanceFour`, `yearlyGuidanceTwelve`, `celticCrossTen` remain
+spec-only and are absent from all MVP UI and the active library).
+
+### 15.2 Canonical spread model (`TarotSpreadLibrary.swift`)
+
+One centralized source defines the ten MVP spreads:
+
+| `TarotSpreadID` | Cards | Ordered `TarotPositionID`s | Input kind | Layout kind |
+|---|---|---|---|---|
+| `singleCard` | 1 | momentMessage | generalQuestion | single |
+| `timelineThree` | 3 | past · present · possibleDirection | generalQuestion | threeLinear |
+| `actionDirectionThree` | 3 | currentSituation · availableAction · possibleDirection | generalQuestion | threeLinear |
+| `blindSpotThree` | 3 | currentUnderstanding · unseenPerspective · possibleReframe | generalQuestion | threeLinear |
+| `holisticCheckInThree` | 3 | bodySignal · thoughtsFeelings · innerCare | generalQuestion | threeLinear |
+| `thinkFeelActThree` | 3 | whatIThink · whatIFeel · howIRespond | generalQuestion | threeLinear |
+| `directionPathThree` | 3 | whereIAmNow · whereIWantToGo · howIMoveCloser | generalQuestion | threeLinear |
+| `coreClarityFour` | 4 | coreIssue · currentObstacle · possibleApproach · availableStrength | generalQuestion | fourGrid |
+| `twoChoiceFive` | 5 | optionAState · optionBState · optionADirection · optionBDirection · yourCurrentState | twoChoice | twoChoiceFive |
+| `relationshipFive` | 5 | myState · myFeelingsAttitude · theirPresentedState · theirPresentedAttitude · relationshipDirection | relationship | relationshipFive |
+
+All display copy (titles, purposes, recommendation reasons, position labels,
+abbreviated preview labels, guidance, placeholders, examples, card-count
+labels) localizes through functions; identifiers are never translated strings.
+`supportsGuidanceCard` is recorded (`true` for all ten) but Guidance Card
+behavior is untouched. `holisticCheckInThree` is the reserved future Daily
+Tarot Check-in spread — no duplicate identifier, no Daily routing.
+
+### 15.3 Intent-first flow (`TarotPreReadingFlow.swift`)
+
+`Intent Selection → (inline refinement when needed) → Recommended Spread Setup
+→ Setup Review → launch boundary`. Seven landing intents (`TarotIntent`), with
+deterministic mapping: quickReflection→singleCard;
+understandProgression→timelineThree; missingPerspective→blindSpotThree;
+compareTwoChoices→twoChoiceFive; romanticRelationship→relationshipFive;
+nextStepOrDirection refines to practicalNextAction→actionDirectionThree /
+understandWhyStuck→coreClarityFour /
+knownDirectionUnknownPath→directionPathThree; understandMyself refines to
+wholePersonCheckIn→holisticCheckInThree /
+specificSituationReflection→thinkFeelActThree. No LLM, no free-text
+classification, no randomness. Card count is supporting information only.
+
+- **Recommended Spread Setup:** small `Twinko 建議` / `Twinko Suggests` badge
+  (never in the title), title, one-sentence reason, short purpose, card count,
+  compact position preview (five layout kinds built from the canonical card
+  back), spread-specific guidance/placeholder, required inputs, ≤3 selectable
+  examples (prefill only, never submit), `更換牌陣`, primary continue.
+- **Change Spread:** branded sheet, three groups (快速反思 / 三張牌視角 /
+  深入反思), each row shows title + purpose + card count + selected state;
+  `relationshipFive` carries the 感情限定 / Romantic relationships caption.
+  Changing mutates the same draft, preserves compatible general-question text,
+  keeps structured values attached to the draft (incompatible fields are not
+  rendered), never auto-starts, and a manual choice replaces the
+  recommendation badge with a quiet 自選牌陣 / Your choice caption.
+- **Inputs:** general spreads keep the existing optional multiline question;
+  `twoChoiceFive` requires decision context + Option A + Option B (trimmed,
+  inline field-level validation, no alerts, nothing invented);
+  `relationshipFive` requires the relationship question, with an optional
+  non-identifying person label (感情限定 copy, no hidden-mind claims).
+- **Setup Review:** question/context (+A/B or person label where relevant),
+  spread title, purpose, card count, ordered position meanings, 修改問題,
+  更換牌陣, and the explicit `開始抽牌` / `Begin Reading` CTA, which
+  revalidates and produces one canonical `TarotReadingLaunchRequest(draft:)`.
+  No cards, orientations, reveal, or result state are created anywhere in
+  pre-reading.
+
+### 15.4 Draft ownership and launch boundary
+
+`TarotReadingDraft` (id, recommended vs selected spread ID, intent,
+refinement, question, decisionContext, optionA/B, relationshipPersonLabel,
+phase) is owned solely by `TarotPreReadingFlowView`; every screen mutates the
+same draft, so input survives Back navigation and Change Spread. Phases:
+intentSelection → spreadSetup → setupReview → readyToLaunch.
+
+**Public activation status:** the live reading engine accepts only
+`TarotSpreadType` (1/3 cards with past/present/future result semantics), so no
+safe seam exists that could launch the ten new spread IDs without changing
+draw/reveal/result behavior. The public Tarot entry therefore still runs the
+proven v4 flow (§1–§14) unchanged; the Phase 1 flow activates only through the
+existing launch-argument development mechanism (`-tarotPreReadingV2`, same
+family as the `-uiTest…` hooks). Task 2 connects the launch request to a
+generalized engine and activates the flow publicly.
+
+### 15.5 Validation (strictly minimal, per instruction §35)
+
+One `build-for-testing` build; unit test `TarotPreReadingTests` (definitions /
+mappings / draft validation); one focused Simulator walkthrough
+(`testTarotPreReadingWalkthrough`: Explore → 找出下一步與方向 → 卡住原因 →
+Core Clarity setup → example prefill → Change Spread to Timeline and back →
+review → Edit Question draft check → bounded Two-Choice validation spot
+check, 4 screenshots T1–T4) plus `testTarotPreReadingEnglishSpotCheck`
+(landing + one setup + Change Spread sheet in English). Results recorded in
+the task report.

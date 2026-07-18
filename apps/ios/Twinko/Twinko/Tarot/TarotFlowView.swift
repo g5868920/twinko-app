@@ -36,6 +36,18 @@ struct TarotFlowView: View {
     }
 
     var body: some View {
+        // Phase 1 (2026-07-19): the intent-first pre-reading flow is
+        // development-gated (`-tarotPreReadingV2`) because the live
+        // engine cannot yet safely draw 4/5-card spreads; the public
+        // entry keeps this proven flow untouched until Task 2.
+        if TarotPreReadingFlowView.isDevEntryEnabled {
+            TarotPreReadingFlowView()
+        } else {
+            legacyFlow
+        }
+    }
+
+    private var legacyFlow: some View {
         ZStack {
             VStack(spacing: 0) {
                 header

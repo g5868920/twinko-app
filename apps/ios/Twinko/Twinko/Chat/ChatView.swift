@@ -79,8 +79,14 @@ struct ChatView: View {
                 composer
             }
 
+            // Scrim and panel are separate insertion roots so the
+            // panel can grow out of the star orb (scale from its
+            // top-trailing anchor) while the scrim simply fades.
             if showingQuickMenu {
-                quickMenu
+                quickMenuScrim
+            }
+            if showingQuickMenu {
+                quickMenuPanel
             }
         }
         .background {
@@ -427,6 +433,29 @@ struct ChatView: View {
             .onAppear { scrollToBottom(proxy) }
             .defaultScrollAnchor(.bottom)
             .scrollDismissesKeyboard(.interactively)
+            // A small Twinko quietly keeps the user company at the top
+            // of the conversation (founder request 2026-07-18) — softly
+            // floating, decorative only, never blocking touches.
+            .safeAreaInset(edge: .top, spacing: 0) {
+                ZStack {
+                    Circle()
+                        .fill(Color(red: 1.0, green: 0.97, blue: 0.88))
+                        .frame(width: 72, height: 72)
+                        .blur(radius: 14)
+                        .opacity(0.30)
+                    Image(twinkoAsset)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 54, height: 54)
+                        .offset(y: reduceMotion ? 0 : (floating ? -2 : 2))
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.top, 2)
+                .padding(.bottom, 4)
+                .opacity(0.95)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+            }
         }
     }
 
@@ -467,16 +496,30 @@ struct ChatView: View {
         }
     }
 
+    /// Warm translucent speech glass (chat-room glass pass 2026-07-18):
+    /// the pastel sky bleeds gently through instead of an opaque white
+    /// sticker — warm-ivory gradient, a top catch-light, and a soft
+    /// lilac rim, same material logic as the Tarot reading cards.
     private func twinkoBubble<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         content()
             .font(.system(.body, design: .rounded))
             .foregroundStyle(Color.textPrimaryToken)
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
-            .background(Color.twinkoBubble, in: RoundedRectangle(cornerRadius: 22))
+            .background(
+                LinearGradient(colors: [Color(hex: 0xFFFBF6), Color(hex: 0xF7F0F8)],
+                               startPoint: .top, endPoint: .bottom)
+                    .opacity(0.78),
+                in: RoundedRectangle(cornerRadius: 22)
+            )
             .overlay(
                 RoundedRectangle(cornerRadius: 22)
-                    .strokeBorder(Color.twinkoBubbleBorder, lineWidth: 1)
+                    .strokeBorder(
+                        LinearGradient(stops: [
+                            .init(color: .white.opacity(0.85), location: 0),
+                            .init(color: Color.twinkoBubbleBorder.opacity(0.75), location: 1),
+                        ], startPoint: .top, endPoint: .bottom),
+                        lineWidth: 1)
             )
             .shadow(color: Color(red: 0.06, green: 0.07, blue: 0.15).opacity(0.08),
                     radius: 8, y: 2)
@@ -528,14 +571,28 @@ struct ChatView: View {
                 meditationContext = viewModel.acceptMeditationOffer(lang: lang)
                 goToMeditation = true
             } label: {
+                // Same premium purple family as the send control: top
+                // catch-light + warm inner border + soft purple shadow.
                 Text(ChatStrings.meditationConfirmAccept(lang))
                     .font(.system(.subheadline, design: .rounded).weight(.semibold))
                     .foregroundStyle(Color.textInverseToken)
                     .frame(maxWidth: .infinity, minHeight: 44)
                     .background(
-                        LinearGradient(colors: [.brandPurple, .brandPurpleDeep],
+                        LinearGradient(colors: [.brandPurple, Color(hex: 0x6A53C4)],
                                        startPoint: .top, endPoint: .bottom),
                         in: RoundedRectangle(cornerRadius: 22))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 22)
+                            .fill(LinearGradient(stops: [
+                                .init(color: .white.opacity(0.28), location: 0),
+                                .init(color: .white.opacity(0), location: 0.45),
+                            ], startPoint: .top, endPoint: .bottom))
+                            .padding(2)
+                            .allowsHitTesting(false)
+                    )
+                    .overlay(RoundedRectangle(cornerRadius: 22)
+                        .strokeBorder(Color(hex: 0xFFF3D6).opacity(0.55), lineWidth: 1))
+                    .shadow(color: Color.brandPurpleDeep.opacity(0.35), radius: 6, y: 2)
             }
             .accessibilityIdentifier("chatMeditationAccept")
             Button {
@@ -551,10 +608,19 @@ struct ChatView: View {
             .accessibilityIdentifier("chatMeditationDecline")
         }
         .padding(TwinkoSpacing.m)
-        .background(Color.surfacePrimary.opacity(0.96),
-                    in: RoundedRectangle(cornerRadius: 20))
+        // Warm speech glass, one material with the bubbles around it.
+        .background(
+            LinearGradient(colors: [Color(hex: 0xFFFBF6), Color(hex: 0xF7F0F8)],
+                           startPoint: .top, endPoint: .bottom)
+                .opacity(0.82),
+            in: RoundedRectangle(cornerRadius: 20))
         .overlay(RoundedRectangle(cornerRadius: 20)
-            .strokeBorder(Color.borderSoft, lineWidth: 1))
+            .strokeBorder(
+                LinearGradient(stops: [
+                    .init(color: .white.opacity(0.85), location: 0),
+                    .init(color: Color.borderSoft.opacity(0.8), location: 1),
+                ], startPoint: .top, endPoint: .bottom),
+                lineWidth: 1))
         .padding(.leading, 38)
         .padding(.trailing, 12)
         .transition(.opacity)
@@ -579,10 +645,18 @@ struct ChatView: View {
             .padding(.horizontal, 18)
             .padding(.vertical, 15)
             .frame(minHeight: 52)
-            .background(Color.surfaceInput, in: RoundedRectangle(cornerRadius: 26))
+            // Light input glass — same translucent family as the
+            // bubbles so the composer belongs to the scene.
+            .background(Color.surfaceInput.opacity(0.72),
+                        in: RoundedRectangle(cornerRadius: 26))
             .overlay(
                 RoundedRectangle(cornerRadius: 26)
-                    .strokeBorder(Color.borderSoft, lineWidth: 1)
+                    .strokeBorder(
+                        LinearGradient(stops: [
+                            .init(color: .white.opacity(0.85), location: 0),
+                            .init(color: Color.borderSoft.opacity(0.85), location: 1),
+                        ], startPoint: .top, endPoint: .bottom),
+                        lineWidth: 1)
             )
             .focused($isInputFocused)
             .accessibilityIdentifier("chatInputField")
@@ -645,49 +719,73 @@ struct ChatView: View {
 
     // MARK: Quick menu
 
-    private var quickMenu: some View {
-        ZStack(alignment: .top) {
-            // Dark translucent scrim de-emphasizing the chat beneath.
-            Color.deepSpace.opacity(0.45)
-                .ignoresSafeArea()
-                .onTapGesture { closeQuickMenu() }
-                .accessibilityLabel(Text(lang == .english ? "Close menu" : "關閉選單"))
+    /// Lighter translucent scrim — the pastel scene stays present
+    /// behind the menu instead of dropping into night.
+    private var quickMenuScrim: some View {
+        Color.deepSpace.opacity(0.30)
+            .ignoresSafeArea()
+            .onTapGesture { closeQuickMenu() }
+            .accessibilityLabel(Text(lang == .english ? "Close menu" : "關閉選單"))
+            .transition(.opacity)
+    }
 
-            VStack(spacing: 16) {
-                VStack(spacing: 0) {
-                    quickMenuRow(icon: "plus.circle", iconColor: .accentGold,
-                                 label: ChatStrings.newChat(lang),
-                                 identifier: "menuNewChatRow") {
-                        closeQuickMenu()
-                        if !viewModel.draftText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                            showingDraftDiscard = true
-                        } else {
-                            withAnimation(.easeOut(duration: 0.25)) {
-                                viewModel.startNewSession()
-                            }
-                        }
-                    }
-                    Divider()
-                        .overlay(Color.textInverseToken.opacity(0.15))
-                        .padding(.horizontal, 12)
-                    quickMenuRow(icon: "bubble.left", iconColor: Color(hex: 0xCBBDF0),
-                                 label: ChatStrings.history(lang),
-                                 identifier: "menuHistoryRow") {
-                        closeQuickMenu()
-                        goToHistory = true
+    /// Deep-violet glass panel (chat-room glass pass 2026-07-18): a
+    /// translucent gradient with a lilac-white rim light instead of an
+    /// opaque dark slab, growing out of the star orb.
+    private var quickMenuPanel: some View {
+        VStack(spacing: 0) {
+            quickMenuRow(icon: "plus.circle", iconColor: .accentGold,
+                         label: ChatStrings.newChat(lang),
+                         identifier: "menuNewChatRow") {
+                closeQuickMenu()
+                if !viewModel.draftText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    showingDraftDiscard = true
+                } else {
+                    withAnimation(.easeOut(duration: 0.25)) {
+                        viewModel.startNewSession()
                     }
                 }
-                .frame(width: 196)
-                .background(Color.menuDeep, in: RoundedRectangle(cornerRadius: 22))
-                .shadow(color: Color(red: 0.06, green: 0.07, blue: 0.15).opacity(0.16),
-                        radius: 32, y: 12)
-
             }
-            .frame(maxWidth: .infinity, alignment: .trailing)
-            .padding(.trailing, 16)
-            .padding(.top, 52)
+            Divider()
+                .overlay(Color.textInverseToken.opacity(0.15))
+                .padding(.horizontal, 12)
+            quickMenuRow(icon: "bubble.left", iconColor: Color(hex: 0xCBBDF0),
+                         label: ChatStrings.history(lang),
+                         identifier: "menuHistoryRow") {
+                closeQuickMenu()
+                goToHistory = true
+            }
         }
-        .transition(.opacity)
+        .frame(width: 196)
+        .background {
+            RoundedRectangle(cornerRadius: 22)
+                .fill(LinearGradient(colors: [Color(hex: 0x4A3885).opacity(0.90),
+                                              Color(hex: 0x352566).opacity(0.86)],
+                                     startPoint: .top, endPoint: .bottom))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 22)
+                        .fill(LinearGradient(stops: [
+                            .init(color: .white.opacity(0.12), location: 0),
+                            .init(color: .white.opacity(0), location: 0.30),
+                        ], startPoint: .top, endPoint: .bottom))
+                )
+        }
+        .overlay(
+            RoundedRectangle(cornerRadius: 22)
+                .strokeBorder(
+                    LinearGradient(stops: [
+                        .init(color: .white.opacity(0.45), location: 0),
+                        .init(color: Color(hex: 0xD1C4FF).opacity(0.20), location: 1),
+                    ], startPoint: .top, endPoint: .bottom),
+                    lineWidth: 1)
+        )
+        .shadow(color: Color(red: 0.06, green: 0.07, blue: 0.15).opacity(0.20),
+                radius: 32, y: 12)
+        .frame(maxWidth: .infinity, maxHeight: .infinity,
+               alignment: .topTrailing)
+        .padding(.trailing, 16)
+        .padding(.top, 52)
+        .transition(.scale(scale: 0.85, anchor: .topTrailing).combined(with: .opacity))
     }
 
     private func quickMenuRow(icon: String, iconColor: Color, label: String,

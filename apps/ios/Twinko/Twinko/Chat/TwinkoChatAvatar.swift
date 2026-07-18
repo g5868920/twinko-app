@@ -15,8 +15,17 @@ struct TwinkoChatAvatar: View {
             .scaledToFit()
             .frame(width: imageSize, height: imageSize)
             .frame(width: containerSize, height: containerSize)
-            .background(Color.surfacePrimary, in: Circle())
-            .overlay(Circle().strokeBorder(Color.borderSoft, lineWidth: 1))
+            // Translucent warm glass instead of an opaque white disc —
+            // matches the speech-bubble material.
+            .background(Color.surfacePrimary.opacity(0.72), in: Circle())
+            .overlay(
+                Circle().strokeBorder(
+                    LinearGradient(stops: [
+                        .init(color: .white.opacity(0.85), location: 0),
+                        .init(color: Color.borderSoft.opacity(0.8), location: 1),
+                    ], startPoint: .top, endPoint: .bottom),
+                    lineWidth: 1)
+            )
             .shadowSmall()
             .accessibilityHidden(true)
     }

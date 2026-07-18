@@ -60,15 +60,16 @@ struct HoroscopeTodayView: View {
                     // Slightly deeper overlay: the zodiac wheel and
                     // decorative glyphs read as atmosphere, never
                     // competing with the text.
-                    // Deepened veil (readability pass 2026-07-18): the
-                    // horoscope art is the brightest sky in the family,
-                    // and the night glass only reads once the scene is
-                    // pressed down first — same logic as Meditation.
+                    // Medium veil (readability pass 2026-07-18, founder-
+                    // tuned): the whole readability load sits on this
+                    // page-level layer — deep enough for white copy on
+                    // the night glass, light enough to keep the sky —
+                    // never on per-card dark bases.
                     LinearGradient(
                         stops: [
-                            .init(color: Color.deepSpace.opacity(0.50), location: 0),
-                            .init(color: Color.deepSpace.opacity(0.40), location: 0.4),
-                            .init(color: Color.deepSpace.opacity(0.56), location: 1),
+                            .init(color: Color.deepSpace.opacity(0.44), location: 0),
+                            .init(color: Color.deepSpace.opacity(0.35), location: 0.4),
+                            .init(color: Color.deepSpace.opacity(0.50), location: 1),
                         ],
                         startPoint: .top, endPoint: .bottom)
                 }

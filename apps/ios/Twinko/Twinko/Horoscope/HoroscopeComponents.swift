@@ -163,13 +163,11 @@ struct HoroscopeDimensionCard: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(TwinkoSpacing.m)
             // Shared night glass instead of a dark slab; 整體運勢 stays
-            // a step denser as the primary reading entry point. A deep
-            // base under the translucent glass keeps white body text
-            // readable without brightening the surface.
+            // a step denser as the primary reading entry point.
+            // Readability comes from the page-level veil, never a dark
+            // base per card — separate dark blocks broke the scene.
             .twinkoGlass(cornerRadius: TwinkoRadius.card,
                          tint: kind == .overall ? 0.48 : 0.40, night: true)
-            .background(RoundedRectangle(cornerRadius: TwinkoRadius.card, style: .continuous)
-                .fill(Color.deepSpace.opacity(0.30)))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -212,8 +210,6 @@ struct LuckyDetailsGrid: View {
         }
         .padding(TwinkoSpacing.m)
         .twinkoGlass(cornerRadius: TwinkoRadius.card, tint: 0.38, night: true)
-        .background(RoundedRectangle(cornerRadius: TwinkoRadius.card, style: .continuous)
-            .fill(Color.deepSpace.opacity(0.30)))
     }
 }
 
@@ -290,11 +286,9 @@ struct TwinkoMessageBlock: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(TwinkoSpacing.m)
         // Twinko's own words ride the warm-night speech glass, same as
-        // the Meditation source card, over a deep readability base.
+        // the Meditation source card.
         .twinkoGlass(cornerRadius: TwinkoRadius.card, tint: 0.42,
                      warm: true, night: true)
-        .background(RoundedRectangle(cornerRadius: TwinkoRadius.card, style: .continuous)
-            .fill(Color.deepSpace.opacity(0.30)))
         .accessibilityElement(children: .combine)
     }
 }

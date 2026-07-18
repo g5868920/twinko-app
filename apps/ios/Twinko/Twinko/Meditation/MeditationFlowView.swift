@@ -83,7 +83,7 @@ struct MeditationFlowView: View {
             // veil grounds the white text and lets the night glass
             // read against the moon and clouds (asset untouched).
             TwinkoFullScreenBackground(imageName: "bg_meditation_v2",
-                                       topOpacity: 0.30, bottomOpacity: 0.42)
+                                       topOpacity: 0.45, bottomOpacity: 0.58)
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)

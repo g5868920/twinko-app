@@ -207,7 +207,7 @@ struct HoroscopeTodayView: View {
                     .padding(.horizontal, TwinkoSpacing.m)
                     .padding(.top, 2)
 
-                actions(sign: sign, horoscope: horoscope)
+                actions
                     .padding(.top, TwinkoSpacing.s)
 
                 Text(HoroscopeStrings.disclaimer(lang))
@@ -250,8 +250,20 @@ struct HoroscopeTodayView: View {
                     .foregroundStyle(Color.twinkoGold)
                     .padding(.horizontal, 12)
                     .frame(minHeight: 30)
-                    .background(Color.deepSpace.opacity(0.4), in: Capsule())
-                    .overlay(Capsule().strokeBorder(Color.twinkoGold.opacity(0.4), lineWidth: 1))
+                    // Night-glass capsule (same family as the Tarot
+                    // reveal hint) with the gold copy as the accent.
+                    .background {
+                        Capsule()
+                            .fill(LinearGradient(colors: [Color(hex: 0x9C8CD8).opacity(0.38),
+                                                          Color(hex: 0x6E5FB0).opacity(0.30)],
+                                                 startPoint: .top, endPoint: .bottom))
+                    }
+                    .overlay(Capsule().strokeBorder(
+                        LinearGradient(stops: [
+                            .init(color: Color.white.opacity(0.35), location: 0),
+                            .init(color: Color(hex: 0xD1C4FF).opacity(0.16), location: 1),
+                        ], startPoint: .top, endPoint: .bottom),
+                        lineWidth: 1))
                     .frame(minHeight: 44)
                     .contentShape(Capsule())
             }
@@ -280,24 +292,18 @@ struct HoroscopeTodayView: View {
         }
     }
 
-    private func actions(sign: ZodiacSign, horoscope: DailyHoroscope) -> some View {
-        VStack(spacing: TwinkoSpacing.s) {
-            Button {
-                showingSummaryCard = true
-            } label: {
-                Label(HoroscopeStrings.saveCard(lang), systemImage: "photo.on.rectangle.angled")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.horoscopeGrapePrimary)
-            .accessibilityIdentifier("horoscopeSaveCardButton")
-
-            ShareLink(item: HoroscopeShareFormatter.text(for: horoscope, sign: sign, lang: lang)) {
-                Label(HoroscopeStrings.share(lang), systemImage: "square.and.arrow.up")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.horoscopeGrapeSecondary)
-            .accessibilityIdentifier("horoscopeShareButton")
+    /// Single exit action: the summary-card sheet owns sharing, so the
+    /// page-level Share button was removed (founder decision
+    /// 2026-07-18).
+    private var actions: some View {
+        Button {
+            showingSummaryCard = true
+        } label: {
+            Label(HoroscopeStrings.saveCard(lang), systemImage: "photo.on.rectangle.angled")
+                .frame(maxWidth: .infinity)
         }
+        .buttonStyle(.horoscopeGrapePrimary)
+        .accessibilityIdentifier("horoscopeSaveCardButton")
         .padding(.horizontal, TwinkoSpacing.m)
     }
 }
@@ -344,8 +350,7 @@ private struct HoroscopeSetupStage: View {
                     .foregroundStyle(Color.textInverseToken)
                     .tint(.twinkoGold)
                     .padding(TwinkoSpacing.m)
-                    .background(Color.deepSpace.opacity(0.45),
-                                in: RoundedRectangle(cornerRadius: TwinkoRadius.card))
+                    .twinkoGlass(cornerRadius: TwinkoRadius.card, tint: 0.40, night: true)
                     .padding(.horizontal, TwinkoSpacing.m)
                     .colorScheme(.dark)
 

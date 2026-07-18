@@ -16,8 +16,14 @@ struct ZodiacSelectorSheet: View {
 
     var body: some View {
         ZStack {
-            Color.deepSpace.ignoresSafeArea()
-            StarFieldView().opacity(0.4)
+            // Deep-violet starry night — the sheet stays inside the
+            // Twinko world instead of a flat near-black panel.
+            LinearGradient(colors: [Color(hex: 0x1C1740),
+                                    Color(hex: 0x2E2260),
+                                    Color(hex: 0x171233)],
+                           startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea()
+            StarFieldView().opacity(0.5)
 
             VStack(spacing: TwinkoSpacing.s) {
                 Capsule()
@@ -91,14 +97,9 @@ struct ZodiacSelectorItem: View {
             }
             .frame(maxWidth: .infinity, minHeight: 96)
             .padding(.vertical, 8)
-            .background(
-                (isSelected ? Color.menuDeep.opacity(0.85) : Color.textInverseToken.opacity(0.07)),
-                in: RoundedRectangle(cornerRadius: 16)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .strokeBorder(isSelected ? Color.twinkoGold : Color.clear, lineWidth: 1.5)
-            )
+            // Shared illuminated night-glass selection language — the
+            // same recipe as Meditation setup and Tarot chips.
+            .twinkoNightChoice(cornerRadius: 16, selected: isSelected)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

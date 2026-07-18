@@ -98,9 +98,11 @@ struct HoroscopeScoreView: View {
             ForEach(1...5, id: \.self) { index in
                 Image(systemName: index <= score ? "star.fill" : "star")
                     .font(.system(size: 12))
+                    // Hollow stars sit in the lilac-white rim family,
+                    // not neutral gray.
                     .foregroundStyle(index <= score
                         ? Color.twinkoGold
-                        : Color.textInverseToken.opacity(0.35))
+                        : Color(hex: 0xD1C4FF).opacity(0.45))
             }
             Text(HoroscopeScoreLabel.text(score, lang))
                 .font(.system(.caption, design: .rounded))
@@ -142,7 +144,7 @@ struct HoroscopeDimensionCard: View {
                     HoroscopeScoreView(score: dimension.score, lang: lang)
                     Image(systemName: "chevron.down")
                         .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(Color.textInverseToken.opacity(0.5))
+                        .foregroundStyle(Color(hex: 0xD1C4FF).opacity(0.7))
                         .rotationEffect(.degrees(isExpanded ? 180 : 0))
                 }
                 Text(dimension.summary)
@@ -160,13 +162,10 @@ struct HoroscopeDimensionCard: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(TwinkoSpacing.m)
-            // 整體運勢 is a primary reading entry point; the other
-            // dimensions sit slightly quieter behind it.
-            .background(Color.deepSpace.opacity(kind == .overall ? 0.55 : 0.42),
-                        in: RoundedRectangle(cornerRadius: TwinkoRadius.card))
-            .overlay(RoundedRectangle(cornerRadius: TwinkoRadius.card)
-                .strokeBorder(Color.twinkoGold.opacity(kind == .overall ? 0.3 : 0),
-                              lineWidth: 1))
+            // Shared night glass instead of a dark slab; 整體運勢 stays
+            // a step denser as the primary reading entry point.
+            .twinkoGlass(cornerRadius: TwinkoRadius.card,
+                         tint: kind == .overall ? 0.48 : 0.40, night: true)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -208,8 +207,7 @@ struct LuckyDetailsGrid: View {
             }
         }
         .padding(TwinkoSpacing.m)
-        .background(Color.deepSpace.opacity(0.38),
-                    in: RoundedRectangle(cornerRadius: TwinkoRadius.card))
+        .twinkoGlass(cornerRadius: TwinkoRadius.card, tint: 0.38, night: true)
     }
 }
 
@@ -245,8 +243,23 @@ struct LuckyDetailItem: View {
         }
         .frame(maxWidth: .infinity, minHeight: 56)
         .padding(TwinkoSpacing.s)
-        .background(Color.textInverseToken.opacity(0.07),
-                    in: RoundedRectangle(cornerRadius: 14))
+        // Lighter nested night glass (no extra shadow inside the
+        // parent card).
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(LinearGradient(colors: [Color(hex: 0x9C8CD8).opacity(0.26),
+                                              Color(hex: 0x6E5FB0).opacity(0.20)],
+                                     startPoint: .top, endPoint: .bottom))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .strokeBorder(
+                    LinearGradient(stops: [
+                        .init(color: Color.white.opacity(0.28), location: 0),
+                        .init(color: Color(hex: 0xD1C4FF).opacity(0.14), location: 1),
+                    ], startPoint: .top, endPoint: .bottom),
+                    lineWidth: 1)
+        )
         .accessibilityElement(children: .combine)
         .accessibilityLabel(Text("\(label)：\(value)"))
     }
@@ -270,12 +283,10 @@ struct TwinkoMessageBlock: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(TwinkoSpacing.m)
-        .background(Color.menuDeep.opacity(0.55),
-                    in: RoundedRectangle(cornerRadius: TwinkoRadius.card))
-        .overlay(
-            RoundedRectangle(cornerRadius: TwinkoRadius.card)
-                .strokeBorder(Color.twinkoGold.opacity(0.3), lineWidth: 1)
-        )
+        // Twinko's own words ride the warm-night speech glass, same as
+        // the Meditation source card.
+        .twinkoGlass(cornerRadius: TwinkoRadius.card, tint: 0.42,
+                     warm: true, night: true)
         .accessibilityElement(children: .combine)
     }
 }

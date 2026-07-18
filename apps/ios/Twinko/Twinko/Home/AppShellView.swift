@@ -357,11 +357,13 @@ struct DockPlanetIcon: View {
 
 // MARK: - Explore (immersive cosmic map, 2026-07-17)
 
-/// Explore — a cosmic navigation map: five floating feature planets
-/// over the approved deep-space background, faint orbit paths, a
-/// drifting navigator ship, glass label tags, and a calm star-travel
-/// activation. Routes into the existing feature flows; the dock stays
-/// visible on the map and immersive flows hide it themselves.
+/// Explore — a cosmic navigation map (flight-route base 2026-07-18):
+/// five feature planets over the approved deep-space background, one
+/// dashed S-shaped flight route threading them, and a navigator ship
+/// cruising the route; tapping a planet sends the ship flying to it
+/// before the star-travel push. Planet bodies and the ship load
+/// founder artwork when present (`planet_<id>_v1`, `explore_ship_v1`)
+/// and fall back to code-drawn stand-ins until the assets land.
 struct ExploreView: View {
     @EnvironmentObject private var prefs: PrefsStore
     @EnvironmentObject private var chrome: ShellChrome
@@ -371,29 +373,32 @@ struct ExploreView: View {
     @State private var isVisible = false
     @State private var activePlanet: ExplorePlanet?
     @State private var launching: ExplorePlanet?
+    /// Cruise clock: the ship's route fraction derives from elapsed
+    /// time since this anchor (restarted whenever the tab fronts).
+    @State private var cruiseStart = Date()
+    /// While set, the ship leaves the cruise and flies to this point
+    /// (the tapped planet) before the navigation push.
+    @State private var launchShipPosition: CGPoint?
+    @State private var launchShipAngle: Angle = .zero
+
+    /// One full one-way cruise across the route, in seconds.
+    private static let cruiseDuration: TimeInterval = 36
 
     private var lang: AppLanguage { prefs.language }
 
     var body: some View {
         GeometryReader { geo in
+            let route = ExploreFlightRoute(
+                unitPoints: ExplorePlanet.allCases.map(\.position),
+                size: geo.size)
             ZStack {
-                orbitDecoration(in: geo.size)
+                orbitDecoration(route: route, in: geo.size)
+
+                shipLayer(route: route)
 
                 ForEach(ExplorePlanet.allCases) { planet in
                     planetView(planet, in: geo.size)
                 }
-
-                // Slow navigator ship drifting near the top.
-                Image(systemName: "paperplane.fill")
-                    .font(.system(size: 16))
-                    .foregroundStyle(Color(hex: 0xEFE7FA).opacity(0.8))
-                    .rotationEffect(.degrees(40))
-                    .shadow(color: Color.twinkoGold.opacity(0.5), radius: 4)
-                    .position(x: geo.size.width * 0.82,
-                              y: geo.size.height * 0.10)
-                    .offset(x: reduceMotion || !isVisible ? 0 : (drifting ? -14 : 6),
-                            y: reduceMotion || !isVisible ? 0 : (drifting ? 5 : -3))
-                    .accessibilityHidden(true)
 
                 VStack {
                     Text(HomeExperienceStrings.exploreMapTitle(lang))
@@ -429,6 +434,9 @@ struct ExploreView: View {
     /// animation interrupts an in-flight repeatForever).
     private func updateMotion(active: Bool) {
         isVisible = active
+        if active {
+            cruiseStart = Date()
+        }
         if active && !reduceMotion {
             withAnimation(.easeInOut(duration: 4.6).repeatForever(autoreverses: true)) {
                 drifting = true
@@ -438,18 +446,72 @@ struct ExploreView: View {
         }
     }
 
+    // MARK: Flight route + navigator ship
+
+    /// Ping-pong cruise phase: route fraction plus travel direction.
+    private static func cruisePhase(_ elapsed: TimeInterval)
+        -> (t: CGFloat, forward: Bool) {
+        let cycle = elapsed.truncatingRemainder(dividingBy: cruiseDuration * 2)
+        if cycle < cruiseDuration {
+            return (CGFloat(cycle / cruiseDuration), true)
+        }
+        return (CGFloat(2 - cycle / cruiseDuration), false)
+    }
+
+    /// The navigator ship: founder artwork when present (facing
+    /// right), otherwise a luminous paperplane stand-in.
+    private func shipBody(angle: Angle) -> some View {
+        Group {
+            if UIImage(named: "explore_ship_v1") != nil {
+                Image("explore_ship_v1")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 46, height: 46)
+                    .rotationEffect(angle)
+            } else {
+                Image(systemName: "paperplane.fill")
+                    .font(.system(size: 21))
+                    .foregroundStyle(Color(hex: 0xF3ECFF).opacity(0.95))
+                    .shadow(color: Color.twinkoGold.opacity(0.55), radius: 5)
+                    // The glyph points north-east; +45° aligns it with
+                    // the route tangent.
+                    .rotationEffect(angle + .degrees(45))
+            }
+        }
+        .accessibilityHidden(true)
+    }
+
+    /// Cruising along the route while the tab is frontmost; flying to
+    /// the tapped planet during a launch; parked otherwise.
+    @ViewBuilder
+    private func shipLayer(route: ExploreFlightRoute) -> some View {
+        if let launchPosition = launchShipPosition {
+            shipBody(angle: launchShipAngle)
+                .position(launchPosition)
+                .animation(.easeIn(duration: 0.42), value: launchShipPosition)
+        } else if isVisible && !reduceMotion {
+            TimelineView(.animation) { timeline in
+                let elapsed = timeline.date.timeIntervalSince(cruiseStart)
+                let phase = Self.cruisePhase(elapsed)
+                shipBody(angle: route.angle(atFraction: phase.t, forward: phase.forward))
+                    .position(route.point(atFraction: phase.t))
+            }
+        } else {
+            shipBody(angle: route.angle(atFraction: 0.12, forward: true))
+                .position(route.point(atFraction: 0.12))
+        }
+    }
+
     // MARK: Decoration
 
-    private func orbitDecoration(in size: CGSize) -> some View {
+    private func orbitDecoration(route: ExploreFlightRoute, in size: CGSize) -> some View {
         ZStack {
-            ForEach(0..<2, id: \.self) { index in
-                Ellipse()
-                    .strokeBorder(Color(hex: 0xD9C8FF).opacity(0.10 + Double(index) * 0.04),
-                                  lineWidth: 1)
-                    .frame(width: size.width * (1.1 - Double(index) * 0.25),
-                           height: size.height * (0.55 - Double(index) * 0.12))
-                    .position(x: size.width * 0.5, y: size.height * 0.52)
-            }
+            // Dashed flight route threading the five planets — a
+            // navigator's course, not abstract concentric orbits.
+            route.path
+                .stroke(Color(hex: 0xD9C8FF).opacity(0.24),
+                        style: StrokeStyle(lineWidth: 2, lineCap: .round,
+                                           dash: [0.6, 9]))
             ForEach(0..<6, id: \.self) { index in
                 Image(systemName: "sparkle")
                     .font(.system(size: [6.0, 4.0, 5.0, 4.0, 6.0, 5.0][index]))
@@ -468,7 +530,7 @@ struct ExploreView: View {
         let point = planet.position
         let phase = reduceMotion || !isVisible ? 0.0 : (drifting ? 1.0 : -1.0)
         return Button {
-            activate(planet)
+            activate(planet, in: size)
         } label: {
             VStack(spacing: 6) {
                 ZStack {
@@ -478,45 +540,55 @@ struct ExploreView: View {
                         .frame(width: planet.size * 1.25, height: planet.size * 1.25)
                         .blur(radius: 18)
                         .opacity(launching == planet ? 0.55 : 0.28)
-                    // Planet body.
-                    Circle()
-                        .fill(RadialGradient(colors: [planet.tint.opacity(0.95),
-                                                      planet.tint.opacity(0.6),
-                                                      Color.deepSpace.opacity(0.7)],
-                                             center: .init(x: 0.35, y: 0.28),
-                                             startRadius: 3,
-                                             endRadius: planet.size * 0.8))
-                        .overlay(Circle().fill(LinearGradient(
-                            colors: [Color.white.opacity(0.25), .clear],
-                            startPoint: .topLeading, endPoint: .center)))
-                        .overlay(Circle().strokeBorder(
-                            Color(hex: 0xD9C8FF).opacity(0.5), lineWidth: 1))
-                    // Orbit ring detail.
-                    Ellipse()
-                        .strokeBorder(Color(hex: 0xE8DCFF).opacity(0.55), lineWidth: 1.2)
-                        .frame(width: planet.size * 1.35, height: planet.size * 0.42)
-                        .rotationEffect(.degrees(-16))
-                    // Feature glyph.
-                    planet.glyph
-                        .foregroundStyle(Color(hex: 0xF6F0FF))
-                        .shadow(color: .black.opacity(0.3), radius: 2)
-                    // Tiny gold star accent.
-                    Image(systemName: "sparkle")
-                        .font(.system(size: planet.size * 0.12))
-                        .foregroundStyle(Color.twinkoGold.opacity(0.95))
-                        .offset(x: planet.size * 0.36, y: -planet.size * 0.34)
+                    if UIImage(named: planet.assetName) != nil {
+                        // Founder-illustrated planet artwork (ring,
+                        // atmosphere, and identity baked into the art).
+                        Image(planet.assetName)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: planet.size * 1.3,
+                                   height: planet.size * 1.3)
+                    } else {
+                        // Code-drawn stand-in until the artwork lands:
+                        // layered gradient body with a soft terminator
+                        // — no thin stroked ring, no glyph on the face.
+                        Circle()
+                            .fill(RadialGradient(colors: [planet.tint.opacity(0.95),
+                                                          planet.tint.opacity(0.55),
+                                                          Color.deepSpace.opacity(0.85)],
+                                                 center: .init(x: 0.35, y: 0.28),
+                                                 startRadius: 3,
+                                                 endRadius: planet.size * 0.85))
+                            .overlay(Circle().fill(LinearGradient(stops: [
+                                .init(color: Color.white.opacity(0.18), location: 0),
+                                .init(color: Color.white.opacity(0), location: 0.45),
+                            ], startPoint: .topLeading, endPoint: .bottomTrailing)))
+                            .overlay(Circle().strokeBorder(
+                                Color(hex: 0xD9C8FF).opacity(0.35), lineWidth: 1))
+                        Image(systemName: "sparkle")
+                            .font(.system(size: planet.size * 0.12))
+                            .foregroundStyle(Color.twinkoGold.opacity(0.95))
+                            .offset(x: planet.size * 0.36, y: -planet.size * 0.34)
+                    }
                 }
                 .frame(width: planet.size, height: planet.size)
                 .scaleEffect(launching == planet ? 1.12 : 1.0)
 
-                // Glass label tag.
-                VStack(spacing: 0) {
-                    Text(planet.title(lang))
-                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                // Glass label tag — the feature glyph lives here now,
+                // keeping the planet face clean.
+                HStack(spacing: 6) {
+                    planet.glyph
                         .foregroundStyle(Color(hex: 0xF6F0FF))
-                    Text(planet.descriptor(lang))
-                        .font(.system(size: 10, design: .rounded))
-                        .foregroundStyle(Color(hex: 0xE8DCFF).opacity(0.85))
+                        .scaleEffect(0.55)
+                        .frame(width: 16, height: 16)
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(planet.title(lang))
+                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                            .foregroundStyle(Color(hex: 0xF6F0FF))
+                        Text(planet.descriptor(lang))
+                            .font(.system(size: 10, design: .rounded))
+                            .foregroundStyle(Color(hex: 0xE8DCFF).opacity(0.85))
+                    }
                 }
                 .padding(.horizontal, 10)
                 .padding(.vertical, 4)
@@ -536,18 +608,137 @@ struct ExploreView: View {
             : "開啟\(planet.title(lang))，\(planet.descriptor(lang))"))
     }
 
-    /// Light haptic → brief halo/forward pulse → calm star-travel push.
-    private func activate(_ planet: ExplorePlanet) {
+    /// Light haptic → the ship leaves the cruise and flies to the
+    /// tapped planet while its halo blooms → calm star-travel push.
+    private func activate(_ planet: ExplorePlanet, in size: CGSize) {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
         guard !reduceMotion else {
             activePlanet = planet
             return
         }
+        let route = ExploreFlightRoute(
+            unitPoints: ExplorePlanet.allCases.map(\.position), size: size)
+        let phase = Self.cruisePhase(Date().timeIntervalSince(cruiseStart))
+        let from = route.point(atFraction: phase.t)
+        let to = CGPoint(x: size.width * planet.position.x,
+                         y: size.height * planet.position.y)
+        launchShipAngle = Angle(radians: atan2(Double(to.y - from.y),
+                                               Double(to.x - from.x)))
+        launchShipPosition = from
         withAnimation(.easeOut(duration: 0.22)) { launching = planet }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.32) {
+        // Next runloop tick so the ship's flight animates from the
+        // captured cruise point instead of appearing at the target.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.03) {
+            launchShipPosition = to
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             activePlanet = planet
             withAnimation(.easeOut(duration: 0.3)) { launching = nil }
         }
+        // Resume the cruise once the push transition has covered the map.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
+            launchShipPosition = nil
+            cruiseStart = Date()
+        }
+    }
+}
+
+// MARK: - Explore flight route
+
+/// Smooth flight route threading the planet map: a Catmull-Rom curve
+/// through the five planet centers, densely sampled so the navigator
+/// ship can cruise it by arc-length fraction.
+struct ExploreFlightRoute {
+    let path: Path
+    private let samples: [CGPoint]
+    private let cumulative: [CGFloat]
+
+    init(unitPoints: [CGPoint], size: CGSize) {
+        let points = unitPoints.map { CGPoint(x: $0.x * size.width,
+                                              y: $0.y * size.height) }
+        var path = Path()
+        var samples: [CGPoint] = []
+        guard points.count > 1 else {
+            self.path = path
+            self.samples = points
+            self.cumulative = [0]
+            return
+        }
+        path.move(to: points[0])
+        samples.append(points[0])
+        let count = points.count
+        for index in 0..<(count - 1) {
+            let p0 = points[max(index - 1, 0)]
+            let p1 = points[index]
+            let p2 = points[index + 1]
+            let p3 = points[min(index + 2, count - 1)]
+            let c1 = CGPoint(x: p1.x + (p2.x - p0.x) / 6,
+                             y: p1.y + (p2.y - p0.y) / 6)
+            let c2 = CGPoint(x: p2.x - (p3.x - p1.x) / 6,
+                             y: p2.y - (p3.y - p1.y) / 6)
+            path.addCurve(to: p2, control1: c1, control2: c2)
+            let steps = 28
+            for step in 1...steps {
+                let t = CGFloat(step) / CGFloat(steps)
+                samples.append(Self.cubicPoint(t, p1, c1, c2, p2))
+            }
+        }
+        var cumulative: [CGFloat] = [0]
+        for index in 1..<samples.count {
+            cumulative.append(cumulative[index - 1]
+                + hypot(samples[index].x - samples[index - 1].x,
+                        samples[index].y - samples[index - 1].y))
+        }
+        self.path = path
+        self.samples = samples
+        self.cumulative = cumulative
+    }
+
+    private static func cubicPoint(_ t: CGFloat, _ p0: CGPoint, _ c1: CGPoint,
+                                   _ c2: CGPoint, _ p1: CGPoint) -> CGPoint {
+        let mt = 1 - t
+        let a = mt * mt * mt
+        let b = 3 * mt * mt * t
+        let c = 3 * mt * t * t
+        let d = t * t * t
+        return CGPoint(x: a * p0.x + b * c1.x + c * c2.x + d * p1.x,
+                       y: a * p0.y + b * c1.y + c * c2.y + d * p1.y)
+    }
+
+    /// Sample index whose cumulative length first reaches fraction `t`.
+    private func segmentIndex(atFraction t: CGFloat) -> Int {
+        guard let total = cumulative.last, total > 0 else { return 0 }
+        let target = min(max(t, 0), 1) * total
+        var low = 0
+        var high = cumulative.count - 1
+        while low < high {
+            let mid = (low + high) / 2
+            if cumulative[mid] < target { low = mid + 1 } else { high = mid }
+        }
+        return max(low, 1)
+    }
+
+    func point(atFraction t: CGFloat) -> CGPoint {
+        guard samples.count > 1, let total = cumulative.last, total > 0 else {
+            return samples.first ?? .zero
+        }
+        let index = segmentIndex(atFraction: t)
+        let target = min(max(t, 0), 1) * total
+        let segment = cumulative[index] - cumulative[index - 1]
+        let f = segment > 0 ? (target - cumulative[index - 1]) / segment : 0
+        let a = samples[index - 1]
+        let b = samples[index]
+        return CGPoint(x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f)
+    }
+
+    func angle(atFraction t: CGFloat, forward: Bool) -> Angle {
+        guard samples.count > 1 else { return .zero }
+        let index = segmentIndex(atFraction: t)
+        let delta = CGPoint(x: samples[index].x - samples[index - 1].x,
+                            y: samples[index].y - samples[index - 1].y)
+        var radians = atan2(Double(delta.y), Double(delta.x))
+        if !forward { radians += .pi }
+        return Angle(radians: radians)
     }
 }
 
@@ -557,6 +748,10 @@ enum ExplorePlanet: String, CaseIterable, Identifiable, Hashable {
     case tarot, horoscope, meditation, music, activities
 
     var id: String { rawValue }
+
+    /// Founder-artwork imageset name; the map falls back to the
+    /// code-drawn stand-in until this asset exists in the catalog.
+    var assetName: String { "planet_\(rawValue)_v1" }
 
     /// Relative map position (portrait, below the title, above dock).
     var position: CGPoint {

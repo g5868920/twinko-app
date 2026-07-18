@@ -418,11 +418,12 @@ struct TarotRevealStage: View {
     private var allRevealed: Bool { revealed.allSatisfy { $0 } }
 
     var body: some View {
-        // Weighted spacers sink the composition toward the altar
-        // platform: the flexible top spacer absorbs the free space, the
-        // bounded gaps below keep the CTA close to the cards instead of
+        // Weighted spacers (top 2 : bottom 1): the composition sits
+        // just below center — never sunk against the bottom edge — and
+        // the bounded gap keeps the CTA close to the cards instead of
         // leaving a dead band in the middle of the screen.
         VStack(spacing: TwinkoSpacing.l) {
+            Spacer()
             Spacer()
 
             Text(completedReturn ? TarotStrings.revealCompleted(lang) : heading)
@@ -495,7 +496,6 @@ struct TarotRevealStage: View {
                         lineWidth: 1))
             }
             Spacer(minLength: TwinkoSpacing.l)
-                .frame(maxHeight: 44)
         }
         .animation(.easeOut(duration: 0.25), value: revealed)
     }

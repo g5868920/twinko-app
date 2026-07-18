@@ -40,13 +40,14 @@ struct ChatView: View {
     private var twinkoAsset: String { ChatDayNight.twinkoAssetName() }
     private var isConversationActive: Bool { !viewModel.messages.isEmpty }
 
-    /// Immersive Chat (refinement 2026-07-17): the shared dock hides
-    /// whenever any Chat surface — landing or active conversation — is
-    /// frontmost, and returns when the user leaves (Back to Home /
-    /// Chat History push / another tab). Uses the existing shared
-    /// chrome flag; no second visibility state.
-    static func hidesTabBar(chatSurfaceVisible: Bool) -> Bool {
-        chatSurfaceVisible
+    /// Chat room immersion (founder decision 2026-07-18): the landing
+    /// keeps the bottom navigation — it is a top-level tab scene — and
+    /// the dock disappears only once an active conversation is open.
+    /// Back returns to the landing and restores the dock. Uses the
+    /// existing shared chrome flag; no second visibility state.
+    static func hidesTabBar(chatSurfaceVisible: Bool,
+                            conversationActive: Bool) -> Bool {
+        chatSurfaceVisible && conversationActive
     }
 
     /// Whether this instance is currently the frontmost Chat surface:
@@ -59,7 +60,8 @@ struct ChatView: View {
 
     private func reportChromeAndMotion() {
         chrome.setChatConversationActive(
-            Self.hidesTabBar(chatSurfaceVisible: isFrontmostChatSurface))
+            Self.hidesTabBar(chatSurfaceVisible: isFrontmostChatSurface,
+                             conversationActive: isConversationActive))
         updateFloating(active: isFrontmostChatSurface)
     }
 
@@ -130,6 +132,11 @@ struct ChatView: View {
             // tab changes re-report visibility and pause the float
             // off-tab; pushed instances are unaffected.
             if isTabRoot { reportChromeAndMotion() }
+        }
+        .onChange(of: viewModel.messages.isEmpty) { _, _ in
+            // Entering a conversation hides the dock; Back to the
+            // landing (or 新對話) brings it home again.
+            reportChromeAndMotion()
         }
         .onDisappear {
             // Leaving this chat surface (pop to History, push into an

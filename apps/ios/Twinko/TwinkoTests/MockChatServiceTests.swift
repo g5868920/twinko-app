@@ -110,11 +110,16 @@ extension MockChatServiceTests {
     /// surface is frontmost — landing included — and returns when the
     /// user leaves the Chat surface.
     @MainActor
-    func testDockHiddenWheneverChatSurfaceIsFrontmost() {
-        XCTAssertTrue(ChatView.hidesTabBar(chatSurfaceVisible: true),
-                      "Any frontmost Chat surface hides the bottom navigation")
-        XCTAssertFalse(ChatView.hidesTabBar(chatSurfaceVisible: false),
-                       "Leaving the Chat surface restores the bottom navigation")
+    func testDockHiddenOnlyDuringActiveConversation() {
+        XCTAssertFalse(ChatView.hidesTabBar(chatSurfaceVisible: true,
+                                            conversationActive: false),
+                       "The Chat landing keeps the bottom navigation")
+        XCTAssertTrue(ChatView.hidesTabBar(chatSurfaceVisible: true,
+                                           conversationActive: true),
+                      "An open conversation hides the bottom navigation")
+        XCTAssertFalse(ChatView.hidesTabBar(chatSurfaceVisible: false,
+                                            conversationActive: true),
+                       "A covered Chat surface never hides the bottom navigation")
     }
 }
 

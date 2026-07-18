@@ -22,6 +22,7 @@ struct HomeView: View {
     private let recommender: HomeRecommendationProviding = LocalHomeRecommendationProvider()
 
     @State private var floating = false
+    @State private var twinkoBounce = false
     @State private var pendingMood: CheckInMood?
     @State private var editingCheckIn = false
     @State private var activeAction: HomeAction?
@@ -281,19 +282,29 @@ struct HomeView: View {
                 }
                 // PERMANENT (founder rule 2026-07-18): the Home Twinko
                 // always floats gently — never remove this motion in
-                // future passes. The animation is scoped to this image
-                // via .animation(value:) so it cannot leak to the rest
-                // of the page.
+                // future passes. The shared twinkoFloat modifier keeps
+                // the drift small and scoped to this image only.
+                // Tapping Twinko answers with a soft haptic and a
+                // jelly bounce (founder request 2026-07-18).
                 Image("twinko_default_smile_v1_transparent")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 122, height: 122)
-                    .offset(y: reduceMotion ? 0 : (floating ? -5 : 5))
-                    .animation(floating
-                               ? .easeInOut(duration: 3.0).repeatForever(autoreverses: true)
-                               : .linear(duration: 0.05),
-                               value: floating)
+                    .scaleEffect(twinkoBounce ? 1.07 : 1.0)
+                    .twinkoFloat(active: floating, amplitude: 5, duration: 3.0)
+                    .onTapGesture {
+                        UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                        withAnimation(.spring(response: 0.22, dampingFraction: 0.38)) {
+                            twinkoBounce = true
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
+                                twinkoBounce = false
+                            }
+                        }
+                    }
                     .accessibilityLabel(Text("Twinko"))
+                    .accessibilityAddTraits(.isButton)
             }
 
             VStack(alignment: .leading, spacing: 3) {
@@ -310,6 +321,9 @@ struct HomeView: View {
                 .padding(.horizontal, 9)
                 .padding(.vertical, 3)
                 .twinkoGlass(cornerRadius: 10, tint: 0.3)
+                // Align the tag with the bubble BODY: the bubble shape
+                // reserves 10 pt on its left for the integrated tail.
+                .padding(.leading, 10)
                 .accessibilityHidden(true)
 
                 // The reference embeds the recommendation inside the
@@ -680,11 +694,10 @@ struct HomeView: View {
                                        recommendedFocus: focus)
     }
 
-    /// Twinko's float runs only while Home is the frontmost tab. The
-    /// animation itself lives on the image (.animation(value:)) — a
-    /// bare state flip here can never animate unrelated views.
+    /// Twinko's float runs only while Home is the frontmost tab; the
+    /// shared twinkoFloat modifier owns the animation itself.
     private func updateFloating(active: Bool) {
-        floating = active && !reduceMotion
+        floating = active
     }
 }
 

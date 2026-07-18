@@ -231,6 +231,54 @@ struct TwinkoGlassPressStyle: ButtonStyle {
     }
 }
 
+// MARK: - Companion float (shared gentle motion)
+
+/// The one shared companion float: a small vertical drift scoped
+/// strictly to the decorated view. Uses its own private state and
+/// withAnimation, started a beat after appear so the app-launch
+/// transaction can never swallow the repeat-forever animation (the
+/// old Home bug), and never `.animation(value:)` with repeatForever,
+/// which accumulates drift when surrounding layout changes (the
+/// fly-off-screen bug).
+struct TwinkoFloatModifier: ViewModifier {
+    let active: Bool
+    var amplitude: CGFloat = 5
+    var duration: Double = 3.0
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var up = false
+
+    func body(content: Content) -> some View {
+        content
+            .offset(y: up ? -amplitude : amplitude)
+            .onAppear { restart() }
+            .onChange(of: active) { _, _ in restart() }
+    }
+
+    private func restart() {
+        if active && !reduceMotion {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                withAnimation(.easeInOut(duration: duration)
+                    .repeatForever(autoreverses: true)) {
+                    up = true
+                }
+            }
+        } else {
+            withAnimation(.linear(duration: 0.05)) { up = false }
+        }
+    }
+}
+
+extension View {
+    /// Gentle companion float while `active`; pauses (and respects
+    /// Reduce Motion) otherwise.
+    func twinkoFloat(active: Bool, amplitude: CGFloat = 5,
+                     duration: Double = 3.0) -> some View {
+        modifier(TwinkoFloatModifier(active: active, amplitude: amplitude,
+                                     duration: duration))
+    }
+}
+
 // MARK: - Floating glass Back orb (light worlds)
 
 /// The floating Back control for light illustrated worlds (Chat, My

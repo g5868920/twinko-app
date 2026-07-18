@@ -64,21 +64,14 @@ struct MusicPlaceholderView: View {
 
                 VStack(spacing: TwinkoSpacing.m) {
                     Spacer()
-                    // Founder-approved music Twinko, gently floating —
-                    // the shared companion motion language. The float
-                    // is scoped to this image via .animation(value:);
-                    // the old onAppear withAnimation leaked the
-                    // repeat-forever animation into the whole page
-                    // (title, back key, and copy all drifted).
+                    // Founder-approved music Twinko on the shared
+                    // companion float — motion scoped to this image
+                    // only, never the page.
                     Image("twinko_music_v1")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 150, height: 150)
-                        .offset(y: reduceMotion ? 0 : (floating ? -4 : 4))
-                        .animation(floating
-                                   ? .easeInOut(duration: 3.2).repeatForever(autoreverses: true)
-                                   : .linear(duration: 0.05),
-                                   value: floating)
+                        .twinkoFloat(active: floating, amplitude: 4, duration: 3.2)
                         .accessibilityLabel(Text("Twinko"))
                     Text(lang == .english
                          ? "A quiet moment can be its own kind of music."
@@ -98,7 +91,7 @@ struct MusicPlaceholderView: View {
         .onAppear {
             // Immersive page: the dock hides while Music is open.
             chrome.setImmersive(immersiveToken, active: true)
-            floating = !reduceMotion
+            floating = true
         }
         .onDisappear {
             chrome.setImmersive(immersiveToken, active: false)

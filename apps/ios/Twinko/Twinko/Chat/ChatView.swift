@@ -133,11 +133,19 @@ struct ChatView: View {
             }
             reportChromeAndMotion()
         }
-        .onChange(of: chrome.selectedTab) { _, _ in
+        .onChange(of: chrome.selectedTab) { _, tab in
             // The tab-root instance stays alive (opacity-switched), so
             // tab changes re-report visibility and pause the float
             // off-tab; pushed instances are unaffected.
-            if isTabRoot { reportChromeAndMotion() }
+            if isTabRoot {
+                // The opacity switch never removes the input field
+                // from the hierarchy, so the system won't dismiss the
+                // keyboard on its own — resign focus explicitly the
+                // moment Chat stops being the frontmost tab, or the
+                // keyboard lingers over Home.
+                if tab != .chat { isInputFocused = false }
+                reportChromeAndMotion()
+            }
         }
         .onChange(of: viewModel.messages.isEmpty) { _, _ in
             // Entering a conversation hides the dock; Back to the

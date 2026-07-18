@@ -318,12 +318,12 @@ struct ChatView: View {
         }
     }
 
-    /// One coherent family of soft glass prompt cards: icon orb, prompt
-    /// text, chevron — warm translucent glass with a very subtle
-    /// per-card emotional tint. Height adapts to wrapped text.
+    /// One coherent family of clear-glass prompt cards (glass pass
+    /// 2026-07-18): bare icon, prompt text, chevron on the shared
+    /// twinkoGlass surface — the previous flat 38% lavender fill read
+    /// as a painted panel, and the icon orbs cluttered the row.
     private func promptCard(_ starter: String, index: Int) -> some View {
-        let tint = starterTint(index)
-        return Button {
+        Button {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
             // Starts the conversation directly with this prompt as the
             // first user message (existing behavior).
@@ -331,26 +331,10 @@ struct ChatView: View {
             viewModel.send(lang: lang)
         } label: {
             HStack(spacing: 12) {
-                // Lavender glass icon orb — one cohesive family, never
-                // a bright solid-white circle.
                 Image(systemName: starterIcon(index))
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(Color.brandPurpleDeep)
-                    .frame(width: 30, height: 30)
-                    .background(
-                        Circle()
-                            .fill(Color(hex: 0xD9CFF2).opacity(0.75))
-                            .overlay(
-                                Circle()
-                                    .fill(LinearGradient(stops: [
-                                        .init(color: .white.opacity(0.55), location: 0),
-                                        .init(color: .white.opacity(0), location: 0.55),
-                                    ], startPoint: .top, endPoint: .bottom))
-                                    .padding(1)
-                            )
-                    )
-                    .overlay(Circle().strokeBorder(tint.opacity(0.6), lineWidth: 1))
-                    .shadow(color: Color.brandPurpleDeep.opacity(0.15), radius: 2, y: 1)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(Color.brandPurpleDeep.opacity(0.9))
+                    .frame(width: 24)
                 Text(starter)
                     .font(.system(.subheadline, design: .rounded))
                     .foregroundStyle(Color.deepPlum)
@@ -362,30 +346,10 @@ struct ChatView: View {
                     .font(.system(size: 12, weight: .bold))
                     .foregroundStyle(Color.brandPurpleDeep.opacity(0.9))
             }
-            .padding(.horizontal, 14)
+            .padding(.horizontal, 16)
             .padding(.vertical, 13)
             .frame(maxWidth: .infinity, minHeight: 56)
-            .background(
-                // Distinctly darker lavender glass over the pink
-                // background — Twinko's suggested ways to begin, never
-                // settings rows.
-                RoundedRectangle(cornerRadius: 18)
-                    .fill(Color(hex: 0xB9A8E8).opacity(0.38))
-                    .overlay(RoundedRectangle(cornerRadius: 18)
-                        .fill(tint.opacity(0.16)))
-            )
-            .overlay(
-                // Soft top catch-light + tinted border: glass, not a
-                // flat outlined form row.
-                RoundedRectangle(cornerRadius: 18)
-                    .strokeBorder(
-                        LinearGradient(stops: [
-                            .init(color: .white.opacity(0.75), location: 0),
-                            .init(color: Color(hex: 0x9A85DE).opacity(0.55), location: 0.6),
-                        ], startPoint: .top, endPoint: .bottom),
-                        lineWidth: 1)
-            )
-            .shadow(color: Color.brandPurpleDeep.opacity(0.16), radius: 6, y: 3)
+            .twinkoGlass(cornerRadius: 18, tint: 0.34)
             .contentShape(RoundedRectangle(cornerRadius: 18))
         }
         .buttonStyle(ChatPromptPressStyle())
@@ -394,12 +358,6 @@ struct ChatView: View {
 
     private func starterIcon(_ index: Int) -> String {
         ["bubble.left", "heart", "star"][index % 3]
-    }
-
-    /// Very subtle emotional tints — one family, three moods:
-    /// today = blue-lilac, pressure = lavender, company = warm lilac.
-    private func starterTint(_ index: Int) -> Color {
-        [Color(hex: 0x8FA0E8), Color(hex: 0xA88BFE), Color(hex: 0xD9A0C0)][index % 3]
     }
 
     // MARK: Message list
@@ -433,29 +391,6 @@ struct ChatView: View {
             .onAppear { scrollToBottom(proxy) }
             .defaultScrollAnchor(.bottom)
             .scrollDismissesKeyboard(.interactively)
-            // A small Twinko quietly keeps the user company at the top
-            // of the conversation (founder request 2026-07-18) — softly
-            // floating, decorative only, never blocking touches.
-            .safeAreaInset(edge: .top, spacing: 0) {
-                ZStack {
-                    Circle()
-                        .fill(Color(red: 1.0, green: 0.97, blue: 0.88))
-                        .frame(width: 72, height: 72)
-                        .blur(radius: 14)
-                        .opacity(0.30)
-                    Image(twinkoAsset)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 54, height: 54)
-                        .offset(y: reduceMotion ? 0 : (floating ? -2 : 2))
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.top, 2)
-                .padding(.bottom, 4)
-                .opacity(0.95)
-                .allowsHitTesting(false)
-                .accessibilityHidden(true)
-            }
         }
     }
 

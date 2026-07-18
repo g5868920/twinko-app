@@ -171,6 +171,7 @@ struct HoroscopeTodayView: View {
                 .foregroundStyle(Color.textInverseToken)
             HStack {
                 Button {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     dismiss()
                 } label: {
                     Image(systemName: "chevron.backward")
@@ -280,6 +281,7 @@ struct HoroscopeTodayView: View {
                     .frame(minHeight: 44)
                     .contentShape(Capsule())
             }
+            .buttonStyle(TwinkoHapticPressStyle())
             .accessibilityIdentifier("horoscopeChangeSign")
 
             // Floating Twinko — same gentle motion language as Home

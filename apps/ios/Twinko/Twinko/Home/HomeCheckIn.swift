@@ -163,7 +163,7 @@ enum HomeAction: Equatable, Identifiable, Hashable {
             return "開始 \(duration.rawValue) 分鐘冥想"
         case (.tarot, .english): return "Draw a Tarot reading"
         case (.tarot, .traditionalChinese): return "抽一次塔羅"
-        case (.horoscope, .english): return "Today's Horoscope"
+        case (.horoscope, .english): return "Today's Zodiac"
         case (.horoscope, .traditionalChinese): return "看今日星座運勢"
         case (.music, .english): return "Quiet music"
         case (.music, .traditionalChinese): return "聽點安靜的音樂"
@@ -309,11 +309,11 @@ struct LocalHomeRecommendationProvider: HomeRecommendationProviding {
         switch checkIn.need {
         case .talk:
             return [step(1, .chat, "聊聊天", "A little talk", "把心裡的話說出來", "Say what's on your mind"),
-                    step(2, meditate, "3 分鐘冥想", "3-min meditation", "讓心慢慢沉澱", "Let it settle gently"),
+                    step(2, meditate, "3 分鐘冥想", "Meditate 3 min", "讓心慢慢沉澱", "Let it settle gently"),
                     step(3, .horoscope, "今日星座", "Today's stars", "帶一點光收尾", "Close with a little light")]
         case .ground:
             return [step(1, .chat, "聊聊天", "A little talk", "先說說現在的感覺", "Name the feeling first"),
-                    step(2, meditate, "3 分鐘冥想", "3-min meditation", "安定呼吸與身體", "Steady your breath"),
+                    step(2, meditate, "3 分鐘冥想", "Meditate 3 min", "安定呼吸與身體", "Steady your breath"),
                     step(3, .horoscope, "今日星座", "Today's stars", "溫柔地看看今天", "A gentle look at today")]
         case .direction:
             return [step(1, .chat, "聊聊天", "A little talk", "整理心裡的問題", "Sort the question out"),
@@ -558,11 +558,11 @@ enum HomeExperienceStrings {
     static func entryTarotDesc(_ l: AppLanguage) -> String {
         l == .english ? "Find guidance" : "聆聽指引"
     }
-    static func entryHoroscope(_ l: AppLanguage) -> String { l == .english ? "Horoscope" : "星座" }
+    static func entryHoroscope(_ l: AppLanguage) -> String { l == .english ? "Zodiac" : "星座" }
     static func entryHoroscopeDesc(_ l: AppLanguage) -> String {
         l == .english ? "Today’s energy" : "今日能量"
     }
-    static func entryMeditation(_ l: AppLanguage) -> String { l == .english ? "Meditation" : "冥想" }
+    static func entryMeditation(_ l: AppLanguage) -> String { l == .english ? "Meditate" : "冥想" }
     static func entryMeditationDesc(_ l: AppLanguage) -> String {
         l == .english ? "Calm your mind" : "平靜身心"
     }
@@ -570,7 +570,7 @@ enum HomeExperienceStrings {
     static func entryMusicDesc(_ l: AppLanguage) -> String {
         l == .english ? "Healing rhythms" : "療癒旋律"
     }
-    static func entryActivities(_ l: AppLanguage) -> String { l == .english ? "Activities" : "活動" }
+    static func entryActivities(_ l: AppLanguage) -> String { l == .english ? "Activity" : "活動" }
     static func entryActivitiesDesc(_ l: AppLanguage) -> String {
         l == .english ? "Explore nearby" : "探索附近"
     }

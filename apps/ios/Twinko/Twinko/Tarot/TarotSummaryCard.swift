@@ -356,6 +356,7 @@ struct TarotSummaryCardSheet: View {
                         .foregroundStyle(Color.textInverseToken.opacity(0.85))
                         .frame(maxWidth: .infinity, minHeight: 44)
                 }
+                .buttonStyle(TwinkoHapticPressStyle())
                 .padding(.bottom, TwinkoSpacing.m)
                 .accessibilityIdentifier("tarotCardClose")
             }

@@ -102,7 +102,7 @@ struct ZodiacSelectorItem: View {
             .twinkoNightChoice(cornerRadius: 16, selected: isSelected)
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(TwinkoHapticPressStyle())
         .accessibilityIdentifier("zodiacOption-\(sign.canonicalID)")
         .accessibilityLabel(Text(sign.horoscopeAccessibilityLabel(lang, isMySign: isMySign,
                                                                   isSelected: isSelected)))

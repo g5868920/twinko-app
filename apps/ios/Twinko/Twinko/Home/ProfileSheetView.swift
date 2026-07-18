@@ -18,6 +18,9 @@ private struct MyPlanetSubpage<Trailing: View, Content: View>: View {
         ZStack {
             TwinkoFullScreenBackground(imageName: TwinkoBackgrounds.myPlanetResolved,
                                        topOpacity: 0.20, bottomOpacity: 0.32)
+            // Soft mist mutes artwork detail behind reading cards
+            // (readability pass 2026-07-18).
+            Color.white.opacity(0.10).ignoresSafeArea()
             VStack(spacing: 0) {
                 ZStack {
                     Text(title)
@@ -89,6 +92,9 @@ struct MyPlanetContentView: View {
             ZStack {
                 TwinkoFullScreenBackground(imageName: TwinkoBackgrounds.myPlanetResolved,
                                            topOpacity: 0.18, bottomOpacity: 0.30)
+                // Soft mist (readability pass 2026-07-18): mutes the
+                // valley artwork behind the record cards.
+                Color.white.opacity(0.10).ignoresSafeArea()
                 ScrollView {
                     VStack(spacing: TwinkoSpacing.m) {
                         hero
@@ -198,7 +204,7 @@ struct MyPlanetContentView: View {
             }
             .frame(maxWidth: .infinity, minHeight: 108)
             .padding(.vertical, 10)
-            .twinkoGlass(cornerRadius: 24, tint: 0.10)
+            .twinkoGlass(cornerRadius: 24, tint: 0.16)
             .contentShape(RoundedRectangle(cornerRadius: 24))
         }
         .buttonStyle(TwinkoGlassPressStyle())
@@ -234,7 +240,7 @@ struct MyPlanetContentView: View {
             }
             .padding(.horizontal, TwinkoSpacing.m)
             .frame(maxWidth: .infinity, minHeight: 64)
-            .twinkoGlass(cornerRadius: 20, tint: 0.10)
+            .twinkoGlass(cornerRadius: 20, tint: 0.16)
             .contentShape(RoundedRectangle(cornerRadius: 20))
         }
         .buttonStyle(TwinkoGlassPressStyle())
@@ -301,6 +307,7 @@ struct MyPlanetContentView: View {
             .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
             .frame(minHeight: 44)
         }
+        .buttonStyle(TwinkoHapticPressStyle())
         .accessibilityIdentifier("sheetPrivacyRow")
     }
 
@@ -380,7 +387,7 @@ struct MyPlanetContentView: View {
             .twinkoGlass(cornerRadius: 18, tint: 0.14)
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(TwinkoHapticPressStyle())
         .accessibilityIdentifier(identifier)
         .accessibilityHint(Text(lang == .english ? "Double tap to edit" : "點兩下編輯"))
     }
@@ -595,6 +602,7 @@ struct EditProfileView: View {
                                                     lineWidth: 1))
                                                 .foregroundStyle(selected ? .white : Color.deepPlum)
                                         }
+                                        .buttonStyle(TwinkoHapticPressStyle())
                                         .accessibilityAddTraits(selected ? [.isSelected] : [])
                                     }
                                 }
@@ -678,6 +686,7 @@ struct EditProfileView: View {
                 .shadow(color: canSave ? Color.warmOrange.opacity(0.35) : .clear,
                         radius: 4, y: 2)
         }
+        .buttonStyle(TwinkoHapticPressStyle())
         .disabled(!canSave)
         .accessibilityIdentifier("editSaveButton")
     }
@@ -755,6 +764,7 @@ struct MyPlanetLanguageSection: View {
                                           lineWidth: 1.5)
                     )
                 }
+                .buttonStyle(TwinkoHapticPressStyle())
                 .accessibilityIdentifier("language-\(option.rawValue)")
                 .accessibilityAddTraits(prefs.language == option ? [.isSelected] : [])
             }

@@ -190,7 +190,11 @@ struct TwinkoGlassDock: View {
                                 )
                                 .shadow(color: Color.brandPurpleDeep.opacity(0.20),
                                         radius: 4, y: 2)
-                                .padding(4)
+                                // Taller pill (founder feedback): only a
+                                // hairline vertical inset so the label
+                                // never touches the pill edge.
+                                .padding(.horizontal, 4)
+                                .padding(.vertical, 1)
                                 .matchedGeometryEffect(id: "dockIndicator",
                                                        in: indicatorSpace)
                         }

@@ -748,6 +748,7 @@ struct ChatView: View {
             .frame(height: 54)
             .contentShape(Rectangle())
         }
+        .buttonStyle(TwinkoHapticPressStyle())
         .accessibilityIdentifier(identifier)
     }
 

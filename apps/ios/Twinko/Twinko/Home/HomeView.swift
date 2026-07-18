@@ -53,8 +53,14 @@ struct HomeView: View {
             }
         }
         .background {
-            TwinkoFullScreenBackground(imageName: TwinkoBackgrounds.homeResolved,
-                                       topOpacity: 0.10, bottomOpacity: 0.14)
+            ZStack {
+                TwinkoFullScreenBackground(imageName: TwinkoBackgrounds.homeResolved,
+                                           topOpacity: 0.10, bottomOpacity: 0.14)
+                // Soft mist (readability pass 2026-07-18): gently mutes
+                // the artwork's detail behind the reading cards without
+                // washing the scene.
+                Color.white.opacity(0.10).ignoresSafeArea()
+            }
         }
         .dockClearance()
         .toolbar(.hidden, for: .navigationBar)
@@ -186,10 +192,16 @@ struct HomeView: View {
                                     .frame(width: 24, height: 24)
                                     .background(Color.brandPurple.opacity(0.85),
                                                 in: RoundedRectangle(cornerRadius: 8))
+                                // Fixed size sized to the longest EN
+                                // label ("Find Direction") so all four
+                                // chips share one type size — the old
+                                // per-chip auto-shrink left Rest/Talk
+                                // visibly larger.
                                 Text(need.label(lang))
-                                    .font(.system(.subheadline, design: .rounded).weight(.medium))
+                                    .font(.system(size: 13, weight: .medium,
+                                                  design: .rounded))
                                     .lineLimit(1)
-                                    .minimumScaleFactor(0.8)
+                                    .minimumScaleFactor(0.9)
                                 Spacer(minLength: 0)
                             }
                             .foregroundStyle(Color.deepPlum)
@@ -238,6 +250,7 @@ struct HomeView: View {
                     .frame(minHeight: 44)
                     .contentShape(Capsule())
             }
+            .buttonStyle(TwinkoHapticPressStyle())
             .accessibilityIdentifier("checkInEditButton")
         }
         .padding(.horizontal, 14)
@@ -266,11 +279,20 @@ struct HomeView: View {
                                     y: [-34.0, -14.0, 38.0][index])
                     }
                 }
+                // PERMANENT (founder rule 2026-07-18): the Home Twinko
+                // always floats gently — never remove this motion in
+                // future passes. The animation is scoped to this image
+                // via .animation(value:) so it cannot leak to the rest
+                // of the page.
                 Image("twinko_default_smile_v1_transparent")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 122, height: 122)
                     .offset(y: reduceMotion ? 0 : (floating ? -5 : 5))
+                    .animation(floating
+                               ? .easeInOut(duration: 3.0).repeatForever(autoreverses: true)
+                               : .linear(duration: 0.05),
+                               value: floating)
                     .accessibilityLabel(Text("Twinko"))
             }
 
@@ -365,6 +387,7 @@ struct HomeView: View {
                     .frame(maxWidth: .infinity, minHeight: 40)
                     .contentShape(Rectangle())
                 }
+                .buttonStyle(TwinkoHapticPressStyle())
                 .accessibilityIdentifier("homeSecondaryAction")
             }
         }
@@ -657,52 +680,92 @@ struct HomeView: View {
                                        recommendedFocus: focus)
     }
 
-    /// Twinko's float runs only while Home is the frontmost tab.
+    /// Twinko's float runs only while Home is the frontmost tab. The
+    /// animation itself lives on the image (.animation(value:)) — a
+    /// bare state flip here can never animate unrelated views.
     private func updateFloating(active: Bool) {
-        if active && !reduceMotion {
-            withAnimation(.easeInOut(duration: 3.0).repeatForever(autoreverses: true)) {
-                floating = true
-            }
-        } else {
-            withAnimation(.linear(duration: 0.05)) { floating = false }
-        }
+        floating = active && !reduceMotion
     }
 }
 
 // MARK: - Speech bubble
 
-/// Warm translucent conversational bubble with a tail pointing toward
-/// Twinko — never a generic rectangular card.
+/// Warm translucent conversational bubble — one continuous shape with
+/// the tail integrated into the outline (founder request 2026-07-18),
+/// carrying the exact same warm speech-glass material as the other
+/// containers: gradient fill, inner top highlight, luminous rim,
+/// floating shadow.
 struct TwinkoSpeechBubble<Content: View>: View {
     @ViewBuilder var content: () -> Content
+
+    private var shape: TwinkoSpeechBubbleShape { TwinkoSpeechBubbleShape() }
 
     var body: some View {
         content()
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
-            // Warm speech glass — ivory-lilac, warmer and more
-            // readable than the atmospheric containers.
-            .twinkoGlass(cornerRadius: 18, tint: 0.44, warm: true)
-            .overlay(alignment: .leading) {
-                SpeechBubbleTail()
-                    .fill(Color(hex: 0xFBF1E8).opacity(0.9))
-                    .frame(width: 10, height: 14)
-                    .offset(x: -8)
-                    .accessibilityHidden(true)
+            .padding(.leading, 10)   // room for the integrated tail
+            .background {
+                shape
+                    .fill(LinearGradient(
+                        colors: [Color(hex: 0xFFF3E6).opacity(0.59),
+                                 Color(hex: 0xEFD9EE).opacity(0.44)],
+                        startPoint: .top, endPoint: .bottom))
+                    .overlay(
+                        shape.fill(LinearGradient(stops: [
+                            .init(color: Color.white.opacity(0.24), location: 0),
+                            .init(color: Color.white.opacity(0), location: 0.30),
+                        ], startPoint: .top, endPoint: .bottom))
+                    )
             }
+            .overlay(
+                shape.stroke(
+                    LinearGradient(stops: [
+                        .init(color: Color.white.opacity(0.75), location: 0),
+                        .init(color: Color.white.opacity(0.35), location: 0.3),
+                        .init(color: Color(hex: 0xD1C4FF).opacity(0.30), location: 1),
+                    ], startPoint: .top, endPoint: .bottom),
+                    lineWidth: 1)
+            )
+            .shadow(color: Color.deepSpace.opacity(0.12), radius: 16, y: 7)
     }
 }
 
-private struct SpeechBubbleTail: Shape {
+/// Rounded-rectangle speech bubble with a smooth tail on the left
+/// edge, drawn as one continuous outline (no seam between tail and
+/// body).
+struct TwinkoSpeechBubbleShape: Shape {
+    var cornerRadius: CGFloat = 18
+    var tailWidth: CGFloat = 10
+    var tailHeight: CGFloat = 18
+
     func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.move(to: CGPoint(x: rect.maxX, y: rect.minY))
-        path.addQuadCurve(to: CGPoint(x: rect.minX, y: rect.midY),
-                          control: CGPoint(x: rect.midX, y: rect.midY * 0.6))
-        path.addQuadCurve(to: CGPoint(x: rect.maxX, y: rect.maxY),
-                          control: CGPoint(x: rect.midX, y: rect.midY * 1.4))
-        path.closeSubpath()
-        return path
+        let r = min(cornerRadius, rect.height / 2)
+        let left = rect.minX + tailWidth
+        let midY = rect.midY
+        var p = Path()
+        p.move(to: CGPoint(x: left + r, y: rect.minY))
+        p.addLine(to: CGPoint(x: rect.maxX - r, y: rect.minY))
+        p.addArc(center: CGPoint(x: rect.maxX - r, y: rect.minY + r), radius: r,
+                 startAngle: .degrees(-90), endAngle: .degrees(0), clockwise: false)
+        p.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY - r))
+        p.addArc(center: CGPoint(x: rect.maxX - r, y: rect.maxY - r), radius: r,
+                 startAngle: .degrees(0), endAngle: .degrees(90), clockwise: false)
+        p.addLine(to: CGPoint(x: left + r, y: rect.maxY))
+        p.addArc(center: CGPoint(x: left + r, y: rect.maxY - r), radius: r,
+                 startAngle: .degrees(90), endAngle: .degrees(180), clockwise: false)
+        p.addLine(to: CGPoint(x: left, y: midY + tailHeight / 2))
+        p.addQuadCurve(to: CGPoint(x: rect.minX, y: midY),
+                       control: CGPoint(x: left - tailWidth * 0.75,
+                                        y: midY + tailHeight * 0.16))
+        p.addQuadCurve(to: CGPoint(x: left, y: midY - tailHeight / 2),
+                       control: CGPoint(x: left - tailWidth * 0.75,
+                                        y: midY - tailHeight * 0.16))
+        p.addLine(to: CGPoint(x: left, y: rect.minY + r))
+        p.addArc(center: CGPoint(x: left + r, y: rect.minY + r), radius: r,
+                 startAngle: .degrees(180), endAngle: .degrees(270), clockwise: false)
+        p.closeSubpath()
+        return p
     }
 }
 

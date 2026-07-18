@@ -318,6 +318,7 @@ struct TarotResultStage: View {
                     .foregroundStyle(Color.textInverseToken.opacity(0.85))
                     .frame(maxWidth: .infinity, minHeight: 44)
             }
+            .buttonStyle(TwinkoHapticPressStyle())
             .accessibilityIdentifier("tarotBackHome")
         }
         .padding(.horizontal, TwinkoSpacing.m)

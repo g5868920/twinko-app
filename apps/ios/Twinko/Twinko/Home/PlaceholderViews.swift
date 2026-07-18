@@ -41,9 +41,11 @@ private struct PlaceholderHeader: View {
 
 struct MusicPlaceholderView: View {
     @EnvironmentObject private var prefs: PrefsStore
+    @EnvironmentObject private var chrome: ShellChrome
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var floating = false
+    @State private var immersiveToken = UUID()
 
     private var lang: AppLanguage { prefs.language }
 
@@ -63,12 +65,20 @@ struct MusicPlaceholderView: View {
                 VStack(spacing: TwinkoSpacing.m) {
                     Spacer()
                     // Founder-approved music Twinko, gently floating —
-                    // the shared companion motion language.
+                    // the shared companion motion language. The float
+                    // is scoped to this image via .animation(value:);
+                    // the old onAppear withAnimation leaked the
+                    // repeat-forever animation into the whole page
+                    // (title, back key, and copy all drifted).
                     Image("twinko_music_v1")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 150, height: 150)
                         .offset(y: reduceMotion ? 0 : (floating ? -4 : 4))
+                        .animation(floating
+                                   ? .easeInOut(duration: 3.2).repeatForever(autoreverses: true)
+                                   : .linear(duration: 0.05),
+                                   value: floating)
                         .accessibilityLabel(Text("Twinko"))
                     Text(lang == .english
                          ? "A quiet moment can be its own kind of music."
@@ -86,10 +96,12 @@ struct MusicPlaceholderView: View {
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
         .onAppear {
-            guard !reduceMotion else { return }
-            withAnimation(.easeInOut(duration: 3.2).repeatForever(autoreverses: true)) {
-                floating = true
-            }
+            // Immersive page: the dock hides while Music is open.
+            chrome.setImmersive(immersiveToken, active: true)
+            floating = !reduceMotion
+        }
+        .onDisappear {
+            chrome.setImmersive(immersiveToken, active: false)
         }
     }
 }
@@ -109,7 +121,9 @@ struct MusicPlaceholderView: View {
 /// top-left Back (the bottom Back button was retired 2026-07-18).
 struct ActivitiesComingSoonView: View {
     @EnvironmentObject private var prefs: PrefsStore
+    @EnvironmentObject private var chrome: ShellChrome
     @Environment(\.dismiss) private var dismiss
+    @State private var immersiveToken = UUID()
 
     private var lang: AppLanguage { prefs.language }
 
@@ -152,5 +166,12 @@ struct ActivitiesComingSoonView: View {
         .dockClearance()
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
+        .onAppear {
+            // Immersive page: the dock hides while Activity is open.
+            chrome.setImmersive(immersiveToken, active: true)
+        }
+        .onDisappear {
+            chrome.setImmersive(immersiveToken, active: false)
+        }
     }
 }

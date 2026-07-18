@@ -131,10 +131,10 @@ struct MeditationFlowView: View {
     private var header: some View {
         HStack {
             Button {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 if stage == .session {
                     playback.pause()
                     showingEndConfirm = true
-                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 } else {
                     dismiss()
                 }
@@ -222,6 +222,7 @@ struct MeditationFlowView: View {
                         .underline()
                         .frame(minHeight: 32)
                 }
+                .buttonStyle(TwinkoHapticPressStyle())
                 .accessibilityIdentifier("meditationUseGeneral")
             }
 
@@ -357,6 +358,7 @@ struct MeditationFlowView: View {
                     radius: selected ? 9 : 6, y: 3)
             .contentShape(RoundedRectangle(cornerRadius: 14))
         }
+        .buttonStyle(TwinkoHapticPressStyle())
         .accessibilityAddTraits(selected ? [.isSelected] : [])
         .accessibilityLabel(Text(optionAccessibilityLabel(label, selected: selected,
                                                           recommended: recommended)))

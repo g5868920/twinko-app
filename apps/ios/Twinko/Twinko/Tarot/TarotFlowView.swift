@@ -341,6 +341,7 @@ private struct TarotSetupStage: View {
                             .foregroundStyle(TarotCTAPalette.warmLightText)
                             .contentShape(RoundedRectangle(cornerRadius: 14))
                         }
+                        .buttonStyle(TwinkoHapticPressStyle())
                         .accessibilityIdentifier("tarotTopic-\(option.rawValue)")
                         .accessibilityLabel(Text(selected
                             ? (lang == .english ? "\(option.label(lang)), selected"
@@ -514,5 +515,10 @@ struct TarotSuggestionPressStyle: ButtonStyle {
             .opacity(configuration.isPressed ? 0.6 : 1.0)
             .scaleEffect(configuration.isPressed ? 0.99 : 1.0)
             .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+            .onChange(of: configuration.isPressed) { _, pressed in
+                if pressed {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                }
+            }
     }
 }

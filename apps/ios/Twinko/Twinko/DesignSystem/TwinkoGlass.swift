@@ -198,6 +198,23 @@ extension View {
     }
 }
 
+/// Light haptic + quiet dim for controls whose selected state is drawn
+/// by the control itself (chips, rows, text links, navigation cards).
+/// Every tappable control carries a light haptic (founder rule
+/// 2026-07-18) — apply this wherever no richer press style exists.
+struct TwinkoHapticPressStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .opacity(configuration.isPressed ? 0.8 : 1)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+            .onChange(of: configuration.isPressed) { _, pressed in
+                if pressed {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                }
+            }
+    }
+}
+
 /// Quiet pressed feedback shared by glass controls: 0.97 scale,
 /// slight dim, light haptic.
 struct TwinkoGlassPressStyle: ButtonStyle {

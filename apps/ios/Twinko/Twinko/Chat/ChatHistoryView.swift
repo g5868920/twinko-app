@@ -284,6 +284,7 @@ struct ChatHistoryView: View {
                         .frame(width: 32, height: 32)
                         .contentShape(Rectangle())
                 }
+                .buttonStyle(TwinkoHapticPressStyle())
                 .accessibilityLabel(Text(ChatStrings.clearSearch(lang)))
                 .accessibilityIdentifier("historySearchClear")
             }
@@ -545,6 +546,7 @@ struct ChatHistoryView: View {
                     .overlay(Capsule().strokeBorder(Color.brandPurple.opacity(0.4),
                                                     lineWidth: 1))
             }
+            .buttonStyle(TwinkoHapticPressStyle())
             .accessibilityIdentifier("historyClearSearch")
             Spacer()
             Spacer()
@@ -560,6 +562,11 @@ private struct HistoryCardPressStyle: ButtonStyle {
             .brightness(configuration.isPressed ? 0.04 : 0)
             .scaleEffect(configuration.isPressed ? 0.985 : 1.0)
             .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
+            .onChange(of: configuration.isPressed) { _, pressed in
+                if pressed {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                }
+            }
     }
 }
 
@@ -574,6 +581,11 @@ private struct HistoryControlPressStyle: ButtonStyle {
             )
             .scaleEffect(configuration.isPressed ? 0.94 : 1.0)
             .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
+            .onChange(of: configuration.isPressed) { _, pressed in
+                if pressed {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                }
+            }
     }
 }
 

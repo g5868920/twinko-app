@@ -231,7 +231,7 @@ struct HoroscopeDimensionCard: View {
                          tint: kind == .overall ? 0.48 : 0.40, night: true)
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(TwinkoHapticPressStyle())
         .accessibilityIdentifier("horoscopeDimension-\(kind.rawValue)")
         .accessibilityLabel(Text(
             "\(kind.title(lang))，\(HoroscopeScoreLabel.accessibilityText(dimension.score, lang))。\(dimension.summary)"))

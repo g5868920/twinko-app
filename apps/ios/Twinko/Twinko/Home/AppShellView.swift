@@ -732,7 +732,13 @@ struct ExploreFlightRoute {
     }
 
     func angle(atFraction t: CGFloat, forward: Bool) -> Angle {
-        guard samples.count > 1 else { return .zero }
+        // Zero-length routes (first layout pass reports a zero size,
+        // collapsing every point to the origin) must bail out before
+        // indexing: segmentIndex returns 0 there and samples[-1]
+        // crashes.
+        guard samples.count > 1, let total = cumulative.last, total > 0 else {
+            return .zero
+        }
         let index = segmentIndex(atFraction: t)
         let delta = CGPoint(x: samples[index].x - samples[index - 1].x,
                             y: samples[index].y - samples[index - 1].y)

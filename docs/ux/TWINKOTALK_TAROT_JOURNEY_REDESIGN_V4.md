@@ -504,3 +504,98 @@ review → Edit Question draft check → bounded Two-Choice validation spot
 check, 4 screenshots T1–T4) plus `testTarotPreReadingEnglishSpotCheck`
 (landing + one setup + Change Spread sheet in English). Results recorded in
 the task report.
+
+---
+
+## 16. Task 2 — Flexible reading engine, 1/3/4/5-card readings (2026-07-19)
+
+**Status:** Implemented and **publicly activated**. This section supersedes
+§15.4's activation paragraph: the intent-first pre-reading (§15) is now the
+live public Tarot entry, and the legacy topic/spread pre-reading stages
+(§2, §5 of this document's original flow) are retired. Canonical product
+source remains `docs/features/tarot/TWINKOTALK_TAROT_USAGE_SPEC.md`.
+
+### 16.1 Boundary
+
+Implemented: consumption of the Task 1 `TarotReadingLaunchRequest`; one
+canonical active `TarotReadingSession`; descriptor-driven reading for all ten
+MVP spreads (1/3/4/5 cards); unique per-position draw with once-assigned
+orientation; generalized shuffle → reveal → result; per-position session-owned
+reveal state; spread-specific result grouping; position-aware deterministic
+mock interpretation; integrated summary for every reading; Two-Choice
+neutrality and Relationship presented-state safety language; one optional
+Guidance Card for every spread.
+
+Not implemented (Task 3+/spec-only): Daily Tarot entry/limits/persistence,
+Chat/Home handoffs and source-aware return, reading history, saved readings or
+cards, LLM interpretation, backend, premium/periodic spreads (weekly, monthly,
+yearly, Celtic Cross remain absent from all UI).
+
+### 16.2 Session, deck, and phases
+
+`TarotReadingSession` (TarotEngine.swift) is the one source of truth: stable
+`id`, `spreadID`, validated inputs copied verbatim from the launch request
+(question, decision context, Option A/B, optional person label, intent), drawn
+cards, `revealedPositionIDs: Set<TarotPositionID>`, `guidanceCard`,
+`revealSeen`. Cards are drawn once at Begin Reading (the existing ritual
+pattern) by `TarotDrawEngine.draw(spreadID:)` — one unique card per canonical
+position in canonical order, orientation assigned exactly once, identity never
+derived from choreography. The Guidance Card draws from the remaining deck
+(`drawGuidance(excluding:)`), role `.guidance`, never a numbered position,
+at most one per session. Flow phases: pre-reading (Task 1 view, kept mounted)
+→ shuffle → reveal → result → guidanceReveal → result. View recreation and
+Back navigation never mutate the session; `assertionFailure` guards
+definition/count mismatches in development builds.
+
+### 16.3 New Reading / reset boundary
+
+New Reading (result) and Back before the result (confirmed via the branded
+「要回到設定嗎？」 modal) both clear the active session and return to the
+still-mounted Task 1 pre-reading with the draft intact; the next Begin Reading
+creates a new session ID and deck. Cards are never reinterpreted under a
+different spread. Back from result → completed face-up reveal → result stays
+unchanged (same cards, same orientations, Guidance Card intact).
+
+### 16.4 Reveal and progress
+
+One reveal stage serves every spread: ≤3 cards in one row; 4 as 2×2; 5 as
+2+2+1 (Two-Choice reads as A|B columns, Relationship as my-side/other-side
+rows with the direction centered). Multi-card reveals show localized progress
+(`已翻開 x / N 張・下一張：<position>` / `x of N cards revealed · Next: …`).
+Each flip reports its canonical position to the session; rapid or repeated
+taps are idempotent and can never overdraw.
+
+### 16.5 Result generalization
+
+Hierarchy: context card (question or decision context + A/B, optional person
+label, spread title, purpose, card count) → base-card sections in canonical
+order — grouped with equal visual weight for Two-Choice (選項 A/選項 B/你目前的
+狀態, user labels shown, no winner language) and Relationship (我這一邊/對方呈現
+的一邊/關係的可能走向) — each section: numbered position badge, card art, name,
+orientation, keywords, position-aware interpretation, one reflection sentence
+→ 整體來看 integrated summary (every spread; Two-Choice neutral comparison,
+Relationship presented-state reflection, expands when the Guidance Card joins)
+→ Twinko closing → optional Guidance Card draw (CTA removed after the one
+draw; distinct 指引牌 section) → save card → meditation → exits → single
+canonical disclaimer.
+
+### 16.6 Interpretation boundary
+
+`MockTarotInterpretationProvider` stays the deterministic prototype boundary:
+position frames now cover all 21 canonical position IDs plus the guidance
+role (zh/EN), composed with the existing suit/arcana theme, orientation
+nuance, and intent-derived topic flavor (`TarotReadingSession.topicFlavor` —
+no question-text classification). Two-Choice copy never ranks or chooses;
+Relationship copy never claims hidden thoughts, cheating, contact, or destiny.
+
+### 16.7 Validation (strictly minimal, per instruction §46)
+
+One `build-for-testing` build; directly affected unit-test groups
+`TarotDrawTests` (migrated: canonical counts/uniqueness/order, guidance
+exclusion and single-draw, session stability, safety language, summaries) and
+`TarotPreReadingTests`; one Core Clarity Simulator walkthrough
+(`testTarotReadingCoreClarityWalkthrough`, includes the bounded Two-Choice
+five-card result check — no fixture/preview mechanism exists, so the shortest
+normal UI route was used) plus `testTarotReadingEnglishSpotCheck` (three-card
+EN: progress, result headings, Guidance CTA, disclaimer). Results in the task
+report. Reduce Motion and Relationship layout verified by code inspection.

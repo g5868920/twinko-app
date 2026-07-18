@@ -15,56 +15,21 @@ enum TarotOrientation: String, Codable, CaseIterable {
     }
 }
 
-enum TarotSpreadType: String, Codable, CaseIterable, Identifiable {
-    case single, three
-
-    var id: String { rawValue }
-    var cardCount: Int { self == .single ? 1 : 3 }
-
-    func title(_ lang: AppLanguage) -> String {
-        switch (self, lang) {
-        case (.single, .english): return "Single Card"
-        case (.single, .traditionalChinese): return "單張牌"
-        case (.three, .english): return "Three Cards"
-        case (.three, .traditionalChinese): return "三張牌"
-        }
-    }
-
-    func subtitle(_ lang: AppLanguage) -> String {
-        switch (self, lang) {
-        case (.single, .english): return "Quick Insight"
-        case (.single, .traditionalChinese): return "此刻最需要的提醒"
-        case (.three, .english): return "Past · Present · Future"
-        case (.three, .traditionalChinese): return "過去・現在・未來"
-        }
-    }
+/// Whether a drawn card fills a numbered spread position or is the one
+/// optional Guidance Card (which is never a numbered position).
+enum TarotDrawRole: String, Codable {
+    case basePosition
+    case guidance
 }
 
-/// Three-card positions (spec: Past / Present / Future) plus the
-/// optional Guidance position for the 3+1 add-on card.
-enum TarotPositionType: String, Codable, CaseIterable {
-    case past, present, future, guidance
-
-    func label(_ lang: AppLanguage) -> String {
-        switch (self, lang) {
-        case (.past, .english): return "Past"
-        case (.past, .traditionalChinese): return "過去"
-        case (.present, .english): return "Present"
-        case (.present, .traditionalChinese): return "現在"
-        case (.future, .english): return "Future"
-        case (.future, .traditionalChinese): return "未來"
-        case (.guidance, .english): return "Guidance"
-        case (.guidance, .traditionalChinese): return "指引"
-        }
-    }
-
-    static let threeCard: [TarotPositionType] = [.past, .present, .future]
-}
-
+/// One drawn card: identity, orientation, and its canonical position
+/// assignment — all fixed at draw time and never re-derived from
+/// rendering or animation state (Task 2 §8/§11).
 struct TarotDrawnCard: Identifiable, Equatable {
     let card: TarotCardInfo
     let orientation: TarotOrientation
-    let position: TarotPositionType?
+    let positionID: TarotPositionID?
+    let role: TarotDrawRole
 
     var id: String { card.id }
 }
@@ -73,9 +38,10 @@ struct TarotDrawnCard: Identifiable, Equatable {
 
 /// Unbiased draw over the full 78-card registry: no weighting, no
 /// topic filtering, no duplicates within a reading, orientation
-/// randomized independently at 50/50. The generic RNG parameter exists
-/// only so tests can inject a seeded generator; production paths use
-/// the system RNG.
+/// randomized independently at 50/50 and assigned exactly once. Card
+/// identity comes only from this engine — never from choreography or
+/// animation timing. The generic RNG parameter exists only so tests
+/// can inject a seeded generator; production paths use the system RNG.
 struct TarotDrawEngine<G: RandomNumberGenerator> {
     private var rng: G
     let deck: [TarotCardInfo]
@@ -85,27 +51,30 @@ struct TarotDrawEngine<G: RandomNumberGenerator> {
         self.deck = deck
     }
 
-    mutating func draw(spread: TarotSpreadType) -> [TarotDrawnCard] {
-        let positions: [TarotPositionType?] = spread == .three
-            ? TarotPositionType.threeCard
-            : [nil]
-        let picked = deck.shuffled(using: &rng).prefix(spread.cardCount)
-        return zip(picked, positions).map { card, position in
+    /// Draws the base reading for any canonical MVP spread: exactly
+    /// one unique card per canonical position, assigned in canonical
+    /// position order (Task 2 §12).
+    mutating func draw(spreadID: TarotSpreadID) -> [TarotDrawnCard] {
+        let definition = TarotSpreadLibrary.definition(for: spreadID)
+        let picked = deck.shuffled(using: &rng).prefix(definition.cardCount)
+        return zip(picked, definition.positionIDs).map { card, position in
             TarotDrawnCard(card: card,
                            orientation: Bool.random(using: &rng) ? .upright : .reversed,
-                           position: position)
+                           positionID: position,
+                           role: .basePosition)
         }
     }
 
     /// One extra Guidance Card from the cards not already in the
-    /// reading — never a duplicate.
+    /// reading — never a duplicate, never a numbered position.
     mutating func drawGuidance(excluding drawn: [TarotDrawnCard]) -> TarotDrawnCard? {
         let used = Set(drawn.map(\.card.id))
         let remaining = deck.filter { !used.contains($0.id) }
         guard let card = remaining.shuffled(using: &rng).first else { return nil }
         return TarotDrawnCard(card: card,
                               orientation: Bool.random(using: &rng) ? .upright : .reversed,
-                              position: .guidance)
+                              positionID: nil,
+                              role: .guidance)
     }
 }
 
@@ -115,22 +84,86 @@ extension TarotDrawEngine where G == SystemRandomNumberGenerator {
 
 // MARK: - Reading session
 
-/// State for one reading, kept separate from presentation so a future
-/// LLM interpretation provider receives the full context (question,
-/// spread, cards, orientations, positions) defined in the spec.
-struct TarotReadingSession: Equatable {
-    var topic: TarotTopicType = .relationships
-    var question: String = ""
-    var spread: TarotSpreadType = .single
+/// The one active reading source of truth (Task 2 §8): identity,
+/// validated pre-reading inputs, drawn cards, per-position reveal
+/// state, and the optional Guidance Card all live here — never in
+/// stage-local view `@State`. A new reading is a new session value
+/// (new `id`); ordinary view recreation and Back navigation reuse the
+/// same value and therefore can never redraw, reorient, or re-hide a
+/// reading. Kept in-memory only, matching the app's current
+/// live-session ownership pattern (no reading history).
+struct TarotReadingSession: Equatable, Identifiable {
+    let id: UUID
+    let spreadID: TarotSpreadID
+    /// Interpretation flavor only (deterministically derived from the
+    /// validated intent — never free-text classification).
+    var topic: TarotTopicType
+    var intent: TarotIntent?
+    var question: String
+    var decisionContext: String?
+    var optionA: String?
+    var optionB: String?
+    var relationshipPersonLabel: String?
+
     var cards: [TarotDrawnCard] = []
     var guidanceCard: TarotDrawnCard?
-    /// Whether this reading's cards were already revealed once.
-    /// Session-owned (not view `@State`) so Back from the Result always
-    /// shows the same face-up cards — backward navigation never
-    /// re-hides, redraws, or rerandomizes a reading (§41). Cleared only
-    /// by an explicit new draw or a new reading.
+    /// Per-position reveal state, keyed by stable canonical position
+    /// IDs — session-owned so navigation, view recreation, and
+    /// language switches never re-hide a revealed card (§15).
+    var revealedPositionIDs: Set<TarotPositionID> = []
+    /// Whether this reading's base cards were all revealed once
+    /// (drives the completed-return reveal presentation).
     var revealSeen = false
     var createdAt: Date = .now
+
+    init(id: UUID = UUID(), spreadID: TarotSpreadID = .singleCard,
+         topic: TarotTopicType = .other, intent: TarotIntent? = nil,
+         question: String = "", decisionContext: String? = nil,
+         optionA: String? = nil, optionB: String? = nil,
+         relationshipPersonLabel: String? = nil) {
+        self.id = id
+        self.spreadID = spreadID
+        self.topic = topic
+        self.intent = intent
+        self.question = question
+        self.decisionContext = decisionContext
+        self.optionA = optionA
+        self.optionB = optionB
+        self.relationshipPersonLabel = relationshipPersonLabel
+    }
+
+    /// Creates the active session from a validated Task 1 launch
+    /// request — inputs are copied verbatim (never re-derived, never
+    /// re-recommended), and the manually selected spread wins.
+    init(request: TarotReadingLaunchRequest) {
+        let draft = request.draft
+        self.init(spreadID: draft.selectedSpreadID,
+                  topic: Self.topicFlavor(for: draft),
+                  intent: draft.intent,
+                  question: draft.trimmedQuestion,
+                  decisionContext: draft.trimmedDecisionContext.isEmpty
+                      ? nil : draft.trimmedDecisionContext,
+                  optionA: draft.trimmedOptionA.isEmpty ? nil : draft.trimmedOptionA,
+                  optionB: draft.trimmedOptionB.isEmpty ? nil : draft.trimmedOptionB,
+                  relationshipPersonLabel: draft.trimmedPersonLabel.isEmpty
+                      ? nil : draft.trimmedPersonLabel)
+    }
+
+    /// Deterministic intent→topic mapping used only to keep the
+    /// existing interpretation/meditation flavor copy meaningful. No
+    /// question-text classification (Task 2 §5).
+    static func topicFlavor(for draft: TarotReadingDraft) -> TarotTopicType {
+        switch draft.intent {
+        case .romanticRelationship: return .relationships
+        case .understandMyself: return .growth
+        case .nextStepOrDirection: return .lifePath
+        default: return .other
+        }
+    }
+
+    var definition: TarotSpreadDefinition {
+        TarotSpreadLibrary.definition(for: spreadID)
+    }
 
     var allCards: [TarotDrawnCard] {
         guidanceCard.map { cards + [$0] } ?? cards
@@ -141,17 +174,26 @@ struct TarotReadingSession: Equatable {
     }
 
     /// One optional Guidance Card per reading — never a repeated
-    /// "draw until satisfied" loop (redesign 2026-07-16).
+    /// "draw until satisfied" loop.
     var canDrawGuidance: Bool {
         guidanceCard == nil && !cards.isEmpty
+    }
+
+    /// Marks a base position revealed (idempotent — repeated flips or
+    /// rapid taps can never overdraw or reset state).
+    mutating func markRevealed(_ positionID: TarotPositionID?) {
+        guard let positionID else { return }
+        revealedPositionIDs.insert(positionID)
     }
 }
 
 // MARK: - Topics
 
-/// The six approved topics (redesign 2026-07-16). Identifiers are
-/// stable and language-independent; exact English labels are approved
-/// copy — do not shorten or merge them.
+/// The six approved topics (redesign 2026-07-16). Since the Task 2
+/// intent-first flow replaced topic selection, the topic now only
+/// flavors interpretation/meditation copy (derived deterministically
+/// from the validated intent). Identifiers are stable and
+/// language-independent.
 enum TarotTopicType: String, Codable, CaseIterable, Identifiable {
     case relationships, career, finance, growth, lifePath, other
 
@@ -182,49 +224,6 @@ enum TarotTopicType: String, Codable, CaseIterable, Identifiable {
         case (.lifePath, .traditionalChinese): return "生活方向"
         case (.other, .english): return "Other"
         case (.other, .traditionalChinese): return "其他"
-        }
-    }
-
-    /// Topic-specific reflective suggestions. Finance prompts are
-    /// reflective only — never investment advice or outcome promises.
-    func suggestedQuestions(_ lang: AppLanguage) -> [String] {
-        switch (self, lang) {
-        case (.relationships, .english):
-            return ["What deserves my attention in this relationship?",
-                    "What direction could this relationship be moving toward?"]
-        case (.relationships, .traditionalChinese):
-            return ["我現在的關係，最需要我留意的是什麼？",
-                    "這段關係接下來可能朝什麼方向發展？"]
-        case (.career, .english):
-            return ["Where should I focus my energy at work?",
-                    "What deserves my attention in my career right now?"]
-        case (.career, .traditionalChinese):
-            return ["我接下來在工作上應該把重心放在哪裡？",
-                    "現在的職涯狀態，最值得我注意的是什麼？"]
-        case (.finance, .english):
-            return ["What should I be mindful of in my financial decisions?",
-                    "Should I take a more cautious or active approach financially?"]
-        case (.finance, .traditionalChinese):
-            return ["我現在在金錢決策上，最需要留意的是什麼？",
-                    "接下來的財務方向，我應該更保守還是更積極？"]
-        case (.growth, .english):
-            return ["What inner lesson needs my attention right now?",
-                    "What strength would be most valuable for me to develop?"]
-        case (.growth, .traditionalChinese):
-            return ["我最近最需要面對的內在課題是什麼？",
-                    "現在的我，最值得培養的是什麼力量？"]
-        case (.lifePath, .english):
-            return ["How can I find the right pace for the days ahead?",
-                    "What deserves more attention in my life right now?"]
-        case (.lifePath, .traditionalChinese):
-            return ["接下來的日子，我可以怎麼安排自己的步調？",
-                    "現在的生活裡，有什麼值得我多留意？"]
-        case (.other, .english):
-            return ["What reminder do I need most right now?",
-                    "What might the cards help me notice about this situation?"]
-        case (.other, .traditionalChinese):
-            return ["我現在最需要被提醒的是什麼？",
-                    "對我正在思考的這件事，牌想讓我看見什麼？"]
         }
     }
 }

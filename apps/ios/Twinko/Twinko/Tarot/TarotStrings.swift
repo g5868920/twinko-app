@@ -37,6 +37,41 @@ enum TarotStrings {
     static func revealGuidance(_ l: AppLanguage) -> String {
         l == .english ? "Your Guidance Card is ready" : "你的指引牌準備好了"
     }
+    /// Generic multi-spread reveal heading (Task 2): every spread size
+    /// shares one instruction; positions label themselves as revealed.
+    static func revealGeneric(_ l: AppLanguage) -> String {
+        l == .english ? "Reveal the card for each position" : "翻開屬於每個位置的牌"
+    }
+    /// Multi-card selection/reveal progress (§13): counts plus the
+    /// next canonical position where useful.
+    static func revealProgress(_ revealed: Int, _ total: Int,
+                               next: String?, _ l: AppLanguage) -> String {
+        var text = l == .english
+            ? "\(revealed) of \(total) cards revealed"
+            : "已翻開 \(revealed) / \(total) 張"
+        if let next {
+            text += l == .english ? " · Next: \(next)" : "・下一張：\(next)"
+        }
+        return text
+    }
+    /// The Guidance Card's distinct section/role label — never a
+    /// numbered spread position.
+    static func guidanceLabel(_ l: AppLanguage) -> String {
+        l == .english ? "Guidance Card" : "指引牌"
+    }
+    // Back before the result = leaving the committed draw (the New
+    // Reading boundary, §16): confirmed, draft preserved.
+    static func discardConfirmTitle(_ l: AppLanguage) -> String {
+        l == .english ? "Go back to your setup?" : "要回到設定嗎？"
+    }
+    static func discardConfirmBody(_ l: AppLanguage) -> String {
+        l == .english
+            ? "These drawn cards will be returned to the deck. Your question and setup stay as they are."
+            : "這次抽出的牌會收回牌堆，你的問題與設定會保留。"
+    }
+    static func discardConfirmLeave(_ l: AppLanguage) -> String {
+        l == .english ? "Back to Setup" : "回到設定"
+    }
     static func tapToFlip(_ l: AppLanguage) -> String {
         l == .english ? "Tap a card to reveal it" : "輕點牌面，把牌翻開"
     }
@@ -219,7 +254,7 @@ enum TarotShareFormatter {
                      lang: AppLanguage) -> String {
         var lines: [String] = []
         lines.append(lang == .english ? "✦ Twinko Tarot" : "✦ Twinko 塔羅")
-        lines.append(session.spread.title(lang) + (session.guidanceCard != nil
+        lines.append(session.spreadID.title(lang) + (session.guidanceCard != nil
             ? (lang == .english ? " + Guidance" : "＋指引牌") : ""))
         let q = session.trimmedQuestion
         if !q.isEmpty {
@@ -228,7 +263,10 @@ enum TarotShareFormatter {
         lines.append("")
         for drawn in session.allCards {
             var line = "· "
-            if let position = drawn.position {
+            if drawn.role == .guidance {
+                let label = TarotStrings.guidanceLabel(lang)
+                line += lang == .english ? "\(label): " : "\(label)｜"
+            } else if let position = drawn.positionID {
                 line += lang == .english ? "\(position.label(lang)): " : "\(position.label(lang))｜"
             }
             line += lang == .english

@@ -3,17 +3,19 @@ import Photos
 
 // MARK: - Layout modes
 
-/// The four Summary Card compositions. Guidance is presented as its
-/// own emphasized element — never a fourth chronological position.
+/// The four Summary Card compositions, keyed by base-card count
+/// (single vs multi) — the multi modes lay out any 3/4/5-card spread
+/// row. Guidance is presented as its own emphasized element — never
+/// another numbered position.
 enum TarotSummaryLayout: Equatable {
     case single, three, singlePlusGuidance, threePlusGuidance
 
     static func mode(for session: TarotReadingSession) -> TarotSummaryLayout {
-        switch (session.spread, session.guidanceCard != nil) {
-        case (.single, false): return .single
-        case (.single, true): return .singlePlusGuidance
-        case (.three, false): return .three
-        case (.three, true): return .threePlusGuidance
+        switch (session.cards.count <= 1, session.guidanceCard != nil) {
+        case (true, false): return .single
+        case (true, true): return .singlePlusGuidance
+        case (false, false): return .three
+        case (false, true): return .threePlusGuidance
         }
     }
 }
@@ -104,9 +106,11 @@ struct TarotSummaryCardView: View {
         case .single:
             summaryCard(session.cards[0], width: 108, showPosition: false)
         case .three:
-            HStack(alignment: .top, spacing: 14) {
+            HStack(alignment: .top, spacing: session.cards.count >= 4 ? 8 : 14) {
                 ForEach(session.cards) { drawn in
-                    summaryCard(drawn, width: 70, showPosition: true)
+                    summaryCard(drawn, width: session.cards.count >= 4 ? 48 : 70,
+                                showPosition: true,
+                                dense: session.cards.count >= 4)
                 }
             }
         case .singlePlusGuidance:
@@ -114,14 +118,15 @@ struct TarotSummaryCardView: View {
                 summaryCard(session.cards[0], width: 84, showPosition: false,
                             overrideLabel: TarotStrings.mainMessageLabel(lang))
                 summaryCard(session.guidanceCard!, width: 84, showPosition: false,
-                            overrideLabel: TarotPositionType.guidance.label(lang),
+                            overrideLabel: TarotStrings.guidanceLabel(lang),
                             guidanceGlow: true)
             }
         case .threePlusGuidance:
             VStack(spacing: 3) {
-                HStack(alignment: .top, spacing: 12) {
+                HStack(alignment: .top, spacing: session.cards.count >= 4 ? 7 : 12) {
                     ForEach(session.cards) { drawn in
-                        summaryCard(drawn, width: 46, showPosition: true, dense: true)
+                        summaryCard(drawn, width: session.cards.count >= 4 ? 40 : 46,
+                                    showPosition: true, dense: true)
                     }
                 }
                 // Small connector spark — Guidance is its own element,
@@ -156,8 +161,15 @@ struct TarotSummaryCardView: View {
                 Text(overrideLabel)
                     .font(.system(size: 9, weight: .semibold, design: .rounded))
                     .foregroundStyle(TarotCTAPalette.antiqueGold)
-            } else if showPosition, let position = drawn.position {
-                Text(position.label(lang))
+            } else if showPosition, drawn.role == .guidance {
+                Text(TarotStrings.guidanceLabel(lang))
+                    .font(.system(size: 9, weight: .semibold, design: .rounded))
+                    .foregroundStyle(TarotCTAPalette.antiqueGold)
+            } else if showPosition, let position = drawn.positionID {
+                // Compact export uses the abbreviated preview label so
+                // long canonical position names never clip.
+                Text(session.cards.count >= 4 ? position.previewLabel(lang)
+                                              : position.label(lang))
                     .font(.system(size: 9, weight: .semibold, design: .rounded))
                     .foregroundStyle(TarotCTAPalette.antiqueGold)
             }

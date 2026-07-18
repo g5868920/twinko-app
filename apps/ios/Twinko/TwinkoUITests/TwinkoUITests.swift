@@ -2374,6 +2374,193 @@ final class TwinkoUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Two-Choice Reflection"].exists)
     }
 
+    /// Task 2 primary walkthrough (§46C/§46D): one complete Core
+    /// Clarity reading (setup → begin → shuffle → 4-card reveal →
+    /// result → Guidance Card → Back → return), then the bounded
+    /// Two-Choice five-card result check via the shortest normal UI
+    /// route (no fixture/preview mechanism exists in this project).
+    func testTarotReadingCoreClarityWalkthrough() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile"]
+        app.launch()
+
+        XCTAssertTrue(app.descendants(matching: .any)["mood-calm"]
+            .waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 2.0)
+        app.buttons["tab-explore"].tap()
+        XCTAssertTrue(app.staticTexts["探索宇宙"].waitForExistence(timeout: 5))
+        settleTap(app.descendants(matching: .any)["explore-tarot"])
+
+        // Task 1 pre-reading is now the live public entry.
+        XCTAssertTrue(app.staticTexts["這次想從哪個角度看看？"].waitForExistence(timeout: 6))
+        settleTap(app.descendants(matching: .any)["tarotIntent-nextStepOrDirection"])
+        XCTAssertTrue(app.descendants(matching: .any)["tarotRefinement-understandWhyStuck"]
+            .waitForExistence(timeout: 4))
+        settleTap(app.descendants(matching: .any)["tarotRefinement-understandWhyStuck"])
+        XCTAssertTrue(app.staticTexts["直指核心"].waitForExistence(timeout: 5))
+        settleTap(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "真正卡住的地方是什麼")).firstMatch)
+        scrollTap(app.descendants(matching: .any)["tarotSetupContinue"], in: app)
+        XCTAssertTrue(app.descendants(matching: .any)["tarotReviewTitle"]
+            .waitForExistence(timeout: 5))
+        scrollTap(app.descendants(matching: .any)["tarotReviewBegin"], in: app)
+
+        // Shuffle ritual (no auto-draw before Begin Reading; identity
+        // comes from the engine, not the animation), then 4-card
+        // reveal with selected/required progress.
+        XCTAssertTrue(app.staticTexts["翻開屬於每個位置的牌"].waitForExistence(timeout: 14),
+                      "Reveal follows the shuffle ritual")
+        let faceDown = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "蓋著的牌"))
+        XCTAssertEqual(faceDown.count, 4, "Core Clarity draws exactly 4 base cards")
+        let progress = app.descendants(matching: .any)["tarotRevealProgress"]
+        XCTAssertTrue(progress.label.contains("0 / 4"))
+        XCTAssertTrue(progress.label.contains("問題核心"), "Next position communicated")
+
+        settleTap(faceDown.firstMatch)
+        settleTap(faceDown.firstMatch)
+        XCTAssertTrue(app.descendants(matching: .any)["tarotRevealProgress"].label
+            .contains("2 / 4"), "Progress reaches 2 / 4")
+        attach(name: "R1-four-card-draw-progress")
+        settleTap(faceDown.firstMatch)
+        settleTap(faceDown.firstMatch)
+        XCTAssertEqual(faceDown.count, 0, "No fifth base card can be selected")
+        scrollTap(app.buttons["tarotSeeReading"], in: app)
+
+        // Result: context, numbered positions, integrated summary.
+        XCTAssertTrue(app.descendants(matching: .any)["tarotResultContext"]
+            .waitForExistence(timeout: 6))
+        for position in ["問題核心", "目前阻礙", "可行對策", "可運用的優勢"] {
+            XCTAssertTrue(app.staticTexts.matching(
+                NSPredicate(format: "label CONTAINS %@", position)).firstMatch.exists,
+                          "Position visible on result: \(position)")
+        }
+        XCTAssertTrue(app.staticTexts["整體來看"].exists, "Integrated summary")
+        attach(name: "R2-core-clarity-result")
+
+        // One optional Guidance Card: explicit draw, existing reveal
+        // language, unique, then back in the same result.
+        scrollTap(app.descendants(matching: .any)["tarotGuidanceAccept"], in: app)
+        XCTAssertTrue(app.staticTexts["你的指引牌準備好了"].waitForExistence(timeout: 6))
+        let guidanceFaceDown = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "蓋著的牌"))
+        settleTap(guidanceFaceDown.firstMatch)
+        scrollTap(app.buttons["tarotSeeReading"], in: app)
+        XCTAssertTrue(app.staticTexts["指引牌"].waitForExistence(timeout: 6),
+                      "Distinct Guidance Card section")
+        XCTAssertFalse(app.descendants(matching: .any)["tarotGuidanceAccept"].exists,
+                       "Guidance CTA removed after the one draw")
+        Thread.sleep(forTimeInterval: 1.2)
+        attach(name: "R3-guidance-section")
+
+        // Back once → completed reveal stays face-up → return: same
+        // session, Guidance Card intact, disclaimer present.
+        settleTap(app.buttons["tarotBackButton"])
+        XCTAssertTrue(app.staticTexts["這就是你本次抽到的牌"].waitForExistence(timeout: 5),
+                      "Back re-enters the completed reveal face-up")
+        XCTAssertEqual(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "蓋著的牌")).count, 0,
+                       "No card turns face-down again")
+        scrollTap(app.buttons["tarotSeeReading"], in: app)
+        XCTAssertTrue(app.descendants(matching: .any)["tarotResultContext"]
+            .waitForExistence(timeout: 6))
+        XCTAssertTrue(app.staticTexts["指引牌"].exists, "Guidance Card persists")
+        XCTAssertFalse(app.descendants(matching: .any)["tarotGuidanceAccept"].exists)
+        XCTAssertTrue(app.staticTexts["內容僅供反思與娛樂"].exists, "Disclaimer")
+
+        // --- Bounded Two-Choice five-card result check (§46D) via New
+        // Reading (the explicit reset boundary; draft preserved).
+        scrollTap(app.descendants(matching: .any)["tarotStartNewReading"], in: app)
+        XCTAssertTrue(app.descendants(matching: .any)["tarotReviewTitle"]
+            .waitForExistence(timeout: 5), "New Reading returns to the preserved draft")
+        settleTap(app.descendants(matching: .any)["tarotPreBackButton"])
+        settleTap(app.descendants(matching: .any)["tarotPreBackButton"])
+        XCTAssertTrue(app.staticTexts["這次想從哪個角度看看？"].waitForExistence(timeout: 5))
+        settleTap(app.descendants(matching: .any)["tarotIntent-compareTwoChoices"])
+        XCTAssertTrue(app.staticTexts["二選一抉擇"].waitForExistence(timeout: 5))
+        settleTap(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "我正在比較兩個工作選擇")).firstMatch)
+        let optionA = app.textFields["tarotOptionAField"]
+        scrollTap(optionA, in: app)
+        optionA.typeText("留在目前公司\n")
+        let optionB = app.textFields["tarotOptionBField"]
+        scrollTap(optionB, in: app)
+        optionB.typeText("接受新的工作邀請\n")
+        scrollTap(app.descendants(matching: .any)["tarotSetupContinue"], in: app)
+        XCTAssertTrue(app.descendants(matching: .any)["tarotReviewTitle"]
+            .waitForExistence(timeout: 5))
+        scrollTap(app.descendants(matching: .any)["tarotReviewBegin"], in: app)
+        XCTAssertTrue(app.staticTexts["翻開屬於每個位置的牌"].waitForExistence(timeout: 14))
+        let fiveDown = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "蓋著的牌"))
+        XCTAssertEqual(fiveDown.count, 5, "Two-Choice draws exactly 5 base cards")
+        for _ in 0..<5 { settleTap(fiveDown.firstMatch) }
+        scrollTap(app.buttons["tarotSeeReading"], in: app)
+        XCTAssertTrue(app.descendants(matching: .any)["tarotResultContext"]
+            .waitForExistence(timeout: 6))
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "選項 A・留在目前公司")).firstMatch.exists,
+                      "Option A group carries the user's label")
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "選項 B・接受新的工作邀請")).firstMatch.exists,
+                      "Option B group carries the user's label")
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "你目前的狀態")).firstMatch.exists,
+                      "User's current state stays a separate group")
+        XCTAssertFalse(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "你應該選")).firstMatch.exists,
+                       "No winner language")
+        attach(name: "R4-two-choice-result")
+        // Stop here — no second Guidance Card (§46D).
+    }
+
+    /// Second-locale spot check (§46G): one three-card reading in
+    /// English covering exactly the required states — draw progress,
+    /// completed result headings, Guidance CTA, disclaimer. No Back
+    /// navigation or Guidance draw is repeated in this locale.
+    func testTarotReadingEnglishSpotCheck() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile", "-uiTestEnglish"]
+        app.launch()
+
+        XCTAssertTrue(app.descendants(matching: .any)["mood-calm"]
+            .waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 2.0)
+        app.buttons["tab-explore"].tap()
+        Thread.sleep(forTimeInterval: 1.0)
+        settleTap(app.descendants(matching: .any)["explore-tarot"])
+
+        XCTAssertTrue(app.staticTexts["What would you like clarity on?"]
+            .waitForExistence(timeout: 6))
+        settleTap(app.descendants(matching: .any)["tarotIntent-understandProgression"])
+        XCTAssertTrue(app.staticTexts["Past, Present & Possible Direction"]
+            .waitForExistence(timeout: 5))
+        scrollTap(app.descendants(matching: .any)["tarotSetupContinue"], in: app)
+        XCTAssertTrue(app.descendants(matching: .any)["tarotReviewTitle"]
+            .waitForExistence(timeout: 5))
+        scrollTap(app.descendants(matching: .any)["tarotReviewBegin"], in: app)
+
+        XCTAssertTrue(app.staticTexts["Reveal the card for each position"]
+            .waitForExistence(timeout: 14))
+        let progress = app.descendants(matching: .any)["tarotRevealProgress"]
+        XCTAssertTrue(progress.label.contains("0 of 3 cards revealed"))
+        XCTAssertTrue(progress.label.contains("Next: Past"))
+        let faceDown = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "Face-down card"))
+        XCTAssertEqual(faceDown.count, 3)
+        for _ in 0..<3 { settleTap(faceDown.firstMatch) }
+        scrollTap(app.buttons["tarotSeeReading"], in: app)
+
+        XCTAssertTrue(app.descendants(matching: .any)["tarotResultContext"]
+            .waitForExistence(timeout: 6))
+        XCTAssertTrue(app.staticTexts["Past, Present & Possible Direction"].exists)
+        XCTAssertTrue(app.staticTexts["3 cards"].exists)
+        XCTAssertTrue(app.staticTexts["Reading it together"].exists)
+        XCTAssertTrue(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "Draw a Guidance Card")).firstMatch.exists)
+        XCTAssertTrue(app.staticTexts["For reflection and entertainment only"].exists)
+    }
+
     /// Waits out any in-flight transition, then taps via coordinate —
     /// coordinate taps skip the AX scroll-to-visible action that fails
     /// on animating elements.

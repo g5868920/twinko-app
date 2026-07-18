@@ -156,14 +156,9 @@ final class MeditationPlaybackTests: XCTestCase {
         XCTAssertNotNil(ended?.endedAt)
     }
 
-    // MARK: Tarot exit threshold
-
-    func testTarotExitConfirmationThreshold() {
-        XCTAssertFalse(TarotFlowView.requiresExitConfirmation(stage: .setup))
-        XCTAssertFalse(TarotFlowView.requiresExitConfirmation(stage: .spread))
-        XCTAssertTrue(TarotFlowView.requiresExitConfirmation(stage: .shuffle))
-        XCTAssertTrue(TarotFlowView.requiresExitConfirmation(stage: .reveal))
-        XCTAssertTrue(TarotFlowView.requiresExitConfirmation(stage: .result))
-        XCTAssertTrue(TarotFlowView.requiresExitConfirmation(stage: .guidanceReveal))
-    }
+    // Task 2 (2026-07-19): the legacy per-stage exit threshold was
+    // removed with the stage machine — during an active reading the
+    // exit X always confirms (cards are committed from Begin Reading),
+    // and the pre-reading flow exits directly. Covered by the reading
+    // walkthrough.
 }

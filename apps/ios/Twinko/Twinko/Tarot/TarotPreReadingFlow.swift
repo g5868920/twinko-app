@@ -110,11 +110,11 @@ struct TarotReadingLaunchRequest: Equatable {
 // MARK: - Flow view
 
 struct TarotPreReadingFlowView: View {
-    /// Development-only activation (Phase 1 §2): reuses the existing
-    /// launch-argument mechanism; the public Tarot entry is untouched.
-    static var isDevEntryEnabled: Bool {
-        ProcessInfo.processInfo.arguments.contains("-tarotPreReadingV2")
-    }
+    /// Task 2 launch boundary: receives the one validated canonical
+    /// launch request when the user taps Begin Reading. (The Task 1
+    /// `-tarotPreReadingV2` development gate is retired — this flow is
+    /// now the live public pre-reading entry.)
+    var onLaunch: (TarotReadingLaunchRequest) -> Void = { _ in }
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -132,7 +132,6 @@ struct TarotPreReadingFlowView: View {
     /// completed.
     @State private var changeSpreadFromReview = false
     @State private var validationAttempted = false
-    @State private var launchRequest: TarotReadingLaunchRequest?
     @State private var immersiveToken = UUID()
 
     private var lang: AppLanguage { prefs.language }
@@ -764,9 +763,9 @@ struct TarotPreReadingFlowView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    /// Phase 1 launch boundary: revalidate, then produce one canonical
-    /// launch request. No shuffle, no draw, no card creation — Task 2
-    /// connects this request to a generalized reading engine.
+    /// Launch boundary: revalidate, then hand exactly one canonical
+    /// validated launch request to the reading engine (Task 2). No
+    /// cards are created here.
     private func beginReading() {
         guard var current = draft, current.isLaunchable else {
             withAnim { draft?.phase = .spreadSetup; validationAttempted = true }
@@ -774,7 +773,10 @@ struct TarotPreReadingFlowView: View {
         }
         current.phase = .readyToLaunch
         draft = current
-        launchRequest = TarotReadingLaunchRequest(draft: current)
+        onLaunch(TarotReadingLaunchRequest(draft: current))
+        // Returning after New Reading resumes at the review with the
+        // draft intact.
+        draft?.phase = .setupReview
     }
 
     // MARK: Change Spread sheet
@@ -1037,5 +1039,21 @@ enum TarotPreReadingStrings {
     static func validationRelationshipQuestionRequired(_ l: AppLanguage) -> String {
         l == .english ? "Please write what you'd like to understand"
                       : "請先寫下想理解的面向"
+    }
+}
+
+/// Quiet pressed feedback for suggestion/example rows (not a full
+/// magic CTA).
+struct TarotSuggestionPressStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .opacity(configuration.isPressed ? 0.6 : 1.0)
+            .scaleEffect(configuration.isPressed ? 0.99 : 1.0)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+            .onChange(of: configuration.isPressed) { _, pressed in
+                if pressed {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                }
+            }
     }
 }

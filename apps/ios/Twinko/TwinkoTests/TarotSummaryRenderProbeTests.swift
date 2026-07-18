@@ -17,13 +17,14 @@ final class TarotSummaryRenderProbeTests: XCTestCase {
         let provider = MockTarotInterpretationProvider()
         let out = URL(fileURLWithPath: "/tmp/twinko_summary_probe", isDirectory: true)
         try? FileManager.default.createDirectory(at: out, withIntermediateDirectories: true)
-        for (name, spread, guidance) in [("single", TarotSpreadType.single, false),
-                                         ("three", .three, false),
-                                         ("single_guidance", .single, true),
-                                         ("three_guidance", .three, true)] {
+        for (name, spreadID, guidance) in [("single", TarotSpreadID.singleCard, false),
+                                           ("three", .timelineThree, false),
+                                           ("single_guidance", .singleCard, true),
+                                           ("three_guidance", .timelineThree, true)] {
             var engine = TarotDrawEngine(rng: ProbeRNG(state: 7))
-            var session = TarotReadingSession(topic: .finance, question: "測試", spread: spread)
-            session.cards = engine.draw(spread: spread)
+            var session = TarotReadingSession(spreadID: spreadID, topic: .finance,
+                                              question: "測試")
+            session.cards = engine.draw(spreadID: spreadID)
             if guidance { session.guidanceCard = engine.drawGuidance(excluding: session.cards) }
             let image = TarotSummaryCardRenderer.render(session: session,
                                                         provider: provider,

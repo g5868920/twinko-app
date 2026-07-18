@@ -39,9 +39,18 @@ struct TarotShuffleStage: View {
     /// enlarged card half-height) — never on the forehead or hat.
     var settleY: CGFloat { cardCount == 1 ? -204 : -196 }
     /// Enlarged final cards: single +30%; three-card group +18–25%
-    /// with the center card slightly larger than the sides.
+    /// with the center card slightly larger; four/five-card rows stay
+    /// near natural size so the wider row fits every iPhone.
     func settleScale(slot: Int) -> CGFloat {
-        cardCount == 1 ? 1.30 : (slot == 1 ? 1.25 : 1.18)
+        switch cardCount {
+        case 1: return 1.30
+        case 3: return slot == 1 ? 1.25 : 1.18
+        default: return 1.02
+        }
+    }
+    /// Horizontal spacing of the settled row, tightened for 4/5 cards.
+    var settleSpacing: CGFloat {
+        cardCount == 1 ? 0 : (cardCount >= 4 ? 68 : 96)
     }
 
     private var selectedIndices: [Int] {
@@ -211,8 +220,7 @@ struct TarotShuffleStage: View {
         if let slot = selectedIndices.firstIndex(of: index) {
             // Converges into a row hovering clearly above Twinko's
             // head — never on the forehead or hat (§ separation rule).
-            let spacing: CGFloat = cardCount == 1 ? 0 : 96
-            let targetX = (CGFloat(slot) - CGFloat(cardCount - 1) / 2) * spacing
+            let targetX = (CGFloat(slot) - CGFloat(cardCount - 1) / 2) * settleSpacing
             let e = easeInOut(c)
             return (x: lerp(orbitX, targetX, e),
                     y: lerp(orbitY, settleY, e),
@@ -251,7 +259,7 @@ struct TarotShuffleStage: View {
                 let selectedSlot = TarotShuffleChoreography
                     .selectedIndices(fanCount: 5, pick: cardCount)
                     .firstIndex(of: index)
-                let spacing: CGFloat = cardCount == 1 ? 0 : 96
+                let spacing: CGFloat = settleSpacing
                 TarotCardBack(width: 66)
                     .scaleEffect(reducedCardsUp
                                  ? (selectedSlot == nil ? 0.8 : settleScale(slot: selectedSlot!))
@@ -387,11 +395,15 @@ struct TarotShuffleGlints: View {
 
 // MARK: - Reveal
 
-/// Manual reveal stage: face-down cards the user flips one by one.
-/// The CTA enables only after every card is revealed (never
-/// auto-flip). Revealed cards receive the subtle gold activation glow.
-/// When entered via Back from the result, cards stay revealed —
-/// backward navigation never re-hides or redraws a reading (§41).
+/// Manual reveal stage: face-down cards the user flips one by one —
+/// the ritual's explicit per-card commit action, generalized to every
+/// MVP spread size (1/3 in one row; 4/5 in semantic rows of two, the
+/// fifth centered). The CTA enables only after every card is revealed
+/// (never auto-flip). Revealed cards receive the subtle gold
+/// activation glow, and each flip reports its canonical position to
+/// the session (`onReveal`) so reveal state is session-owned. When
+/// entered via Back from the result, cards stay revealed — backward
+/// navigation never re-hides or redraws a reading (§15).
 struct TarotRevealStage: View {
     let cards: [TarotDrawnCard]
     let heading: String
@@ -399,16 +411,20 @@ struct TarotRevealStage: View {
     /// complete, so card faces show directly — no card backs, no
     /// re-flip, no shuffle replay (§ critical back behavior).
     let completedReturn: Bool
+    let onReveal: (TarotDrawnCard) -> Void
     let onFinished: () -> Void
 
     @EnvironmentObject private var prefs: PrefsStore
     @State private var revealed: [Bool]
 
     init(cards: [TarotDrawnCard], heading: String,
-         initiallyRevealed: Bool = false, onFinished: @escaping () -> Void) {
+         initiallyRevealed: Bool = false,
+         onReveal: @escaping (TarotDrawnCard) -> Void = { _ in },
+         onFinished: @escaping () -> Void) {
         self.cards = cards
         self.heading = heading
         self.completedReturn = initiallyRevealed
+        self.onReveal = onReveal
         self.onFinished = onFinished
         _revealed = State(initialValue: Array(repeating: initiallyRevealed,
                                               count: cards.count))
@@ -416,6 +432,35 @@ struct TarotRevealStage: View {
 
     private var lang: AppLanguage { prefs.language }
     private var allRevealed: Bool { revealed.allSatisfy { $0 } }
+    private var revealedCount: Int { revealed.filter { $0 }.count }
+
+    /// Row layout per card count: ≤3 one row; 4 → 2×2; 5 → 2+2+1.
+    /// For Two-Choice this reads as A|B columns; for Relationship as
+    /// my-side / other-side rows with the direction centered below.
+    private var rows: [[Int]] {
+        switch cards.count {
+        case ...3: return [Array(cards.indices)]
+        case 4: return [[0, 1], [2, 3]]
+        default: return [[0, 1], [2, 3], [4]]
+        }
+    }
+
+    private var cardWidth: CGFloat {
+        switch cards.count {
+        case 1: return 150
+        case 3: return 100
+        default: return 96
+        }
+    }
+
+    /// The next unresolved position, communicated during multi-card
+    /// reveals (localized canonical position label).
+    private var nextPositionLabel: String? {
+        guard cards.count > 1,
+              let index = revealed.firstIndex(of: false),
+              let position = cards[index].positionID else { return nil }
+        return position.label(lang)
+    }
 
     var body: some View {
         // Weighted spacers (top 2 : bottom 1): the composition sits
@@ -430,32 +475,20 @@ struct TarotRevealStage: View {
                 .font(.system(.headline, design: .rounded))
                 .foregroundStyle(Color.textInverseToken)
 
-            HStack(spacing: TwinkoSpacing.m) {
-                ForEach(Array(cards.enumerated()), id: \.element.id) { index, drawn in
-                    VStack(spacing: 8) {
-                        FlipTarotCard(drawn: drawn,
-                                      isRevealed: $revealed[index],
-                                      width: cards.count == 1 ? 150 : 100,
-                                      isFinalRequired:
-                                        revealed.filter { $0 }.count == cards.count - 1)
-                            .tarotRevealedGlow(revealed[index])
-                        if revealed[index] {
-                            VStack(spacing: 2) {
-                                if let position = drawn.position, position != .guidance {
-                                    Text(position.label(lang))
-                                        .font(.system(.caption2, design: .rounded).weight(.semibold))
-                                        .foregroundStyle(Color.twinkoGold)
-                                }
-                                Text(drawn.card.displayName(for: lang))
-                                    .font(.system(.caption, design: .rounded).weight(.semibold))
-                                    .foregroundStyle(Color.textInverseToken)
-                                Text(drawn.orientation.label(lang))
-                                    .font(.system(.caption2, design: .rounded))
-                                    .foregroundStyle(Color.textInverseToken.opacity(0.75))
-                            }
-                            .transition(.opacity)
+            VStack(spacing: TwinkoSpacing.s) {
+                ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
+                    HStack(alignment: .top, spacing: TwinkoSpacing.m) {
+                        ForEach(row, id: \.self) { index in
+                            revealSlot(index)
                         }
                     }
+                }
+            }
+            .onChange(of: revealed) { old, new in
+                // Session-owned reveal state: report each newly
+                // flipped card's canonical position exactly once.
+                for index in cards.indices where new[index] && !old[index] {
+                    onReveal(cards[index])
                 }
             }
 
@@ -475,28 +508,70 @@ struct TarotRevealStage: View {
                 .transition(.opacity)
                 .accessibilityIdentifier("tarotSeeReading")
             } else {
-                Text(revealed.contains(true)
-                     ? TarotStrings.tapNextCard(lang)
-                     : TarotStrings.tapToFlip(lang))
-                    .font(.system(.body, design: .rounded))
-                    .foregroundStyle(Color.textInverseToken.opacity(0.85))
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 6)
-                    .background {
-                        Capsule()
-                            .fill(LinearGradient(colors: [Color(hex: 0x9C8CD8).opacity(0.38),
-                                                          Color(hex: 0x6E5FB0).opacity(0.30)],
-                                                 startPoint: .top, endPoint: .bottom))
+                VStack(spacing: 5) {
+                    Text(revealed.contains(true)
+                         ? TarotStrings.tapNextCard(lang)
+                         : TarotStrings.tapToFlip(lang))
+                        .font(.system(.body, design: .rounded))
+                        .foregroundStyle(Color.textInverseToken.opacity(0.85))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 6)
+                        .background {
+                            Capsule()
+                                .fill(LinearGradient(colors: [Color(hex: 0x9C8CD8).opacity(0.38),
+                                                              Color(hex: 0x6E5FB0).opacity(0.30)],
+                                                     startPoint: .top, endPoint: .bottom))
+                        }
+                        .overlay(Capsule().strokeBorder(
+                            LinearGradient(stops: [
+                                .init(color: Color.white.opacity(0.35), location: 0),
+                                .init(color: Color(hex: 0xD1C4FF).opacity(0.16), location: 1),
+                            ], startPoint: .top, endPoint: .bottom),
+                            lineWidth: 1))
+                    // Multi-card selection progress (§13): revealed /
+                    // required counts plus the next canonical position.
+                    if cards.count > 1 {
+                        Text(TarotStrings.revealProgress(revealedCount, cards.count,
+                                                         next: nextPositionLabel, lang))
+                            .font(.system(.caption, design: .rounded))
+                            .foregroundStyle(Color.textInverseToken.opacity(0.75))
+                            .accessibilityIdentifier("tarotRevealProgress")
                     }
-                    .overlay(Capsule().strokeBorder(
-                        LinearGradient(stops: [
-                            .init(color: Color.white.opacity(0.35), location: 0),
-                            .init(color: Color(hex: 0xD1C4FF).opacity(0.16), location: 1),
-                        ], startPoint: .top, endPoint: .bottom),
-                        lineWidth: 1))
+                }
             }
             Spacer(minLength: TwinkoSpacing.l)
         }
         .animation(.easeOut(duration: 0.25), value: revealed)
+    }
+
+    /// One reveal slot: the flip card plus, once revealed, its
+    /// canonical position, name, and orientation.
+    private func revealSlot(_ index: Int) -> some View {
+        let drawn = cards[index]
+        return VStack(spacing: 8) {
+            FlipTarotCard(drawn: drawn,
+                          isRevealed: $revealed[index],
+                          width: cardWidth,
+                          isFinalRequired: revealedCount == cards.count - 1)
+                .tarotRevealedGlow(revealed[index])
+            if revealed[index] {
+                VStack(spacing: 2) {
+                    if drawn.role == .basePosition, let position = drawn.positionID {
+                        Text(position.label(lang))
+                            .font(.system(.caption2, design: .rounded).weight(.semibold))
+                            .foregroundStyle(Color.twinkoGold)
+                            .multilineTextAlignment(.center)
+                    }
+                    Text(drawn.card.displayName(for: lang))
+                        .font(.system(.caption, design: .rounded).weight(.semibold))
+                        .foregroundStyle(Color.textInverseToken)
+                    Text(drawn.orientation.label(lang))
+                        .font(.system(.caption2, design: .rounded))
+                        .foregroundStyle(Color.textInverseToken.opacity(0.75))
+                }
+                .frame(maxWidth: 130)
+                .transition(.opacity)
+            }
+        }
     }
 }

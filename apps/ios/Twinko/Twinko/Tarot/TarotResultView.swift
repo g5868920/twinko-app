@@ -35,13 +35,16 @@ struct TarotResultStage: View {
         ScrollViewReader { proxy in
         ScrollView {
             VStack(spacing: TwinkoSpacing.m) {
-                // Group 1 — the reading starts here, directly. Once a
-                // Guidance Card is drawn it joins the reading (指引)
-                // right after the original cards, whose interpretations
-                // are never regenerated.
-                ForEach(session.cards) { drawn in
-                    cardSection(drawn)
-                }
+                // Group 0 — reading context: the user's own words plus
+                // the selected spread (Task 2 §23.1–6).
+                contextSection
+
+                // Group 1 — the reading starts here, in canonical
+                // position order, grouped semantically for the
+                // five-card spreads. Once a Guidance Card is drawn it
+                // joins the reading right after the base cards, whose
+                // interpretations are never regenerated.
+                baseCardSections
                 if let guidance = session.guidanceCard {
                     cardSection(guidance)
                         .id("tarotGuidanceSection")
@@ -50,12 +53,10 @@ struct TarotResultStage: View {
                         .animation(.easeInOut(duration: 0.6), value: guidanceHighlight)
                 }
 
-                // Group 2 — 整體來看: three-card readings always; once
-                // a Guidance Card exists it expands to read the whole
-                // current state (both spreads).
-                if session.spread == .three || session.guidanceCard != nil {
-                    synthesisSection
-                }
+                // Group 2 — 整體來看: every completed reading carries
+                // one integrated summary (§26); once a Guidance Card
+                // exists it expands to read the whole current state.
+                synthesisSection
 
                 TarotMagicalDivider()
 
@@ -123,19 +124,137 @@ struct TarotResultStage: View {
         }
     }
 
+    // MARK: Group 0 — reading context
+
+    /// The user's validated inputs and the selected spread, on one
+    /// medium readable surface: question (or decision context + A/B),
+    /// optional person label, spread title, short purpose, card count.
+    private var contextSection: some View {
+        VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(session.spreadID.title(lang))
+                    .font(.system(.headline, design: .rounded))
+                    .foregroundStyle(Color.deepPlum)
+                Spacer()
+                Text(session.spreadID.cardCountLabel(lang))
+                    .font(.system(.caption, design: .rounded))
+                    .foregroundStyle(Color.textSecondaryToken)
+            }
+            Text(session.spreadID.purpose(lang))
+                .font(.system(.footnote, design: .rounded))
+                .foregroundStyle(Color.textSecondaryToken)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if session.spreadID == .twoChoiceFive {
+                if let context = session.decisionContext {
+                    contextRow(TarotPreReadingStrings.decisionContextLabel(lang), context)
+                }
+                contextRow(TarotPreReadingStrings.optionALabel(lang),
+                           session.optionA ?? "")
+                contextRow(TarotPreReadingStrings.optionBLabel(lang),
+                           session.optionB ?? "")
+            } else {
+                if !session.trimmedQuestion.isEmpty {
+                    contextRow(TarotPreReadingStrings.reviewQuestion(lang),
+                               session.trimmedQuestion)
+                }
+                if let who = session.relationshipPersonLabel {
+                    contextRow(TarotPreReadingStrings.personLabelLabel(lang), who)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .tarotReadingCard()
+        .accessibilityIdentifier("tarotResultContext")
+    }
+
+    private func contextRow(_ label: String, _ value: String) -> some View {
+        VStack(alignment: .leading, spacing: 1) {
+            Text(label)
+                .font(.system(.caption2, design: .rounded))
+                .foregroundStyle(Color.textSecondaryToken)
+            Text(value)
+                .font(.system(.subheadline, design: .rounded).weight(.medium))
+                .foregroundStyle(Color.textPrimaryToken)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    // MARK: Group 1 — base cards (semantic grouping for five-card)
+
+    /// Base sections in canonical order for most spreads; the
+    /// five-card spreads group semantically with equal visual weight —
+    /// Two-Choice never ranks A over B (§21/§22).
+    @ViewBuilder
+    private var baseCardSections: some View {
+        switch session.spreadID {
+        case .twoChoiceFive:
+            groupHeader(TarotPreReadingStrings.optionALabel(lang),
+                        detail: session.optionA)
+            cardSection(session.cards[0])
+            cardSection(session.cards[2])
+            groupHeader(TarotPreReadingStrings.optionBLabel(lang),
+                        detail: session.optionB)
+            cardSection(session.cards[1])
+            cardSection(session.cards[3])
+            groupHeader(TarotPositionID.yourCurrentState.label(lang), detail: nil)
+            cardSection(session.cards[4])
+        case .relationshipFive:
+            groupHeader(lang == .english ? "My Side" : "我這一邊", detail: nil)
+            cardSection(session.cards[0])
+            cardSection(session.cards[1])
+            groupHeader(lang == .english ? "The Other Person's Presented Side"
+                                         : "對方呈現的一邊",
+                        detail: session.relationshipPersonLabel)
+            cardSection(session.cards[2])
+            cardSection(session.cards[3])
+            groupHeader(TarotPositionID.relationshipDirection.label(lang), detail: nil)
+            cardSection(session.cards[4])
+        default:
+            ForEach(session.cards) { drawn in
+                cardSection(drawn)
+            }
+        }
+    }
+
+    /// Quiet semantic group label between base-card sections — equal
+    /// treatment for every group, never a winner badge.
+    private func groupHeader(_ title: String, detail: String?) -> some View {
+        HStack(spacing: 6) {
+            Text(detail.map { "\(title)・\($0)" } ?? title)
+                .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                .foregroundStyle(Color.textInverseToken)
+                .lineLimit(2)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, TwinkoSpacing.l)
+        .padding(.top, TwinkoSpacing.xs)
+    }
+
     // MARK: Group 1/4 — card interpretation (full text by default)
 
-    /// One warm-white matte interpretation card: art, position, name,
-    /// orientation, keywords, and the complete interpretation — no
-    /// expand control, no per-card mini reflection (§26–27).
+    /// One warm-white matte interpretation card: art, numbered
+    /// canonical position, name, orientation, keywords, the complete
+    /// position-aware interpretation, and one reflection sentence
+    /// (§24). The Guidance Card carries its distinct role label —
+    /// never a numbered position.
     private func cardSection(_ drawn: TarotDrawnCard) -> some View {
         let interp = provider.interpretation(for: drawn, in: session, lang: lang)
         return VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
             HStack(alignment: .top, spacing: TwinkoSpacing.m) {
                 TarotCardFace(drawn: drawn, width: 76)
                 VStack(alignment: .leading, spacing: 5) {
-                    if let position = drawn.position {
-                        Text(position.label(lang))
+                    if drawn.role == .guidance {
+                        Text(TarotStrings.guidanceLabel(lang))
+                            .font(.system(.caption, design: .rounded).weight(.semibold))
+                            .foregroundStyle(Color.inkNavy)
+                            .padding(.horizontal, TwinkoSpacing.s)
+                            .padding(.vertical, 3)
+                            .background(Color.twinkoGold, in: Capsule())
+                    } else if let position = drawn.positionID {
+                        let number = (session.definition.positionIDs
+                            .firstIndex(of: position) ?? 0) + 1
+                        Text("\(number)・\(position.label(lang))")
                             .font(.system(.caption, design: .rounded).weight(.semibold))
                             .foregroundStyle(Color.inkNavy)
                             .padding(.horizontal, TwinkoSpacing.s)
@@ -166,6 +285,18 @@ struct TarotResultStage: View {
                 .font(.system(.body, design: .rounded))
                 .foregroundStyle(Color.textPrimaryToken.opacity(0.88))
                 .lineSpacing(5)
+
+            // One reflection sentence per position (§23.13).
+            HStack(alignment: .top, spacing: 6) {
+                Image(systemName: "sparkle")
+                    .font(.system(size: 10))
+                    .foregroundStyle(Color.accentGold.opacity(0.85))
+                    .padding(.top, 3)
+                Text(interp.reflectionPrompt)
+                    .font(.system(.footnote, design: .rounded))
+                    .foregroundStyle(Color.textSecondaryToken)
+                    .lineSpacing(4)
+            }
         }
         .tarotReadingCard()
         .accessibilityIdentifier("tarotCardSection-\(drawn.id)")
@@ -188,7 +319,7 @@ struct TarotResultStage: View {
                     .foregroundStyle(Color.deepPlum)
             }
             .font(.system(.title3, design: .rounded).weight(.semibold))
-            Text(session.guidanceCard == nil
+            Text(session.guidanceCard == nil && session.cards.count > 1
                  ? provider.synthesis(for: session, lang: lang)
                  : provider.combinedSummary(for: session, lang: lang))
                 .font(.system(.body, design: .rounded))

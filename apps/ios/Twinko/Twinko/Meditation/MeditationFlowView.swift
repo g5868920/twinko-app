@@ -640,18 +640,41 @@ struct MeditationFlowView: View {
             .padding(.horizontal, TwinkoSpacing.m)
             .frame(maxWidth: .infinity, minHeight: 52)
             .background(
-                selected ? AnyShapeStyle(
-                    LinearGradient(colors: [Color.brandPurple.opacity(0.75),
-                                            Color.brandPurpleDeep.opacity(0.75)],
-                                   startPoint: .top, endPoint: .bottom))
-                         : AnyShapeStyle(Color.deepSpace.opacity(0.4)),
-                in: RoundedRectangle(cornerRadius: 16)
+                // Same illuminated night glass as the setup chips.
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(selected
+                          ? AnyShapeStyle(LinearGradient(
+                                colors: [Color.brandPurple.opacity(0.55),
+                                         Color.brandPurpleDeep.opacity(0.48)],
+                                startPoint: .top, endPoint: .bottom))
+                          : AnyShapeStyle(LinearGradient(
+                                colors: [Color(hex: 0x9C8CD8).opacity(0.42),
+                                         Color(hex: 0x6E5FB0).opacity(0.34)],
+                                startPoint: .top, endPoint: .bottom)))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .fill(LinearGradient(stops: [
+                                .init(color: Color.white.opacity(selected ? 0.20 : 0.14),
+                                      location: 0),
+                                .init(color: Color.white.opacity(0), location: 0.35),
+                            ], startPoint: .top, endPoint: .bottom))
+                    )
             )
             .foregroundStyle(Color.textInverseToken)
-            .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(
-                selected ? Color.twinkoGold.opacity(0.55)
-                         : Color.textInverseToken.opacity(0.12),
-                lineWidth: selected ? 1.3 : 1))
+            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(
+                selected
+                    ? AnyShapeStyle(LinearGradient(
+                          colors: [Color.twinkoGold.opacity(0.85),
+                                   Color.twinkoGold.opacity(0.45)],
+                          startPoint: .top, endPoint: .bottom))
+                    : AnyShapeStyle(LinearGradient(stops: [
+                          .init(color: Color.white.opacity(0.40), location: 0),
+                          .init(color: Color(hex: 0xD1C4FF).opacity(0.18), location: 1),
+                      ], startPoint: .top, endPoint: .bottom)),
+                lineWidth: 1))
+            .shadow(color: selected ? Color.twinkoGold.opacity(0.30)
+                                    : Color.deepSpace.opacity(0.18),
+                    radius: selected ? 9 : 6, y: 3)
             .contentShape(RoundedRectangle(cornerRadius: 16))
         }
         .accessibilityAddTraits(selected ? [.isSelected] : [])
@@ -791,8 +814,7 @@ private struct MeditationSessionStage: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(TwinkoSpacing.m)
-            .background(Color.deepSpace.opacity(0.45),
-                        in: RoundedRectangle(cornerRadius: TwinkoRadius.card))
+            .twinkoGlass(cornerRadius: TwinkoRadius.card, tint: 0.44, night: true)
             .padding(.horizontal, TwinkoSpacing.m)
             .id(segment.id)
             .transition(reduceMotion ? .identity : .opacity)
@@ -871,10 +893,30 @@ private struct MeditationSessionStage: View {
                 .foregroundStyle(isOn ? Color.twinkoGold
                                       : Color.textInverseToken.opacity(0.55))
                 .frame(width: 52, height: 52)
-                .background(Color.deepSpace.opacity(0.5), in: Circle())
+                .background(
+                    Circle()
+                        .fill(LinearGradient(
+                            colors: [Color(hex: 0x9C8CD8).opacity(0.42),
+                                     Color(hex: 0x6E5FB0).opacity(0.34)],
+                            startPoint: .top, endPoint: .bottom))
+                        .overlay(
+                            Circle().fill(LinearGradient(stops: [
+                                .init(color: Color.white.opacity(0.14), location: 0),
+                                .init(color: Color.white.opacity(0), location: 0.4),
+                            ], startPoint: .top, endPoint: .bottom))
+                        )
+                )
                 .overlay(Circle().strokeBorder(
-                    isOn ? Color.twinkoGold.opacity(0.45)
-                         : Color.textInverseToken.opacity(0.15), lineWidth: 1))
+                    isOn ? AnyShapeStyle(LinearGradient(
+                              colors: [Color.twinkoGold.opacity(0.75),
+                                       Color.twinkoGold.opacity(0.40)],
+                              startPoint: .top, endPoint: .bottom))
+                         : AnyShapeStyle(LinearGradient(stops: [
+                              .init(color: Color.white.opacity(0.40), location: 0),
+                              .init(color: Color(hex: 0xD1C4FF).opacity(0.18), location: 1),
+                          ], startPoint: .top, endPoint: .bottom)),
+                    lineWidth: 1))
+                .shadow(color: Color.deepSpace.opacity(0.18), radius: 6, y: 3)
         }
         .accessibilityLabel(Text(label))
         .accessibilityValue(Text(isOn ? "on" : "off"))

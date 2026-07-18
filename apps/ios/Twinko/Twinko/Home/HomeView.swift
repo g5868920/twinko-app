@@ -411,7 +411,7 @@ struct HomeView: View {
             }
         }
         .padding(12)
-        .twinkoGlass(cornerRadius: 22, tint: 0.24)
+        .twinkoGlass(cornerRadius: 22, tint: 0.18)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("homeJourney")
     }
@@ -472,7 +472,7 @@ struct HomeView: View {
             .frame(maxWidth: .infinity, minHeight: 72)
             .padding(.vertical, 7)
             .padding(.horizontal, 4)
-            .twinkoGlass(cornerRadius: 16, tint: 0.26)
+            .twinkoGlass(cornerRadius: 16, tint: 0.42)
             .contentShape(RoundedRectangle(cornerRadius: 16))
         }
         .buttonStyle(TwinkoGlassPressStyle())
@@ -552,7 +552,7 @@ struct HomeView: View {
             }
         }
         .padding(10)
-        .twinkoGlass(cornerRadius: 22, tint: 0.24)
+        .twinkoGlass(cornerRadius: 22, tint: 0.18)
     }
 
     /// One explore item: reference-cropped orb artwork where available;
@@ -682,7 +682,7 @@ struct TwinkoSpeechBubble<Content: View>: View {
             .padding(.vertical, 10)
             // Warm speech glass — ivory-lilac, warmer and more
             // readable than the atmospheric containers.
-            .twinkoGlass(cornerRadius: 18, tint: 0.34, warm: true)
+            .twinkoGlass(cornerRadius: 18, tint: 0.44, warm: true)
             .overlay(alignment: .leading) {
                 SpeechBubbleTail()
                     .fill(Color(hex: 0xFBF1E8).opacity(0.9))

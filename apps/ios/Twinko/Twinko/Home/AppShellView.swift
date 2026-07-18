@@ -201,14 +201,10 @@ struct TwinkoGlassDock: View {
             // family, slightly stronger separation than page cards —
             // the world stays visible through it.
             RoundedRectangle(cornerRadius: 32, style: .continuous)
-                .fill(.ultraThinMaterial)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 32, style: .continuous)
-                        .fill(LinearGradient(
-                            colors: [Color(hex: 0xDBCDFA).opacity(0.34),
-                                     Color(hex: 0xBBA9EE).opacity(0.26)],
-                            startPoint: .top, endPoint: .bottom))
-                )
+                .fill(LinearGradient(
+                    colors: [Color(hex: 0xE6DCFC).opacity(0.40),
+                             Color(hex: 0xC3AFF2).opacity(0.30)],
+                    startPoint: .top, endPoint: .bottom))
                 .overlay(
                     // Soft top highlight fading down.
                     RoundedRectangle(cornerRadius: 32, style: .continuous)
@@ -222,12 +218,12 @@ struct TwinkoGlassDock: View {
             RoundedRectangle(cornerRadius: 32, style: .continuous)
                 .strokeBorder(
                     LinearGradient(stops: [
-                        .init(color: Color.white.opacity(0.6), location: 0),
-                        .init(color: Color(hex: 0xD1C4FF).opacity(0.35), location: 0.6),
+                        .init(color: Color.white.opacity(0.7), location: 0),
+                        .init(color: Color(hex: 0xD1C4FF).opacity(0.32), location: 0.7),
                     ], startPoint: .top, endPoint: .bottom),
                     lineWidth: 1)
         )
-        .shadow(color: Color.deepSpace.opacity(0.22), radius: 14, y: 6)
+        .shadow(color: Color.deepSpace.opacity(0.16), radius: 18, y: 8)
         .padding(.horizontal, 16)
         .padding(.bottom, 4)
     }

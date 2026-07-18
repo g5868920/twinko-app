@@ -68,54 +68,51 @@ struct TwinkoGlassSurface: ViewModifier {
 
     /// Atmospheric lavender tint pair (top slightly brighter — subtle
     /// vertical tonal variation, never a strong gradient band).
-    private var tintTop: Color { warm ? Color(hex: 0xFFF2E2) : Color(hex: 0xDBCDFA) }
-    private var tintBottom: Color { warm ? Color(hex: 0xEFDDF2) : Color(hex: 0xBBA9EE) }
+    private var tintTop: Color { warm ? Color(hex: 0xFFF3E6) : Color(hex: 0xE6DCFC) }
+    private var tintBottom: Color { warm ? Color(hex: 0xEFD9EE) : Color(hex: 0xC3AFF2) }
 
     func body(content: Content) -> some View {
-        // Container-material polish (2026-07-18): translucent
-        // lavender / blue-violet atmospheric glass over the material
-        // blur — the background bleeds through and shifts the glass
-        // cooler over purple sky and warmer over the peach clouds.
-        // Never milky white, gray, or beige.
+        // Clear-glass polish (2026-07-18, second pass): the system
+        // material was removed entirely — its frosting always lifted
+        // and desaturated the backdrop into milky plastic. The target
+        // glass is CLEAR: a pure low-opacity cool-violet gradient the
+        // background bleeds straight through, plus a luminous top
+        // border, a soft inner top highlight, and a wide floating
+        // shadow. Cooler over the purple sky, warmer over the clouds.
         content
             .background {
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .fill(.ultraThinMaterial)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                            .fill(selected
-                                  ? AnyShapeStyle(Color.brandPurple.opacity(0.20))
-                                  : AnyShapeStyle(LinearGradient(
-                                        colors: [tintTop.opacity(tint * 0.95),
-                                                 tintBottom.opacity(tint * 0.7)],
-                                        startPoint: .top, endPoint: .bottom)))
-                    )
+                    .fill(selected
+                          ? AnyShapeStyle(Color.brandPurple.opacity(0.22))
+                          : AnyShapeStyle(LinearGradient(
+                                colors: [tintTop.opacity(min(tint * 1.35, 0.9)),
+                                         tintBottom.opacity(tint)],
+                                startPoint: .top, endPoint: .bottom)))
                     .overlay(
                         // Subtle inner top-edge highlight fading down —
                         // dimensional glass depth, never a white sheet.
                         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                             .fill(LinearGradient(stops: [
-                                .init(color: Color.white.opacity(0.22), location: 0),
-                                .init(color: Color.white.opacity(0), location: 0.32),
+                                .init(color: Color.white.opacity(0.24), location: 0),
+                                .init(color: Color.white.opacity(0), location: 0.30),
                             ], startPoint: .top, endPoint: .bottom))
                     )
             }
             .overlay(
-                // Soft lilac-white border, slightly stronger along the
-                // top edge — luminous, never a neon ring.
+                // Soft luminous lilac-white rim, brightest along the
+                // top edge — an edge light, never a neon ring.
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                     .strokeBorder(selected
                                   ? AnyShapeStyle(Color(hex: 0xD9C8FF).opacity(0.85))
                                   : AnyShapeStyle(LinearGradient(stops: [
-                                        .init(color: Color.white.opacity(0.65), location: 0),
-                                        .init(color: Color(hex: 0xD1C4FF).opacity(0.38),
-                                              location: 0.55),
+                                        .init(color: Color.white.opacity(0.75), location: 0),
+                                        .init(color: Color.white.opacity(0.35), location: 0.3),
                                         .init(color: Color(hex: 0xD1C4FF).opacity(0.30),
                                               location: 1),
                                     ], startPoint: .top, endPoint: .bottom)),
                                   lineWidth: 1)
             )
-            .shadow(color: Color.deepSpace.opacity(0.14), radius: 10, y: 4)
+            .shadow(color: Color.deepSpace.opacity(0.12), radius: 16, y: 7)
     }
 }
 

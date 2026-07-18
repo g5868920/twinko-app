@@ -444,7 +444,9 @@ struct TarotResultStage: View {
             Button {
                 onHome()
             } label: {
-                Text(TarotStrings.backHome(lang))
+                Text(session.source == .chat
+                     ? TarotStrings.backToChat(lang)
+                     : TarotStrings.backHome(lang))
                     .font(.system(.headline, design: .rounded))
                     .foregroundStyle(Color.textInverseToken.opacity(0.85))
                     .frame(maxWidth: .infinity, minHeight: 44)

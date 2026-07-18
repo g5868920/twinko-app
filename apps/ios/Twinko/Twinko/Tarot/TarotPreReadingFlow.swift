@@ -50,6 +50,15 @@ struct TarotReadingDraft: Identifiable, Equatable {
 
     var phase: TarotPreReadingPhase = .spreadSetup
 
+    /// Task 3 routing context: entry source and context kind travel on
+    /// the draft into the launch request and session. Defaults model
+    /// the direct intent-first entry.
+    var source: TarotEntrySource = .direct
+    var contextKind: TarotEntryContextKind = .standard
+    /// Optional one-line contextual explanation (Chat/Home/Daily) —
+    /// display-only.
+    var contextSummary: String?
+
     init(id: UUID = UUID(), intent: TarotIntent,
          refinement: TarotIntentRefinement?, spreadID: TarotSpreadID) {
         self.id = id
@@ -115,6 +124,11 @@ struct TarotPreReadingFlowView: View {
     /// `-tarotPreReadingV2` development gate is retired — this flow is
     /// now the live public pre-reading entry.)
     var onLaunch: (TarotReadingLaunchRequest) -> Void = { _ in }
+    /// Task 3: contextual entry (Chat / Home / Daily). When present,
+    /// the flow seeds one draft through the shared context→draft
+    /// boundary and opens directly at Recommended Spread Setup —
+    /// everything stays editable and Change Spread remains available.
+    var entryContext: TarotEntryContext?
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -184,6 +198,11 @@ struct TarotPreReadingFlowView: View {
         .onAppear {
             chrome.setImmersive(immersiveToken, active: true)
             InteractivePopGate.isBlocked = true
+            // Contextual entries (Chat/Home/Daily) seed one draft via
+            // the shared boundary and open at Recommended Spread Setup.
+            if draft == nil, let context = entryContext {
+                draft = TarotReadingDraft(context: context)
+            }
         }
         .onDisappear {
             chrome.setImmersive(immersiveToken, active: false)
@@ -427,6 +446,17 @@ struct TarotPreReadingFlowView: View {
                             .font(.system(.footnote, design: .rounded))
                             .foregroundStyle(TarotCTAPalette.antiqueGold.opacity(0.95))
                             .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    // Contextual entries: one brief line explaining
+                    // the suggestion (Daily explanation, Chat/Home
+                    // context) — display only, never a claim.
+                    if let summary = draft.contextSummary {
+                        Text(summary)
+                            .font(.system(.footnote, design: .rounded))
+                            .foregroundStyle(Color.textInverseToken.opacity(0.75))
+                            .fixedSize(horizontal: false, vertical: true)
+                            .accessibilityIdentifier("tarotContextSummary")
                     }
 
                     Text(definition.id.purpose(lang))

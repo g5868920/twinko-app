@@ -14,6 +14,7 @@ struct HomeView: View {
     @EnvironmentObject private var prefs: PrefsStore
     @EnvironmentObject private var chatStore: ChatStore
     @EnvironmentObject private var chrome: ShellChrome
+    @EnvironmentObject private var dailyTarot: DailyTarotStore
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -332,17 +333,22 @@ struct HomeView: View {
                 // provider and routing untouched.
                 TwinkoSpeechBubble {
                     VStack(alignment: .leading, spacing: 9) {
+                        // The identifier lives on the message Text only:
+                        // on the bubble container it broadcasts to every
+                        // element inside and masks the action buttons'
+                        // own identifiers (found in the Task 3 Daily
+                        // walkthrough).
                         Text(recommender.twinkoMessage(context: personalizationContext, lang: lang))
                             .font(.system(.footnote, design: .rounded).weight(.medium))
                             .foregroundStyle(Color.deepPlum)
                             .lineSpacing(2)
                             .fixedSize(horizontal: false, vertical: true)
+                            .accessibilityIdentifier("homeTwinkoMessage")
                         if let checkIn = todayCheckIn, !editingCheckIn {
                             bubbleActions(for: checkIn)
                         }
                     }
                 }
-                .accessibilityIdentifier("homeTwinkoMessage")
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -404,6 +410,47 @@ struct HomeView: View {
                 .buttonStyle(TwinkoHapticPressStyle())
                 .accessibilityIdentifier("homeSecondaryAction")
             }
+
+            // Task 3 — Daily Tarot Check-in on the existing
+            // recommendation surface (no new Home section): quiet,
+            // optional, and calm. Completed state switches to View
+            // Today's Guidance for the rest of the local day.
+            dailyTarotRow
+        }
+    }
+
+    @ViewBuilder
+    private var dailyTarotRow: some View {
+        let completed = dailyTarot.isTodayCompleted
+        VStack(spacing: 2) {
+            Text(completed
+                 ? HomeExperienceStrings.dailyTarotReady(lang)
+                 : HomeExperienceStrings.dailyTarotPrompt(lang))
+                .font(.system(.caption, design: .rounded))
+                .foregroundStyle(Color.deepPlum.opacity(0.75))
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+            Button {
+                activeAction = completed ? .dailyTarotResult : .dailyTarot
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: completed ? "moon.stars.fill" : "moon.stars")
+                        .font(.system(size: 11, weight: .semibold))
+                    Text((completed ? HomeAction.dailyTarotResult : .dailyTarot)
+                        .label(lang))
+                        .font(.system(.footnote, design: .rounded).weight(.semibold))
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 10, weight: .bold))
+                }
+                .foregroundStyle(Color.brandPurpleDeep)
+                .frame(maxWidth: .infinity, minHeight: 40)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(TwinkoHapticPressStyle())
+            .accessibilityIdentifier(completed ? "homeDailyTarotResult" : "homeDailyTarot")
+            .accessibilityLabel(Text(completed
+                ? (lang == .english ? "Today's guidance is available" : "今天的指引已經可以查看")
+                : (lang == .english ? "Today's Tarot check-in has not been completed" : "今天的塔羅檢視還沒完成")))
         }
     }
 
@@ -522,7 +569,8 @@ struct HomeView: View {
         switch action {
         case .chat: return Color(hex: 0x6B9BE8)
         case .meditation: return Color(hex: 0x8E7AE6)
-        case .tarot: return Color(hex: 0x9A6FD0)
+        case .tarot, .tarotRecommended, .dailyTarot, .dailyTarotResult:
+            return Color(hex: 0x9A6FD0)
         case .horoscope: return Color(hex: 0xF0A860)
         case .music: return Color(hex: 0xC77BD0)
         case .activities: return Color(hex: 0x5C6FD8)
@@ -533,7 +581,8 @@ struct HomeView: View {
         switch action {
         case .chat: return "bubble.left.fill"
         case .meditation: return "moon.zzz.fill"
-        case .tarot: return "moon.stars.fill"
+        case .tarot, .tarotRecommended, .dailyTarot, .dailyTarotResult:
+            return "moon.stars.fill"
         case .horoscope: return "star.circle.fill"
         case .music: return "music.note"
         case .activities: return "location.fill"
@@ -547,7 +596,8 @@ struct HomeView: View {
         case .chat: return "ref_icon_chat_v1"
         case .meditation: return "ref_icon_moon_v1"
         case .horoscope: return "ref_icon_star_orange_v1"
-        case .tarot: return "ref_icon_tarot_v1"
+        case .tarot, .tarotRecommended, .dailyTarot, .dailyTarotResult:
+            return "ref_icon_tarot_v1"
         case .music: return "ref_icon_music_v1"
         case .activities: return nil
         }
@@ -672,6 +722,27 @@ struct HomeView: View {
                 focus: focus, duration: duration))
         case .tarot:
             TarotFlowView()
+        case .tarotRecommended:
+            // Contextual standard Home entry: recommended setup from
+            // today's check-in via the shared entry-context boundary.
+            if let checkIn = todayCheckIn {
+                TarotFlowView(entryContext: LocalHomeRecommendationProvider()
+                    .tarotEntryContext(for: checkIn, lang: lang))
+            } else {
+                TarotFlowView()
+            }
+        case .dailyTarot:
+            TarotFlowView(entryContext: .daily(lang: lang))
+        case .dailyTarotResult:
+            // Reopen the exact completed current-day reading. If the
+            // stored snapshot cannot be restored, fall back safely to
+            // the standard Tarot entry (no redraw under the same
+            // completion, no crash).
+            if let restored = dailyTarot.restoredTodaySession() {
+                TarotFlowView(restoredSession: restored)
+            } else {
+                TarotFlowView()
+            }
         case .horoscope:
             HoroscopeTodayView()
         case .music:

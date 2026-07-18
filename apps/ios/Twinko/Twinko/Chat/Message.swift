@@ -40,11 +40,15 @@ struct ChatSession: Identifiable, Equatable, Codable {
     /// conversation; once shown (accepted or declined) it never
     /// reappears proactively. Explicit user requests are unaffected.
     var meditationProactiveOfferResolved: Bool
+    /// A contextual Tarot suggestion appears at most once per
+    /// conversation (Task 3) — same lifecycle as the meditation offer.
+    var tarotOfferResolved: Bool
 
     init(id: UUID = UUID(), createdAt: Date = .now, updatedAt: Date = .now,
          messages: [ChatMessage] = [], title: String = "",
          titleSource: TitleSource = .auto,
-         meditationProactiveOfferResolved: Bool = false) {
+         meditationProactiveOfferResolved: Bool = false,
+         tarotOfferResolved: Bool = false) {
         self.id = id
         self.createdAt = createdAt
         self.updatedAt = updatedAt
@@ -52,6 +56,7 @@ struct ChatSession: Identifiable, Equatable, Codable {
         self.title = title
         self.titleSource = titleSource
         self.meditationProactiveOfferResolved = meditationProactiveOfferResolved
+        self.tarotOfferResolved = tarotOfferResolved
     }
 
     /// Backward-compatible decoding: sessions saved before titles were
@@ -66,6 +71,8 @@ struct ChatSession: Identifiable, Equatable, Codable {
         titleSource = try container.decodeIfPresent(TitleSource.self, forKey: .titleSource) ?? .auto
         meditationProactiveOfferResolved = try container.decodeIfPresent(
             Bool.self, forKey: .meditationProactiveOfferResolved) ?? false
+        tarotOfferResolved = try container.decodeIfPresent(
+            Bool.self, forKey: .tarotOfferResolved) ?? false
     }
 
     /// Title for display: the stored title, or the localized temporary

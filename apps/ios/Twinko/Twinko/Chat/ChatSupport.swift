@@ -471,3 +471,88 @@ struct LocalChatTitleGenerator: ChatTitleGenerating {
         return isCJK ? trimmed.count >= 1 : trimmed.count >= 2
     }
 }
+
+// MARK: - Task 3: Chat → Tarot contextual suggestion
+
+/// One conversation-level Tarot suggestion — mirrors the meditation
+/// offer lifecycle (single card, at most once per conversation, never
+/// two contextual offers at once).
+struct ChatTarotOffer: Equatable {
+    let context: TarotEntryContext
+    /// The Twinko message this offer follows.
+    let messageID: UUID
+}
+
+/// Deterministic prototype Chat→Tarot scenarios (Task 3 §25): fixed
+/// keyword sets — the same mechanism as `MeditationIntentDetector`,
+/// never natural-language classification, never an LLM, never raw
+/// history. Each scenario emits one canonical `TarotEntryContext`
+/// with only the values the mock scenario actually provides; missing
+/// Two-Choice options are left empty for the user, never invented.
+enum ChatTarotSuggestor {
+    static func context(for input: String, lang: AppLanguage) -> TarotEntryContext? {
+        let normalized = input.lowercased()
+
+        func matches(_ keywords: [String]) -> Bool {
+            keywords.contains { normalized.contains($0) }
+        }
+
+        // Scenario B — explicit two-way decision → twoChoiceFive.
+        // The free text never yields verified A/B values, so the
+        // structured fields stay empty for the user to complete.
+        if matches(["兩個選擇", "二選一", "兩個選項", "該選哪", "兩難",
+                    "two options", "two choices", "choose between", "either or"]) {
+            return TarotEntryContext(
+                source: .chat, kind: .standard,
+                recommendedSpreadID: .twoChoiceFive,
+                contextSummary: lang == .english
+                    ? "You mentioned weighing two options — the cards can reflect each path side by side."
+                    : "你提到正在兩個選項之間衡量，牌可以幫你把兩條路並排看看。")
+        }
+
+        // Scenario C — romantic relationship reflection → relationshipFive.
+        if matches(["感情", "喜歡他", "喜歡她", "曖昧", "戀愛", "分手", "前任",
+                    "romantic", "crush", "my relationship", "break up", "ex-"]) {
+            return TarotEntryContext(
+                source: .chat, kind: .standard,
+                recommendedSpreadID: .relationshipFive,
+                draftQuestion: lang == .english
+                    ? "Where does this relationship stand right now?"
+                    : "我和對方目前的關係處於什麼狀態？",
+                contextSummary: lang == .english
+                    ? "You've been sitting with feelings about a relationship — the cards can reflect you, the other person, and the dynamic."
+                    : "你聊到了感情裡的心情，牌可以從你、對方與互動一起看看。")
+        }
+
+        // Scenario A — feeling stuck → coreClarityFour.
+        if matches(["卡住", "卡關", "卡在", "停滯", "動不了", "沒有進展",
+                    "stuck", "going nowhere", "can't move forward", "no progress"]) {
+            return TarotEntryContext(
+                source: .chat, kind: .standard,
+                recommendedSpreadID: .coreClarityFour,
+                draftQuestion: lang == .english
+                    ? "What is really keeping this stuck, and how might I move forward?"
+                    : "這件事真正卡住的地方是什麼？我可以怎麼往前走？",
+                contextSummary: lang == .english
+                    ? "It sounds like something feels stuck — the cards can look at the core, the block, an approach, and your strengths."
+                    : "聽起來有件事讓你覺得卡住了，牌可以從核心、阻礙、對策和你的優勢一起看看。")
+        }
+
+        return nil
+    }
+}
+
+extension ChatStrings {
+    // Tarot contextual action (Task 3) — optional, review-first.
+    static func tarotConfirm(_ lang: AppLanguage) -> String {
+        lang == .english
+            ? "If you'd like, we can look at this with Tarot — you'll review the setup before drawing."
+            : "如果你願意，也可以用塔羅換個角度看看——開始前你可以先確認設定。"
+    }
+    static func tarotConfirmAccept(_ lang: AppLanguage) -> String {
+        lang == .english ? "Reflect with Tarot" : "用塔羅看看"
+    }
+    static func tarotConfirmDecline(_ lang: AppLanguage) -> String {
+        lang == .english ? "Keep chatting" : "先繼續聊聊"
+    }
+}

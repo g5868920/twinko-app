@@ -19,6 +19,9 @@ final class ChatViewModel: ObservableObject {
     /// explicit requests and proactive suggestions share this state,
     /// so two cards can never appear at once.
     @Published private(set) var meditationOffer: ChatMeditationOffer?
+    /// The single conversation-level Tarot suggestion (Task 3) — never
+    /// shown alongside a meditation offer.
+    @Published private(set) var tarotOffer: ChatTarotOffer?
 
     /// Attached by the view; optional so unit tests can run pure
     /// in-memory conversations.
@@ -81,12 +84,47 @@ final class ChatViewModel: ObservableObject {
             let reply = ChatMessage(sender: .twinko, text: text)
             append(reply)
             state = .success
-            maybeOfferProactiveMeditation(after: reply)
+            // Deterministic Tarot suggestion first (Task 3): it reacts
+            // to this specific message; the proactive meditation offer
+            // stays the generic fallback. Never both at once.
+            if !maybeOfferTarot(for: input, after: reply, lang: lang) {
+                maybeOfferProactiveMeditation(after: reply)
+            }
         case .fallback(let text):
             append(ChatMessage(sender: .twinko, text: text))
             state = .error
         }
         maybeGenerateTitle()
+    }
+
+    /// Contextual Tarot suggestion: at most once per conversation
+    /// (persisted on the session), never while another offer is
+    /// visible, keyword-deterministic — no free-text classification.
+    private func maybeOfferTarot(for input: String, after reply: ChatMessage,
+                                 lang: AppLanguage) -> Bool {
+        guard tarotOffer == nil, meditationOffer == nil,
+              !session.tarotOfferResolved,
+              let context = ChatTarotSuggestor.context(for: input, lang: lang)
+        else { return false }
+        tarotOffer = ChatTarotOffer(context: context, messageID: reply.id)
+        session.tarotOfferResolved = true
+        store?.upsert(session)
+        return true
+    }
+
+    /// Decline: dismiss silently; no further Tarot suggestions this
+    /// conversation.
+    func declineTarotOffer() {
+        tarotOffer = nil
+    }
+
+    /// Accept: resolve the offer and hand back the shared entry
+    /// context for the Task 1 setup. No draft, session, or cards are
+    /// created here.
+    func acceptTarotOffer() -> TarotEntryContext? {
+        let context = tarotOffer?.context
+        tarotOffer = nil
+        return context
     }
 
     /// Proactive suggestion: at most once per conversation (persisted
@@ -124,6 +162,7 @@ final class ChatViewModel: ObservableObject {
         draftText = ""
         state = .idle
         meditationOffer = nil
+        tarotOffer = nil
     }
 
     /// Automatic topic title once the first exchange exists. Only ever

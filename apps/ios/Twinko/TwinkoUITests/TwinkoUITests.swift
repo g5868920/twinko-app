@@ -2561,6 +2561,178 @@ final class TwinkoUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["For reflection and entertainment only"].exists)
     }
 
+    /// Task 3 primary walkthrough (§45C): Home Daily recommendation →
+    /// Daily setup (holisticCheckInThree) → edit question → review →
+    /// full three-card reading → Close to Home → View Today's
+    /// Guidance → reopen the exact same reading → Close to Home.
+    func testDailyTarotWalkthrough() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile"]
+        app.launch()
+
+        // Complete the check-in so the recommendation surface exists.
+        XCTAssertTrue(app.descendants(matching: .any)["mood-calm"]
+            .waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 2.0)
+        settleTap(app.descendants(matching: .any)["mood-calm"])
+        settleTap(app.descendants(matching: .any)["need-direction"])
+        XCTAssertTrue(app.descendants(matching: .any)["checkInSummary"]
+            .waitForExistence(timeout: 5))
+
+        // Daily recommendation on the existing surface (no new module).
+        let dailyCTA = app.descendants(matching: .any)["homeDailyTarot"]
+        XCTAssertTrue(dailyCTA.waitForExistence(timeout: 4),
+                      "Daily Tarot recommendation present")
+        XCTAssertFalse(app.descendants(matching: .any)["homeDailyTarotResult"].exists)
+        attach(name: "D1-home-daily-recommendation")
+        settleTap(dailyCTA)
+
+        // Daily setup: canonical spread, editable question, Daily copy.
+        XCTAssertTrue(app.staticTexts["身・心・內在"].waitForExistence(timeout: 6))
+        XCTAssertTrue(app.descendants(matching: .any)["tarotSuggestsBadge"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["tarotContextSummary"].exists,
+                      "Daily explanation present")
+        // Edit the question once via a spread-specific example.
+        settleTap(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "最需要哪一種照顧")).firstMatch)
+        let questionField = app.descendants(matching: .any)["tarotPreQuestionField"].firstMatch
+        XCTAssertTrue(((questionField.value as? String) ?? "").contains("照顧"))
+        attach(name: "D3-daily-setup")
+
+        scrollTap(app.descendants(matching: .any)["tarotSetupContinue"], in: app)
+        XCTAssertTrue(app.descendants(matching: .any)["tarotReviewTitle"]
+            .waitForExistence(timeout: 5))
+        scrollTap(app.descendants(matching: .any)["tarotReviewBegin"], in: app)
+
+        // The existing Task 2 three-card reading (no auto-draw).
+        XCTAssertTrue(app.staticTexts["翻開屬於每個位置的牌"].waitForExistence(timeout: 14))
+        let faceDown = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "蓋著的牌"))
+        XCTAssertEqual(faceDown.count, 3)
+        for _ in 0..<3 { settleTap(faceDown.firstMatch) }
+        scrollTap(app.buttons["tarotSeeReading"], in: app)
+        XCTAssertTrue(app.descendants(matching: .any)["tarotResultContext"]
+            .waitForExistence(timeout: 6))
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "身體現在的感受")).firstMatch.exists)
+        // Capture the first card's stable identity for the reopen check.
+        let firstCardID = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", "tarotCardSection-"))
+            .firstMatch.identifier
+
+        // Close to Home (source-aware: Daily returns to Home root).
+        scrollTap(app.descendants(matching: .any)["tarotBackHome"], in: app)
+        XCTAssertTrue(app.descendants(matching: .any)["checkInSummary"]
+            .waitForExistence(timeout: 6), "Back on Home")
+        XCTAssertTrue(app.buttons["tab-home"].waitForExistence(timeout: 4),
+                      "Dock restored")
+
+        // Completed state: View Today's Guidance replaces the draw CTA.
+        let viewGuidance = app.descendants(matching: .any)["homeDailyTarotResult"]
+        XCTAssertTrue(viewGuidance.waitForExistence(timeout: 4))
+        XCTAssertFalse(app.descendants(matching: .any)["homeDailyTarot"].exists,
+                       "No second Daily CTA on the same day")
+        attach(name: "D4-view-todays-guidance")
+
+        // Reopen: the exact same reading, directly at the result.
+        settleTap(viewGuidance)
+        XCTAssertTrue(app.descendants(matching: .any)["tarotResultContext"]
+            .waitForExistence(timeout: 6), "Reopens straight into the result")
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "最需要哪一種照顧")).firstMatch.exists,
+                      "Same edited question")
+        let reopenedCardID = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", "tarotCardSection-"))
+            .firstMatch.identifier
+        XCTAssertEqual(reopenedCardID, firstCardID,
+                       "Same card identities — no redraw")
+        scrollTap(app.descendants(matching: .any)["tarotBackHome"], in: app)
+        XCTAssertTrue(app.descendants(matching: .any)["checkInSummary"]
+            .waitForExistence(timeout: 6))
+    }
+
+    /// Task 3 bounded Chat handoff check (§45D): deterministic Core
+    /// Clarity scenario → contextual action → editable setup → Change
+    /// Spread open/close → Close back to the same conversation.
+    func testChatTarotHandoff() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile"]
+        app.launch()
+
+        XCTAssertTrue(app.descendants(matching: .any)["mood-calm"]
+            .waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 2.0)
+        app.buttons["tab-chat"].tap()
+        let input = app.textFields["chatInputField"]
+        XCTAssertTrue(input.waitForExistence(timeout: 6))
+        settleTap(input)
+        input.typeText("我最近覺得工作卡住了")
+        settleTap(app.buttons["chatSendButton"])
+
+        // Suggestion appears after the reply, without navigating.
+        let accept = app.buttons["chatTarotAccept"]
+        XCTAssertTrue(accept.waitForExistence(timeout: 8),
+                      "Tarot contextual action appears")
+        XCTAssertTrue(app.buttons["chatTarotDecline"].exists,
+                      "Continue chatting stays available")
+        XCTAssertTrue(input.exists, "Composer remains reachable")
+        attach(name: "D2-chat-tarot-suggestion")
+
+        settleTap(accept)
+        XCTAssertTrue(app.staticTexts["直指核心"].waitForExistence(timeout: 6),
+                      "Opens the recommended Core Clarity setup")
+        XCTAssertTrue(app.descendants(matching: .any)["tarotContextSummary"].exists)
+        // Edit once, open and close Change Spread — same draft.
+        settleTap(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "阻礙與可運用的優勢")).firstMatch)
+        scrollTap(app.descendants(matching: .any)["tarotChangeSpreadButton"], in: app)
+        XCTAssertTrue(app.descendants(matching: .any)["tarotSpreadOption-coreClarityFour"]
+            .waitForExistence(timeout: 5))
+        settleTap(app.descendants(matching: .any)["tarotSpreadOption-coreClarityFour"])
+        XCTAssertTrue(app.staticTexts["直指核心"].waitForExistence(timeout: 5))
+
+        // Close: back to the same conversation, no card drawn.
+        settleTap(app.descendants(matching: .any)["tarotPreExitButton"])
+        XCTAssertTrue(input.waitForExistence(timeout: 6),
+                      "Returns to the originating Chat")
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "卡住")).firstMatch.exists,
+                      "Active conversation preserved")
+    }
+
+    /// Task 3 second-locale spot check (§45I): Home Daily copy, Daily
+    /// setup labels, and the Chat contextual action in English.
+    func testTarotEntryEnglishSpotCheck() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile", "-uiTestEnglish"]
+        app.launch()
+
+        XCTAssertTrue(app.descendants(matching: .any)["mood-calm"]
+            .waitForExistence(timeout: 10))
+        Thread.sleep(forTimeInterval: 2.0)
+        settleTap(app.descendants(matching: .any)["mood-calm"])
+        settleTap(app.descendants(matching: .any)["need-direction"])
+        XCTAssertTrue(app.descendants(matching: .any)["checkInSummary"]
+            .waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Draw Today's Three Cards"]
+            .waitForExistence(timeout: 4))
+        settleTap(app.descendants(matching: .any)["homeDailyTarot"])
+        XCTAssertTrue(app.staticTexts["Body, Mind & Inner Care"]
+            .waitForExistence(timeout: 6))
+        XCTAssertTrue(app.staticTexts["Twinko Suggests"].exists)
+        settleTap(app.descendants(matching: .any)["tarotPreExitButton"])
+
+        app.buttons["tab-chat"].tap()
+        let input = app.textFields["chatInputField"]
+        XCTAssertTrue(input.waitForExistence(timeout: 6))
+        settleTap(input)
+        input.typeText("I feel stuck at work")
+        settleTap(app.buttons["chatSendButton"])
+        XCTAssertTrue(app.buttons["chatTarotAccept"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.buttons["chatTarotAccept"].label.contains("Reflect with Tarot"))
+        XCTAssertTrue(app.buttons["chatTarotDecline"].label.contains("Keep chatting"))
+    }
+
     /// Waits out any in-flight transition, then taps via coordinate —
     /// coordinate taps skip the AX scroll-to-visible action that fails
     /// on animating elements.

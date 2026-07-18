@@ -12,6 +12,7 @@ struct TwinkoApp: App {
             store.delete("chat_sessions")
             store.delete("prefs")
             store.delete("daily_checkin")
+            store.delete("daily_tarot")
         }
         if arguments.contains("-uiTestEnglish") {
             let store = JSONStore()

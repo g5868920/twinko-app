@@ -119,6 +119,10 @@ enum TarotStrings {
         l == .english ? "Start a New Reading" : "開始新的占卜"
     }
     static func backHome(_ l: AppLanguage) -> String { l == .english ? "Back to Home" : "回到首頁" }
+    /// Source-aware exit for Chat-origin readings (Task 3 §28).
+    static func backToChat(_ l: AppLanguage) -> String {
+        l == .english ? "Back to Chat" : "回到對話"
+    }
 
     // Flow exit (top-right X) — approved concise copy (2026-07-17)
     static func exitConfirmTitle(_ l: AppLanguage) -> String {

@@ -18,10 +18,26 @@ struct TarotFlowView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @EnvironmentObject private var prefs: PrefsStore
     @EnvironmentObject private var chrome: ShellChrome
+    @EnvironmentObject private var dailyTarot: DailyTarotStore
+
+    /// Task 3: optional contextual entry (Chat / Home / Daily) —
+    /// seeds the pre-reading at Recommended Spread Setup.
+    var entryContext: TarotEntryContext?
 
     /// The one active reading source of truth. `nil` = pre-reading.
     @State private var session: TarotReadingSession?
-    @State private var stage: Stage = .shuffle
+    @State private var stage: Stage
+
+    /// `restoredSession` reopens a completed reading (View Today's
+    /// Guidance) directly at the result — no setup, no shuffle, no
+    /// redraw; New Reading from there flows into the normal standard
+    /// pre-reading.
+    init(entryContext: TarotEntryContext? = nil,
+         restoredSession: TarotReadingSession? = nil) {
+        self.entryContext = entryContext
+        _session = State(initialValue: restoredSession)
+        _stage = State(initialValue: restoredSession != nil ? .result : .shuffle)
+    }
     @State private var showingExitConfirm = false
     /// Back before the result = leaving the committed draw: the
     /// explicit New Reading boundary (§16) — confirm, then return to
@@ -36,7 +52,7 @@ struct TarotFlowView: View {
             // The pre-reading flow owns the immersive token and pop
             // gate for the whole Tarot visit; it stays mounted (hidden)
             // during the reading so the draft survives New Reading.
-            TarotPreReadingFlowView(onLaunch: startReading)
+            TarotPreReadingFlowView(onLaunch: startReading, entryContext: entryContext)
                 .opacity(session == nil ? 1 : 0)
                 .allowsHitTesting(session == nil)
                 .accessibilityHidden(session != nil)
@@ -197,6 +213,14 @@ struct TarotFlowView: View {
                                          session?.markRevealed(drawn.positionID)
                                      }) {
                         session?.revealSeen = true
+                        // Daily completion happens exactly here: the
+                        // base reading is fully drawn and revealed and
+                        // the result becomes available (§16). Setup,
+                        // partial draws, and abandonment never record.
+                        if let completed = session,
+                           completed.contextKind == .dailyCheckIn {
+                            dailyTarot.recordCompletion(of: completed)
+                        }
                         advance(to: .result)
                     }
                 case .result:
@@ -208,6 +232,13 @@ struct TarotFlowView: View {
                         guard session?.canDrawGuidance == true else { return }
                         var engine = TarotDrawEngine()
                         session?.guidanceCard = engine.drawGuidance(excluding: current.cards)
+                        // A later Guidance Card updates the same
+                        // current-day Daily record — never a second
+                        // completion (§22).
+                        if let updated = session,
+                           updated.contextKind == .dailyCheckIn {
+                            dailyTarot.attachGuidance(from: updated)
+                        }
                         advance(to: .guidanceReveal)
                     }, onRestart: {
                         // New Reading = the explicit reset boundary:
@@ -292,10 +323,14 @@ struct TarotFlowView: View {
         stage = .shuffle
     }
 
-    /// Result-page exit: Back to Home returns to the Home root and
-    /// restores the bottom navigation.
+    /// Source-aware result exit (§33): Chat-origin readings return to
+    /// the originating conversation (pop only — the Chat stack is
+    /// preserved underneath); Home/Daily/direct return to the Home
+    /// root and restore the bottom navigation.
     private func goHome() {
-        chrome.selectedTab = .home
+        if session?.source != .chat {
+            chrome.selectedTab = .home
+        }
         dismiss()
     }
 }

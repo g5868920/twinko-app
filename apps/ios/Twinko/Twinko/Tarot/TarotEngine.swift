@@ -95,6 +95,11 @@ extension TarotDrawEngine where G == SystemRandomNumberGenerator {
 struct TarotReadingSession: Equatable, Identifiable {
     let id: UUID
     let spreadID: TarotSpreadID
+    /// Task 3: routing context — where this reading was entered from
+    /// and whether it is the Daily Check-in. Survives the whole flow;
+    /// never changed by spread changes or language switches.
+    var source: TarotEntrySource = .direct
+    var contextKind: TarotEntryContextKind = .standard
     /// Interpretation flavor only (deterministically derived from the
     /// validated intent — never free-text classification).
     var topic: TarotTopicType
@@ -147,6 +152,8 @@ struct TarotReadingSession: Equatable, Identifiable {
                   optionB: draft.trimmedOptionB.isEmpty ? nil : draft.trimmedOptionB,
                   relationshipPersonLabel: draft.trimmedPersonLabel.isEmpty
                       ? nil : draft.trimmedPersonLabel)
+        source = draft.source
+        contextKind = draft.contextKind
     }
 
     /// Deterministic intent→topic mapping used only to keep the

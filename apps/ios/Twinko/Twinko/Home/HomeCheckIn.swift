@@ -138,6 +138,14 @@ enum HomeAction: Equatable, Identifiable, Hashable {
     case chat
     case meditation(focus: MeditationFocus, duration: MeditationDuration)
     case tarot
+    /// The check-in recommendation's Tarot CTA — carries a Home entry
+    /// context into the recommended setup (Task 3). Explore/journey
+    /// tarot entries stay direct.
+    case tarotRecommended
+    /// Daily Tarot Check-in entry (uncompleted state).
+    case dailyTarot
+    /// Completed current-day Daily reading (View Today's Guidance).
+    case dailyTarotResult
     case horoscope
     case music
     case activities
@@ -147,6 +155,9 @@ enum HomeAction: Equatable, Identifiable, Hashable {
         case .chat: return "chat"
         case .meditation(let focus, let duration): return "meditation-\(focus.rawValue)-\(duration.rawValue)"
         case .tarot: return "tarot"
+        case .tarotRecommended: return "tarot-recommended"
+        case .dailyTarot: return "daily-tarot"
+        case .dailyTarotResult: return "daily-tarot-result"
         case .horoscope: return "horoscope"
         case .music: return "music"
         case .activities: return "activities"
@@ -161,8 +172,14 @@ enum HomeAction: Equatable, Identifiable, Hashable {
             return "Start a \(duration.rawValue)-minute meditation"
         case (.meditation(_, let duration), .traditionalChinese):
             return "開始 \(duration.rawValue) 分鐘冥想"
-        case (.tarot, .english): return "Draw a Tarot reading"
-        case (.tarot, .traditionalChinese): return "抽一次塔羅"
+        case (.tarot, .english), (.tarotRecommended, .english):
+            return "Draw a Tarot reading"
+        case (.tarot, .traditionalChinese), (.tarotRecommended, .traditionalChinese):
+            return "抽一次塔羅"
+        case (.dailyTarot, .english): return "Draw Today's Three Cards"
+        case (.dailyTarot, .traditionalChinese): return "抽今天的三張牌"
+        case (.dailyTarotResult, .english): return "View Today's Guidance"
+        case (.dailyTarotResult, .traditionalChinese): return "查看今日指引"
         case (.horoscope, .english): return "Today's Zodiac"
         case (.horoscope, .traditionalChinese): return "看今日星座運勢"
         case (.music, .english): return "Quiet music"
@@ -236,7 +253,7 @@ struct LocalHomeRecommendationProvider: HomeRecommendationProviding {
             return .meditation(focus: checkIn.mood == .anxious ? .releaseAnxiety : .calmDown,
                                duration: .three)
         case .direction:
-            return .tarot
+            return .tarotRecommended
         case .rest:
             // Music remains a placeholder — Meditation is the primary
             // available action (approved MVP rule).
@@ -645,4 +662,41 @@ enum HomeExperienceStrings {
     static func tabExplore(_ l: AppLanguage) -> String { l == .english ? "Explore" : "探索" }
     static func tabMyPlanet(_ l: AppLanguage) -> String { l == .english ? "My Planet" : "我的星球" }
     static func settings(_ l: AppLanguage) -> String { l == .english ? "Settings" : "設定" }
+}
+
+// MARK: - Task 3: Home → Tarot contextual mappings
+
+extension LocalHomeRecommendationProvider {
+    /// Deterministic Home→Tarot mapping from today's check-in only —
+    /// no fabricated questions, options, or relationships (§30).
+    /// Feeling lost/confused → Core Clarity (feeling stuck); other
+    /// direction-seeking states → Situation, Action & Possible
+    /// Direction (practical next step). Fields stay empty and
+    /// editable in setup.
+    func tarotEntryContext(for checkIn: DailyCheckIn,
+                           lang: AppLanguage) -> TarotEntryContext {
+        let spreadID: TarotSpreadID = checkIn.mood == .confused
+            ? .coreClarityFour : .actionDirectionThree
+        let summary = lang == .english
+            ? "From today's check-in, you're looking for some direction — the cards can help you reflect on it."
+            : "從今天的紀錄裡，你想獲得一些方向——牌可以陪你一起想想。"
+        return TarotEntryContext(source: .home, kind: .standard,
+                                 recommendedSpreadID: spreadID,
+                                 contextSummary: summary)
+    }
+}
+
+extension HomeExperienceStrings {
+    /// Daily Tarot recommendation copy on the existing recommendation
+    /// surface (Task 3 §15) — calm and optional; no streak or guilt.
+    static func dailyTarotPrompt(_ l: AppLanguage) -> String {
+        l == .english
+            ? "Would you like to look more deeply at what your body, mind, and inner self may need today?"
+            : "想再深入看看今天的身、心與內在需要嗎？"
+    }
+    static func dailyTarotReady(_ l: AppLanguage) -> String {
+        l == .english
+            ? "Today's guidance is ready whenever you'd like to revisit it."
+            : "今天的指引已經準備好，想回顧時隨時可以看看。"
+    }
 }

@@ -599,3 +599,100 @@ five-card result check — no fixture/preview mechanism exists, so the shortest
 normal UI route was used) plus `testTarotReadingEnglishSpotCheck` (three-card
 EN: progress, result headings, Guidance CTA, disclaimer). Results in the task
 report. Reduce Motion and Relationship layout verified by code inspection.
+
+---
+
+## 17. Task 3 — Daily Check-in, Chat/Home handoffs, source-aware entry/exit (2026-07-19)
+
+**Status:** Implemented. Canonical product source remains
+`docs/features/tarot/TWINKOTALK_TAROT_USAGE_SPEC.md`.
+
+### 17.1 Shared entry context
+
+`TarotEntrySource` (direct/chat/home) and `TarotEntryContextKind`
+(standard/dailyCheckIn) are the one canonical routing model, attached to draft
+→ launch request → session → result → Close; never inferred from display text,
+never changed by spread changes or language switches. `TarotEntryContext`
+(TarotEntryContext.swift) is the single Chat/Home/Daily handoff payload —
+canonical spread ID, optional editable question/decision/A/B/label, one brief
+`contextSummary` — no Chat history, no card identities, no session creation.
+One shared conversion boundary (`TarotReadingDraft.init(context:)`) feeds the
+unchanged Task 1 setup (editable, Change Spread, Setup Review, explicit Begin
+Reading); the Task 2 engine remains the only reading path. Direct entry is
+untouched (source `direct`, kind `standard`, intent-first flow).
+
+### 17.2 Daily Tarot Check-in
+
+Entry: Home's existing recommendation surface gains one quiet row after the
+check-in — copy 想再深入看看今天的身、心與內在需要嗎？, CTA 抽今天的三張牌 /
+`Draw Today's Three Cards` (no new section, module, streaks, badges, or
+timers). It opens the Recommended Spread Setup with the canonical
+`holisticCheckInThree` (no duplicate Daily spread ID), an editable default
+question, and the Daily explanation as the context summary. Daily ownership
+lives on the `dailyCheckIn` context kind: a pre-draw spread change keeps Daily
+identity, and a standard reading using the same spread never counts as Daily.
+
+Completion (§16 of the Task 3 instruction) is recorded exactly when the fully
+drawn base reading finishes its reveal and the result becomes available;
+setup, edits, review, partial draws, and abandonment never record. One
+completion per local calendar day (`Calendar` day components via
+`DailyTarotStore.localDayKey`, re-evaluated on every read — no timers, no UTC
+string comparison, no polling); standard readings stay available. A later
+Guidance Card updates the same current-day record.
+
+### 17.3 Persistence and restoration
+
+`DailyTarotStore` reuses the existing JSONStore pattern (`daily_tarot.json`)
+— **restart-safe**, holding at most one current/most-recent record
+(`DailyTarotCompletionRecord` + `TarotReadingSnapshot`: card IDs,
+orientations, positions, reveal state, optional guidance, validated inputs —
+no history collection, no Chat content, no images). After completion Home
+shows 查看今日指引 / `View Today's Guidance`, which reopens the exact same
+result via `TarotFlowView(restoredSession:)` — no setup, no shuffle, no
+redraw; a snapshot that cannot be restored (unknown card) fails safe to the
+standard entry without inventing replacements. A new local day naturally
+returns the uncompleted state; yesterday's record is simply no longer today's.
+New Reading from the reopened result flows into normal standard pre-reading
+and cannot create a second same-day Daily completion. `-uiTestReset` clears
+the record.
+
+### 17.4 Chat contextual handoff
+
+The existing conversation-level offer architecture (meditation) gains one
+parallel `ChatTarotOffer` (at most one contextual offer visible; once per
+conversation, persisted as `tarotOfferResolved`). Three deterministic
+keyword scenarios (`ChatTarotSuggestor` — same mechanism as
+`MeditationIntentDetector`, no NL classification, no LLM): stuck →
+`coreClarityFour` (editable draft question); explicit two-way decision →
+`twoChoiceFive` (A/B left empty — never invented); romantic reflection →
+`relationshipFive` (editable question, no label, presented-state-safe copy).
+The suggestion card follows the reply on the existing action surface (one
+primary CTA 用塔羅看看 / `Reflect with Tarot`, decline 先繼續聊聊 / `Keep
+chatting`), never auto-navigates, and passes only the entry context — never
+messages. Close returns to the same conversation through the existing Chat
+stack; the result's exit reads 回到對話 / `Back to Chat` for chat-origin
+readings.
+
+### 17.5 Home contextual handoff
+
+The check-in recommendation's Tarot CTA (`HomeAction.tarotRecommended`) now
+carries a Home entry context: mood 迷惘 → `coreClarityFour` (feeling stuck),
+other direction-seeking states → `actionDirectionThree` (practical next
+step) — fields stay empty and editable; nothing fabricated (§30). The other
+canonical mappings (singleCard/directionPathThree/holisticCheckInThree/
+twoChoiceFive/relationshipFive) remain supported by the shared context model
+and are not emitted where Home lacks the required explicit context. Explore
+planets, journey steps, and the Explore-more entry stay direct. Close from
+Home-origin (and Daily) returns to the Home root and restores the dock;
+shared bottom-navigation behavior is unchanged (immersive tokens).
+
+### 17.6 Validation (strictly minimal, per instruction §45)
+
+One build; unit group `TarotEntryContextTests` (context→draft mapping, chat
+scenario determinism/safety, Daily completion + local-day + restart reload
+via injected calendar/clock/temp store, snapshot restoration); Simulator:
+`testDailyTarotWalkthrough` (full Daily loop incl. same-card reopen check),
+`testChatTarotHandoff` (bounded Core Clarity handoff + return),
+`testTarotEntryEnglishSpotCheck` (Home Daily copy, Daily setup, Chat action
+in EN). Home general handoff and remaining Chat scenarios verified by test +
+code inspection. Results in the task report.

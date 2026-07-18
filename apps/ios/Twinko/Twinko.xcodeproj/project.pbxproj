@@ -49,6 +49,7 @@
 		84D6A89AD7223C9DEB95ED9F /* PrefsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA0D85EC3CDEFF74FEE91DAB /* PrefsStore.swift */; };
 		857639E6CAF39D2FFA7C0362 /* TwinkoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9228AF25B41DF28D12B85613 /* TwinkoUITests.swift */; };
 		8B72E5E940672C66AF38C06E /* TarotDrawTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60378483018DCB13C98FED8F /* TarotDrawTests.swift */; };
+		E28598197A032C9003765D3F /* TarotEntryContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CC5F73D2DE5B37334606D7 /* TarotEntryContextTests.swift */; };
 		B53CD5C48EB31607BA1F1381 /* TarotPreReadingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B398E67E874CC318F50E449 /* TarotPreReadingTests.swift */; };
 		8DDC7BD09479108E91F9A3B8 /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CEB49807F53B42319B7B855 /* ProfileStore.swift */; };
 		9D6D707A287714E51AA577A4 /* TarotResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E298F3D429266D6C304720 /* TarotResultView.swift */; };
@@ -64,6 +65,7 @@
 		C9DA3CD18CD59ED211CFDDBD /* MockChatService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F858C155845D7B7FD3D9859 /* MockChatService.swift */; };
 		CADA65851B2648D9C88F33F7 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A62975F8E2A08908ECEBDF /* UserProfile.swift */; };
 		CBD44ED69E9F1DF6C07F27A5 /* TarotEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05A2B3A308CB1AC55C8FAF8C /* TarotEngine.swift */; };
+		365B0A160D24BB95DFA481E2 /* TarotEntryContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 251784FAFD35D5E85BC63D60 /* TarotEntryContext.swift */; };
 		D074EB5E2CFAA1EECFEEAC62 /* TarotSpreadLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E269798811A303A8CF40AC /* TarotSpreadLibrary.swift */; };
 		6B66CF4BB75D6B565A8A0724 /* TarotPreReadingFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6713416F9667448C61C3931D /* TarotPreReadingFlow.swift */; };
 		CDCFE1CC5551CDB86DD7EEE9 /* ProfileSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63682DB4699C8D0516D6234B /* ProfileSetupView.swift */; };
@@ -104,6 +106,7 @@
 /* Begin PBXFileReference section */
 		00E1ED1CF029A5982B85E8DF /* JSONStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONStore.swift; sourceTree = "<group>"; };
 		05A2B3A308CB1AC55C8FAF8C /* TarotEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotEngine.swift; sourceTree = "<group>"; };
+		251784FAFD35D5E85BC63D60 /* TarotEntryContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotEntryContext.swift; sourceTree = "<group>"; };
 		C8E269798811A303A8CF40AC /* TarotSpreadLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotSpreadLibrary.swift; sourceTree = "<group>"; };
 		6713416F9667448C61C3931D /* TarotPreReadingFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotPreReadingFlow.swift; sourceTree = "<group>"; };
 		06E5AC2A3CC494729C11B32C /* twinko_tarot_card_registry_v1.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = twinko_tarot_card_registry_v1.json; sourceTree = "<group>"; };
@@ -133,6 +136,7 @@
 		5D8B8160D8C7C289308214D3 /* BrandedActionPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandedActionPopover.swift; sourceTree = "<group>"; };
 		5E70C59D69B2E7501D96B7A1 /* TwinkoGlass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinkoGlass.swift; sourceTree = "<group>"; };
 		60378483018DCB13C98FED8F /* TarotDrawTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotDrawTests.swift; sourceTree = "<group>"; };
+		37CC5F73D2DE5B37334606D7 /* TarotEntryContextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotEntryContextTests.swift; sourceTree = "<group>"; };
 		0B398E67E874CC318F50E449 /* TarotPreReadingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotPreReadingTests.swift; sourceTree = "<group>"; };
 		61BA6F763EEAE1B717A23676 /* HoroscopeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoroscopeTests.swift; sourceTree = "<group>"; };
 		63682DB4699C8D0516D6234B /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
@@ -256,6 +260,7 @@
 				2AB9ADFEDC86900F8F9C16C9 /* ProfileStoreTests.swift */,
 				74C3894A03FC2F03F44A9499 /* ChatStoreTests.swift */,
 				60378483018DCB13C98FED8F /* TarotDrawTests.swift */,
+				37CC5F73D2DE5B37334606D7 /* TarotEntryContextTests.swift */,
 				0B398E67E874CC318F50E449 /* TarotPreReadingTests.swift */,
 				D01E798A1C296547EEFDCDF3 /* TarotSummaryRenderProbeTests.swift */,
 				61BA6F763EEAE1B717A23676 /* HoroscopeTests.swift */,
@@ -319,6 +324,7 @@
 				8EC9F51DE4B64FCFA48A714E /* TarotCardView.swift */,
 				90859D39AD666A69BDAA9B42 /* TarotRegistry.swift */,
 				05A2B3A308CB1AC55C8FAF8C /* TarotEngine.swift */,
+				251784FAFD35D5E85BC63D60 /* TarotEntryContext.swift */,
 				C8E269798811A303A8CF40AC /* TarotSpreadLibrary.swift */,
 				6713416F9667448C61C3931D /* TarotPreReadingFlow.swift */,
 				3A27D370E8CDA8F05354907A /* TarotEffects.swift */,
@@ -556,6 +562,7 @@
 				DB60451E2AC27181EE3A839B /* HoroscopeTodayView.swift in Sources */,
 				272045C2ED7644D570A23005 /* HoroscopeSummaryCard.swift in Sources */,
 				CBD44ED69E9F1DF6C07F27A5 /* TarotEngine.swift in Sources */,
+				365B0A160D24BB95DFA481E2 /* TarotEntryContext.swift in Sources */,
 				D074EB5E2CFAA1EECFEEAC62 /* TarotSpreadLibrary.swift in Sources */,
 				6B66CF4BB75D6B565A8A0724 /* TarotPreReadingFlow.swift in Sources */,
 				50F70D1307CDE58BC5028890 /* TarotEffects.swift in Sources */,
@@ -581,6 +588,7 @@
 				A0431E3214BF86544C2BFD93 /* ProfileStoreTests.swift in Sources */,
 				330D57744BD39094D2FB3AB0 /* ChatStoreTests.swift in Sources */,
 				8B72E5E940672C66AF38C06E /* TarotDrawTests.swift in Sources */,
+				E28598197A032C9003765D3F /* TarotEntryContextTests.swift in Sources */,
 				B53CD5C48EB31607BA1F1381 /* TarotPreReadingTests.swift in Sources */,
 				2F9C8578542D08808ED832A6 /* TarotSummaryRenderProbeTests.swift in Sources */,
 				691212873AEB8D77DF457BFB /* HoroscopeTests.swift in Sources */,

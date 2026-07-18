@@ -24,6 +24,10 @@ struct ChatView: View {
     // model (centralized conversation-level state).
     @State private var goToMeditation = false
     @State private var meditationContext: MeditationSourceContext = .direct
+    // Tarot handoff (Task 3): the suggestion lives on the view model;
+    // accepting routes into the shared Task 1 setup with this context.
+    @State private var goToTarot = false
+    @State private var tarotEntryContext: TarotEntryContext?
 
     /// Hides the back chevron when Chat is hosted as the Chat tab's
     /// root (bottom navigation owns the top-level switch).
@@ -110,6 +114,9 @@ struct ChatView: View {
         }
         .navigationDestination(isPresented: $goToMeditation) {
             MeditationFlowView(sourceContext: meditationContext)
+        }
+        .navigationDestination(isPresented: $goToTarot) {
+            TarotFlowView(entryContext: tarotEntryContext)
         }
         .confirmationDialog(
             ChatStrings.discardDraftTitle(lang),
@@ -386,6 +393,10 @@ struct ChatView: View {
                         meditationOfferCard(offer)
                             .id("meditationOffer")
                     }
+                    if let offer = viewModel.tarotOffer {
+                        tarotOfferCard(offer)
+                            .id("tarotOffer")
+                    }
                 }
                 .padding(.horizontal, 12)
                 .padding(.top, 10)
@@ -394,6 +405,9 @@ struct ChatView: View {
             .onChange(of: viewModel.messages.count) { _, _ in scrollToBottom(proxy) }
             .onChange(of: viewModel.state) { _, _ in scrollToBottom(proxy) }
             .onChange(of: viewModel.meditationOffer) { _, offer in
+                if offer != nil { scrollToBottom(proxy) }
+            }
+            .onChange(of: viewModel.tarotOffer) { _, offer in
                 if offer != nil { scrollToBottom(proxy) }
             }
             .onAppear { scrollToBottom(proxy) }
@@ -485,6 +499,8 @@ struct ChatView: View {
         let target: AnyHashable?
         if viewModel.meditationOffer != nil {
             target = AnyHashable("meditationOffer")
+        } else if viewModel.tarotOffer != nil {
+            target = AnyHashable("tarotOffer")
         } else if viewModel.state == .loading {
             target = AnyHashable("typing")
         } else {
@@ -492,6 +508,80 @@ struct ChatView: View {
         }
         guard let target else { return }
         withAnimation { proxy.scrollTo(target, anchor: .bottom) }
+    }
+
+    // MARK: Tarot suggestion card (Task 3)
+
+    /// Contextual Tarot suggestion after the related Twinko message —
+    /// same warm speech-glass family and CTA hierarchy as the
+    /// meditation card; one primary CTA plus continue-chatting.
+    private func tarotOfferCard(_ offer: ChatTarotOffer) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top, spacing: 8) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 14))
+                    .foregroundStyle(Color.brandPurpleDeep)
+                VStack(alignment: .leading, spacing: 3) {
+                    if let summary = offer.context.contextSummary {
+                        Text(summary)
+                            .font(.system(.subheadline, design: .rounded))
+                            .foregroundStyle(Color.deepPlum)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Text(ChatStrings.tarotConfirm(lang))
+                        .font(.system(.caption, design: .rounded))
+                        .foregroundStyle(Color.textSecondaryToken)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            Button {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                tarotEntryContext = viewModel.acceptTarotOffer()
+                goToTarot = true
+            } label: {
+                Text(ChatStrings.tarotConfirmAccept(lang))
+                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                    .foregroundStyle(Color.textInverseToken)
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .background(
+                        LinearGradient(colors: [.brandPurple, Color(hex: 0x6A53C4)],
+                                       startPoint: .top, endPoint: .bottom),
+                        in: RoundedRectangle(cornerRadius: 22))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 22)
+                            .fill(LinearGradient(stops: [
+                                .init(color: .white.opacity(0.28), location: 0),
+                                .init(color: .white.opacity(0), location: 0.45),
+                            ], startPoint: .top, endPoint: .bottom))
+                            .padding(2)
+                            .allowsHitTesting(false)
+                    )
+                    .overlay(RoundedRectangle(cornerRadius: 22)
+                        .strokeBorder(Color(hex: 0xFFF3D6).opacity(0.55), lineWidth: 1))
+                    .shadow(color: Color.brandPurpleDeep.opacity(0.35), radius: 6, y: 2)
+            }
+            .accessibilityIdentifier("chatTarotAccept")
+            Button {
+                withAnimation(.easeOut(duration: 0.2)) {
+                    viewModel.declineTarotOffer()
+                }
+            } label: {
+                Text(ChatStrings.tarotConfirmDecline(lang))
+                    .font(.system(.subheadline, design: .rounded))
+                    .foregroundStyle(Color.textSecondaryToken)
+                    .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .accessibilityIdentifier("chatTarotDecline")
+        }
+        .padding(TwinkoSpacing.m)
+        .background(
+            LinearGradient(colors: [Color(hex: 0xFFFBF6), Color(hex: 0xF7F0F8)],
+                           startPoint: .top, endPoint: .bottom)
+                .opacity(0.82),
+            in: RoundedRectangle(cornerRadius: 20))
+        .overlay(RoundedRectangle(cornerRadius: 20)
+            .strokeBorder(Color.white.opacity(0.6), lineWidth: 1))
+        .accessibilityElement(children: .contain)
     }
 
     // MARK: Meditation confirmation card

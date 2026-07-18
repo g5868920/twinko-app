@@ -593,7 +593,9 @@ struct MeditationFlowView: View {
                     moodChoice(option)
                 }
             }
-            .padding(.horizontal, TwinkoSpacing.l)
+            // Same horizontal inset as the Done CTA below so the
+            // feeling choices and the primary button share one width.
+            .padding(.horizontal, TwinkoSpacing.m)
 
             Spacer(minLength: TwinkoSpacing.xl)
 

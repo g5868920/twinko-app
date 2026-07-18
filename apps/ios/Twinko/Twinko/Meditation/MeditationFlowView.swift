@@ -79,15 +79,11 @@ struct MeditationFlowView: View {
             }
         }
         .background {
-            GeometryReader { geo in
-                Image("bg_meditation_v2")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: geo.size.width, height: geo.size.height)
-                    .clipped()
-                    .accessibilityHidden(true)
-            }
-            .ignoresSafeArea()
+            // The v2 moonlit scene is bright; the shared readability
+            // veil grounds the white text and lets the night glass
+            // read against the moon and clouds (asset untouched).
+            TwinkoFullScreenBackground(imageName: "bg_meditation_v2",
+                                       topOpacity: 0.30, bottomOpacity: 0.42)
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
@@ -332,8 +328,8 @@ struct MeditationFlowView: View {
                                          Color.brandPurpleDeep.opacity(0.48)],
                                 startPoint: .top, endPoint: .bottom))
                           : AnyShapeStyle(LinearGradient(
-                                colors: [Color(hex: 0x9C8CD8).opacity(0.30),
-                                         Color(hex: 0x6E5FB0).opacity(0.22)],
+                                colors: [Color(hex: 0x9C8CD8).opacity(0.42),
+                                         Color(hex: 0x6E5FB0).opacity(0.34)],
                                 startPoint: .top, endPoint: .bottom)))
                     .overlay(
                         RoundedRectangle(cornerRadius: 14, style: .continuous)
@@ -389,7 +385,7 @@ struct MeditationFlowView: View {
                 .tint(.twinkoGold)
                 .lineLimit(1...3)
                 .padding(10)
-                .twinkoGlass(cornerRadius: 14, tint: 0.36, night: true)
+                .twinkoGlass(cornerRadius: 14, tint: 0.46, night: true)
                 .accessibilityIdentifier("meditationCustomInput")
         }
         .padding(.horizontal, TwinkoSpacing.m)
@@ -429,7 +425,7 @@ struct MeditationFlowView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(12)
-        .twinkoGlass(cornerRadius: TwinkoRadius.card, tint: 0.30,
+        .twinkoGlass(cornerRadius: TwinkoRadius.card, tint: 0.38,
                      warm: true, night: true)
         .padding(.horizontal, TwinkoSpacing.m)
         .accessibilityElement(children: .combine)

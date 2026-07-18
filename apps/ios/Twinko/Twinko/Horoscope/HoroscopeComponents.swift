@@ -149,12 +149,12 @@ struct HoroscopeDimensionCard: View {
                 }
                 Text(dimension.summary)
                     .font(.system(.body, design: .rounded))
-                    .foregroundStyle(Color.textInverseToken.opacity(0.92))
+                    .foregroundStyle(Color.textInverseToken)
                     .multilineTextAlignment(.leading)
                 if isExpanded {
                     Text(dimension.detail)
                         .font(.system(.subheadline, design: .rounded))
-                        .foregroundStyle(Color.textInverseToken.opacity(0.78))
+                        .foregroundStyle(Color.textInverseToken.opacity(0.85))
                         .lineSpacing(4)
                         .multilineTextAlignment(.leading)
                         .transition(reduceMotion ? .identity : .opacity)
@@ -163,9 +163,13 @@ struct HoroscopeDimensionCard: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(TwinkoSpacing.m)
             // Shared night glass instead of a dark slab; 整體運勢 stays
-            // a step denser as the primary reading entry point.
+            // a step denser as the primary reading entry point. A deep
+            // base under the translucent glass keeps white body text
+            // readable without brightening the surface.
             .twinkoGlass(cornerRadius: TwinkoRadius.card,
                          tint: kind == .overall ? 0.48 : 0.40, night: true)
+            .background(RoundedRectangle(cornerRadius: TwinkoRadius.card, style: .continuous)
+                .fill(Color.deepSpace.opacity(0.30)))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -208,6 +212,8 @@ struct LuckyDetailsGrid: View {
         }
         .padding(TwinkoSpacing.m)
         .twinkoGlass(cornerRadius: TwinkoRadius.card, tint: 0.38, night: true)
+        .background(RoundedRectangle(cornerRadius: TwinkoRadius.card, style: .continuous)
+            .fill(Color.deepSpace.opacity(0.30)))
     }
 }
 
@@ -221,7 +227,7 @@ struct LuckyDetailItem: View {
         VStack(spacing: 5) {
             Text(label)
                 .font(.system(.caption, design: .rounded))
-                .foregroundStyle(Color.textInverseToken.opacity(0.65))
+                .foregroundStyle(Color.textInverseToken.opacity(0.75))
             HStack(spacing: 6) {
                 if let zodiacSign {
                     ZodiacGlyphView(sign: zodiacSign, size: 18, emphasized: false)
@@ -278,15 +284,17 @@ struct TwinkoMessageBlock: View {
                 .foregroundStyle(Color.twinkoGold)
             Text(message)
                 .font(.system(.body, design: .rounded))
-                .foregroundStyle(Color.textInverseToken.opacity(0.94))
+                .foregroundStyle(Color.textInverseToken)
                 .lineSpacing(4)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(TwinkoSpacing.m)
         // Twinko's own words ride the warm-night speech glass, same as
-        // the Meditation source card.
+        // the Meditation source card, over a deep readability base.
         .twinkoGlass(cornerRadius: TwinkoRadius.card, tint: 0.42,
                      warm: true, night: true)
+        .background(RoundedRectangle(cornerRadius: TwinkoRadius.card, style: .continuous)
+            .fill(Color.deepSpace.opacity(0.30)))
         .accessibilityElement(children: .combine)
     }
 }

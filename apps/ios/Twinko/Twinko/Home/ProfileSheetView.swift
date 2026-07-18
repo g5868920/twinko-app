@@ -20,7 +20,7 @@ private struct MyPlanetSubpage<Trailing: View, Content: View>: View {
                                        topOpacity: 0.20, bottomOpacity: 0.32)
             // Soft mist mutes artwork detail behind reading cards
             // (readability pass 2026-07-18).
-            Color.white.opacity(0.10).ignoresSafeArea()
+            Color.white.opacity(0.16).ignoresSafeArea()
             VStack(spacing: 0) {
                 ZStack {
                     Text(title)
@@ -94,7 +94,7 @@ struct MyPlanetContentView: View {
                                            topOpacity: 0.18, bottomOpacity: 0.30)
                 // Soft mist (readability pass 2026-07-18): mutes the
                 // valley artwork behind the record cards.
-                Color.white.opacity(0.10).ignoresSafeArea()
+                Color.white.opacity(0.16).ignoresSafeArea()
                 ScrollView {
                     VStack(spacing: TwinkoSpacing.m) {
                         hero

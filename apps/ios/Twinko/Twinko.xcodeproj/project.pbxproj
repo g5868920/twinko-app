@@ -53,6 +53,7 @@
 		E28598197A032C9003765D3F /* TarotEntryContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CC5F73D2DE5B37334606D7 /* TarotEntryContextTests.swift */; };
 		B53CD5C48EB31607BA1F1381 /* TarotPreReadingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B398E67E874CC318F50E449 /* TarotPreReadingTests.swift */; };
 		F7D21D4EAC7703627FD5C8EF /* TarotLLMSchemaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A034D004EC575773E087F2B /* TarotLLMSchemaTests.swift */; };
+		0E1800E3DBE3C8CFD3A54DDF /* TarotEvalHarnessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637D6D3648A7ED55E2CF862E /* TarotEvalHarnessTests.swift */; };
 		8DDC7BD09479108E91F9A3B8 /* ProfileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CEB49807F53B42319B7B855 /* ProfileStore.swift */; };
 		9D6D707A287714E51AA577A4 /* TarotResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E298F3D429266D6C304720 /* TarotResultView.swift */; };
 		A0431E3214BF86544C2BFD93 /* ProfileStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AB9ADFEDC86900F8F9C16C9 /* ProfileStoreTests.swift */; };
@@ -71,6 +72,8 @@
 		70ADC462A80D52CE47419C3B /* TarotLLMSchema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8806235B20534084C4ACDB0C /* TarotLLMSchema.swift */; };
 		A86967C8FCCCFE10F893E4E1 /* TarotSafetyMatrix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9800033B8247AB3DF00404F7 /* TarotSafetyMatrix.swift */; };
 		B1ECE84B6A6CE58CA4495136 /* TarotPromptBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EC2B5C1FE090A51A6167120 /* TarotPromptBuilder.swift */; };
+		630A637833C9E3EDEF96A708 /* TarotGoldenCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26FEA7582F28E59757FB3904 /* TarotGoldenCases.swift */; };
+		1E176AA1F16AB7FF18639AF9 /* TarotEvalHarness.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9259658209D5BAE66855E98A /* TarotEvalHarness.swift */; };
 		BF8D4B0662F9FE4650325057 /* LLMServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CA95FAD5CDA601D3D7F8A98 /* LLMServices.swift */; };
 		365B0A160D24BB95DFA481E2 /* TarotEntryContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 251784FAFD35D5E85BC63D60 /* TarotEntryContext.swift */; };
 		D074EB5E2CFAA1EECFEEAC62 /* TarotSpreadLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E269798811A303A8CF40AC /* TarotSpreadLibrary.swift */; };
@@ -117,6 +120,8 @@
 		8806235B20534084C4ACDB0C /* TarotLLMSchema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotLLMSchema.swift; sourceTree = "<group>"; };
 		9800033B8247AB3DF00404F7 /* TarotSafetyMatrix.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotSafetyMatrix.swift; sourceTree = "<group>"; };
 		7EC2B5C1FE090A51A6167120 /* TarotPromptBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotPromptBuilder.swift; sourceTree = "<group>"; };
+		26FEA7582F28E59757FB3904 /* TarotGoldenCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotGoldenCases.swift; sourceTree = "<group>"; };
+		9259658209D5BAE66855E98A /* TarotEvalHarness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotEvalHarness.swift; sourceTree = "<group>"; };
 		3CA95FAD5CDA601D3D7F8A98 /* LLMServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMServices.swift; sourceTree = "<group>"; };
 		251784FAFD35D5E85BC63D60 /* TarotEntryContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotEntryContext.swift; sourceTree = "<group>"; };
 		C8E269798811A303A8CF40AC /* TarotSpreadLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotSpreadLibrary.swift; sourceTree = "<group>"; };
@@ -152,6 +157,7 @@
 		37CC5F73D2DE5B37334606D7 /* TarotEntryContextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotEntryContextTests.swift; sourceTree = "<group>"; };
 		0B398E67E874CC318F50E449 /* TarotPreReadingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotPreReadingTests.swift; sourceTree = "<group>"; };
 		8A034D004EC575773E087F2B /* TarotLLMSchemaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotLLMSchemaTests.swift; sourceTree = "<group>"; };
+		637D6D3648A7ED55E2CF862E /* TarotEvalHarnessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotEvalHarnessTests.swift; sourceTree = "<group>"; };
 		61BA6F763EEAE1B717A23676 /* HoroscopeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoroscopeTests.swift; sourceTree = "<group>"; };
 		63682DB4699C8D0516D6234B /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
 		682A5BC0C38F1E58C96236BF /* TarotSummaryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarotSummaryCard.swift; sourceTree = "<group>"; };
@@ -278,6 +284,7 @@
 				37CC5F73D2DE5B37334606D7 /* TarotEntryContextTests.swift */,
 				0B398E67E874CC318F50E449 /* TarotPreReadingTests.swift */,
 				8A034D004EC575773E087F2B /* TarotLLMSchemaTests.swift */,
+				637D6D3648A7ED55E2CF862E /* TarotEvalHarnessTests.swift */,
 				D01E798A1C296547EEFDCDF3 /* TarotSummaryRenderProbeTests.swift */,
 				61BA6F763EEAE1B717A23676 /* HoroscopeTests.swift */,
 				BB889AA10A0BD9BC1354727C /* MeditationTests.swift */,
@@ -317,6 +324,8 @@
 				8806235B20534084C4ACDB0C /* TarotLLMSchema.swift */,
 				9800033B8247AB3DF00404F7 /* TarotSafetyMatrix.swift */,
 				7EC2B5C1FE090A51A6167120 /* TarotPromptBuilder.swift */,
+				26FEA7582F28E59757FB3904 /* TarotGoldenCases.swift */,
+				9259658209D5BAE66855E98A /* TarotEvalHarness.swift */,
 			);
 			path = LLM;
 			sourceTree = "<group>";
@@ -614,6 +623,8 @@
 				70ADC462A80D52CE47419C3B /* TarotLLMSchema.swift in Sources */,
 				A86967C8FCCCFE10F893E4E1 /* TarotSafetyMatrix.swift in Sources */,
 				B1ECE84B6A6CE58CA4495136 /* TarotPromptBuilder.swift in Sources */,
+				630A637833C9E3EDEF96A708 /* TarotGoldenCases.swift in Sources */,
+				1E176AA1F16AB7FF18639AF9 /* TarotEvalHarness.swift in Sources */,
 				BF8D4B0662F9FE4650325057 /* LLMServices.swift in Sources */,
 				365B0A160D24BB95DFA481E2 /* TarotEntryContext.swift in Sources */,
 				D074EB5E2CFAA1EECFEEAC62 /* TarotSpreadLibrary.swift in Sources */,
@@ -645,6 +656,7 @@
 				E28598197A032C9003765D3F /* TarotEntryContextTests.swift in Sources */,
 				B53CD5C48EB31607BA1F1381 /* TarotPreReadingTests.swift in Sources */,
 				F7D21D4EAC7703627FD5C8EF /* TarotLLMSchemaTests.swift in Sources */,
+				0E1800E3DBE3C8CFD3A54DDF /* TarotEvalHarnessTests.swift in Sources */,
 				2F9C8578542D08808ED832A6 /* TarotSummaryRenderProbeTests.swift in Sources */,
 				691212873AEB8D77DF457BFB /* HoroscopeTests.swift in Sources */,
 				F81D29C968886A3A0319622D /* MeditationTests.swift in Sources */,

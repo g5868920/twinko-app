@@ -82,23 +82,35 @@ protocol LLMServing {
 /// release builds always report unconfigured, so no key can ride an
 /// archive. Keys never touch UserDefaults, JSONStore, or logs.
 enum LLMSecrets {
-    static func apiKey(for provider: LLMProvider) -> String? {
-        #if DEBUG
+    #if DEBUG
+    private static func dictionary() -> [String: Any]? {
         guard let url = Bundle.main.url(forResource: "LLMSecrets", withExtension: "plist"),
               let data = try? Data(contentsOf: url),
               let dict = try? PropertyListSerialization.propertyList(
                   from: data, format: nil) as? [String: Any] else {
             return nil
         }
-        let key: String?
+        return dict
+    }
+    #endif
+
+    static func apiKey(for provider: LLMProvider) -> String? {
         switch provider {
-        case .anthropic: key = dict["ANTHROPIC_API_KEY"] as? String
-        case .openai: key = dict["OPENAI_API_KEY"] as? String
+        case .anthropic: return configValue("ANTHROPIC_API_KEY")
+        case .openai: return configValue("OPENAI_API_KEY")
         }
-        guard let key, !key.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+    }
+
+    /// Optional non-secret local config from the same Debug-only,
+    /// gitignored plist (e.g. `TAROT_BENCHMARK_OPENAI_MODEL` for the
+    /// step 7 benchmark). Blank values read as absent.
+    static func configValue(_ name: String) -> String? {
+        #if DEBUG
+        guard let value = dictionary()?[name] as? String,
+              !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             return nil
         }
-        return key
+        return value
         #else
         return nil
         #endif

@@ -180,3 +180,61 @@ no transcripts, no fabrication.
 Step 6 (10–12-case golden evaluation harness) → step 7 (blind benchmark)
 → step 8 (founder provider decision). Matrix sign-off and privacy
 disclosure (step 9) remain founder gates before step 10 wiring.
+
+---
+
+## 9. Step 6 — golden evaluation harness (2026-07-21)
+
+### 9.1 Golden cases (`TarotGoldenCases.swift`)
+
+Twelve fixed, deterministic reading fixtures — cards and orientations
+are **pinned, never drawn**, so both providers answer identical
+readings and results stay comparable across runs. All content is
+synthetic. Coverage (protected by unit tests): every one of the 10
+spreads; an all-reversed spread; a 4-Major concentration; a repeated
+suit (three Cups); a repeated number (three Fives); conflicting cards
+(Sun/Tower); a Daily Check-in context; one English case; and three
+high-risk questions (`self_harm_crisis`, `medical_diagnosis`,
+`relationship_mind_reading`).
+
+### 9.2 Mechanical evaluation (`TarotEvalHarness.swift`)
+
+Per case × model arm: schema validity + full validator issues
+(structure, empty fields, prohibited-language lint), expected vs
+reported safety category **and** whether the reported category maps to
+the same app-side action in the safety matrix, latency, token usage,
+and estimated cost from the local price table (console = billing
+truth). Request failures become records with an error category —
+never lost. Human quality dimensions (RWS accuracy, position ×
+question integration, cross-card depth, 語言自然度, tone & safety,
+actionability) are scored by the founder from the review sheets —
+never by code.
+
+### 9.3 Blind benchmark runner (step 7, founder-run)
+
+`TarotEvalBenchmarkTests.testRunBlindProviderBenchmark` runs the full
+12-case set against both providers sequentially and **skips** unless
+all of these exist in the local `LLMSecrets.plist`:
+
+- `ANTHROPIC_API_KEY` and `OPENAI_API_KEY` (prototype keys), and
+- `TAROT_BENCHMARK_OPENAI_MODEL` — the exact OpenAI model id,
+  **verified in the OpenAI console first** (the founder-named
+  candidates could not be verified from here);
+  `TAROT_BENCHMARK_ANTHROPIC_MODEL` is optional (defaults to
+  `claude-sonnet-5`).
+
+Providers are randomly assigned blind labels per run. Artifacts land
+in a temp folder whose path is printed in the test log: per-case
+review sheets and JSON records labeled `model_a`/`model_b` only,
+`summary.md`, `REVIEW_GUIDE.md` (the six human dimensions), and
+`unblind.json` — the only file naming providers, opened after
+scoring. Estimated live cost for a full run is roughly US$0.3–0.8
+(24 requests); the US$1/day client-side budget guard still applies,
+so run it on a day with no other LLM spend.
+
+### 9.4 Status of gates
+
+Unchanged: safety-matrix sign-off and privacy disclosure remain
+founder gates before step 10; the proxy remains the hard gate before
+any external distribution; D-043 (provider) closes at step 8 after
+the blind review.

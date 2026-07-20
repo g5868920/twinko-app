@@ -396,8 +396,8 @@ struct MoodOrbView: View {
                 // Soft warm bloom behind the chosen mood.
                 Circle()
                     .fill(Color.twinkoGold)
-                    .frame(width: size * 1.32, height: size * 1.32)
-                    .blur(radius: size * 0.16)
+                    .frame(width: size * 1.20, height: size * 1.20)
+                    .blur(radius: size * 0.14)
                     .opacity(0.40)
             }
             // Approved mood artwork used as delivered — no crop, no
@@ -409,23 +409,25 @@ struct MoodOrbView: View {
                 .shadow(color: mood.orbColor.opacity(0.45), radius: isSelected ? 8 : 4, y: 2)
 
             if isSelected {
-                // Glowing selection ring — warm gold into lilac, in
-                // the shared selection language.
+                // Glowing selection ring hugging the mood ball
+                // (approved reference: no gap between ring and face).
                 Circle()
                     .strokeBorder(
                         LinearGradient(colors: [Color(hex: 0xFFE9B8).opacity(0.95),
                                                 Color(hex: 0xD9C8FF).opacity(0.75)],
                                        startPoint: .top, endPoint: .bottom),
                         lineWidth: 2)
-                    .frame(width: size * 1.16, height: size * 1.16)
+                    .frame(width: size * 1.06, height: size * 1.06)
                     .shadow(color: Color.twinkoGold.opacity(0.55), radius: 4)
 
+                // Check badge rides the lower-right edge, as in the
+                // approved reference.
                 Image(systemName: "checkmark")
                     .font(.system(size: size * 0.17, weight: .bold))
                     .foregroundStyle(Color(hex: 0xFFF8E8))
                     .frame(width: size * 0.30, height: size * 0.30)
                     .background(Color.twinkoGold.opacity(0.95), in: Circle())
-                    .offset(x: size * 0.36, y: -size * 0.36)
+                    .offset(x: size * 0.34, y: size * 0.34)
             }
         }
         .scaleEffect(isSelected ? 1.05 : 1.0)

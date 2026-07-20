@@ -743,7 +743,7 @@ struct HomeFeatureOrb: View {
             Image(asset)
                 .resizable()
                 .scaledToFit()
-                .frame(width: size * 0.78, height: size * 0.78)
+                .frame(width: size * 0.84, height: size * 0.84)
         }
         .frame(width: size, height: size)
         .overlay(Circle().strokeBorder(Color.white.opacity(0.35), lineWidth: 1))

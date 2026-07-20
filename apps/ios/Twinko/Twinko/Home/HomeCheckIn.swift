@@ -37,7 +37,7 @@ enum CheckInMood: String, Codable, CaseIterable, Identifiable {
 
     /// Reference-cropped mood face artwork (home_reference_v1, circular
     /// crops in the asset catalog — replaceable with original exports).
-    var referenceAsset: String { "ref_mood_\(rawValue)_v1" }
+    var referenceAsset: String { "home_mood_\(rawValue)_v1" }
 }
 
 /// Approved check-in needs.
@@ -393,26 +393,33 @@ struct MoodOrbView: View {
     var body: some View {
         ZStack {
             if isSelected {
+                // Soft warm bloom behind the chosen mood.
                 Circle()
                     .fill(Color.twinkoGold)
-                    .frame(width: size * 1.35, height: size * 1.35)
+                    .frame(width: size * 1.32, height: size * 1.32)
                     .blur(radius: size * 0.16)
-                    .opacity(0.45)
+                    .opacity(0.40)
             }
-            // Reference artwork face (circular crop from
-            // home_reference_v1); glow/shadow stay code-rendered.
+            // Approved mood artwork used as delivered — no crop, no
+            // recolor; glow and shadow stay code-rendered.
             Image(mood.referenceAsset)
                 .resizable()
                 .scaledToFit()
                 .frame(width: size, height: size)
-                .clipShape(Circle())
-                .overlay(
-                    Circle()
-                        .strokeBorder(Color.white.opacity(isSelected ? 0.6 : 0), lineWidth: 1)
-                )
                 .shadow(color: mood.orbColor.opacity(0.45), radius: isSelected ? 8 : 4, y: 2)
 
             if isSelected {
+                // Glowing selection ring — warm gold into lilac, in
+                // the shared selection language.
+                Circle()
+                    .strokeBorder(
+                        LinearGradient(colors: [Color(hex: 0xFFE9B8).opacity(0.95),
+                                                Color(hex: 0xD9C8FF).opacity(0.75)],
+                                       startPoint: .top, endPoint: .bottom),
+                        lineWidth: 2)
+                    .frame(width: size * 1.16, height: size * 1.16)
+                    .shadow(color: Color.twinkoGold.opacity(0.55), radius: 4)
+
                 Image(systemName: "checkmark")
                     .font(.system(size: size * 0.17, weight: .bold))
                     .foregroundStyle(Color(hex: 0xFFF8E8))

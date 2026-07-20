@@ -510,29 +510,10 @@ struct HomeView: View {
         } label: {
             VStack(spacing: 4) {
                 ZStack(alignment: .topLeading) {
-                    // Reference-cropped icon orb; code-drawn fallback
-                    // for destinations without reference artwork.
-                    Group {
-                        if let asset = journeyAsset(step.action) {
-                            Image(asset)
-                                .resizable()
-                                .scaledToFit()
-                                .clipShape(Circle())
-                        } else {
-                            Circle()
-                                .fill(RadialGradient(
-                                    colors: [tint.opacity(0.95), tint.opacity(0.7)],
-                                    center: .init(x: 0.35, y: 0.3),
-                                    startRadius: 2, endRadius: 22))
-                                .overlay(
-                                    Image(systemName: journeyIcon(step.action))
-                                        .font(.system(size: 13, weight: .medium))
-                                        .foregroundStyle(Color.softWhite)
-                                )
-                        }
-                    }
-                    .frame(width: 34, height: 34)
-                    .shadow(color: tint.opacity(0.4), radius: 3, y: 1)
+                    // Approved icon artwork on the shared floating orb.
+                    HomeFeatureOrb(asset: journeyAsset(step.action),
+                                   tint: tint, size: 34)
+                        .shadow(color: tint.opacity(0.4), radius: 3, y: 1)
                     Text("\(step.index)")
                         .font(.system(size: 9, weight: .bold, design: .rounded))
                         .foregroundStyle(Color.softWhite)
@@ -589,17 +570,17 @@ struct HomeView: View {
         }
     }
 
-    /// Reference-cropped orb artwork per destination (home_reference_v1
-    /// circular crops); nil falls back to the drawn orb.
-    private func journeyAsset(_ action: HomeAction) -> String? {
+    /// Approved transparent icon artwork per destination
+    /// (home_icon_*_v1; chat rides the story icon).
+    private func journeyAsset(_ action: HomeAction) -> String {
         switch action {
-        case .chat: return "ref_icon_chat_v1"
-        case .meditation: return "ref_icon_moon_v1"
-        case .horoscope: return "ref_icon_star_orange_v1"
+        case .chat: return "home_icon_story_v1"
+        case .meditation: return "home_icon_meditate_v1"
+        case .horoscope: return "home_icon_zodiac_v1"
         case .tarot, .tarotRecommended, .dailyTarot, .dailyTarotResult:
-            return "ref_icon_tarot_v1"
-        case .music: return "ref_icon_music_v1"
-        case .activities: return nil
+            return "home_icon_tarot_v1"
+        case .music: return "home_icon_music_v1"
+        case .activities: return "home_icon_activity_v1"
         }
     }
 
@@ -617,23 +598,24 @@ struct HomeView: View {
                     .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
             }
             HStack(spacing: 6) {
-                exploreEntry(.tarot, asset: "ref_icon_tarot_v1",
+                exploreEntry(.tarot, asset: "home_icon_tarot_v1",
                              tint: Color(hex: 0x6B4BA8),
                              title: HomeExperienceStrings.entryTarot(lang),
                              desc: HomeExperienceStrings.entryTarotDesc(lang))
-                exploreEntry(.horoscope, asset: "ref_icon_star_gold_v1",
+                exploreEntry(.horoscope, asset: "home_icon_zodiac_v1",
                              tint: Color(hex: 0x4E5FB8),
                              title: HomeExperienceStrings.entryHoroscope(lang),
                              desc: HomeExperienceStrings.entryHoroscopeDesc(lang))
                 exploreEntry(.meditation(focus: .calmDown, duration: .five),
-                             asset: "ref_icon_moon_v1", tint: Color(hex: 0x5D7BC8),
+                             asset: "home_icon_meditate_v1", tint: Color(hex: 0x5D7BC8),
                              title: HomeExperienceStrings.entryMeditation(lang),
                              desc: HomeExperienceStrings.entryMeditationDesc(lang))
-                exploreEntry(.music, asset: "ref_icon_music_v1",
+                exploreEntry(.music, asset: "home_icon_music_v1",
                              tint: Color(hex: 0x9A4FB0),
                              title: HomeExperienceStrings.entryMusic(lang),
                              desc: HomeExperienceStrings.entryMusicDesc(lang))
-                exploreEntry(.activities, asset: nil, tint: Color(hex: 0x5C6FD8),
+                exploreEntry(.activities, asset: "home_icon_activity_v1",
+                             tint: Color(hex: 0x5C6FD8),
                              title: HomeExperienceStrings.entryActivities(lang),
                              desc: HomeExperienceStrings.entryActivitiesDesc(lang))
             }
@@ -642,27 +624,16 @@ struct HomeView: View {
         .twinkoGlass(cornerRadius: 22, tint: 0.18)
     }
 
-    /// One explore item: reference-cropped orb artwork where available;
-    /// Activities draws its reference-style arrow orb in code (no crop
-    /// exists in home_reference_v1).
-    private func exploreEntry(_ action: HomeAction, asset: String?, tint: Color,
+    /// One explore item: approved transparent icon artwork on the
+    /// shared soft-3D floating orb.
+    private func exploreEntry(_ action: HomeAction, asset: String, tint: Color,
                               title: String, desc: String) -> some View {
         Button {
             activeAction = action
         } label: {
             VStack(spacing: 3) {
-                Group {
-                    if let asset {
-                        Image(asset)
-                            .resizable()
-                            .scaledToFit()
-                            .clipShape(Circle())
-                    } else {
-                        activitiesArrowOrb
-                    }
-                }
-                .frame(width: 44, height: 44)
-                .shadow(color: tint.opacity(0.45), radius: 4, y: 2)
+                HomeFeatureOrb(asset: asset, tint: tint, size: 44)
+                    .shadow(color: tint.opacity(0.45), radius: 4, y: 2)
                 Text(title)
                     .font(.system(size: 11, weight: .semibold, design: .rounded))
                     .foregroundStyle(Color.softWhite)
@@ -680,34 +651,6 @@ struct HomeView: View {
         .buttonStyle(TwinkoGlassPressStyle())
         .accessibilityIdentifier("homeEntry-\(action.id)")
         .accessibilityLabel(Text("\(title)，\(desc)"))
-    }
-
-    /// Reference-style Activities orb (white navigation arrow on a
-    /// blue-violet glossy sphere) drawn to match the cropped family.
-    private var activitiesArrowOrb: some View {
-        ZStack {
-            Circle()
-                .fill(RadialGradient(colors: [Color(hex: 0x8CA2F0),
-                                              Color(hex: 0x5C6FD8),
-                                              Color(hex: 0x4553B0)],
-                                     center: .init(x: 0.35, y: 0.28),
-                                     startRadius: 2, endRadius: 30))
-            Circle()
-                .fill(LinearGradient(stops: [
-                    .init(color: .white.opacity(0.45), location: 0),
-                    .init(color: .white.opacity(0), location: 0.5),
-                ], startPoint: .top, endPoint: .bottom))
-                .padding(2)
-            Image(systemName: "location.fill")
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(Color.white)
-                .shadow(color: Color(hex: 0x35418F).opacity(0.6), radius: 1, y: 1)
-            Image(systemName: "sparkle")
-                .font(.system(size: 6, weight: .bold))
-                .foregroundStyle(Color.twinkoGold.opacity(0.95))
-                .offset(x: 14, y: -14)
-        }
-        .accessibilityHidden(true)
     }
 
     // MARK: Routing
@@ -769,6 +712,42 @@ struct HomeView: View {
     /// shared twinkoFloat modifier owns the animation itself.
     private func updateFloating(active: Bool) {
         floating = active
+    }
+}
+
+// MARK: - Feature orb
+
+/// Approved feature icon on the shared soft-3D floating orb: a tinted
+/// radial sphere with a top-left highlight and a soft lilac rim; the
+/// transparent icon artwork sits on top, never baked into the circle.
+/// One construction for every Home feature entry.
+struct HomeFeatureOrb: View {
+    let asset: String
+    let tint: Color
+    var size: CGFloat = 44
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(RadialGradient(colors: [tint.opacity(0.50),
+                                              tint.opacity(0.72),
+                                              tint.opacity(0.92)],
+                                     center: .init(x: 0.35, y: 0.28),
+                                     startRadius: 2, endRadius: size * 0.75))
+            Circle()
+                .fill(LinearGradient(stops: [
+                    .init(color: .white.opacity(0.40), location: 0),
+                    .init(color: .white.opacity(0), location: 0.5),
+                ], startPoint: .top, endPoint: .bottom))
+                .padding(size * 0.05)
+            Image(asset)
+                .resizable()
+                .scaledToFit()
+                .frame(width: size * 0.78, height: size * 0.78)
+        }
+        .frame(width: size, height: size)
+        .overlay(Circle().strokeBorder(Color.white.opacity(0.35), lineWidth: 1))
+        .accessibilityHidden(true)
     }
 }
 

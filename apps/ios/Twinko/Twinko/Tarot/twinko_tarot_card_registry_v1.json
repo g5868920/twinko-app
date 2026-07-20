@@ -41,7 +41,48 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "air",
+      "keywords_upright_zh": [
+        "新的開始",
+        "純真",
+        "跳躍",
+        "自由"
+      ],
+      "keywords_upright_en": [
+        "new beginnings",
+        "innocence",
+        "a leap",
+        "freedom"
+      ],
+      "keywords_reversed_zh": [
+        "猶豫不前",
+        "魯莽",
+        "忽略風險"
+      ],
+      "keywords_reversed_en": [
+        "hesitation",
+        "recklessness",
+        "overlooked risks"
+      ],
+      "core_symbols": [
+        {
+          "zh": "懸崖",
+          "en": "the cliff edge"
+        },
+        {
+          "zh": "白玫瑰",
+          "en": "the white rose"
+        },
+        {
+          "zh": "小狗",
+          "en": "the small dog"
+        }
+      ],
+      "core_upright_zh": "一段旅程正要展開，帶著開放的心跨出第一步，可能比想清楚一切更重要。",
+      "core_upright_en": "A journey is just beginning — stepping out with an open heart may matter more than having it all figured out.",
+      "core_reversed_zh": "或許你正站在邊緣猶豫，或跳得太快；值得看看是什麼讓你停住，或讓你忘了看路。",
+      "core_reversed_en": "You may be hesitating at the edge, or leaping too fast — worth noticing what holds you back, or what you're not seeing."
     },
     {
       "id": "major_01_the_magician",
@@ -56,7 +97,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "air",
+      "keywords_upright_zh": [
+        "行動力",
+        "資源",
+        "專注",
+        "顯化"
+      ],
+      "keywords_upright_en": [
+        "willpower",
+        "resources",
+        "focus",
+        "manifestation"
+      ],
+      "keywords_reversed_zh": [
+        "分散",
+        "操弄",
+        "未發揮的潛力"
+      ],
+      "keywords_reversed_en": [
+        "scattered energy",
+        "manipulation",
+        "untapped potential"
+      ],
+      "core_symbols": [
+        {
+          "zh": "無限符號",
+          "en": "the infinity symbol"
+        },
+        {
+          "zh": "四元素法器",
+          "en": "tools of the four elements"
+        }
+      ],
+      "core_upright_zh": "你手上其實已備齊需要的工具，專注的意志可以把想法帶進現實。",
+      "core_upright_en": "The tools you need are already at hand — focused intention can bring an idea into form.",
+      "core_reversed_zh": "能量可能散落在太多方向，或被用在說服而非創造；值得回頭看看初衷。",
+      "core_reversed_en": "Energy may be scattered across too many aims, or spent convincing rather than creating — worth returning to the original intent."
     },
     {
       "id": "major_02_the_high_priestess",
@@ -71,7 +149,48 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "water",
+      "keywords_upright_zh": [
+        "直覺",
+        "內在智慧",
+        "靜觀",
+        "未顯之事"
+      ],
+      "keywords_upright_en": [
+        "intuition",
+        "inner wisdom",
+        "stillness",
+        "the unseen"
+      ],
+      "keywords_reversed_zh": [
+        "忽略直覺",
+        "表面化",
+        "祕密浮現"
+      ],
+      "keywords_reversed_en": [
+        "ignored intuition",
+        "surface-level view",
+        "surfacing secrets"
+      ],
+      "core_symbols": [
+        {
+          "zh": "黑白雙柱",
+          "en": "the two pillars"
+        },
+        {
+          "zh": "月亮",
+          "en": "the moon"
+        },
+        {
+          "zh": "帷幕",
+          "en": "the veil"
+        }
+      ],
+      "core_upright_zh": "答案可能不在外面，而在你安靜下來時聽見的那個聲音。",
+      "core_upright_en": "The answer may not be out there — it may be the quiet voice you hear when you become still.",
+      "core_reversed_zh": "你或許一直繞過自己的直覺，或只看事情的表面；帷幕後還有沒被看見的部分。",
+      "core_reversed_en": "You may have been bypassing your own intuition, or staying at the surface — something behind the veil hasn't been seen yet."
     },
     {
       "id": "major_03_the_empress",
@@ -86,7 +205,48 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "earth",
+      "keywords_upright_zh": [
+        "滋養",
+        "豐盛",
+        "創造",
+        "感官"
+      ],
+      "keywords_upright_en": [
+        "nurturing",
+        "abundance",
+        "creativity",
+        "senses"
+      ],
+      "keywords_reversed_zh": [
+        "過度付出",
+        "創造停滯",
+        "忽略自我照顧"
+      ],
+      "keywords_reversed_en": [
+        "overgiving",
+        "creative block",
+        "neglected self-care"
+      ],
+      "core_symbols": [
+        {
+          "zh": "麥田",
+          "en": "the wheat field"
+        },
+        {
+          "zh": "金星符號",
+          "en": "the Venus symbol"
+        },
+        {
+          "zh": "森林",
+          "en": "the forest"
+        }
+      ],
+      "core_upright_zh": "這是滋養與生長的能量——照顧一件事、一段關係，或你自己，都是創造。",
+      "core_upright_en": "This is the energy of nurture and growth — tending a project, a bond, or yourself is itself creation.",
+      "core_reversed_zh": "付出可能超過了自己的餘裕，或創造力暫時休耕；先回來照顧自己的土壤。",
+      "core_reversed_en": "Giving may have outrun your reserves, or creativity lies fallow — tend your own soil first."
     },
     {
       "id": "major_04_the_emperor",
@@ -101,7 +261,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "fire",
+      "keywords_upright_zh": [
+        "結構",
+        "責任",
+        "界線",
+        "穩定"
+      ],
+      "keywords_upright_en": [
+        "structure",
+        "responsibility",
+        "boundaries",
+        "stability"
+      ],
+      "keywords_reversed_zh": [
+        "僵硬",
+        "控制",
+        "權威議題"
+      ],
+      "keywords_reversed_en": [
+        "rigidity",
+        "control",
+        "authority struggles"
+      ],
+      "core_symbols": [
+        {
+          "zh": "石座",
+          "en": "the stone throne"
+        },
+        {
+          "zh": "公羊頭",
+          "en": "the ram's heads"
+        }
+      ],
+      "core_upright_zh": "建立秩序與界線不是限制，而是讓事物能安穩生長的框架。",
+      "core_upright_en": "Order and boundaries aren't cages — they're the frame that lets things grow steadily.",
+      "core_reversed_zh": "結構可能變成了僵硬，或有股想全盤掌控的張力；界線和牆的差別值得想想。",
+      "core_reversed_en": "Structure may have hardened into rigidity, or control is tightening — the line between a boundary and a wall is worth examining."
     },
     {
       "id": "major_05_the_hierophant",
@@ -116,7 +313,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "earth",
+      "keywords_upright_zh": [
+        "傳統",
+        "學習",
+        "信念",
+        "引導"
+      ],
+      "keywords_upright_en": [
+        "tradition",
+        "learning",
+        "belief",
+        "guidance"
+      ],
+      "keywords_reversed_zh": [
+        "質疑成規",
+        "走自己的路",
+        "形式化"
+      ],
+      "keywords_reversed_en": [
+        "questioning convention",
+        "one's own path",
+        "empty ritual"
+      ],
+      "core_symbols": [
+        {
+          "zh": "兩把鑰匙",
+          "en": "the crossed keys"
+        },
+        {
+          "zh": "三重冠",
+          "en": "the triple crown"
+        }
+      ],
+      "core_upright_zh": "有些智慧來自前人與傳統；找一位老師、或一套可依循的方法，也是一種力量。",
+      "core_upright_en": "Some wisdom comes through lineage — a teacher, a practice, a proven path can be a strength.",
+      "core_reversed_zh": "既有的規則可能不再適合你；質疑它不是背叛，而是把信念變成自己的。",
+      "core_reversed_en": "The received rules may no longer fit — questioning them isn't betrayal, it's making the belief your own."
     },
     {
       "id": "major_06_the_lovers",
@@ -131,7 +365,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "air",
+      "keywords_upright_zh": [
+        "連結",
+        "選擇",
+        "價值觀",
+        "坦誠"
+      ],
+      "keywords_upright_en": [
+        "connection",
+        "choice",
+        "values",
+        "honesty"
+      ],
+      "keywords_reversed_zh": [
+        "失衡的關係",
+        "逃避選擇",
+        "價值衝突"
+      ],
+      "keywords_reversed_en": [
+        "imbalance",
+        "avoided choices",
+        "clashing values"
+      ],
+      "core_symbols": [
+        {
+          "zh": "天使",
+          "en": "the angel"
+        },
+        {
+          "zh": "兩棵樹",
+          "en": "the two trees"
+        }
+      ],
+      "core_upright_zh": "真正的連結建立在坦誠與共享的價值上；這也可能是一個需要用心選擇的時刻。",
+      "core_upright_en": "Real connection rests on honesty and shared values — and this may be a moment that asks for a wholehearted choice.",
+      "core_reversed_zh": "關係或選擇裡可能有沒說出口的不一致；先對自己誠實，再對別人誠實。",
+      "core_reversed_en": "There may be an unspoken misalignment in a bond or a choice — honesty with yourself comes before honesty with others."
     },
     {
       "id": "major_07_the_chariot",
@@ -146,7 +417,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "water",
+      "keywords_upright_zh": [
+        "意志",
+        "前進",
+        "駕馭",
+        "勝利"
+      ],
+      "keywords_upright_en": [
+        "willpower",
+        "momentum",
+        "mastery",
+        "victory"
+      ],
+      "keywords_reversed_zh": [
+        "失控",
+        "方向拉扯",
+        "強行推進"
+      ],
+      "keywords_reversed_en": [
+        "losing the reins",
+        "pulled directions",
+        "forcing it"
+      ],
+      "core_symbols": [
+        {
+          "zh": "黑白人面獅身",
+          "en": "the two sphinxes"
+        },
+        {
+          "zh": "星幕",
+          "en": "the canopy of stars"
+        }
+      ],
+      "core_upright_zh": "把分歧的力量握進同一雙手裡，朝一個方向前進——這是意志力的時刻。",
+      "core_upright_en": "Gather the opposing pulls into one set of reins and move — this is a moment for will.",
+      "core_reversed_zh": "兩股力量可能正把你往不同方向拉，或你在硬撐著往前；先確認方向，再加速。",
+      "core_reversed_en": "Two forces may be pulling you apart, or you're pushing through on fumes — confirm the direction before you accelerate."
     },
     {
       "id": "major_08_strength",
@@ -161,7 +469,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "fire",
+      "keywords_upright_zh": [
+        "溫柔的力量",
+        "耐心",
+        "勇氣",
+        "自我信任"
+      ],
+      "keywords_upright_en": [
+        "gentle strength",
+        "patience",
+        "courage",
+        "self-trust"
+      ],
+      "keywords_reversed_zh": [
+        "自我懷疑",
+        "內在拉扯",
+        "硬碰硬"
+      ],
+      "keywords_reversed_en": [
+        "self-doubt",
+        "inner struggle",
+        "force over grace"
+      ],
+      "core_symbols": [
+        {
+          "zh": "馴獅的女子",
+          "en": "the woman and the lion"
+        },
+        {
+          "zh": "無限符號",
+          "en": "the infinity symbol"
+        }
+      ],
+      "core_upright_zh": "真正的力量是溫柔而堅定的——不是壓制，而是與內在的野性好好相處。",
+      "core_upright_en": "Real strength is gentle and steady — not domination, but befriending what is wild in you.",
+      "core_reversed_zh": "內在可能有場拉扯，或你正用蠻力對待自己；柔軟一點，力量反而回來。",
+      "core_reversed_en": "There may be an inner tug-of-war, or you're being hard on yourself — softening is often how the strength returns."
     },
     {
       "id": "major_09_the_hermit",
@@ -176,7 +521,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "earth",
+      "keywords_upright_zh": [
+        "獨處",
+        "內省",
+        "尋找",
+        "智慧"
+      ],
+      "keywords_upright_en": [
+        "solitude",
+        "introspection",
+        "seeking",
+        "wisdom"
+      ],
+      "keywords_reversed_zh": [
+        "孤立",
+        "逃避",
+        "走出洞穴"
+      ],
+      "keywords_reversed_en": [
+        "isolation",
+        "withdrawal",
+        "time to re-emerge"
+      ],
+      "core_symbols": [
+        {
+          "zh": "提燈",
+          "en": "the lantern"
+        },
+        {
+          "zh": "山峰",
+          "en": "the mountain peak"
+        }
+      ],
+      "core_upright_zh": "有些答案只能在安靜的獨處裡找到；帶上你的小燈，往內走一段路。",
+      "core_upright_en": "Some answers are only found in quiet solitude — take your small lamp and walk inward for a while.",
+      "core_reversed_zh": "獨處可能滑向了孤立，或你已經找到了要找的東西；也許是時候帶著光走回人群。",
+      "core_reversed_en": "Solitude may be sliding into isolation — or you've found what you sought, and it's time to carry the light back."
     },
     {
       "id": "major_10_wheel_of_fortune",
@@ -191,7 +573,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "fire",
+      "keywords_upright_zh": [
+        "轉變",
+        "週期",
+        "時機",
+        "流動"
+      ],
+      "keywords_upright_en": [
+        "turning points",
+        "cycles",
+        "timing",
+        "flow"
+      ],
+      "keywords_reversed_zh": [
+        "抗拒改變",
+        "卡在循環",
+        "時機未到"
+      ],
+      "keywords_reversed_en": [
+        "resisting change",
+        "stuck cycles",
+        "not yet time"
+      ],
+      "core_symbols": [
+        {
+          "zh": "轉輪",
+          "en": "the wheel"
+        },
+        {
+          "zh": "四活物",
+          "en": "the four figures at the corners"
+        }
+      ],
+      "core_upright_zh": "命運之輪正在轉動——你無法控制輪子，但可以選擇如何乘著它。",
+      "core_upright_en": "The wheel is turning — you can't control it, but you can choose how you ride it.",
+      "core_reversed_zh": "可能有個循環一再重演，或你正抗拒一個已經開始的改變；看見模式是脫離它的第一步。",
+      "core_reversed_en": "A cycle may keep repeating, or you're resisting a change already underway — seeing the pattern is the first step out of it."
     },
     {
       "id": "major_11_justice",
@@ -206,7 +625,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "air",
+      "keywords_upright_zh": [
+        "公平",
+        "誠實",
+        "因果",
+        "權衡"
+      ],
+      "keywords_upright_en": [
+        "fairness",
+        "truth",
+        "cause and effect",
+        "weighing"
+      ],
+      "keywords_reversed_zh": [
+        "失衡",
+        "自欺",
+        "逃避後果"
+      ],
+      "keywords_reversed_en": [
+        "imbalance",
+        "self-deception",
+        "avoided consequences"
+      ],
+      "core_symbols": [
+        {
+          "zh": "天秤",
+          "en": "the scales"
+        },
+        {
+          "zh": "寶劍",
+          "en": "the upright sword"
+        }
+      ],
+      "core_upright_zh": "把事情放上天秤誠實地看：你的選擇與其後果之間，有一條清楚的線。",
+      "core_upright_en": "Place things on the scales and look honestly — there's a clear line between your choices and their consequences.",
+      "core_reversed_zh": "某處可能有失衡或沒被承認的真相；對自己誠實，天秤才會準。",
+      "core_reversed_en": "Something may be out of balance, or a truth unacknowledged — the scales only work when you're honest with yourself."
     },
     {
       "id": "major_12_the_hanged_man",
@@ -221,7 +677,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "water",
+      "keywords_upright_zh": [
+        "換個角度",
+        "暫停",
+        "放下",
+        "臣服"
+      ],
+      "keywords_upright_en": [
+        "new perspective",
+        "pause",
+        "letting go",
+        "surrender"
+      ],
+      "keywords_reversed_zh": [
+        "無謂的犧牲",
+        "拖延",
+        "抗拒放手"
+      ],
+      "keywords_reversed_en": [
+        "fruitless sacrifice",
+        "stalling",
+        "resisting release"
+      ],
+      "core_symbols": [
+        {
+          "zh": "倒吊的姿態",
+          "en": "the inverted figure"
+        },
+        {
+          "zh": "頭上的光環",
+          "en": "the halo"
+        }
+      ],
+      "core_upright_zh": "暫停不是停滯——倒過來看世界，常常是解開卡點的方式。",
+      "core_upright_en": "A pause is not a standstill — seeing the world upside down is often how a knot unties.",
+      "core_reversed_zh": "等待可能變成了拖延，或犧牲換不到想要的改變;問問自己還在懸著什麼。",
+      "core_reversed_en": "Waiting may have become stalling, or the sacrifice isn't buying the change you hoped — ask what you're still hanging onto."
     },
     {
       "id": "major_13_death",
@@ -236,7 +729,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "water",
+      "keywords_upright_zh": [
+        "結束",
+        "蛻變",
+        "釋放",
+        "重生"
+      ],
+      "keywords_upright_en": [
+        "endings",
+        "transformation",
+        "release",
+        "renewal"
+      ],
+      "keywords_reversed_zh": [
+        "抗拒結束",
+        "拖住過去",
+        "停滯"
+      ],
+      "keywords_reversed_en": [
+        "resisting an ending",
+        "clinging to the past",
+        "stagnation"
+      ],
+      "core_symbols": [
+        {
+          "zh": "白玫瑰旗",
+          "en": "the white rose banner"
+        },
+        {
+          "zh": "升起的太陽",
+          "en": "the rising sun"
+        }
+      ],
+      "core_upright_zh": "有些事正自然走向終點,好讓新的能開始;結束是蛻變的一部分，不是失敗。",
+      "core_upright_en": "Something is naturally coming to a close so the new can begin — an ending is part of transformation, not a failure.",
+      "core_reversed_zh": "可能有個早該告一段落的章節被拖著;放手的痛，常常小於一直抓著的累。",
+      "core_reversed_en": "A chapter that deserves closure may be dragging on — the ache of letting go is often smaller than the weight of holding on."
     },
     {
       "id": "major_14_temperance",
@@ -251,7 +781,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "fire",
+      "keywords_upright_zh": [
+        "平衡",
+        "調和",
+        "耐心",
+        "中道"
+      ],
+      "keywords_upright_en": [
+        "balance",
+        "blending",
+        "patience",
+        "the middle path"
+      ],
+      "keywords_reversed_zh": [
+        "失衡",
+        "過度",
+        "急躁"
+      ],
+      "keywords_reversed_en": [
+        "imbalance",
+        "excess",
+        "impatience"
+      ],
+      "core_symbols": [
+        {
+          "zh": "兩只杯的水流",
+          "en": "water flowing between cups"
+        },
+        {
+          "zh": "一腳在水中",
+          "en": "one foot in the water"
+        }
+      ],
+      "core_upright_zh": "慢慢調和兩端，找到屬於你的比例——不急，剛剛好比較重要。",
+      "core_upright_en": "Blend the extremes slowly and find your own proportions — 'just right' matters more than 'right now'.",
+      "core_reversed_zh": "生活的某處可能過了頭——太多或太快;把水流調小一點，再看看味道。",
+      "core_reversed_en": "Something may have tipped into excess — too much or too fast. Turn the flow down a little and taste again."
     },
     {
       "id": "major_15_the_devil",
@@ -266,7 +833,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "earth",
+      "keywords_upright_zh": [
+        "束縛",
+        "慾望",
+        "陰影",
+        "誠實面對"
+      ],
+      "keywords_upright_en": [
+        "bondage",
+        "desire",
+        "the shadow",
+        "honest reckoning"
+      ],
+      "keywords_reversed_zh": [
+        "鬆綁",
+        "覺察",
+        "重獲自由"
+      ],
+      "keywords_reversed_en": [
+        "loosening chains",
+        "awareness",
+        "reclaiming freedom"
+      ],
+      "core_symbols": [
+        {
+          "zh": "鬆鬆的鎖鏈",
+          "en": "the loose chains"
+        },
+        {
+          "zh": "倒五角星",
+          "en": "the inverted star"
+        }
+      ],
+      "core_upright_zh": "看看是什麼綁住了你——那條鎖鏈可能比想像中鬆，束縛常常由習慣維持。",
+      "core_upright_en": "Look at what binds you — the chain may be looser than it seems; bonds are often maintained by habit.",
+      "core_reversed_zh": "你可能正開始鬆動某種束縛或舊模式;覺察它的瞬間，自由就已經開始。",
+      "core_reversed_en": "You may be loosening a bond or an old pattern — the moment you see it clearly, freedom has already begun."
     },
     {
       "id": "major_16_the_tower",
@@ -281,7 +885,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "fire",
+      "keywords_upright_zh": [
+        "驟變",
+        "崩解",
+        "真相",
+        "釋放"
+      ],
+      "keywords_upright_en": [
+        "sudden change",
+        "collapse",
+        "revelation",
+        "release"
+      ],
+      "keywords_reversed_zh": [
+        "延遲的崩解",
+        "害怕改變",
+        "餘震"
+      ],
+      "keywords_reversed_en": [
+        "a delayed reckoning",
+        "fear of change",
+        "aftershocks"
+      ],
+      "core_symbols": [
+        {
+          "zh": "閃電",
+          "en": "the lightning bolt"
+        },
+        {
+          "zh": "墜落的王冠",
+          "en": "the falling crown"
+        }
+      ],
+      "core_upright_zh": "建立在不穩地基上的東西正在鬆動;震盪雖然嚇人，但騰出的空間是真實的。",
+      "core_upright_en": "What stood on shaky ground is giving way — the shake is frightening, but the space it clears is real.",
+      "core_reversed_zh": "你可能在撐著一座已經傾斜的塔，或正處理餘震;有些崩解晚來不如早來。",
+      "core_reversed_en": "You may be propping up a leaning tower, or sitting in the aftershocks — some collapses are kinder early than late."
     },
     {
       "id": "major_17_the_star",
@@ -296,7 +937,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "air",
+      "keywords_upright_zh": [
+        "希望",
+        "療癒",
+        "靈感",
+        "平靜"
+      ],
+      "keywords_upright_en": [
+        "hope",
+        "healing",
+        "inspiration",
+        "calm"
+      ],
+      "keywords_reversed_zh": [
+        "失去信心",
+        "疲憊",
+        "看不見光"
+      ],
+      "keywords_reversed_en": [
+        "dimmed faith",
+        "depletion",
+        "losing sight of the light"
+      ],
+      "core_symbols": [
+        {
+          "zh": "大星與七小星",
+          "en": "the great star and seven small stars"
+        },
+        {
+          "zh": "倒水的女子",
+          "en": "the woman pouring water"
+        }
+      ],
+      "core_upright_zh": "風暴之後，星光出現了——溫柔地補充自己，希望是安靜而持續的。",
+      "core_upright_en": "After the storm, starlight — replenish yourself gently; hope is quiet and steady.",
+      "core_reversed_zh": "希望的光可能暫時變得很小;它沒有熄滅，先照顧疲憊，光會慢慢回來。",
+      "core_reversed_en": "The light of hope may feel faint right now — it hasn't gone out. Tend the tiredness first; the light returns."
     },
     {
       "id": "major_18_the_moon",
@@ -311,7 +989,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "water",
+      "keywords_upright_zh": [
+        "不確定",
+        "直覺",
+        "夢境",
+        "潛意識"
+      ],
+      "keywords_upright_en": [
+        "uncertainty",
+        "intuition",
+        "dreams",
+        "the subconscious"
+      ],
+      "keywords_reversed_zh": [
+        "迷霧散去",
+        "恐懼放大",
+        "看清真相"
+      ],
+      "keywords_reversed_en": [
+        "fog lifting",
+        "magnified fears",
+        "clarity emerging"
+      ],
+      "core_symbols": [
+        {
+          "zh": "月亮的路",
+          "en": "the moonlit path"
+        },
+        {
+          "zh": "狗與狼",
+          "en": "the dog and the wolf"
+        }
+      ],
+      "core_upright_zh": "月光下的路看不太清楚——不確定感是真的，但恐懼放大的影子未必是真的。",
+      "core_upright_en": "The path under moonlight is hard to read — the uncertainty is real, but the shadows fear casts may not be.",
+      "core_reversed_zh": "迷霧可能正在散開，或某個焦慮被放得比實際大;等天亮一點再下結論。",
+      "core_reversed_en": "The fog may be lifting, or a worry has grown larger than life — let it get a little lighter before you conclude."
     },
     {
       "id": "major_19_the_sun",
@@ -326,7 +1041,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "fire",
+      "keywords_upright_zh": [
+        "喜悅",
+        "清晰",
+        "活力",
+        "真誠"
+      ],
+      "keywords_upright_en": [
+        "joy",
+        "clarity",
+        "vitality",
+        "authenticity"
+      ],
+      "keywords_reversed_zh": [
+        "暫時的陰天",
+        "低估自己",
+        "強顏歡笑"
+      ],
+      "keywords_reversed_en": [
+        "a passing cloud",
+        "dimmed confidence",
+        "forced cheer"
+      ],
+      "core_symbols": [
+        {
+          "zh": "向日葵",
+          "en": "the sunflowers"
+        },
+        {
+          "zh": "騎馬的孩子",
+          "en": "the child on the horse"
+        }
+      ],
+      "core_upright_zh": "陽光把事情照得清楚也照得溫暖——允許自己單純地高興一下。",
+      "core_upright_en": "The sun makes things both clear and warm — let yourself simply be glad for a moment.",
+      "core_reversed_zh": "雲只是暫時遮住太陽，光其實還在;也留意是否在勉強自己看起來沒事。",
+      "core_reversed_en": "A cloud is only passing across the sun — the light is still there. And notice if the brightness is being forced."
     },
     {
       "id": "major_20_judgement",
@@ -341,7 +1093,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "fire",
+      "keywords_upright_zh": [
+        "覺醒",
+        "召喚",
+        "回顧",
+        "寬恕"
+      ],
+      "keywords_upright_en": [
+        "awakening",
+        "a calling",
+        "reckoning",
+        "forgiveness"
+      ],
+      "keywords_reversed_zh": [
+        "自我批判",
+        "忽略召喚",
+        "舊事未了"
+      ],
+      "keywords_reversed_en": [
+        "harsh self-judgment",
+        "an ignored call",
+        "unfinished business"
+      ],
+      "core_symbols": [
+        {
+          "zh": "號角",
+          "en": "the trumpet"
+        },
+        {
+          "zh": "升起的人們",
+          "en": "the rising figures"
+        }
+      ],
+      "core_upright_zh": "有個聲音在召喚你起身——回顧來時路，原諒該原諒的，然後回應它。",
+      "core_upright_en": "Something is calling you to rise — review the road, forgive what needs forgiving, and answer.",
+      "core_reversed_zh": "你可能對自己判得太重，或一直沒接起那通內心的召喚;寬恕也包括對自己。",
+      "core_reversed_en": "You may be judging yourself too harshly, or leaving an inner call unanswered — forgiveness includes yourself."
     },
     {
       "id": "major_21_the_world",
@@ -356,7 +1145,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "earth",
+      "keywords_upright_zh": [
+        "完成",
+        "整合",
+        "圓滿",
+        "新循環"
+      ],
+      "keywords_upright_en": [
+        "completion",
+        "integration",
+        "wholeness",
+        "a new cycle"
+      ],
+      "keywords_reversed_zh": [
+        "未完成",
+        "差最後一步",
+        "延遲的句點"
+      ],
+      "keywords_reversed_en": [
+        "loose ends",
+        "the last step missing",
+        "a delayed close"
+      ],
+      "core_symbols": [
+        {
+          "zh": "花環",
+          "en": "the laurel wreath"
+        },
+        {
+          "zh": "四角的四活物",
+          "en": "the four figures"
+        }
+      ],
+      "core_upright_zh": "一個循環正走向圓滿——慶祝走到這裡的自己，然後帶著整合後的你開始下一圈。",
+      "core_upright_en": "A cycle is reaching wholeness — honor how far you've come, then begin the next round as a more complete you.",
+      "core_reversed_zh": "可能還差最後一小步，或有件事遲遲沒畫下句點;把圈補完，新的才能真正開始。",
+      "core_reversed_en": "One small step may remain, or an ending keeps being postponed — close the circle so the new can truly begin."
     },
     {
       "id": "cups_ace",
@@ -371,7 +1197,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "water",
+      "keywords_upright_zh": [
+        "情感的開端",
+        "敞開",
+        "愛",
+        "直覺湧現"
+      ],
+      "keywords_upright_en": [
+        "an emotional beginning",
+        "openness",
+        "love",
+        "intuition rising"
+      ],
+      "keywords_reversed_zh": [
+        "情感壓抑",
+        "空杯",
+        "錯過的連結"
+      ],
+      "keywords_reversed_en": [
+        "blocked feelings",
+        "an empty cup",
+        "a missed connection"
+      ],
+      "core_symbols": [
+        {
+          "zh": "滿溢的聖杯",
+          "en": "the overflowing cup"
+        },
+        {
+          "zh": "白鴿",
+          "en": "the dove"
+        }
+      ],
+      "core_upright_zh": "心正在打開——一份新的感情、友誼或創作的暖流正要注入。",
+      "core_upright_en": "The heart is opening — a new warmth of love, friendship, or creation is being poured.",
+      "core_reversed_zh": "感受可能被塞住了，杯子看起來是空的;先承認此刻的感覺，水才會再流。",
+      "core_reversed_en": "Feelings may be stopped up and the cup looks empty — acknowledging what you feel is how the water flows again."
     },
     {
       "id": "cups_02",
@@ -386,7 +1249,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "water",
+      "keywords_upright_zh": [
+        "連結",
+        "互相",
+        "吸引",
+        "和解"
+      ],
+      "keywords_upright_en": [
+        "connection",
+        "mutuality",
+        "attraction",
+        "reconciliation"
+      ],
+      "keywords_reversed_zh": [
+        "失衡的關係",
+        "誤解",
+        "自我連結"
+      ],
+      "keywords_reversed_en": [
+        "one-sided bonds",
+        "misunderstanding",
+        "reconnecting with yourself"
+      ],
+      "core_symbols": [
+        {
+          "zh": "交杯的兩人",
+          "en": "the two figures exchanging cups"
+        },
+        {
+          "zh": "雙蛇杖與獅首",
+          "en": "the caduceus and lion's head"
+        }
+      ],
+      "core_upright_zh": "這是兩顆心對等相遇的能量——珍惜眼前這份互相看見的關係。",
+      "core_upright_en": "This is the energy of two hearts meeting as equals — treasure the bond where you truly see each other.",
+      "core_reversed_zh": "某段關係的天平可能斜了，或誤會卡在中間;也別忘了與自己的那一杯。",
+      "core_reversed_en": "A bond's balance may have tilted, or a misunderstanding sits between you — and don't forget the cup you share with yourself."
     },
     {
       "id": "cups_03",
@@ -401,7 +1301,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "water",
+      "keywords_upright_zh": [
+        "友誼",
+        "慶祝",
+        "社群",
+        "支持"
+      ],
+      "keywords_upright_en": [
+        "friendship",
+        "celebration",
+        "community",
+        "support"
+      ],
+      "keywords_reversed_zh": [
+        "過度社交",
+        "圈外感",
+        "獨處需求"
+      ],
+      "keywords_reversed_en": [
+        "overindulgence",
+        "feeling outside the circle",
+        "a need for quiet"
+      ],
+      "core_symbols": [
+        {
+          "zh": "舉杯的三人",
+          "en": "the three figures raising cups"
+        },
+        {
+          "zh": "豐收的果實",
+          "en": "the harvest fruits"
+        }
+      ],
+      "core_upright_zh": "和懂你的人聚在一起——友誼的滋養此刻比什麼都補。",
+      "core_upright_en": "Gather with the people who get you — friendship is exactly the nourishment for now.",
+      "core_reversed_zh": "熱鬧可能過了頭，或你覺得站在圈外;真正的歸屬不需要擠進每一場聚會。",
+      "core_reversed_en": "The festivities may have run long, or you feel outside the circle — real belonging doesn't require every party."
     },
     {
       "id": "cups_04",
@@ -416,7 +1353,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "water",
+      "keywords_upright_zh": [
+        "倦怠",
+        "重新評估",
+        "向內",
+        "錯過的杯子"
+      ],
+      "keywords_upright_en": [
+        "apathy",
+        "reevaluation",
+        "turning inward",
+        "the offered cup"
+      ],
+      "keywords_reversed_zh": [
+        "重新睜眼",
+        "接受邀請",
+        "走出停滯"
+      ],
+      "keywords_reversed_en": [
+        "re-opening your eyes",
+        "accepting the offer",
+        "leaving stagnation"
+      ],
+      "core_symbols": [
+        {
+          "zh": "樹下的沉思者",
+          "en": "the figure under the tree"
+        },
+        {
+          "zh": "雲中遞出的杯",
+          "en": "the cup offered from a cloud"
+        }
+      ],
+      "core_upright_zh": "對眼前的一切有點提不起勁是真的——但留意那只正被遞過來的新杯子。",
+      "core_upright_en": "The listlessness is real — but notice the new cup quietly being offered.",
+      "core_reversed_zh": "你可能正要從倦怠裡醒來;那個被忽略的邀請或機會，也許值得再看一眼。",
+      "core_reversed_en": "You may be waking from the slump — the invitation you brushed aside might deserve another look."
     },
     {
       "id": "cups_05",
@@ -431,7 +1405,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "water",
+      "keywords_upright_zh": [
+        "失落",
+        "哀傷",
+        "專注於失去",
+        "遺憾"
+      ],
+      "keywords_upright_en": [
+        "loss",
+        "grief",
+        "focus on what spilled",
+        "regret"
+      ],
+      "keywords_reversed_zh": [
+        "接受",
+        "轉身",
+        "看見剩下的杯子"
+      ],
+      "keywords_reversed_en": [
+        "acceptance",
+        "turning around",
+        "seeing the cups still standing"
+      ],
+      "core_symbols": [
+        {
+          "zh": "三只倒下的杯",
+          "en": "the three spilled cups"
+        },
+        {
+          "zh": "兩只站立的杯",
+          "en": "the two cups still standing"
+        }
+      ],
+      "core_upright_zh": "為倒掉的杯子難過是應該的——哀傷需要被好好走完，不用急著轉身。",
+      "core_upright_en": "It's right to mourn the spilled cups — grief deserves its full walk; no need to turn around yet.",
+      "core_reversed_zh": "也許你準備好轉身了——身後還有兩只滿杯，和一座回家的橋。",
+      "core_reversed_en": "Perhaps you're ready to turn — two cups still stand behind you, and there's a bridge home."
     },
     {
       "id": "cups_06",
@@ -446,7 +1457,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "water",
+      "keywords_upright_zh": [
+        "回憶",
+        "純真",
+        "舊識",
+        "溫柔的過去"
+      ],
+      "keywords_upright_en": [
+        "nostalgia",
+        "innocence",
+        "old friends",
+        "a gentle past"
+      ],
+      "keywords_reversed_zh": [
+        "困在過去",
+        "理想化回憶",
+        "該向前了"
+      ],
+      "keywords_reversed_en": [
+        "stuck in the past",
+        "rose-tinted memory",
+        "time to move forward"
+      ],
+      "core_symbols": [
+        {
+          "zh": "遞花的孩子",
+          "en": "the child offering flowers"
+        },
+        {
+          "zh": "庭院與白花",
+          "en": "the courtyard and white flowers"
+        }
+      ],
+      "core_upright_zh": "過去的溫柔正在對此刻說話——一段回憶、一位舊識，或心裡那個孩子。",
+      "core_upright_en": "A gentleness from the past is speaking to now — a memory, an old friend, or the child in you.",
+      "core_reversed_zh": "回憶可能被鍍了金，或你在裡面待得太久;帶走溫暖就好，人要往前。",
+      "core_reversed_en": "Memory may be gilded, or you've lingered too long — take the warmth with you and walk forward."
     },
     {
       "id": "cups_07",
@@ -461,7 +1509,45 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "water",
+      "keywords_upright_zh": [
+        "選項繁多",
+        "幻想",
+        "白日夢",
+        "誘惑"
+      ],
+      "keywords_upright_en": [
+        "many options",
+        "fantasy",
+        "daydreams",
+        "enticements"
+      ],
+      "keywords_reversed_zh": [
+        "清醒選擇",
+        "回到現實",
+        "聚焦"
+      ],
+      "keywords_reversed_en": [
+        "sober choice",
+        "clarity",
+        "back to earth",
+        "focus"
+      ],
+      "core_symbols": [
+        {
+          "zh": "雲中的七只杯",
+          "en": "the seven cups in the clouds"
+        },
+        {
+          "zh": "驚望的剪影",
+          "en": "the astonished silhouette"
+        }
+      ],
+      "core_upright_zh": "眼前的選項又多又閃亮——但有些只是雲做的;先分清哪些是真的。",
+      "core_upright_en": "The options are many and shiny — but some are made of cloud. Sort the real from the mirage first.",
+      "core_reversed_zh": "霧正在散，選擇正在變清楚;挑一只真實的杯子，把它捧穩。",
+      "core_reversed_en": "The mist is clearing and the choice is sharpening — pick one real cup and hold it steady."
     },
     {
       "id": "cups_08",
@@ -476,7 +1562,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "water",
+      "keywords_upright_zh": [
+        "離開",
+        "尋找更多",
+        "轉身",
+        "內在召喚"
+      ],
+      "keywords_upright_en": [
+        "walking away",
+        "seeking more",
+        "turning point",
+        "an inner call"
+      ],
+      "keywords_reversed_zh": [
+        "害怕離開",
+        "反覆猶豫",
+        "回頭檢視"
+      ],
+      "keywords_reversed_en": [
+        "fear of leaving",
+        "wavering",
+        "looking back"
+      ],
+      "core_symbols": [
+        {
+          "zh": "轉身上山的人",
+          "en": "the figure walking toward the mountains"
+        },
+        {
+          "zh": "八只疊好的杯",
+          "en": "the eight stacked cups"
+        }
+      ],
+      "core_upright_zh": "你堆好的杯子沒有錯——只是心知道這裡不再是全部;轉身需要勇氣，也值得。",
+      "core_upright_en": "The cups you stacked aren't wrong — your heart just knows this isn't everything. Turning away takes courage, and it's worth it.",
+      "core_reversed_zh": "走與留之間可能來回擺盪;問問自己:留下是因為愛，還是因為怕?",
+      "core_reversed_en": "You may be swinging between staying and going — ask yourself: staying out of love, or out of fear?"
     },
     {
       "id": "cups_09",
@@ -491,7 +1614,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "water",
+      "keywords_upright_zh": [
+        "滿足",
+        "願望",
+        "享受",
+        "富足感"
+      ],
+      "keywords_upright_en": [
+        "contentment",
+        "wishes granted",
+        "enjoyment",
+        "emotional plenty"
+      ],
+      "keywords_reversed_zh": [
+        "表面的滿足",
+        "貪多",
+        "分享的課題"
+      ],
+      "keywords_reversed_en": [
+        "surface satisfaction",
+        "excess",
+        "learning to share"
+      ],
+      "core_symbols": [
+        {
+          "zh": "滿足的主人",
+          "en": "the satisfied host"
+        },
+        {
+          "zh": "一排杯子",
+          "en": "the arc of cups"
+        }
+      ],
+      "core_upright_zh": "願望正在實現的味道——允許自己好好享受這份滿足。",
+      "core_upright_en": "This tastes like a wish coming true — allow yourself to savor the satisfaction.",
+      "core_reversed_zh": "滿足感可能停在表面,或想要的越來越多;問問心真正渴的是什麼。",
+      "core_reversed_en": "The satisfaction may sit at the surface, or wanting keeps growing — ask what the heart is actually thirsty for."
     },
     {
       "id": "cups_10",
@@ -506,7 +1666,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "water",
+      "keywords_upright_zh": [
+        "圓滿",
+        "家庭",
+        "和諧",
+        "共享的幸福"
+      ],
+      "keywords_upright_en": [
+        "fulfillment",
+        "family",
+        "harmony",
+        "shared happiness"
+      ],
+      "keywords_reversed_zh": [
+        "理想與現實落差",
+        "家的張力",
+        "形式化的和樂"
+      ],
+      "keywords_reversed_en": [
+        "the gap between ideal and real",
+        "family strain",
+        "performed harmony"
+      ],
+      "core_symbols": [
+        {
+          "zh": "彩虹中的十杯",
+          "en": "the rainbow of cups"
+        },
+        {
+          "zh": "同慶的家人",
+          "en": "the celebrating family"
+        }
+      ],
+      "core_upright_zh": "這是共享的幸福——和所愛之人一起,平凡日子就是彩虹本身。",
+      "core_upright_en": "This is happiness shared — with your people, an ordinary day is itself the rainbow.",
+      "core_reversed_zh": "圖像裡的圓滿和現實可能有落差;真實的和諧從說真話開始，不從擺姿勢開始。",
+      "core_reversed_en": "The picture-perfect and the real may not match — true harmony starts with honest words, not posed smiles."
     },
     {
       "id": "cups_page",
@@ -521,7 +1718,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "water",
+      "keywords_upright_zh": [
+        "情感的訊息",
+        "想像力",
+        "溫柔的開始",
+        "玩心"
+      ],
+      "keywords_upright_en": [
+        "an emotional message",
+        "imagination",
+        "a tender start",
+        "playfulness"
+      ],
+      "keywords_reversed_zh": [
+        "情緒化",
+        "逃進幻想",
+        "訊息受阻"
+      ],
+      "keywords_reversed_en": [
+        "moodiness",
+        "escapism",
+        "a blocked message"
+      ],
+      "core_symbols": [
+        {
+          "zh": "杯中的魚",
+          "en": "the fish in the cup"
+        },
+        {
+          "zh": "岸邊的浪",
+          "en": "the waves at the shore"
+        }
+      ],
+      "core_upright_zh": "杯子裡冒出一條魚——一份意外的感受、靈感或訊息正在對你眨眼。",
+      "core_upright_en": "A fish pops out of the cup — an unexpected feeling, inspiration, or message is winking at you.",
+      "core_reversed_zh": "感受可能起伏得快，或你躲進了想像裡;把感覺說出口，它就不必用鬧的。",
+      "core_reversed_en": "Feelings may be swinging fast, or you've slipped into daydream — speaking the feeling means it won't have to act out."
     },
     {
       "id": "cups_knight",
@@ -536,7 +1770,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "water",
+      "keywords_upright_zh": [
+        "浪漫",
+        "追尋",
+        "提案",
+        "跟隨心"
+      ],
+      "keywords_upright_en": [
+        "romance",
+        "questing",
+        "an offer",
+        "following the heart"
+      ],
+      "keywords_reversed_zh": [
+        "不切實際",
+        "情緒起伏",
+        "承諾疲軟"
+      ],
+      "keywords_reversed_en": [
+        "unrealistic ideals",
+        "emotional swings",
+        "wavering follow-through"
+      ],
+      "core_symbols": [
+        {
+          "zh": "緩行的馬",
+          "en": "the slow-stepping horse"
+        },
+        {
+          "zh": "有翼的頭盔",
+          "en": "the winged helmet"
+        }
+      ],
+      "core_upright_zh": "帶著心出發的追尋——一份浪漫、一個提案，或一個值得跟隨的感動。",
+      "core_upright_en": "A quest led by the heart — a romance, an offer, or a feeling worth following.",
+      "core_reversed_zh": "理想可能跑在現實前面，或承諾開始搖晃;讓心的速度和腳的速度對上。",
+      "core_reversed_en": "The ideal may be outrunning the real, or a promise is wobbling — let the heart's pace match the feet's."
     },
     {
       "id": "cups_queen",
@@ -551,7 +1822,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "water",
+      "keywords_upright_zh": [
+        "同理",
+        "關懷",
+        "情感智慧",
+        "直覺"
+      ],
+      "keywords_upright_en": [
+        "empathy",
+        "care",
+        "emotional wisdom",
+        "intuition"
+      ],
+      "keywords_reversed_zh": [
+        "情感耗竭",
+        "界線模糊",
+        "先接住自己"
+      ],
+      "keywords_reversed_en": [
+        "emotional depletion",
+        "blurred boundaries",
+        "catching yourself first"
+      ],
+      "core_symbols": [
+        {
+          "zh": "有蓋的聖杯",
+          "en": "the lidded cup"
+        },
+        {
+          "zh": "海邊的王座",
+          "en": "the throne at the sea's edge"
+        }
+      ],
+      "core_upright_zh": "你能接住別人的情緒——這是天賦;溫柔地用它，也記得自己的杯子。",
+      "core_upright_en": "You can hold others' feelings — it's a gift. Use it gently, and mind your own cup.",
+      "core_reversed_zh": "同理可能變成了代管別人的情緒;界線不是冷漠，是讓關懷走得遠的方法。",
+      "core_reversed_en": "Empathy may have become carrying others' feelings for them — boundaries aren't coldness; they're how care lasts."
     },
     {
       "id": "cups_king",
@@ -566,7 +1874,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "water",
+      "keywords_upright_zh": [
+        "情緒沉穩",
+        "包容",
+        "智慧的心",
+        "穩定支持"
+      ],
+      "keywords_upright_en": [
+        "emotional steadiness",
+        "tolerance",
+        "a wise heart",
+        "steady support"
+      ],
+      "keywords_reversed_zh": [
+        "壓抑感受",
+        "冷處理",
+        "內在風浪"
+      ],
+      "keywords_reversed_en": [
+        "suppressed feelings",
+        "emotional distance",
+        "storms beneath calm"
+      ],
+      "core_symbols": [
+        {
+          "zh": "浪中的王座",
+          "en": "the throne on the sea"
+        },
+        {
+          "zh": "鯨魚與帆船",
+          "en": "the leaping fish and the ship"
+        }
+      ],
+      "core_upright_zh": "在情緒的海上坐得穩——你能感受浪，而不被浪帶走;這份沉穩也安定著身邊的人。",
+      "core_upright_en": "Steady on the sea of feeling — you feel the waves without being swept. That calm steadies others too.",
+      "core_reversed_zh": "平靜的水面下可能壓著風浪;沉穩不等於不說，找個安全的地方讓浪上岸。",
+      "core_reversed_en": "Beneath the calm surface a storm may be pressed down — steadiness isn't silence; let the waves come ashore somewhere safe."
     },
     {
       "id": "pentacles_ace",
@@ -581,7 +1926,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "earth",
+      "keywords_upright_zh": [
+        "新機會",
+        "種子",
+        "務實開端",
+        "資源"
+      ],
+      "keywords_upright_en": [
+        "a new opportunity",
+        "a seed",
+        "a practical start",
+        "resources"
+      ],
+      "keywords_reversed_zh": [
+        "機會延遲",
+        "規劃不足",
+        "把握不住"
+      ],
+      "keywords_reversed_en": [
+        "a delayed opportunity",
+        "thin planning",
+        "a slipping chance"
+      ],
+      "core_symbols": [
+        {
+          "zh": "雲中的金幣",
+          "en": "the coin from the cloud"
+        },
+        {
+          "zh": "花園小徑",
+          "en": "the garden path"
+        }
+      ],
+      "core_upright_zh": "一顆務實的種子落在手心——一個機會、一份資源;種下去,它會長。",
+      "core_upright_en": "A practical seed lands in your palm — an opportunity, a resource. Plant it and it grows.",
+      "core_reversed_zh": "機會可能還沒成形或差點滑走;檢查土壤(計畫)比催促種子有用。",
+      "core_reversed_en": "The chance may be unformed or slipping — checking the soil (the plan) helps more than rushing the seed."
     },
     {
       "id": "pentacles_02",
@@ -596,7 +1978,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "earth",
+      "keywords_upright_zh": [
+        "平衡多工",
+        "彈性",
+        "調度",
+        "流動中的穩定"
+      ],
+      "keywords_upright_en": [
+        "juggling",
+        "flexibility",
+        "adaptation",
+        "steadiness in motion"
+      ],
+      "keywords_reversed_zh": [
+        "失衡",
+        "超載",
+        "顧此失彼"
+      ],
+      "keywords_reversed_en": [
+        "overwhelm",
+        "overload",
+        "dropped balls"
+      ],
+      "core_symbols": [
+        {
+          "zh": "無限帶中的雙幣",
+          "en": "the two coins in the infinity loop"
+        },
+        {
+          "zh": "起伏的船",
+          "en": "the ships on the waves"
+        }
+      ],
+      "core_upright_zh": "你正同時拋接好幾顆球——節奏抓得住,就是一支舞;保持彈性。",
+      "core_upright_en": "You're juggling several balls — with rhythm it's a dance. Stay flexible.",
+      "core_reversed_zh": "球可能開始掉了;與其更快,不如少接一顆,先把重要的接穩。",
+      "core_reversed_en": "Balls may be dropping — rather than speeding up, hold one fewer and catch the important ones well."
     },
     {
       "id": "pentacles_03",
@@ -611,7 +2030,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "earth",
+      "keywords_upright_zh": [
+        "合作",
+        "手藝",
+        "被認可的專業",
+        "共同打造"
+      ],
+      "keywords_upright_en": [
+        "collaboration",
+        "craft",
+        "recognized skill",
+        "building together"
+      ],
+      "keywords_reversed_zh": [
+        "單打獨鬥",
+        "合作卡卡",
+        "品質妥協"
+      ],
+      "keywords_reversed_en": [
+        "going solo",
+        "team friction",
+        "quality slipping"
+      ],
+      "core_symbols": [
+        {
+          "zh": "教堂中的工匠",
+          "en": "the craftsman in the cathedral"
+        },
+        {
+          "zh": "三人的藍圖",
+          "en": "the blueprint held by three"
+        }
+      ],
+      "core_upright_zh": "你的手藝值得被看見,而好作品需要一起蓋——把專業帶進團隊裡。",
+      "core_upright_en": "Your craft deserves recognition, and good work is built together — bring your skill into the team.",
+      "core_reversed_zh": "合作可能卡住,或你把一切扛回自己身上;對齊藍圖,分工才有意義。",
+      "core_reversed_en": "Collaboration may be jamming, or you've taken it all back on yourself — realign the blueprint so the roles make sense."
     },
     {
       "id": "pentacles_04",
@@ -626,7 +2082,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "earth",
+      "keywords_upright_zh": [
+        "穩固",
+        "儲蓄",
+        "掌控",
+        "守成"
+      ],
+      "keywords_upright_en": [
+        "security",
+        "saving",
+        "control",
+        "holding on"
+      ],
+      "keywords_reversed_zh": [
+        "抓太緊",
+        "匱乏感",
+        "放不開"
+      ],
+      "keywords_reversed_en": [
+        "gripping too tightly",
+        "scarcity mindset",
+        "unable to release"
+      ],
+      "core_symbols": [
+        {
+          "zh": "緊抱金幣的人",
+          "en": "the figure clutching coins"
+        },
+        {
+          "zh": "腳下與頭上的金幣",
+          "en": "the coins underfoot and overhead"
+        }
+      ],
+      "core_upright_zh": "你守住了辛苦累積的東西——穩固是好的,只要別讓守成變成不能動。",
+      "core_upright_en": "You're guarding what you built — security is good, so long as holding doesn't become frozen.",
+      "core_reversed_zh": "抓得太緊的手拿不了新東西;鬆開一點,錢與愛都需要流動。",
+      "core_reversed_en": "A clenched hand can't receive — loosen a little; both money and love need to circulate."
     },
     {
       "id": "pentacles_05",
@@ -641,7 +2134,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "earth",
+      "keywords_upright_zh": [
+        "匱乏",
+        "被拒之外",
+        "難關",
+        "同舟"
+      ],
+      "keywords_upright_en": [
+        "hardship",
+        "feeling shut out",
+        "a lean season",
+        "companionship in it"
+      ],
+      "keywords_reversed_zh": [
+        "轉機",
+        "接受幫助",
+        "門其實開著"
+      ],
+      "keywords_reversed_en": [
+        "a turning point",
+        "accepting help",
+        "the door is open"
+      ],
+      "core_symbols": [
+        {
+          "zh": "雪中的兩人",
+          "en": "the two figures in the snow"
+        },
+        {
+          "zh": "亮著的窗",
+          "en": "the lit window"
+        }
+      ],
+      "core_upright_zh": "這是一段冷的日子——但注意,你不是一個人走,而那扇亮著的窗,門沒有鎖。",
+      "core_upright_en": "This is a cold stretch — but notice: you're not walking it alone, and that lit window's door isn't locked.",
+      "core_reversed_zh": "難關正在鬆動;練習開口求助,走進那扇一直亮著的門。",
+      "core_reversed_en": "The hardship is easing — practice asking for help, and walk through the door that's been lit all along."
     },
     {
       "id": "pentacles_06",
@@ -656,7 +2186,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "earth",
+      "keywords_upright_zh": [
+        "給予",
+        "接受",
+        "互助",
+        "資源流動"
+      ],
+      "keywords_upright_en": [
+        "giving",
+        "receiving",
+        "mutual aid",
+        "resources in flow"
+      ],
+      "keywords_reversed_zh": [
+        "失衡的給予",
+        "附帶條件",
+        "單向關係"
+      ],
+      "keywords_reversed_en": [
+        "lopsided giving",
+        "strings attached",
+        "a one-way flow"
+      ],
+      "core_symbols": [
+        {
+          "zh": "天秤與施予者",
+          "en": "the scales and the giver"
+        },
+        {
+          "zh": "跪求的兩人",
+          "en": "the two kneeling figures"
+        }
+      ],
+      "core_upright_zh": "給與受正在流動——大方地給,也練習大方地接受;兩者都是慷慨。",
+      "core_upright_en": "Giving and receiving are in flow — give freely, and practice receiving freely too. Both are generosity.",
+      "core_reversed_zh": "給予可能綁著條件,或天秤長期偏向一邊;健康的流動,雙方都能站直。",
+      "core_reversed_en": "Giving may carry strings, or the scales have long tipped one way — in a healthy flow, both sides stand upright."
     },
     {
       "id": "pentacles_07",
@@ -671,7 +2238,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "earth",
+      "keywords_upright_zh": [
+        "耐心等待",
+        "評估",
+        "休耕觀察",
+        "長線"
+      ],
+      "keywords_upright_en": [
+        "patient waiting",
+        "assessment",
+        "tending and watching",
+        "the long game"
+      ],
+      "keywords_reversed_zh": [
+        "急於收成",
+        "投入存疑",
+        "方向盤點"
+      ],
+      "keywords_reversed_en": [
+        "impatience for harvest",
+        "doubted investment",
+        "a stock-take"
+      ],
+      "core_symbols": [
+        {
+          "zh": "倚鋤望藤的人",
+          "en": "the farmer leaning on the hoe"
+        },
+        {
+          "zh": "七枚結果的金幣",
+          "en": "the seven coins on the vine"
+        }
+      ],
+      "core_upright_zh": "你種的東西正在長,只是還沒到收成的季節——站在田邊評估,也是耕作的一部分。",
+      "core_upright_en": "What you planted is growing — it's just not harvest season yet. Standing at the field's edge to assess is part of farming.",
+      "core_reversed_zh": "等待可能讓你懷疑一切值不值得;數據會說話:留下值得的藤,改種不值得的田。",
+      "core_reversed_en": "The wait may breed doubt — let the evidence speak: keep the vines that reward, replant the fields that don't."
     },
     {
       "id": "pentacles_08",
@@ -686,7 +2290,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "earth",
+      "keywords_upright_zh": [
+        "精進",
+        "專注",
+        "匠人精神",
+        "日拱一卒"
+      ],
+      "keywords_upright_en": [
+        "diligence",
+        "focus",
+        "craftsmanship",
+        "daily progress"
+      ],
+      "keywords_reversed_zh": [
+        "機械重複",
+        "完美主義",
+        "倦怠"
+      ],
+      "keywords_reversed_en": [
+        "mindless repetition",
+        "perfectionism",
+        "weariness"
+      ],
+      "core_symbols": [
+        {
+          "zh": "敲打金幣的學徒",
+          "en": "the apprentice at the bench"
+        },
+        {
+          "zh": "掛起的成品",
+          "en": "the finished coins on display"
+        }
+      ],
+      "core_upright_zh": "一枚一枚慢慢敲——重複裡藏著精進;今天的手藝比昨天好一點,就夠了。",
+      "core_upright_en": "Coin by coin, strike by strike — mastery hides in repetition. Better than yesterday is enough.",
+      "core_reversed_zh": "練習可能變成了無心的重複,或完美主義卡住了出手;想起當初為何學這門手藝。",
+      "core_reversed_en": "Practice may have gone mechanical, or perfectionism stalls the work — remember why you took up this craft."
     },
     {
       "id": "pentacles_09",
@@ -701,7 +2342,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "earth",
+      "keywords_upright_zh": [
+        "自足",
+        "成果",
+        "優雅獨立",
+        "享受花園"
+      ],
+      "keywords_upright_en": [
+        "self-sufficiency",
+        "earned abundance",
+        "graceful independence",
+        "enjoying the garden"
+      ],
+      "keywords_reversed_zh": [
+        "過度工作",
+        "孤高",
+        "成果失衡"
+      ],
+      "keywords_reversed_en": [
+        "overwork",
+        "isolation in success",
+        "lopsided rewards"
+      ],
+      "core_symbols": [
+        {
+          "zh": "花園中的隼",
+          "en": "the falcon in the garden"
+        },
+        {
+          "zh": "葡萄藤",
+          "en": "the grapevines"
+        }
+      ],
+      "core_upright_zh": "你憑自己的力氣種出了這座花園——站在裡面,好好享受它。",
+      "core_upright_en": "You grew this garden with your own hands — stand in it and enjoy it, fully.",
+      "core_reversed_zh": "花園可能是用透支換的,或美麗但少了人分享;成果要有你在裡面才算數。",
+      "core_reversed_en": "The garden may have cost overdraft, or it's beautiful but unshared — the harvest only counts if you're in it."
     },
     {
       "id": "pentacles_10",
@@ -716,7 +2394,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "earth",
+      "keywords_upright_zh": [
+        "傳承",
+        "家族",
+        "長期富足",
+        "根基"
+      ],
+      "keywords_upright_en": [
+        "legacy",
+        "family",
+        "long-term abundance",
+        "foundations"
+      ],
+      "keywords_reversed_zh": [
+        "家業之爭",
+        "短視",
+        "傳承斷點"
+      ],
+      "keywords_reversed_en": [
+        "family friction over resources",
+        "short-termism",
+        "a break in the line"
+      ],
+      "core_symbols": [
+        {
+          "zh": "拱門下的三代",
+          "en": "the three generations at the archway"
+        },
+        {
+          "zh": "十枚金幣",
+          "en": "the ten pentacles"
+        }
+      ],
+      "core_upright_zh": "你正在蓋的東西會留給後面的人——把眼光放到一代以外,決定會不一樣。",
+      "core_upright_en": "What you're building will outlast you — decisions change when you look a generation ahead.",
+      "core_reversed_zh": "傳承或家的資源可能起了張力;先講清楚價值,再談分配。",
+      "core_reversed_en": "There may be strain around legacy or family resources — settle the values first, then the shares."
     },
     {
       "id": "pentacles_page",
@@ -731,7 +2446,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "earth",
+      "keywords_upright_zh": [
+        "學習",
+        "新技能",
+        "踏實起步",
+        "專注的種子"
+      ],
+      "keywords_upright_en": [
+        "study",
+        "a new skill",
+        "grounded beginnings",
+        "a seed of focus"
+      ],
+      "keywords_reversed_zh": [
+        "拖延",
+        "半途而廢",
+        "眼高手低"
+      ],
+      "keywords_reversed_en": [
+        "procrastination",
+        "abandoned starts",
+        "dreams without steps"
+      ],
+      "core_symbols": [
+        {
+          "zh": "捧幣端詳的年輕人",
+          "en": "the youth studying the coin"
+        },
+        {
+          "zh": "翻耕過的田野",
+          "en": "the tilled field"
+        }
+      ],
+      "core_upright_zh": "你手裡有一枚想學會的金幣——報名、開課、動手,踏實的第一步最重要。",
+      "core_upright_en": "You hold a coin you want to master — sign up, start, get your hands on it. The grounded first step matters most.",
+      "core_reversed_zh": "學習可能停在收藏教材;把目標切成今天做得完的一小塊。",
+      "core_reversed_en": "The learning may have stalled at collecting materials — cut the goal into a piece you can finish today."
     },
     {
       "id": "pentacles_knight",
@@ -746,7 +2498,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "earth",
+      "keywords_upright_zh": [
+        "穩紮穩打",
+        "可靠",
+        "例行",
+        "堅持到底"
+      ],
+      "keywords_upright_en": [
+        "methodical progress",
+        "reliability",
+        "routine",
+        "seeing it through"
+      ],
+      "keywords_reversed_zh": [
+        "停滯",
+        "過度保守",
+        "無聊倦怠"
+      ],
+      "keywords_reversed_en": [
+        "stagnation",
+        "over-caution",
+        "boredom"
+      ],
+      "core_symbols": [
+        {
+          "zh": "站定的犁馬",
+          "en": "the standing plow horse"
+        },
+        {
+          "zh": "手中捧穩的金幣",
+          "en": "the coin held steady"
+        }
+      ],
+      "core_upright_zh": "不快,但每一步都算數——你的可靠就是你的超能力。",
+      "core_upright_en": "Not fast, but every step counts — reliability is your superpower.",
+      "core_reversed_zh": "穩健可能滑向了原地踏步;保留紀律,換一條有風景的路走走。",
+      "core_reversed_en": "Steady may have slid into standing still — keep the discipline, but try a road with some scenery."
     },
     {
       "id": "pentacles_queen",
@@ -761,7 +2550,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "earth",
+      "keywords_upright_zh": [
+        "務實的照顧",
+        "豐盛",
+        "安頓",
+        "裡外兼顧"
+      ],
+      "keywords_upright_en": [
+        "practical nurturing",
+        "abundance",
+        "groundedness",
+        "tending both worlds"
+      ],
+      "keywords_reversed_zh": [
+        "自我忽略",
+        "忙到失衡",
+        "窮於應付"
+      ],
+      "keywords_reversed_en": [
+        "self-neglect",
+        "care out of balance",
+        "stretched thin"
+      ],
+      "core_symbols": [
+        {
+          "zh": "膝上的金幣與野兔",
+          "en": "the coin in her lap and the hare"
+        },
+        {
+          "zh": "玫瑰棚架",
+          "en": "the rose bower"
+        }
+      ],
+      "core_upright_zh": "你把人照顧好,也把事打理好——這種務實的溫柔,是很少人有的天賦。",
+      "core_upright_en": "You care for people and keep things running — this practical tenderness is a rare gift.",
+      "core_reversed_zh": "照顧別人的清單裡可能沒有你自己;把自己排回今天的行程裡。",
+      "core_reversed_en": "Your own name may be missing from the care list — put yourself back on today's schedule."
     },
     {
       "id": "pentacles_king",
@@ -776,7 +2602,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "earth",
+      "keywords_upright_zh": [
+        "富足",
+        "事業有成",
+        "慷慨的穩定",
+        "把關者"
+      ],
+      "keywords_upright_en": [
+        "abundance",
+        "accomplishment",
+        "generous stability",
+        "stewardship"
+      ],
+      "keywords_reversed_zh": [
+        "物質至上",
+        "固執",
+        "以財富量人"
+      ],
+      "keywords_reversed_en": [
+        "materialism",
+        "stubbornness",
+        "worth measured in coin"
+      ],
+      "core_symbols": [
+        {
+          "zh": "葡萄藤王座",
+          "en": "the vine-covered throne"
+        },
+        {
+          "zh": "城堡與權杖",
+          "en": "the castle and the scepter"
+        }
+      ],
+      "core_upright_zh": "你建立的穩定足以庇蔭別人——成就的最高形式,是讓它變成別人的機會。",
+      "core_upright_en": "The stability you built can shelter others — the highest form of success is turning it into someone else's chance.",
+      "core_reversed_zh": "成就可能開始用數字定義一切;帳本很重要,但它量不出一個人的價值。",
+      "core_reversed_en": "Success may be measuring everything in numbers — ledgers matter, but they can't weigh a person's worth."
     },
     {
       "id": "swords_ace",
@@ -791,7 +2654,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "air",
+      "keywords_upright_zh": [
+        "清晰",
+        "突破",
+        "真相",
+        "新想法"
+      ],
+      "keywords_upright_en": [
+        "clarity",
+        "breakthrough",
+        "truth",
+        "a new idea"
+      ],
+      "keywords_reversed_zh": [
+        "思緒混亂",
+        "誤用言語",
+        "模糊"
+      ],
+      "keywords_reversed_en": [
+        "mental fog",
+        "words misused",
+        "blurred truth"
+      ],
+      "core_symbols": [
+        {
+          "zh": "穿過王冠的劍",
+          "en": "the sword through the crown"
+        },
+        {
+          "zh": "桂冠與棕櫚",
+          "en": "the laurel and the palm"
+        }
+      ],
+      "core_upright_zh": "一道清晰劃開迷霧——看見真相或想通一件事的時刻到了。",
+      "core_upright_en": "A blade of clarity cuts the fog — a truth seen, a knot of thought undone.",
+      "core_reversed_zh": "腦中可能一團亂，或話語傷了人;先讓思緒沉澱，再出劍。",
+      "core_reversed_en": "The mind may be tangled, or words have cut someone — let thought settle before drawing the blade."
     },
     {
       "id": "swords_02",
@@ -806,7 +2706,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "air",
+      "keywords_upright_zh": [
+        "僵局",
+        "抉擇",
+        "刻意迴避",
+        "平衡的張力"
+      ],
+      "keywords_upright_en": [
+        "stalemate",
+        "a decision",
+        "willful avoidance",
+        "held tension"
+      ],
+      "keywords_reversed_zh": [
+        "僵局鬆動",
+        "蒙眼摘下",
+        "做出決定"
+      ],
+      "keywords_reversed_en": [
+        "resolution nearing",
+        "the blindfold lifting",
+        "the deadlock easing"
+      ],
+      "core_symbols": [
+        {
+          "zh": "蒙眼持雙劍的人",
+          "en": "the blindfolded figure with two swords"
+        },
+        {
+          "zh": "背後的海",
+          "en": "the sea behind"
+        }
+      ],
+      "core_upright_zh": "你把眼睛蒙上,雙手各持一劍——這個決定被暫停了,但海潮還在背後漲。",
+      "core_upright_en": "Blindfolded, a sword in each hand — the decision is on hold, but the tide behind keeps rising.",
+      "core_reversed_zh": "蒙眼布正要摘下;看見選項的全貌後,選哪邊都比僵著好。",
+      "core_reversed_en": "The blindfold is coming off — once you see both options plainly, either choice beats the deadlock."
     },
     {
       "id": "swords_03",
@@ -821,7 +2758,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "air",
+      "keywords_upright_zh": [
+        "心碎",
+        "痛楚",
+        "真相刺穿",
+        "悲傷"
+      ],
+      "keywords_upright_en": [
+        "heartbreak",
+        "pain",
+        "a piercing truth",
+        "sorrow"
+      ],
+      "keywords_reversed_zh": [
+        "復原",
+        "釋放痛楚",
+        "原諒"
+      ],
+      "keywords_reversed_en": [
+        "healing",
+        "releasing the hurt",
+        "forgiveness"
+      ],
+      "core_symbols": [
+        {
+          "zh": "三劍穿心",
+          "en": "the three swords through the heart"
+        },
+        {
+          "zh": "雨雲",
+          "en": "the storm clouds"
+        }
+      ],
+      "core_upright_zh": "有些真相會刺痛——讓痛存在,它是心還活著的證明;雨會停。",
+      "core_upright_en": "Some truths pierce — let the pain exist; it proves the heart is alive. The rain does stop.",
+      "core_reversed_zh": "傷口正在癒合;把還插著的那把劍輕輕拔出來,包括你對自己的那把。",
+      "core_reversed_en": "The wound is closing — gently draw out the sword still lodged, including the one you point at yourself."
     },
     {
       "id": "swords_04",
@@ -836,7 +2810,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "air",
+      "keywords_upright_zh": [
+        "休息",
+        "暫停",
+        "恢復",
+        "靜養"
+      ],
+      "keywords_upright_en": [
+        "rest",
+        "pause",
+        "recovery",
+        "stillness"
+      ],
+      "keywords_reversed_zh": [
+        "過勞邊緣",
+        "拒絕休息",
+        "重新啟動"
+      ],
+      "keywords_reversed_en": [
+        "nearing burnout",
+        "refusing rest",
+        "re-engaging"
+      ],
+      "core_symbols": [
+        {
+          "zh": "靜臥的騎士",
+          "en": "the resting knight"
+        },
+        {
+          "zh": "彩窗",
+          "en": "the stained-glass window"
+        }
+      ],
+      "core_upright_zh": "劍放下了,騎士在休息——這不是放棄,是為了走更遠的必要暫停。",
+      "core_upright_en": "The swords are set down; the knight rests — not surrender, but the pause the road requires.",
+      "core_reversed_zh": "你可能一直拒絕休息,或休息夠了正要起身;聽身體的,它比行程表誠實。",
+      "core_reversed_en": "You may be refusing rest — or rested enough and ready to rise. The body is more honest than the calendar."
     },
     {
       "id": "swords_05",
@@ -851,7 +2862,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "air",
+      "keywords_upright_zh": [
+        "衝突的代價",
+        "勝之不武",
+        "張力",
+        "撤退的智慧"
+      ],
+      "keywords_upright_en": [
+        "conflict's cost",
+        "a hollow win",
+        "tension",
+        "the wisdom of retreat"
+      ],
+      "keywords_reversed_zh": [
+        "和解",
+        "放下對錯",
+        "餘波"
+      ],
+      "keywords_reversed_en": [
+        "reconciliation",
+        "releasing the scoreboard",
+        "aftermath"
+      ],
+      "core_symbols": [
+        {
+          "zh": "拾劍的勝者與離去的人",
+          "en": "the victor gathering swords as others leave"
+        },
+        {
+          "zh": "翻湧的雲",
+          "en": "the churning clouds"
+        }
+      ],
+      "core_upright_zh": "有些勝利的代價是關係——贏了道理之前,先想想想要的是什麼。",
+      "core_upright_en": "Some victories cost the relationship — before winning the argument, ask what you actually want.",
+      "core_reversed_zh": "戰場的煙正在散;放下比分,修補值得修補的,離開該離開的。",
+      "core_reversed_en": "The smoke is clearing — drop the scoreboard, mend what's worth mending, and leave what isn't."
     },
     {
       "id": "swords_06",
@@ -866,7 +2914,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "air",
+      "keywords_upright_zh": [
+        "過渡",
+        "離開風浪",
+        "修復之旅",
+        "前往平靜"
+      ],
+      "keywords_upright_en": [
+        "transition",
+        "leaving rough waters",
+        "a healing passage",
+        "toward calm"
+      ],
+      "keywords_reversed_zh": [
+        "行李太重",
+        "難以離開",
+        "波折的過渡"
+      ],
+      "keywords_reversed_en": [
+        "heavy baggage",
+        "hard to leave",
+        "a bumpy crossing"
+      ],
+      "core_symbols": [
+        {
+          "zh": "渡船",
+          "en": "the ferry"
+        },
+        {
+          "zh": "平靜的遠岸",
+          "en": "the calmer far shore"
+        }
+      ],
+      "core_upright_zh": "船正駛離風浪——過渡期不舒服,但方向是對的,水會越來越平。",
+      "core_upright_en": "The boat is leaving rough water — transitions are uncomfortable, but the heading is right and the water calms ahead.",
+      "core_reversed_zh": "有些行李可能讓船划不動,或你捨不得離岸;帶走教訓就好,劍可以留在船上。",
+      "core_reversed_en": "Some cargo may be slowing the boat, or the shore is hard to leave — take the lesson; the swords can stay aboard."
     },
     {
       "id": "swords_07",
@@ -881,7 +2966,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "air",
+      "keywords_upright_zh": [
+        "策略",
+        "獨行",
+        "迂迴",
+        "未盡之言"
+      ],
+      "keywords_upright_en": [
+        "strategy",
+        "going it alone",
+        "indirection",
+        "things left unsaid"
+      ],
+      "keywords_reversed_zh": [
+        "坦白",
+        "被看穿",
+        "面對"
+      ],
+      "keywords_reversed_en": [
+        "coming clean",
+        "being seen through",
+        "facing it"
+      ],
+      "core_symbols": [
+        {
+          "zh": "抱劍潛行的人",
+          "en": "the figure slipping away with swords"
+        },
+        {
+          "zh": "留下的兩把劍",
+          "en": "the two swords left behind"
+        }
+      ],
+      "core_upright_zh": "有時迂迴是策略,有時是逃避——分清楚你正在做的是哪一種。",
+      "core_upright_en": "Sometimes indirection is strategy, sometimes avoidance — know which one this is.",
+      "core_reversed_zh": "藏著的事可能快藏不住了;主動坦白的版本,通常比被發現的版本溫柔。",
+      "core_reversed_en": "What's hidden may not stay hidden — the version you confess is usually gentler than the version that's found out."
     },
     {
       "id": "swords_08",
@@ -896,7 +3018,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "air",
+      "keywords_upright_zh": [
+        "自我設限",
+        "困住感",
+        "恐懼之網",
+        "看不見出口"
+      ],
+      "keywords_upright_en": [
+        "self-imposed limits",
+        "feeling trapped",
+        "a web of fear",
+        "no visible exit"
+      ],
+      "keywords_reversed_zh": [
+        "鬆綁",
+        "看見出口",
+        "踏出第一步"
+      ],
+      "keywords_reversed_en": [
+        "loosening the binds",
+        "seeing the way out",
+        "the first step free"
+      ],
+      "core_symbols": [
+        {
+          "zh": "蒙眼被縛的人",
+          "en": "the bound, blindfolded figure"
+        },
+        {
+          "zh": "圍成圈的劍",
+          "en": "the circle of swords"
+        }
+      ],
+      "core_upright_zh": "綁住你的繩比看起來鬆,劍圍成的圈其實有缺口——困住感是真的,牢籠未必。",
+      "core_upright_en": "The binds are looser than they look and the circle of swords has a gap — the trapped feeling is real; the cage may not be.",
+      "core_reversed_zh": "眼罩正在鬆動;試著動一動,你會發現腳其實是自由的。",
+      "core_reversed_en": "The blindfold is loosening — move a little, and you'll find your feet were free all along."
     },
     {
       "id": "swords_09",
@@ -911,7 +3070,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "air",
+      "keywords_upright_zh": [
+        "焦慮",
+        "失眠的念頭",
+        "恐懼放大",
+        "自責"
+      ],
+      "keywords_upright_en": [
+        "anxiety",
+        "3 a.m. thoughts",
+        "magnified fears",
+        "self-reproach"
+      ],
+      "keywords_reversed_zh": [
+        "黎明將至",
+        "說出恐懼",
+        "惡夢鬆手"
+      ],
+      "keywords_reversed_en": [
+        "dawn approaching",
+        "speaking the fear",
+        "the nightmare loosening"
+      ],
+      "core_symbols": [
+        {
+          "zh": "掩面坐起的人",
+          "en": "the figure sitting up in bed"
+        },
+        {
+          "zh": "牆上的九劍",
+          "en": "the nine swords on the wall"
+        }
+      ],
+      "core_upright_zh": "夜裡的念頭把一切放大——牆上的劍沒有一把真的落下;先陪自己度過這個夜。",
+      "core_upright_en": "Night thoughts magnify everything — none of the swords on the wall have actually fallen. First, keep yourself company through the night.",
+      "core_reversed_zh": "天快亮了;把恐懼說給一個人聽,它在空氣裡會縮小很多。",
+      "core_reversed_en": "Dawn is near — speak the fear to someone; it shrinks in open air."
     },
     {
       "id": "swords_10",
@@ -926,7 +3122,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "air",
+      "keywords_upright_zh": [
+        "谷底",
+        "結束",
+        "力竭",
+        "如釋重負的終點"
+      ],
+      "keywords_upright_en": [
+        "rock bottom",
+        "an ending",
+        "depletion",
+        "a merciful end"
+      ],
+      "keywords_reversed_zh": [
+        "復原開始",
+        "走出谷底",
+        "舊局徹底翻頁"
+      ],
+      "keywords_reversed_en": [
+        "recovery beginning",
+        "climbing from the low point",
+        "the old story fully closed"
+      ],
+      "core_symbols": [
+        {
+          "zh": "背上的十劍",
+          "en": "the ten swords"
+        },
+        {
+          "zh": "地平線的曙光",
+          "en": "the light on the horizon"
+        }
+      ],
+      "core_upright_zh": "這一局是真的結束了——承認力竭不丟臉;地平線那道光,是留給你的。",
+      "core_upright_en": "This round is truly over — admitting you're spent isn't shameful. That light on the horizon is for you.",
+      "core_reversed_zh": "最低點已經過去,劍正在一把把移開;復原不用快,只要方向朝上。",
+      "core_reversed_en": "The lowest point has passed and the swords are lifting one by one — recovery needn't be fast, only upward."
     },
     {
       "id": "swords_page",
@@ -941,7 +3174,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "air",
+      "keywords_upright_zh": [
+        "求知",
+        "警覺",
+        "觀察",
+        "新訊息"
+      ],
+      "keywords_upright_en": [
+        "curiosity of mind",
+        "alertness",
+        "observation",
+        "new information"
+      ],
+      "keywords_reversed_zh": [
+        "多疑",
+        "話多於行",
+        "訊息誤讀"
+      ],
+      "keywords_reversed_en": [
+        "overvigilance",
+        "more talk than action",
+        "misread messages"
+      ],
+      "core_symbols": [
+        {
+          "zh": "持劍遠望的年輕人",
+          "en": "the youth holding the sword aloft"
+        },
+        {
+          "zh": "疾風中的雲",
+          "en": "the wind-blown clouds"
+        }
+      ],
+      "core_upright_zh": "帶著清醒的好奇觀察局勢——先看清楚、問清楚,再下判斷。",
+      "core_upright_en": "Watch with sharp curiosity — see clearly, ask clearly, then judge.",
+      "core_reversed_zh": "警覺可能過了頭變成多疑,或想法一直停在嘴上;查證一件,落實一件。",
+      "core_reversed_en": "Alertness may have tipped into suspicion, or ideas stay as talk — verify one thing, act on one thing."
     },
     {
       "id": "swords_knight",
@@ -956,7 +3226,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "air",
+      "keywords_upright_zh": [
+        "直取目標",
+        "果斷",
+        "辯才",
+        "快攻"
+      ],
+      "keywords_upright_en": [
+        "charging ahead",
+        "decisiveness",
+        "sharp argument",
+        "speed"
+      ],
+      "keywords_reversed_zh": [
+        "魯莽",
+        "不顧後果",
+        "言語如刃"
+      ],
+      "keywords_reversed_en": [
+        "recklessness",
+        "cost-blindness",
+        "cutting words"
+      ],
+      "core_symbols": [
+        {
+          "zh": "疾馳衝鋒的騎士",
+          "en": "the charging knight"
+        },
+        {
+          "zh": "疾風與飛鳥",
+          "en": "the storm wind and birds"
+        }
+      ],
+      "core_upright_zh": "認定目標就全速前進——這股果斷很珍貴,用在值得的戰場上。",
+      "core_upright_en": "Once the target is chosen, charge — this decisiveness is precious; spend it on battles that matter.",
+      "core_reversed_zh": "速度可能輾過了思考,言語可能傷了人;慢半拍,劍法會更準。",
+      "core_reversed_en": "Speed may be outrunning thought, and words may be cutting — half a beat slower makes a truer blade."
     },
     {
       "id": "swords_queen",
@@ -971,7 +3278,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "air",
+      "keywords_upright_zh": [
+        "清明",
+        "直言",
+        "獨立",
+        "經驗的智慧"
+      ],
+      "keywords_upright_en": [
+        "clear-sightedness",
+        "candor",
+        "independence",
+        "hard-won wisdom"
+      ],
+      "keywords_reversed_zh": [
+        "尖銳",
+        "心牆",
+        "過度理性"
+      ],
+      "keywords_reversed_en": [
+        "sharpness",
+        "walls around the heart",
+        "cold logic"
+      ],
+      "core_symbols": [
+        {
+          "zh": "舉劍側望的女王",
+          "en": "the queen with raised sword"
+        },
+        {
+          "zh": "伸出的手",
+          "en": "the extended hand"
+        }
+      ],
+      "core_upright_zh": "看得清、說得直——你的清明來自走過的路;誠實而不失溫度,是這張牌的藝術。",
+      "core_upright_en": "Seeing clearly and speaking plainly — your clarity was earned. Honest yet warm is this card's art.",
+      "core_reversed_zh": "直言可能變得鋒利,心可能築了牆;理性照路,但別讓它擋住溫度。",
+      "core_reversed_en": "Candor may have sharpened, and walls may have risen — let reason light the road without blocking the warmth."
     },
     {
       "id": "swords_king",
@@ -986,7 +3330,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "air",
+      "keywords_upright_zh": [
+        "理性權威",
+        "原則",
+        "公正判斷",
+        "戰略"
+      ],
+      "keywords_upright_en": [
+        "intellectual authority",
+        "principle",
+        "fair judgment",
+        "strategy"
+      ],
+      "keywords_reversed_zh": [
+        "冷硬",
+        "濫用聰明",
+        "權威失衡"
+      ],
+      "keywords_reversed_en": [
+        "coldness",
+        "cleverness misused",
+        "authority astray"
+      ],
+      "core_symbols": [
+        {
+          "zh": "正面而坐的王",
+          "en": "the king facing forward"
+        },
+        {
+          "zh": "蝴蝶紋飾",
+          "en": "the butterfly motifs"
+        }
+      ],
+      "core_upright_zh": "以原則和清晰的頭腦做決定——公正本身就是一種溫柔。",
+      "core_upright_en": "Decide from principle and a clear head — fairness is itself a kind of care.",
+      "core_reversed_zh": "判斷可能變得冷硬,或聰明用錯了方向;規則是為人服務的,別倒過來。",
+      "core_reversed_en": "Judgment may have gone cold, or cleverness bent the wrong way — rules serve people, not the reverse."
     },
     {
       "id": "wands_ace",
@@ -1001,7 +3382,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "fire",
+      "keywords_upright_zh": [
+        "靈感",
+        "起點",
+        "熱情",
+        "潛能"
+      ],
+      "keywords_upright_en": [
+        "inspiration",
+        "a spark",
+        "passion",
+        "potential"
+      ],
+      "keywords_reversed_zh": [
+        "延遲的開始",
+        "熱情熄火",
+        "缺乏方向"
+      ],
+      "keywords_reversed_en": [
+        "a delayed start",
+        "dampened enthusiasm",
+        "unclear direction"
+      ],
+      "core_symbols": [
+        {
+          "zh": "雲中伸出的手",
+          "en": "the hand from the cloud"
+        },
+        {
+          "zh": "發芽的權杖",
+          "en": "the sprouting wand"
+        }
+      ],
+      "core_upright_zh": "一股新的熱情或靈感正在冒芽——它還小，但是真的。",
+      "core_upright_en": "A new spark of passion or inspiration is sprouting — small, but real.",
+      "core_reversed_zh": "想開始的火可能被什麼壓著;找出讓它熄火的原因，比硬點火更有用。",
+      "core_reversed_en": "The urge to begin may be smothered by something — finding what dampens it helps more than forcing the flame."
     },
     {
       "id": "wands_02",
@@ -1016,7 +3434,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "fire",
+      "keywords_upright_zh": [
+        "規劃",
+        "展望",
+        "選擇方向",
+        "站上高處"
+      ],
+      "keywords_upright_en": [
+        "planning",
+        "looking ahead",
+        "choosing a direction",
+        "vantage"
+      ],
+      "keywords_reversed_zh": [
+        "不敢跨出",
+        "視野受限",
+        "猶豫"
+      ],
+      "keywords_reversed_en": [
+        "fear of leaving the castle",
+        "narrow view",
+        "indecision"
+      ],
+      "core_symbols": [
+        {
+          "zh": "手中的地球儀",
+          "en": "the globe in hand"
+        },
+        {
+          "zh": "城牆",
+          "en": "the battlements"
+        }
+      ],
+      "core_upright_zh": "世界在你眼前展開——是時候把想像變成一份具體的計畫了。",
+      "core_upright_en": "The world is spread before you — time to turn imagining into an actual plan.",
+      "core_reversed_zh": "你可能握著地圖卻不敢出門;安全的城牆內，看不到想去的地方。",
+      "core_reversed_en": "You may be holding the map but not leaving the castle — the view you want isn't visible from inside safe walls."
     },
     {
       "id": "wands_03",
@@ -1031,7 +3486,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "fire",
+      "keywords_upright_zh": [
+        "進展",
+        "遠見",
+        "等待成果",
+        "擴展"
+      ],
+      "keywords_upright_en": [
+        "progress",
+        "foresight",
+        "ships coming in",
+        "expansion"
+      ],
+      "keywords_reversed_zh": [
+        "延誤",
+        "計畫受阻",
+        "格局太小"
+      ],
+      "keywords_reversed_en": [
+        "delays",
+        "blocked plans",
+        "thinking too small"
+      ],
+      "core_symbols": [
+        {
+          "zh": "眺望海面的人",
+          "en": "the figure overlooking the sea"
+        },
+        {
+          "zh": "三艘船",
+          "en": "the ships"
+        }
+      ],
+      "core_upright_zh": "你派出去的船正在航行——已經啟動的事需要的是時間，不是懷疑。",
+      "core_upright_en": "Your ships are out sailing — what's already in motion needs time, not doubt.",
+      "core_reversed_zh": "成果可能比預期慢，或計畫卡在半路;檢查航線，而不是急著召回船隊。",
+      "core_reversed_en": "Results may be slower than hoped, or plans stalled midway — check the route before recalling the fleet."
     },
     {
       "id": "wands_04",
@@ -1046,7 +3538,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "fire",
+      "keywords_upright_zh": [
+        "慶祝",
+        "穩定",
+        "歸屬",
+        "里程碑"
+      ],
+      "keywords_upright_en": [
+        "celebration",
+        "stability",
+        "belonging",
+        "a milestone"
+      ],
+      "keywords_reversed_zh": [
+        "過渡期",
+        "家的課題",
+        "慶祝延後"
+      ],
+      "keywords_reversed_en": [
+        "transition",
+        "home matters",
+        "postponed celebration"
+      ],
+      "core_symbols": [
+        {
+          "zh": "花彩拱門",
+          "en": "the flower garland"
+        },
+        {
+          "zh": "城堡前的歡慶",
+          "en": "the celebration before the castle"
+        }
+      ],
+      "core_upright_zh": "一個階段性的圓滿值得停下來慶祝——和重要的人一起，把喜悅過完整。",
+      "core_upright_en": "A milestone deserves a real pause to celebrate — with your people, fully.",
+      "core_reversed_zh": "歸屬感或安穩可能正在過渡中;先在自己身上蓋一座小小的家。",
+      "core_reversed_en": "Belonging or stability may be in transition — build a small home inside yourself first."
     },
     {
       "id": "wands_05",
@@ -1061,7 +3590,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "fire",
+      "keywords_upright_zh": [
+        "競爭",
+        "摩擦",
+        "意見分歧",
+        "切磋"
+      ],
+      "keywords_upright_en": [
+        "competition",
+        "friction",
+        "clashing views",
+        "sparring"
+      ],
+      "keywords_reversed_zh": [
+        "避免衝突",
+        "內在拉扯",
+        "化解分歧"
+      ],
+      "keywords_reversed_en": [
+        "conflict avoidance",
+        "inner conflict",
+        "easing tensions"
+      ],
+      "core_symbols": [
+        {
+          "zh": "五人揮杖",
+          "en": "the five figures sparring"
+        },
+        {
+          "zh": "錯落交叉的杖",
+          "en": "the crisscrossed staves"
+        }
+      ],
+      "core_upright_zh": "眼前的碰撞比較像切磋而非戰爭——分歧裡也有能學到的東西。",
+      "core_upright_en": "This clash is more sparring than war — there's something to learn inside the disagreement.",
+      "core_reversed_zh": "你可能在迴避必要的摩擦，或和自己打架;把爭的是什麼說清楚，火氣會小一半。",
+      "core_reversed_en": "You may be dodging a needed friction, or fighting yourself — naming what's actually contested cools half the heat."
     },
     {
       "id": "wands_06",
@@ -1076,7 +3642,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "fire",
+      "keywords_upright_zh": [
+        "肯定",
+        "勝利",
+        "被看見",
+        "自信"
+      ],
+      "keywords_upright_en": [
+        "recognition",
+        "victory",
+        "being seen",
+        "confidence"
+      ],
+      "keywords_reversed_zh": [
+        "自我懷疑",
+        "榮耀的空虛",
+        "掌聲遲來"
+      ],
+      "keywords_reversed_en": [
+        "self-doubt",
+        "hollow praise",
+        "delayed applause"
+      ],
+      "core_symbols": [
+        {
+          "zh": "桂冠",
+          "en": "the laurel wreath"
+        },
+        {
+          "zh": "騎馬的凱旋者",
+          "en": "the rider in procession"
+        }
+      ],
+      "core_upright_zh": "你的努力正在被看見——接受這份肯定，它是你掙來的。",
+      "core_upright_en": "Your effort is being seen — receive the recognition; you earned it.",
+      "core_reversed_zh": "掌聲可能還沒來，或來了卻不太踏實;你的價值不需要遊行來證明。",
+      "core_reversed_en": "The applause may be late, or feel hollow — your worth doesn't need a parade to be real."
     },
     {
       "id": "wands_07",
@@ -1091,7 +3694,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "fire",
+      "keywords_upright_zh": [
+        "堅守",
+        "立場",
+        "防衛",
+        "勇氣"
+      ],
+      "keywords_upright_en": [
+        "standing ground",
+        "conviction",
+        "defense",
+        "courage"
+      ],
+      "keywords_reversed_zh": [
+        "寡不敵眾感",
+        "疲於應戰",
+        "放棄陣地"
+      ],
+      "keywords_reversed_en": [
+        "feeling outnumbered",
+        "battle fatigue",
+        "yielding ground"
+      ],
+      "core_symbols": [
+        {
+          "zh": "高地上的防守者",
+          "en": "the defender on the hill"
+        },
+        {
+          "zh": "腳下的高地",
+          "en": "the higher ground"
+        }
+      ],
+      "core_upright_zh": "你站在自己相信的位置上——守住它需要力氣，但這個立場值得。",
+      "core_upright_en": "You're standing where you believe you should — holding it takes effort, and it's worth holding.",
+      "core_reversed_zh": "多線作戰可能讓你快撐不住;選出真正要守的那一塊，其他的可以放。",
+      "core_reversed_en": "Fighting on every front is wearing you down — choose the ground that truly matters and release the rest."
     },
     {
       "id": "wands_08",
@@ -1106,7 +3746,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "fire",
+      "keywords_upright_zh": [
+        "加速",
+        "消息",
+        "行動",
+        "事情動起來"
+      ],
+      "keywords_upright_en": [
+        "swift movement",
+        "news",
+        "action",
+        "things in motion"
+      ],
+      "keywords_reversed_zh": [
+        "延遲",
+        "訊息混亂",
+        "操之過急"
+      ],
+      "keywords_reversed_en": [
+        "delays",
+        "crossed signals",
+        "rushing"
+      ],
+      "core_symbols": [
+        {
+          "zh": "八支飛行的權杖",
+          "en": "the eight wands in flight"
+        },
+        {
+          "zh": "開闊的河谷",
+          "en": "the open river valley"
+        }
+      ],
+      "core_upright_zh": "事情正在快速展開——順著這股動能走，該回的訊息現在回。",
+      "core_upright_en": "Things are moving fast — ride the momentum; answer what needs answering now.",
+      "core_reversed_zh": "進度可能卡在半空，或太多訊息同時飛;落地一件，再接下一件。",
+      "core_reversed_en": "Progress may hang mid-air, or too much is flying at once — land one thing before catching the next."
     },
     {
       "id": "wands_09",
@@ -1121,7 +3798,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "fire",
+      "keywords_upright_zh": [
+        "韌性",
+        "堅持",
+        "戒備",
+        "最後一哩"
+      ],
+      "keywords_upright_en": [
+        "resilience",
+        "perseverance",
+        "guardedness",
+        "the last mile"
+      ],
+      "keywords_reversed_zh": [
+        "精疲力竭",
+        "過度防備",
+        "快撐不住"
+      ],
+      "keywords_reversed_en": [
+        "burnout",
+        "hypervigilance",
+        "near the limit"
+      ],
+      "core_symbols": [
+        {
+          "zh": "包紮的頭",
+          "en": "the bandaged head"
+        },
+        {
+          "zh": "圍成籬的權杖",
+          "en": "the wall of wands"
+        }
+      ],
+      "core_upright_zh": "你已經走過大半，傷痕是走過的證明——再撐一小段，但撐得聰明一點。",
+      "core_upright_en": "You've come most of the way — the bruises prove it. Hold on a little longer, but hold wisely.",
+      "core_reversed_zh": "防備和疲憊可能同時到了頂;放下幾根杖，不是每個方向都有敵人。",
+      "core_reversed_en": "Guardedness and exhaustion may both be peaking — set down a few staves; not every direction holds a threat."
     },
     {
       "id": "wands_10",
@@ -1136,7 +3850,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "fire",
+      "keywords_upright_zh": [
+        "重擔",
+        "責任",
+        "負重前行",
+        "接近終點"
+      ],
+      "keywords_upright_en": [
+        "burden",
+        "obligation",
+        "carrying it all",
+        "near the end"
+      ],
+      "keywords_reversed_zh": [
+        "放下",
+        "委派",
+        "壓垮邊緣"
+      ],
+      "keywords_reversed_en": [
+        "putting it down",
+        "delegating",
+        "near collapse"
+      ],
+      "core_symbols": [
+        {
+          "zh": "抱滿權杖的人",
+          "en": "the figure carrying ten wands"
+        },
+        {
+          "zh": "前方的城鎮",
+          "en": "the town ahead"
+        }
+      ],
+      "core_upright_zh": "你抱著的東西很多，而終點就在前面——但先確認每一根都真的該由你來扛。",
+      "core_upright_en": "You're carrying a lot and the end is in sight — but check that every load is truly yours to bear.",
+      "core_reversed_zh": "肩上的重量可能已超過合理;放下幾件或開口求助，不是失職，是清醒。",
+      "core_reversed_en": "The weight may have passed reasonable — setting some down or asking for help isn't failure, it's sense."
     },
     {
       "id": "wands_page",
@@ -1151,7 +3902,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "fire",
+      "keywords_upright_zh": [
+        "好奇",
+        "探索",
+        "新想法",
+        "熱切"
+      ],
+      "keywords_upright_en": [
+        "curiosity",
+        "exploration",
+        "fresh ideas",
+        "eagerness"
+      ],
+      "keywords_reversed_zh": [
+        "三分鐘熱度",
+        "方向未明",
+        "訊息未至"
+      ],
+      "keywords_reversed_en": [
+        "short-lived sparks",
+        "unclear direction",
+        "news not yet arrived"
+      ],
+      "core_symbols": [
+        {
+          "zh": "凝視權杖的年輕人",
+          "en": "the youth studying the wand"
+        },
+        {
+          "zh": "沙漠中的金字塔",
+          "en": "the desert pyramids"
+        }
+      ],
+      "core_upright_zh": "帶著初學者的眼睛看世界——這個新想法值得你去探一探。",
+      "core_upright_en": "Look with beginner's eyes — this new idea is worth exploring.",
+      "core_reversed_zh": "熱情可能一閃即逝或還沒找到出口;先給一個小小的承諾試試水溫。",
+      "core_reversed_en": "The spark may flicker or lack an outlet — try one small commitment to test the waters."
     },
     {
       "id": "wands_knight",
@@ -1166,7 +3954,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "fire",
+      "keywords_upright_zh": [
+        "衝勁",
+        "冒險",
+        "行動派",
+        "魅力"
+      ],
+      "keywords_upright_en": [
+        "drive",
+        "adventure",
+        "bold action",
+        "charisma"
+      ],
+      "keywords_reversed_zh": [
+        "衝動",
+        "虎頭蛇尾",
+        "急躁"
+      ],
+      "keywords_reversed_en": [
+        "impulsiveness",
+        "unfinished starts",
+        "haste"
+      ],
+      "core_symbols": [
+        {
+          "zh": "躍起的馬",
+          "en": "the rearing horse"
+        },
+        {
+          "zh": "火蜥蜴紋衣",
+          "en": "the salamander tunic"
+        }
+      ],
+      "core_upright_zh": "這是放手去衝的能量——大膽行動，路上再修正。",
+      "core_upright_en": "This is full-tilt energy — act boldly and adjust on the way.",
+      "core_reversed_zh": "衝勁可能變成了衝動，開頭轟轟烈烈、收尾無聲;把一件事帶到終點看看。",
+      "core_reversed_en": "Drive may have tipped into impulse — loud starts, quiet finishes. Try carrying one thing all the way through."
     },
     {
       "id": "wands_queen",
@@ -1181,7 +4006,44 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "fire",
+      "keywords_upright_zh": [
+        "自信",
+        "溫暖",
+        "感染力",
+        "獨立"
+      ],
+      "keywords_upright_en": [
+        "confidence",
+        "warmth",
+        "magnetism",
+        "independence"
+      ],
+      "keywords_reversed_zh": [
+        "自我懷疑",
+        "能量透支",
+        "鋒芒內收"
+      ],
+      "keywords_reversed_en": [
+        "self-doubt",
+        "drained fire",
+        "dimmed light"
+      ],
+      "core_symbols": [
+        {
+          "zh": "向日葵",
+          "en": "the sunflower"
+        },
+        {
+          "zh": "黑貓",
+          "en": "the black cat"
+        }
+      ],
+      "core_upright_zh": "你的溫暖和自信會感染別人——大方地站在自己的光裡。",
+      "core_upright_en": "Your warmth and confidence are contagious — stand in your own light, generously.",
+      "core_reversed_zh": "內在的火可能暫時變小,或你把光藏了起來;先為自己燒，再照亮別人。",
+      "core_reversed_en": "The inner fire may be low, or you've been hiding the light — burn for yourself first, then for others."
     },
     {
       "id": "wands_king",
@@ -1196,7 +4058,45 @@
       "prototype_mock_data_allowed": true,
       "production_fixed_answer_allowed": false,
       "production_interpretation_mode": "LLM_DYNAMIC_CONTEXTUAL",
-      "status": "asset_mapping_pending"
+      "status": "asset_mapping_pending",
+      "element": "fire",
+      "keywords_upright_zh": [
+        "願景",
+        "領導",
+        "魄力",
+        "開創"
+      ],
+      "keywords_upright_en": [
+        "vision",
+        "leadership",
+        "boldness",
+        "enterprise"
+      ],
+      "keywords_reversed_zh": [
+        "獨斷",
+        "期望過高",
+        "願景失焦"
+      ],
+      "keywords_reversed_en": [
+        "heavy-handedness",
+        "overreach",
+        "blurred vision"
+      ],
+      "core_symbols": [
+        {
+          "zh": "蜥蜴紋章",
+          "en": "the salamander motif"
+        },
+        {
+          "zh": "持杖前望的王",
+          "en": "the king gazing forward with his staff"
+        }
+      ],
+      "core_upright_zh": "把願景說出來並帶頭走——你的篤定會給別人方向。",
+      "core_upright_en": "Speak the vision and walk first — your certainty gives others a bearing.",
+      "core_reversed_zh": "領導可能滑向獨斷，或攤子鋪得比火力大;回到願景的核心再分配柴火。",
+      "core_reversed_en": "Leading may be sliding into overruling, or the venture outgrew the fire — return to the core vision and re-stack the wood."
     }
-  ]
+  ],
+  "knowledge_version": "0.1-draft-unreviewed"
 }

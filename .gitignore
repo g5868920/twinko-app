@@ -1,2 +1,6 @@
 .DS_Store
 xcuserdata/
+
+# Phase A LLM prototype secrets (founder-local only — never committed).
+# Real key file; only LLMSecrets.example.plist is tracked.
+apps/ios/Twinko/Twinko/LLM/LLMSecrets.plist

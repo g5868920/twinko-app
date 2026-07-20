@@ -13,6 +13,28 @@ struct TarotCardInfo: Identifiable, Equatable, Hashable, Codable {
     let suit: String
     let rank: String
 
+    // Knowledge layer v0.1 (Phase A Task 1, 2026-07-19): grounded
+    // per-card data for future LLM interpretation. Draft content marked
+    // `knowledge_version: 0.1-draft-unreviewed` in the registry file —
+    // founder-reviewed before it becomes authoritative. All fields are
+    // optional so older registry files keep decoding unchanged; nothing
+    // reads these fields in UI or interpretation logic yet.
+    let element: String
+    let keywordsUprightZh: [String]
+    let keywordsUprightEn: [String]
+    let keywordsReversedZh: [String]
+    let keywordsReversedEn: [String]
+    let coreSymbols: [CoreSymbol]
+    let coreUprightZh: String
+    let coreUprightEn: String
+    let coreReversedZh: String
+    let coreReversedEn: String
+
+    struct CoreSymbol: Equatable, Hashable, Codable {
+        let zh: String
+        let en: String
+    }
+
     /// Imageset name (registry filename without extension).
     var assetName: String {
         assetFileName.hasSuffix(".png") ? String(assetFileName.dropLast(4)) : assetFileName
@@ -29,6 +51,16 @@ struct TarotCardInfo: Identifiable, Equatable, Hashable, Codable {
         case displayNameZh = "display_name_zh_tw"
         case arcanaType = "arcana_type"
         case suit, rank
+        case element
+        case keywordsUprightZh = "keywords_upright_zh"
+        case keywordsUprightEn = "keywords_upright_en"
+        case keywordsReversedZh = "keywords_reversed_zh"
+        case keywordsReversedEn = "keywords_reversed_en"
+        case coreSymbols = "core_symbols"
+        case coreUprightZh = "core_upright_zh"
+        case coreUprightEn = "core_upright_en"
+        case coreReversedZh = "core_reversed_zh"
+        case coreReversedEn = "core_reversed_en"
     }
 
     init(from decoder: Decoder) throws {
@@ -40,6 +72,19 @@ struct TarotCardInfo: Identifiable, Equatable, Hashable, Codable {
         arcanaType = try c.decode(String.self, forKey: .arcanaType)
         suit = (try? c.decode(String.self, forKey: .suit)) ?? ""
         rank = (try? c.decode(String.self, forKey: .rank)) ?? ""
+        // Knowledge fields decode defensively: an older registry file
+        // (or a partially-authored one) yields empty values, never a
+        // decode failure or crash.
+        element = (try? c.decodeIfPresent(String.self, forKey: .element)) ?? ""
+        keywordsUprightZh = (try? c.decodeIfPresent([String].self, forKey: .keywordsUprightZh)) ?? []
+        keywordsUprightEn = (try? c.decodeIfPresent([String].self, forKey: .keywordsUprightEn)) ?? []
+        keywordsReversedZh = (try? c.decodeIfPresent([String].self, forKey: .keywordsReversedZh)) ?? []
+        keywordsReversedEn = (try? c.decodeIfPresent([String].self, forKey: .keywordsReversedEn)) ?? []
+        coreSymbols = (try? c.decodeIfPresent([CoreSymbol].self, forKey: .coreSymbols)) ?? []
+        coreUprightZh = (try? c.decodeIfPresent(String.self, forKey: .coreUprightZh)) ?? ""
+        coreUprightEn = (try? c.decodeIfPresent(String.self, forKey: .coreUprightEn)) ?? ""
+        coreReversedZh = (try? c.decodeIfPresent(String.self, forKey: .coreReversedZh)) ?? ""
+        coreReversedEn = (try? c.decodeIfPresent(String.self, forKey: .coreReversedEn)) ?? ""
     }
 }
 

@@ -570,11 +570,10 @@ struct HomeView: View {
         }
     }
 
-    /// Approved transparent icon artwork per destination
-    /// (home_icon_*_v1; chat rides the story icon).
+    /// Approved icon artwork per destination (home_icon_*_v1).
     private func journeyAsset(_ action: HomeAction) -> String {
         switch action {
-        case .chat: return "home_icon_story_v1"
+        case .chat: return "home_icon_chat_v1"
         case .meditation: return "home_icon_meditate_v1"
         case .horoscope: return "home_icon_zodiac_v1"
         case .tarot, .tarotRecommended, .dailyTarot, .dailyTarotResult:
@@ -717,37 +716,21 @@ struct HomeView: View {
 
 // MARK: - Feature orb
 
-/// Approved feature icon on the shared soft-3D floating orb: a tinted
-/// radial sphere with a top-left highlight and a soft lilac rim; the
-/// transparent icon artwork sits on top, never baked into the circle.
-/// One construction for every Home feature entry.
+/// Approved feature icon rendered as delivered: the 2026-07-21 batch
+/// bakes the circular orb background into the artwork itself, so the
+/// component draws no circle, highlight, or rim of its own — only the
+/// asset (tint kept for the caller's floating shadow).
 struct HomeFeatureOrb: View {
     let asset: String
     let tint: Color
     var size: CGFloat = 44
 
     var body: some View {
-        ZStack {
-            Circle()
-                .fill(RadialGradient(colors: [tint.opacity(0.50),
-                                              tint.opacity(0.72),
-                                              tint.opacity(0.92)],
-                                     center: .init(x: 0.35, y: 0.28),
-                                     startRadius: 2, endRadius: size * 0.75))
-            Circle()
-                .fill(LinearGradient(stops: [
-                    .init(color: .white.opacity(0.40), location: 0),
-                    .init(color: .white.opacity(0), location: 0.5),
-                ], startPoint: .top, endPoint: .bottom))
-                .padding(size * 0.05)
-            Image(asset)
-                .resizable()
-                .scaledToFit()
-                .frame(width: size * 0.84, height: size * 0.84)
-        }
-        .frame(width: size, height: size)
-        .overlay(Circle().strokeBorder(Color.white.opacity(0.35), lineWidth: 1))
-        .accessibilityHidden(true)
+        Image(asset)
+            .resizable()
+            .scaledToFit()
+            .frame(width: size, height: size)
+            .accessibilityHidden(true)
     }
 }
 

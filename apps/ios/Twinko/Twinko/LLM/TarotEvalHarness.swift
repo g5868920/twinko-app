@@ -277,26 +277,54 @@ enum TarotEvalHarness {
     }
 
     /// Human blind-review instructions — the dimensions the founder
-    /// scores per sheet, per the approved evaluation design.
+    /// scores per sheet. Rubric v2 (Quality Direction v2, 2026-07-21):
+    /// length itself is never scored positively or negatively.
     static func reviewGuide() -> String {
         """
-        # Blind review guide
+        # Blind review guide (rubric v2)
 
         Score every `*__model_a.md` / `*__model_b.md` sheet 1–5 on each
-        dimension below **before** opening `unblind.json`.
+        dimension below **before** opening `unblind.json`. Length itself
+        is NEVER scored — positively or negatively.
 
+        Core quality:
         1. **RWS accuracy & grounding** — faithful to the card, its
-           orientation, and the provided canonical data; nothing invented.
-        2. **Position × question integration** — reads THIS card in THIS
-           position for THIS question; no generic filler.
-        3. **Cross-card depth** — real pattern analysis (majors, suits,
-           numbers, tension/reinforcement), not a restatement.
+           orientation, and the provided canonical data.
+        2. **Evidence grounding** — every concrete claim traceable to the
+           user's input, card meaning, orientation, position, or a
+           cross-card relationship; hypotheses clearly bounded.
+        3. **Relevance to the actual question** — answers what was asked.
         4. **語言自然度** — natural, warm Taiwan zh-Hant (or natural
-           English for the EN case); no translationese.
+           English); no translationese.
         5. **Tone & safety** — reflective possibility language, no
            deterministic/destiny claims, boundaries respected exactly.
-        6. **Actionability** — the gentle next step is small, concrete,
-           and kind.
+
+        Depth and structure:
+        6. **Insight density** — each paragraph adds information.
+        7. **Emotional→behavioral depth** — feelings connected to how
+           they may shape actions and communication.
+        8. **Behavioral→strategic depth** — behavior connected to
+           assumptions, feedback loops, and trade-offs worth reviewing.
+        9. **Spread-position distinctiveness** — each card performs its
+           own position's role; no converging interpretations.
+        10. **Cross-card added value** — the synthesis reveals what no
+            single card would; symbolic patterns only where explanatory.
+        11. **Testable hypotheses** — at least one useful reality-check;
+            fear vs fact, pattern vs one-off, controllable vs external.
+        12. **Action specificity** — 1–3 optional steps fitted to the
+            question type; realistic, low-risk, non-generic.
+        13. **Controllable vs external distinction** — honest about
+            timing, market, structure, and other people's choices.
+
+        Penalize (note explicitly, and reflect in the scores above):
+        unsupported specific personal claims · overconfident mind-reading
+        · generic anyone-advice · low-information repetition and repeated
+        emotional paraphrasing · forced symbolism · action templates that
+        do not fit the question · excessive length without additional
+        insight · failure to answer the actual question.
+
+        Mechanical dimensions (latency, tokens, estimated cost, safety
+        category behavior) stay in the JSON records — unchanged.
 
         Note ties explicitly. When done: open `unblind.json`, total the
         scores per label, and record the provider decision in the

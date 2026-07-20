@@ -377,6 +377,25 @@ final class TarotLLMSchemaTests: XCTestCase {
         // The schema in the system prompt lists this spread's positions.
         XCTAssertTrue(prompt.system.contains("optionAState"))
 
+        // Quality Direction v2 contract (prompt-level, schema unchanged):
+        // evidence boundary + invented-detail prohibition present.
+        XCTAssertTrue(prompt.system.contains("EVIDENCE BOUNDARY"))
+        XCTAssertTrue(prompt.system.contains("Never invent specific recent"))
+        // Insight density block present.
+        XCTAssertTrue(prompt.system.contains("INSIGHT DENSITY"))
+        // Symbolic patterns are optional raw material, not a checklist.
+        XCTAssertTrue(prompt.system.contains("not a checklist"))
+        // Actions adapt to the question type — never one template.
+        XCTAssertTrue(prompt.system.contains("never force one template"))
+        // Card-count-aware length guidance: five-card concentrates depth
+        // in the synthesis; one-card allows a deeper single reading.
+        XCTAssertTrue(prompt.system.contains("concentrate depth in the integrated"))
+        let single = TarotPromptBuilder.build(for: makeSession(.singleCard),
+                                              lang: .traditionalChinese)
+        XCTAssertTrue(single.system.contains("one-card reading: a deeper single"))
+        // The rigid sentence count is gone (no padding-forcing rule).
+        XCTAssertFalse(prompt.system.contains("3–5 sentences"))
+
         // English build carries English grounding, and the language
         // instruction differs.
         let en = TarotPromptBuilder.build(for: session, lang: .english)

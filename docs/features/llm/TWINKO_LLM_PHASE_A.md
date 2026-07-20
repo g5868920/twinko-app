@@ -476,9 +476,19 @@ unverified pending a controlled founder-only key-enabled smoke test.`**
 | Stubbed provider path (consent → validate → render; reframe; fallback) | verified via unit tests + stubbed Simulator check (see known issue below) |
 | Consent sequencing (declined → 0 requests; accepted → 1 attempt) | verified via request-counting unit tests |
 | Real Anthropic path | **unverified** (no live request has ever been made) |
-| Real OpenAI path | **unverified** |
+| Real OpenAI path | **one successful founder-only smoke test** (2026-07-21, see below) |
 | Privacy/consent copy | provisional — founder review pending |
 | Safety matrix v0.2 | draft — founder review pending |
+
+**OpenAI smoke-test record (2026-07-21):** OpenAI live Tarot completed one
+successful founder-only smoke test using `gpt-5.6-terra`. The consent gate
+appeared before the request, the structured response decoded and rendered,
+the Debug provider/model diagnostic displayed correctly (`OpenAI ·
+gpt-5.6-terra`), and region-specific resource behavior appeared correct.
+**This verifies the first end-to-end live path, not long-term stability,
+full spread coverage, full safety coverage, or final provider selection.**
+OpenAI is NOT the selected provider; D-043 remains open pending the blind
+benchmark.
 
 Known narrow issue (correction 4 status): the reframe editor was
 reworked to a `TextEditor` carrying its accessibility identifier and a

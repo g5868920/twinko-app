@@ -6,6 +6,7 @@
 **Languages:** Traditional Chinese + English  
 **Scope:** Tarot intent classification, spread selection, question guidance, cross-feature entry, draw rules, result interpretation, Guidance Card behavior, session state, future LLM contracts, periodic readings, and future premium entitlement rules  
 **Design dependency:** `DESIGN(3).md` remains the global visual source of truth. This specification defines Tarot product logic and UX behavior; it does not introduce a separate visual language.
+**Safety authority (2026-07-21):** LLM safety and privacy behavior (risk levels, safety action matrix, structured safety schema, Guidance Card safety, crisis resources, logging, data inventory, disclosure/consent) is governed by `docs/features/llm/TWINKO_LLM_SAFETY_PRIVACY_SPEC.md` (DRAFT, awaiting founder sign-off). Where this spec's safety wording and that document disagree, the canonical safety spec wins; this spec must not fork safety policy.
 
 ---
 

@@ -1,4 +1,10 @@
 
+> **Safety authority (2026-07-21):** any future LLM-backed Chat behavior is
+> governed by `docs/features/llm/TWINKO_LLM_SAFETY_PRIVACY_SPEC.md` (DRAFT,
+> awaiting founder sign-off) plus D-037; Chat also sends only minimum
+> bounded context per that spec's data inventory. This spec must not fork
+> safety policy.
+
 ## Implemented behavior — v1.2 Chat refinement (founder/CPO review 2026-07-16)
 
 - **Meditation intent.** A centralized deterministic matcher

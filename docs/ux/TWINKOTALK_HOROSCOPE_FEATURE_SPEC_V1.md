@@ -1,5 +1,12 @@
 # TwinkoTalk Horoscope Feature Specification
 
+> **Safety authority (2026-07-21):** any future LLM-backed Horoscope
+> behavior is governed by
+> `docs/features/llm/TWINKO_LLM_SAFETY_PRIVACY_SPEC.md` (DRAFT, awaiting
+> founder sign-off) — including the rule that Horoscope stays
+> reflective/entertainment content until a deterministic ephemeris layer
+> exists, and its data inventory. This spec must not fork safety policy.
+
 **Status:** Canonical CPO-approved feature specification  
 **Version:** v1.0  
 **Target:** iOS-first prototype / MVP  

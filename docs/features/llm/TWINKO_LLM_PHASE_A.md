@@ -145,6 +145,13 @@ destiny/mind-reading/winner phrases). Free-form text is never the contract.
 
 ### 8.2 Safety action matrix — DRAFT v0.1, ⚠️ awaiting founder sign-off
 
+> **2026-07-21:** the canonical safety + privacy policy now lives in
+> `TWINKO_LLM_SAFETY_PRIVACY_SPEC.md` (category × severity matrix,
+> structured safety object, reframing, consent, data inventory, retention,
+> incident response). On founder approval of that spec, this v0.1 matrix
+> and the implemented `TarotSafetyMatrix` become migration debt (see spec
+> §18); until then this table describes what the code does today.
+
 | Category | Normal interp. | Supportive replacement | Guidance CTA | Stronger disclaimer | Professional resources |
 |---|---|---|---|---|---|
 | none | ✅ | — | ✅ | — | — |
@@ -238,3 +245,33 @@ Unchanged: safety-matrix sign-off and privacy disclosure remain
 founder gates before step 10; the proxy remains the hard gate before
 any external distribution; D-043 (provider) closes at step 8 after
 the blind review.
+
+---
+
+## 10. Step 9 — privacy disclosure (DRAFT, ⚠️ awaiting founder sign-off)
+
+The My Planet privacy page previously claimed "Nothing is uploaded" —
+true today, but false the moment step 10 connects live generation.
+`LLMPrivacyDisclosure` (LLMTransport.swift) now single-sources DRAFT
+wording that is **conditional on the build actually being able to make
+live calls** (a prototype key configured): unconfigured builds keep the
+original local-only claims, which remain true for them.
+
+When active, the page (a) qualifies the upload claim — "except for AI
+interpretation, nothing is uploaded/synced/shared" — and (b) adds one
+row:
+
+| | Draft wording |
+|---|---|
+| zh title | AI 解讀（測試中） |
+| zh body | 啟用 AI 解讀時，產生回應所需的內容——你的提問、選項說明與抽到的牌——會以加密連線傳送給外部 AI 服務。Twinko 不會把任何內容儲存在這台裝置以外的地方；你的暱稱、生日等個人資料也不會被傳送。請避免在問題中輸入你不想傳出的私人資訊。 |
+| en title | AI interpretation (in testing) |
+| en body | When AI interpretation is on, only what the response needs — your question, option notes, and the cards drawn — is sent to an external AI service over an encrypted connection to generate the reading. Twinko stores nothing outside this device. Your nickname, birthday, and profile are never sent. Please avoid typing private details you would not want transmitted into a question. |
+
+Design choices for review: every claim is mechanically verifiable
+(what is sent = exactly the prompt payload; profile data is never in
+the prompt); no provider is named (D-043 open); no training-data
+claims are made (provider-policy dependent — revisit at the proxy
+step); the "not a production privacy policy" caveat stays. **This
+wording is a founder gate before step 10** and must be re-reviewed
+when the server-side proxy changes the data path.

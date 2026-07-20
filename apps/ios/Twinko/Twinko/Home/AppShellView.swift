@@ -310,24 +310,41 @@ struct DockRocketIcon: View {
 
     var body: some View {
         ZStack {
-            // Body with rounded nose.
-            Capsule()
-                .fill(selected ? AnyShapeStyle(.foreground)
-                               : AnyShapeStyle(.foreground.opacity(0.9)))
-                .frame(width: 9.5, height: 18)
-            // Side fins.
-            ForEach([-1.0, 1.0], id: \.self) { side in
-                Triangle()
+            if selected {
+                // Filled version — unchanged.
+                Capsule()
                     .fill(.foreground)
-                    .frame(width: 5, height: 7)
-                    .scaleEffect(x: side, y: 1)
-                    .offset(x: side * 6, y: 4.5)
+                    .frame(width: 9.5, height: 18)
+                ForEach([-1.0, 1.0], id: \.self) { side in
+                    Triangle()
+                        .fill(.foreground)
+                        .frame(width: 5, height: 7)
+                        .scaleEffect(x: side, y: 1)
+                        .offset(x: side * 6, y: 4.5)
+                }
+                Circle()
+                    .fill(Color.white.opacity(0.95))
+                    .frame(width: 4.5, height: 4.5)
+                    .offset(y: -2.5)
+            } else {
+                // Outline version — consistent with the other tabs'
+                // unselected line icons.
+                Capsule()
+                    .strokeBorder(.foreground, lineWidth: 1.5)
+                    .frame(width: 9.5, height: 18)
+                ForEach([-1.0, 1.0], id: \.self) { side in
+                    Triangle()
+                        .stroke(.foreground,
+                                style: StrokeStyle(lineWidth: 1.2, lineJoin: .round))
+                        .frame(width: 5, height: 7)
+                        .scaleEffect(x: side, y: 1)
+                        .offset(x: side * 6, y: 4.5)
+                }
+                Circle()
+                    .strokeBorder(.foreground, lineWidth: 1.2)
+                    .frame(width: 4.5, height: 4.5)
+                    .offset(y: -2.5)
             }
-            // Window.
-            Circle()
-                .fill(Color.white.opacity(selected ? 0.95 : 0.75))
-                .frame(width: 4.5, height: 4.5)
-                .offset(y: -2.5)
         }
         .rotationEffect(.degrees(38))
     }

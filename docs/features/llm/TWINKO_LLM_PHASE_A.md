@@ -275,3 +275,45 @@ claims are made (provider-policy dependent — revisit at the proxy
 step); the "not a production privacy policy" caveat stays. **This
 wording is a founder gate before step 10** and must be re-reviewed
 when the server-side proxy changes the data path.
+
+---
+
+## 11. Provider data-policy verification (safety spec §14.1) — 2026-07-21
+
+Verified against **official provider documentation** on 2026-07-21 (not
+marketing pages, not third-party summaries). Policies change — re-verify at
+D-043 close and again at the proxy step.
+
+### Anthropic (Claude API)
+
+| item | verified finding |
+|---|---|
+| Training on API data | Not used for training: "Retained data is never used for model training without your express permission" (platform docs); commercial terms exclude Customer Content from training |
+| Default retention | "We automatically delete inputs and outputs on our backend within 30 days of receipt or generation" (privacy center, commercial) |
+| Abuse-monitoring / flagged | Usage-Policy-flagged content retained "for up to 2 years"; trust-and-safety classification scores "up to 7 years" |
+| ZDR | Available, but **sales-negotiated per organization** — not applicable to a Phase A self-serve prototype org |
+| Model-specific | `claude-sonnet-5` (our Tarot candidate) has no special retention requirement. Note: Claude Fable 5 / Mythos 5 are "Covered Models" requiring 30-day retention and are ZDR-ineligible — irrelevant to our candidates but worth knowing |
+| Deletion | Org-deleted content "deleted from our back-end storage systems within 30 days" |
+
+Sources: [platform.claude.com — API and data retention](https://platform.claude.com/docs/en/manage-claude/api-and-data-retention) · [privacy.claude.com — organization data retention](https://privacy.claude.com/en/articles/7996866-how-long-do-you-store-my-organization-s-data)
+
+### OpenAI (API)
+
+| item | verified finding |
+|---|---|
+| Training on API data | "Data sent to the OpenAI API is not used to train or improve OpenAI models (unless you explicitly opt in)" |
+| Default retention | Abuse-monitoring logs "retained for up to 30 days" by default; some stateful endpoints (e.g. `/v1/conversations`) retain until deleted — we do not use them |
+| `store` parameter | Chat Completions supports `store`; under ZDR it is forced `false`. **Follow-up for next code batch:** set `store: false` explicitly in `OpenAILLMService` for defense-in-depth (today we simply omit it) |
+| ZDR / modified abuse monitoring | Requires prior approval (qualifying/enterprise use case) — not applicable to a Phase A self-serve prototype account |
+| Deletion | Files deletable via API/dashboard or `expires_after`; not relevant to our chat-completions-only usage |
+
+Source: [developers.openai.com — data controls](https://developers.openai.com/api/docs/guides/your-data)
+
+### What the privacy disclosure may therefore claim (both providers)
+
+✅ "The provider does not use API data to train models by default."
+✅ "The provider may temporarily retain requests (typically up to 30 days;
+content flagged for abuse may be retained longer per provider policy)."
+❌ Zero retention · ❌ no human access · ❌ complete deletion — neither
+Phase A account qualifies for ZDR, so these stay prohibited claims per
+safety spec §12.

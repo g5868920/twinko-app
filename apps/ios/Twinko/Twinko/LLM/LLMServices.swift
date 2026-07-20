@@ -205,6 +205,10 @@ struct OpenAILLMService: LLMServing {
         let max_completion_tokens: Int
         let messages: [Message]
         let response_format: ResponseFormat?
+        /// Always false: completions must never be persisted provider-side
+        /// (data minimization; verified against OpenAI data controls,
+        /// see TWINKO_LLM_PHASE_A.md §11).
+        let store = false
     }
 
     private struct ResponseBody: Decodable {

@@ -644,7 +644,10 @@ struct HomeView: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
             }
-            .frame(maxWidth: .infinity, minHeight: 44)
+            // Height must fit the 44 pt orb + title + desc + spacing;
+            // an undersized minHeight let the VStack overflow up (into
+            // the 探索 header) and down (past the container edge).
+            .frame(maxWidth: .infinity, minHeight: 82)
             .contentShape(Rectangle())
         }
         .buttonStyle(TwinkoGlassPressStyle())

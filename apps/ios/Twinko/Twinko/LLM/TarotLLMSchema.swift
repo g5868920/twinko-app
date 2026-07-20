@@ -14,11 +14,16 @@ import Foundation
 enum TarotLLMSafetyCategory: String, Codable, CaseIterable {
     case none
     case selfHarmCrisis = "self_harm_crisis"
+    case harmToOthers = "harm_to_others"
+    case abuseUnsafeRelationship = "abuse_unsafe_relationship"
     case medicalDiagnosis = "medical_diagnosis"
     case legalDecision = "legal_decision"
     case financialDecision = "financial_decision"
     case pregnancyDeathPrediction = "pregnancy_death_prediction"
     case relationshipMindReading = "relationship_mind_reading"
+    case realityDistortion = "reality_distortion"
+    case minorSexualSafety = "minor_sexual_safety"
+    case substanceRisk = "substance_risk"
 }
 
 /// The provider-neutral structured response. Field names are the wire

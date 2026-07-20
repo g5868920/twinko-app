@@ -35,6 +35,7 @@ struct TarotFlowView: View {
     init(entryContext: TarotEntryContext? = nil,
          restoredSession: TarotReadingSession? = nil) {
         self.entryContext = entryContext
+        self.isRestored = restoredSession != nil
         _session = State(initialValue: restoredSession)
         _stage = State(initialValue: restoredSession != nil ? .result : .shuffle)
     }
@@ -44,6 +45,23 @@ struct TarotFlowView: View {
     /// the preserved Task 1 draft.
     @State private var showingDiscardConfirm = false
     private let provider: TarotInterpretationProviding = MockTarotInterpretationProvider()
+    /// Phase A step 10 (provisional, founder review pending): one
+    /// live-generation lifecycle per reading (consent → fetch →
+    /// validate → enforce incl. reframe), mock fallback always.
+    @StateObject private var liveModel = TarotLiveReadingModel.makeDefault()
+    private let isRestored: Bool
+
+    /// Pre-reading safety gate state (correction 2): consent and the
+    /// deterministic safety preflight both resolve BEFORE any base
+    /// card is drawn.
+    @State private var pendingConsentRequest: TarotReadingLaunchRequest?
+    @State private var preflightReframe: PreflightReframe?
+    @State private var preflightSupport: TarotLLMSafetyCategory?
+
+    struct PreflightReframe {
+        let request: TarotReadingLaunchRequest
+        var category: TarotLLMSafetyCategory
+    }
 
     private var lang: AppLanguage { prefs.language }
 
@@ -52,7 +70,7 @@ struct TarotFlowView: View {
             // The pre-reading flow owns the immersive token and pop
             // gate for the whole Tarot visit; it stays mounted (hidden)
             // during the reading so the draft survives New Reading.
-            TarotPreReadingFlowView(onLaunch: startReading, entryContext: entryContext)
+            TarotPreReadingFlowView(onLaunch: handleLaunch, entryContext: entryContext)
                 .opacity(session == nil ? 1 : 0)
                 .allowsHitTesting(session == nil)
                 .accessibilityHidden(session != nil)
@@ -61,8 +79,148 @@ struct TarotFlowView: View {
                 readingFlow
                     .transition(.opacity)
             }
+
+            preflightOverlays
         }
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: session != nil)
+    }
+
+    // MARK: Pre-reading safety gate (correction 2, 2026-07-21)
+    //
+    // Order: Setup Review → consent (when required) → deterministic
+    // safety preflight → allow / user-approved reframe / replace →
+    // only then Begin Reading commits the draw. Committed cards are
+    // never reinterpreted under a changed question.
+
+    private func handleLaunch(_ request: TarotReadingLaunchRequest) {
+        if liveModel.isLiveCapable && !liveModel.hasConsent {
+            pendingConsentRequest = request
+            return
+        }
+        runPreflight(request)
+    }
+
+    private func runPreflight(_ request: TarotReadingLaunchRequest) {
+        // The gate protects live generation; mock-only readings (no
+        // key, or consent declined for this reading) keep the existing
+        // local behavior unchanged.
+        guard liveModel.isLiveCapable && liveModel.hasConsent else {
+            commitReading(request)
+            return
+        }
+        let draft = request.draft
+        let category = TarotSafetyMatrix.preflightCategory(
+            question: draft.trimmedQuestion,
+            decisionContext: draft.trimmedDecisionContext,
+            optionA: draft.trimmedOptionA,
+            optionB: draft.trimmedOptionB,
+            personLabel: draft.trimmedPersonLabel)
+        switch TarotSafetyMatrix.action(for: category).policy {
+        case .allowReflectiveReading, .allowWithConstraints:
+            commitReading(request)
+        case .requireUserApprovedReframe:
+            preflightReframe = PreflightReframe(request: request, category: category)
+        case .replaceWithSupport, .refuseRequest:
+            // Category-only logging — never the question itself.
+            LLMEngine.log.info("tarot preflight category=\(category.rawValue, privacy: .public)")
+            preflightSupport = category
+        }
+    }
+
+    /// User approved (or edited) the preflight reframe: the DRAFT
+    /// question is updated before any card exists — nothing committed
+    /// is ever rewritten. The approved text is re-screened; a still-
+    /// restricted edit keeps the gate open.
+    private func approvePreflightReframe(_ text: String) {
+        guard let gate = preflightReframe else { return }
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        let policy = TarotSafetyMatrix.action(
+            for: TarotSafetyMatrix.preflightCategory(question: trimmed)).policy
+        guard policy == .allowReflectiveReading || policy == .allowWithConstraints else {
+            preflightReframe?.category = TarotSafetyMatrix.preflightCategory(question: trimmed)
+            return
+        }
+        var draft = gate.request.draft
+        draft.question = trimmed
+        preflightReframe = nil
+        commitReading(TarotReadingLaunchRequest(draft: draft))
+    }
+
+    @ViewBuilder
+    private var preflightOverlays: some View {
+        if let request = pendingConsentRequest {
+            BrandedModal(
+                icon: "sparkles",
+                iconColor: .brandPurpleDeep,
+                title: TarotLiveStrings.consentTitle(lang),
+                content: {
+                    Text(LLMPrivacyDisclosure.body(lang))
+                        .font(.system(.footnote, design: .rounded))
+                        .foregroundStyle(Color.textSecondaryToken)
+                        .multilineTextAlignment(.leading)
+                },
+                cancelTitle: TarotLiveStrings.consentNotNow(lang),
+                confirmTitle: TarotLiveStrings.consentContinue(lang),
+                isDestructive: false,
+                onCancel: {
+                    pendingConsentRequest = nil
+                    liveModel.declineConsentOnce()
+                    commitReading(request)
+                },
+                onConfirm: {
+                    pendingConsentRequest = nil
+                    liveModel.acceptConsent()
+                    runPreflight(request)
+                }
+            )
+            .transition(.opacity)
+        }
+
+        if let gate = preflightReframe {
+            ScrollView {
+                TarotReframeCard(category: gate.category, lang: lang,
+                                 onContinue: { approvePreflightReframe($0) },
+                                 onCancel: { preflightReframe = nil })
+                    .padding(TwinkoSpacing.m)
+                    .padding(.top, 70)
+            }
+            .background(Color.deepSpace.opacity(0.55).ignoresSafeArea())
+            .transition(.opacity)
+        }
+
+        if let category = preflightSupport {
+            ScrollView {
+                VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
+                    HStack(spacing: 7) {
+                        Image(systemName: "heart.fill")
+                            .foregroundStyle(Color.accentGold)
+                        Text(TarotLiveStrings.reframeTitle(lang))
+                            .foregroundStyle(Color.deepPlum)
+                    }
+                    .font(.system(.headline, design: .rounded))
+                    Text(TarotSafetyMatrix.supportiveResponse(for: category, lang: lang)
+                         ?? TarotLiveStrings.strongerDisclaimer(lang))
+                        .font(.system(.body, design: .rounded))
+                        .foregroundStyle(Color.textPrimaryToken)
+                        .lineSpacing(6)
+                    Button {
+                        preflightSupport = nil
+                    } label: {
+                        Text(lang == .english ? "Back" : "回到設定")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.tarotMagicSecondary)
+                    .accessibilityIdentifier("tarotPreflightSupportBack")
+                }
+                .tarotReadingCard()
+                .padding(TwinkoSpacing.m)
+                .padding(.top, 70)
+                .accessibilityIdentifier("tarotPreflightSupport")
+            }
+            .background(Color.deepSpace.opacity(0.55).ignoresSafeArea())
+            .transition(.opacity)
+        }
     }
 
     // MARK: Launch boundary (Task 1 → Task 2)
@@ -73,7 +231,7 @@ struct TarotFlowView: View {
     /// pattern draws at commit time — identity never comes from the
     /// animation). Inputs are copied verbatim; the manually selected
     /// spread wins.
-    private func startReading(_ request: TarotReadingLaunchRequest) {
+    private func commitReading(_ request: TarotReadingLaunchRequest) {
         let definition = TarotSpreadLibrary.definition(for: request.draft.selectedSpreadID)
         guard definition.cardCount > 0,
               definition.positionIDs.count == definition.cardCount else {
@@ -225,6 +383,13 @@ struct TarotFlowView: View {
                     }
                 case .result:
                     TarotResultStage(session: bindingToSession, provider: provider,
+                                     liveModel: liveModel,
+                                     onResultAppear: { prepareLiveReading(for: current) },
+                                     onConsentContinue: { startLiveReading(for: current) },
+                                     onReframeContinue: { approved in
+                                         startReframedNewReading(text: approved,
+                                                                 from: current)
+                                     },
                                      onDrawGuidance: {
                         // One optional Guidance Card per reading — from
                         // the remaining deck, never a duplicate, never
@@ -266,6 +431,64 @@ struct TarotFlowView: View {
         Binding(
             get: { session ?? TarotReadingSession() },
             set: { session = $0 })
+    }
+
+    // MARK: Live reading lifecycle (Phase A step 10)
+
+    /// A restored Daily reading reuses today's stored validated
+    /// response (same session only) — no new call, no drift.
+    private func restoredLiveResponse(for current: TarotReadingSession) -> TarotLLMResponse? {
+        guard isRestored,
+              let today = dailyTarot.todayRecord,
+              today.readingSnapshot.sessionID == current.id else { return nil }
+        return today.liveReading
+    }
+
+    private func prepareLiveReading(for current: TarotReadingSession) {
+        liveModel.prepare(session: current, lang: lang,
+                          isRestored: isRestored,
+                          restoredResponse: restoredLiveResponse(for: current),
+                          onLiveResponse: { response in
+                              dailyTarot.attachLiveReading(response, for: current)
+                          })
+    }
+
+    private func startLiveReading(for current: TarotReadingSession) {
+        liveModel.consentGranted(session: current, lang: lang,
+                                 onLiveResponse: { response in
+                                     dailyTarot.attachLiveReading(response, for: current)
+                                 })
+    }
+
+    /// Post-draw discovery (second safety layer): the user accepted
+    /// the offer of a NEW safely reframed reading. The committed
+    /// session is never mutated and its cards are never reinterpreted
+    /// — a fresh session with a fresh draw starts through the normal
+    /// shuffle → reveal ritual. A still-restricted edit resolves to
+    /// the labeled mock instead.
+    private func startReframedNewReading(text: String, from base: TarotReadingSession) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        let policy = TarotSafetyMatrix.action(
+            for: TarotSafetyMatrix.preflightCategory(question: trimmed)).policy
+        guard policy == .allowReflectiveReading || policy == .allowWithConstraints else {
+            liveModel.declineReframe()
+            return
+        }
+        var fresh = TarotReadingSession(spreadID: base.spreadID,
+                                        topic: base.topic,
+                                        intent: base.intent,
+                                        question: trimmed,
+                                        decisionContext: base.decisionContext,
+                                        optionA: base.optionA,
+                                        optionB: base.optionB,
+                                        relationshipPersonLabel: base.relationshipPersonLabel)
+        fresh.source = base.source
+        fresh.contextKind = base.contextKind
+        var engine = TarotDrawEngine()
+        fresh.cards = engine.draw(spreadID: fresh.spreadID)
+        stage = .shuffle
+        session = fresh
     }
 
     // MARK: Header (Back + flow exit)

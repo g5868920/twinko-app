@@ -265,8 +265,8 @@ enum LLMPrivacyDisclosure {
 
     static func body(_ lang: AppLanguage) -> String {
         lang == .english
-        ? "When AI interpretation is on, only what the response needs — your question, option notes, and the cards drawn — is sent to an external AI service over an encrypted connection to generate the reading. Twinko stores nothing outside this device. Your nickname, birthday, and profile are never sent. Please avoid typing private details you would not want transmitted into a question."
-        : "啟用 AI 解讀時，產生回應所需的內容——你的提問、選項說明與抽到的牌——會以加密連線傳送給外部 AI 服務。Twinko 不會把任何內容儲存在這台裝置以外的地方；你的暱稱、生日等個人資料也不會被傳送。請避免在問題中輸入你不想傳出的私人資訊。"
+        ? "When AI interpretation is on, your question, the cards drawn, their spread positions, and any option or relationship labels you entered are sent to an external AI provider to generate this reading. TwinkoTalk does not currently store full questions or responses on its own servers; the external provider may temporarily process or retain data according to its policies. TwinkoTalk does not automatically attach your nickname, birthday, or profile data — unless you include such information in the question yourself. If you decline, a clearly labeled local sample reading is shown instead."
+        : "啟用 AI 解讀時，你的提問、抽到的牌與牌位、以及你輸入的選項說明或關係稱呼，會傳送給外部 AI 服務以產生這次的解讀。TwinkoTalk 目前不會把完整的提問或回應儲存在自己的伺服器上；外部服務可能依其政策暫時處理或保留這些資料。TwinkoTalk 不會自動附上你的暱稱、生日或個人檔案——除非你自己把這類資訊寫進問題裡。若選擇不使用，會改以清楚標示的本機示意解讀呈現。"
     }
 
     /// Replaces the absolute "nothing is uploaded" claim when live

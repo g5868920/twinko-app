@@ -123,31 +123,60 @@ final class TarotLLMSchemaTests: XCTestCase {
 
     func testSafetyMatrixDraftBehaviors() {
         let none = TarotSafetyMatrix.action(for: .none)
+        XCTAssertEqual(none.policy, .allowReflectiveReading)
         XCTAssertTrue(none.allowNormalInterpretation)
         XCTAssertTrue(none.allowGuidanceCardCTA)
         XCTAssertFalse(none.showStrongerDisclaimer)
 
         let crisis = TarotSafetyMatrix.action(for: .selfHarmCrisis)
+        XCTAssertEqual(crisis.policy, .replaceWithSupport)
         XCTAssertFalse(crisis.allowNormalInterpretation)
         XCTAssertTrue(crisis.replaceWithSupportiveResponse)
         XCTAssertFalse(crisis.allowGuidanceCardCTA)
         XCTAssertTrue(crisis.showProfessionalResources)
 
         let medical = TarotSafetyMatrix.action(for: .medicalDiagnosis)
+        XCTAssertEqual(medical.policy, .replaceWithSupport)
         XCTAssertFalse(medical.allowNormalInterpretation)
         XCTAssertTrue(medical.showProfessionalResources)
 
-        let legal = TarotSafetyMatrix.action(for: .legalDecision)
-        XCTAssertTrue(legal.allowNormalInterpretation)
-        XCTAssertTrue(legal.showStrongerDisclaimer)
+        // v0.2: legal, financial, and mind-reading require a
+        // user-approved reframe — no interpretation, no Guidance.
+        for category in [TarotLLMSafetyCategory.legalDecision,
+                         .financialDecision, .relationshipMindReading] {
+            let action = TarotSafetyMatrix.action(for: category)
+            XCTAssertEqual(action.policy, .requireUserApprovedReframe, "\(category)")
+            XCTAssertFalse(action.allowNormalInterpretation, "\(category)")
+            XCTAssertFalse(action.allowGuidanceCardCTA, "\(category)")
+            XCTAssertTrue(action.showStrongerDisclaimer, "\(category)")
+            // Each reframe category ships a lint-clean bilingual
+            // suggestion; crisis/replacement categories never do.
+            for lang in AppLanguage.allCases {
+                let suggestion = TarotSafetyMatrix.reframeSuggestion(for: category,
+                                                                     lang: lang)
+                XCTAssertNotNil(suggestion, "\(category) \(lang)")
+                XCTAssertNil(TarotLLMResponseValidator.lint(suggestion ?? ""))
+            }
+        }
+        XCTAssertNil(TarotSafetyMatrix.reframeSuggestion(for: .selfHarmCrisis,
+                                                         lang: .traditionalChinese),
+                     "replacement categories never enter the reframe flow")
 
-        let mindReading = TarotSafetyMatrix.action(for: .relationshipMindReading)
-        XCTAssertTrue(mindReading.allowNormalInterpretation)
-        XCTAssertTrue(mindReading.showStrongerDisclaimer)
-
-        // Supportive copy exists exactly where interpretation is replaced.
+        // Full coverage (correction 3): every canonical category has a
+        // complete action row; replacement/refusal categories carry
+        // lint-clean bilingual supportive copy; the refusal category
+        // never allows any reading or Guidance.
+        XCTAssertEqual(TarotLLMSafetyCategory.allCases.count, 12,
+                       "11 risk categories + none")
         for category in TarotLLMSafetyCategory.allCases {
             let action = TarotSafetyMatrix.action(for: category)
+            if category != .none {
+                XCTAssertTrue(action.showStrongerDisclaimer, "\(category)")
+            }
+            if action.policy == .replaceWithSupport || action.policy == .refuseRequest {
+                XCTAssertFalse(action.allowNormalInterpretation, "\(category)")
+                XCTAssertFalse(action.allowGuidanceCardCTA, "\(category)")
+            }
             for lang in AppLanguage.allCases {
                 let copy = TarotSafetyMatrix.supportiveResponse(for: category, lang: lang)
                 if action.replaceWithSupportiveResponse {
@@ -157,6 +186,163 @@ final class TarotLLMSchemaTests: XCTestCase {
                 }
             }
         }
+        XCTAssertEqual(TarotSafetyMatrix.action(for: .minorSexualSafety).policy,
+                       .refuseRequest)
+    }
+
+    // MARK: 2a — Table-driven Safety Matrix contract (all 12 categories)
+
+    /// Policy-wiring contract: one row per canonical category. This
+    /// verifies the matrix wiring, not classifier accuracy. `logID` is
+    /// the stable snake_case value that category-only logging emits —
+    /// never user content.
+    func testSafetyMatrixContractCoversEveryCategory() {
+        typealias P = TarotSafetyPolicyAction
+        // (category, logID, policy, interp, reframe, replacement,
+        //  guidance, resources)
+        let table: [(TarotLLMSafetyCategory, String, P, Bool, Bool, Bool, Bool, Bool)] = [
+            (.none, "none", .allowReflectiveReading, true, false, false, true, false),
+            (.selfHarmCrisis, "self_harm_crisis", .replaceWithSupport,
+             false, false, true, false, true),
+            (.harmToOthers, "harm_to_others", .replaceWithSupport,
+             false, false, true, false, true),
+            (.abuseUnsafeRelationship, "abuse_unsafe_relationship", .replaceWithSupport,
+             false, false, true, false, true),
+            (.medicalDiagnosis, "medical_diagnosis", .replaceWithSupport,
+             false, false, true, false, true),
+            (.legalDecision, "legal_decision", .requireUserApprovedReframe,
+             false, true, false, false, true),
+            (.financialDecision, "financial_decision", .requireUserApprovedReframe,
+             false, true, false, false, false),
+            (.pregnancyDeathPrediction, "pregnancy_death_prediction", .replaceWithSupport,
+             false, false, true, false, false),
+            (.relationshipMindReading, "relationship_mind_reading", .requireUserApprovedReframe,
+             false, true, false, false, false),
+            (.realityDistortion, "reality_distortion", .replaceWithSupport,
+             false, false, true, false, true),
+            (.minorSexualSafety, "minor_sexual_safety", .refuseRequest,
+             false, false, true, false, true),
+            (.substanceRisk, "substance_risk", .replaceWithSupport,
+             false, false, true, false, true),
+        ]
+        XCTAssertEqual(table.count, TarotLLMSafetyCategory.allCases.count,
+                       "every canonical category has exactly one contract row")
+        XCTAssertEqual(Set(table.map(\.0)), Set(TarotLLMSafetyCategory.allCases))
+
+        for (category, logID, policy, interp, reframe, replace,
+             guidance, resources) in table {
+            let action = TarotSafetyMatrix.action(for: category)
+            XCTAssertEqual(category.rawValue, logID,
+                           "category-only logging emits this stable id")
+            XCTAssertEqual(action.policy, policy, "\(category)")
+            XCTAssertEqual(action.allowNormalInterpretation, interp, "\(category)")
+            XCTAssertEqual(action.allowGuidanceCardCTA, guidance, "\(category)")
+            XCTAssertEqual(action.replaceWithSupportiveResponse, replace, "\(category)")
+            XCTAssertEqual(action.showProfessionalResources, resources, "\(category)")
+            // Reframe availability exactly matches the policy: a
+            // bilingual suggestion exists iff a reframe is permitted.
+            for lang in AppLanguage.allCases {
+                XCTAssertEqual(
+                    TarotSafetyMatrix.reframeSuggestion(for: category, lang: lang) != nil,
+                    reframe, "\(category) \(lang)")
+                // Replacement/refusal behavior: supportive copy exists
+                // exactly where the reading is withheld and replaced.
+                XCTAssertEqual(
+                    TarotSafetyMatrix.supportiveResponse(for: category, lang: lang,
+                                                         region: .unknown) != nil,
+                    replace, "\(category) \(lang)")
+            }
+        }
+    }
+
+    /// Region-based crisis resources: mapping follows REGION, never UI
+    /// language. Taiwan never resolves to 988; US 988 stays scoped to
+    /// self-harm crisis in the US; unknown regions never see a number.
+    func testCrisisResourcesFollowRegionNotLanguage() {
+        // An English-language user in Taiwan gets Taiwan resources.
+        let enInTaiwan = TarotSafetyMatrix.supportiveResponse(
+            for: .selfHarmCrisis, lang: .english, region: .taiwan)!
+        XCTAssertTrue(enInTaiwan.contains("1925"))
+        XCTAssertFalse(enInTaiwan.contains("988"),
+                       "Taiwan must never resolve to US 988")
+
+        // 988 is scoped to the United States only.
+        let usCrisis = TarotSafetyMatrix.supportiveResponse(
+            for: .selfHarmCrisis, lang: .english, region: .unitedStates)!
+        XCTAssertTrue(usCrisis.contains("988"))
+        for lang in AppLanguage.allCases {
+            let zhTW = TarotSafetyMatrix.supportiveResponse(
+                for: .selfHarmCrisis, lang: lang, region: .taiwan)!
+            XCTAssertFalse(zhTW.contains("988"), "\(lang)")
+        }
+
+        // Taiwan protection/emergency mappings.
+        XCTAssertTrue(TarotSafetyMatrix.supportiveResponse(
+            for: .abuseUnsafeRelationship, lang: .traditionalChinese,
+            region: .taiwan)!.contains("113"))
+        XCTAssertTrue(TarotSafetyMatrix.supportiveResponse(
+            for: .substanceRisk, lang: .traditionalChinese,
+            region: .taiwan)!.contains("119"))
+
+        // Unknown region: no digits, explicit no-mapping honesty.
+        for category in [TarotLLMSafetyCategory.selfHarmCrisis,
+                         .abuseUnsafeRelationship, .substanceRisk,
+                         .minorSexualSafety, .harmToOthers, .realityDistortion] {
+            for lang in AppLanguage.allCases {
+                let copy = TarotSafetyMatrix.supportiveResponse(
+                    for: category, lang: lang, region: .unknown)!
+                XCTAssertNil(copy.rangeOfCharacter(from: .decimalDigits),
+                             "\(category) \(lang): no unverified number for unknown regions")
+            }
+        }
+
+        // US categories without a verified US mapping fall back to the
+        // number-free wording (e.g. abuse) — never a borrowed number.
+        let usAbuse = TarotSafetyMatrix.supportiveResponse(
+            for: .abuseUnsafeRelationship, lang: .english, region: .unitedStates)!
+        XCTAssertNil(usAbuse.rangeOfCharacter(from: .decimalDigits))
+
+        // Pure region mapping.
+        XCTAssertEqual(TarotCrisisRegion.from(localeRegion: "TW"), .taiwan)
+        XCTAssertEqual(TarotCrisisRegion.from(localeRegion: "us"), .unitedStates)
+        XCTAssertEqual(TarotCrisisRegion.from(localeRegion: "JP"), .unknown)
+        XCTAssertEqual(TarotCrisisRegion.from(localeRegion: nil), .unknown)
+    }
+
+    // MARK: 2b — Deterministic pre-reading preflight (first layer)
+
+    func testPreflightGatesRestrictedQuestionsAndPassesBenignOnes() {
+        typealias M = TarotSafetyMatrix
+        // Benign reflective questions must pass — over-blocking is a
+        // failure mode too.
+        XCTAssertEqual(M.preflightCategory(question: "我為什麼一直卡住？"), .none)
+        XCTAssertEqual(M.preflightCategory(question: "今天的我，最需要留意什麼？"), .none)
+        XCTAssertEqual(M.preflightCategory(question: ""), .none)
+        XCTAssertEqual(M.preflightCategory(
+            question: "What should I keep in mind about my work stress this week?"), .none)
+
+        // High-stakes phrasings gate before any card is drawn.
+        XCTAssertEqual(M.preflightCategory(
+            question: "最近真的撐不下去了，常常想著如果我消失就好了。"), .selfHarmCrisis)
+        XCTAssertEqual(M.preflightCategory(question: "我是不是得了重病？"), .medicalDiagnosis)
+        XCTAssertEqual(M.preflightCategory(question: "這場官司我會勝訴嗎？"), .legalDecision)
+        XCTAssertEqual(M.preflightCategory(question: "我該不該投資這支股票？"),
+                       .financialDecision)
+        XCTAssertEqual(M.preflightCategory(question: "我這個月會懷孕嗎？"),
+                       .pregnancyDeathPrediction)
+        XCTAssertEqual(M.preflightCategory(question: "他心裡在想什麼？是不是偷吃？"),
+                       .relationshipMindReading)
+        XCTAssertEqual(M.preflightCategory(question: "有人在監視我、控制我的思想"),
+                       .realityDistortion)
+        XCTAssertEqual(M.preflightCategory(question: "他會打我，我不敢離開他"),
+                       .abuseUnsafeRelationship)
+        XCTAssertEqual(M.preflightCategory(question: "Is he cheating on me?"),
+                       .relationshipMindReading)
+
+        // Context fields participate (Two-Choice financial options).
+        XCTAssertEqual(M.preflightCategory(question: "哪個對我比較好？",
+                                           optionA: "全部投入加密貨幣",
+                                           optionB: "定存"), .financialDecision)
     }
 
     // MARK: 3 — Grounded prompt builder

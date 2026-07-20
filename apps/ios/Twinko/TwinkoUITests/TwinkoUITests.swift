@@ -2736,6 +2736,114 @@ final class TwinkoUITests: XCTestCase {
     /// Waits out any in-flight transition, then taps via coordinate —
     /// coordinate taps skip the AX scroll-to-visible action that fails
     /// on animating elements.
+    // MARK: Live-LLM audit check (stubbed, no network, no key)
+
+    /// Bounded-audit Simulator check (2026-07-21, corrected order):
+    /// the consent gate appears at Begin Reading BEFORE any card is
+    /// drawn; Not Now → labeled mock; Continue with AI → deterministic
+    /// preflight → draw; a restricted category discovered post-draw
+    /// offers a reframe with Guidance unavailable and an accessible
+    /// editable field. Debug-only launch-env stub — zero network,
+    /// zero keys.
+    func testLiveTarotConsentAndReframeStates() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiTestReset", "-uiTestSeedProfile"]
+        app.launchEnvironment["TWINKO_LLM_UITEST_STUB"] = "reframe"
+        app.launch()
+
+        func reachReviewAndBegin() {
+            XCTAssertTrue(app.staticTexts["這次想從哪個角度看看？"].waitForExistence(timeout: 8)
+                || app.descendants(matching: .any)["tarotReviewTitle"].waitForExistence(timeout: 2))
+            if app.staticTexts["這次想從哪個角度看看？"].exists {
+                settleTap(app.descendants(matching: .any)["tarotIntent-nextStepOrDirection"])
+                XCTAssertTrue(app.descendants(matching: .any)["tarotRefinement-understandWhyStuck"]
+                    .waitForExistence(timeout: 4))
+                settleTap(app.descendants(matching: .any)["tarotRefinement-understandWhyStuck"])
+                XCTAssertTrue(app.staticTexts["直指核心"].waitForExistence(timeout: 5))
+                settleTap(app.buttons.matching(
+                    NSPredicate(format: "label CONTAINS %@", "真正卡住的地方是什麼")).firstMatch)
+                scrollTap(app.descendants(matching: .any)["tarotSetupContinue"], in: app)
+            }
+            XCTAssertTrue(app.descendants(matching: .any)["tarotReviewTitle"]
+                .waitForExistence(timeout: 5))
+            scrollTap(app.descendants(matching: .any)["tarotReviewBegin"], in: app)
+        }
+
+        func completeDrawToResult() {
+            XCTAssertTrue(app.staticTexts["翻開屬於每個位置的牌"].waitForExistence(timeout: 14))
+            let faceDown = app.buttons.matching(
+                NSPredicate(format: "label CONTAINS %@", "蓋著的牌"))
+            for _ in 0..<4 { settleTap(faceDown.firstMatch) }
+            scrollTap(app.buttons["tarotSeeReading"], in: app)
+        }
+
+        // Reading 1 — the consent gate appears at Begin, BEFORE any
+        // card is drawn; declining draws the reading locally and
+        // renders the labeled deterministic mock.
+        app.buttons["tab-explore"].tap()
+        XCTAssertTrue(app.staticTexts["探索宇宙"].waitForExistence(timeout: 6))
+        settleTap(app.descendants(matching: .any)["explore-tarot"])
+        reachReviewAndBegin()
+
+        XCTAssertTrue(app.staticTexts["這次解讀要使用 AI 嗎？"].waitForExistence(timeout: 8),
+                      "Consent disclosure precedes the draw")
+        XCTAssertFalse(app.staticTexts["翻開屬於每個位置的牌"].exists,
+                       "No card is drawn before the consent decision")
+        saveScreenshot(name: "audit-1-consent-disclosure")
+
+        settleTap(app.buttons["暫時不要"])
+        completeDrawToResult()
+        XCTAssertTrue(app.descendants(matching: .any)["tarotFallbackLabel"]
+            .waitForExistence(timeout: 5),
+                      "Declined consent → clearly labeled mock")
+        XCTAssertTrue(app.descendants(matching: .any)["tarotResultContext"].exists,
+                      "Local Tarot result is preserved")
+        saveScreenshot(name: "audit-3-declined-mock-label")
+
+        // Reading 2 — Continue with AI → benign preset question passes
+        // the deterministic preflight → draw; the stub then classifies
+        // post-draw as mind-reading → reframe offer (no interpretation,
+        // no Guidance, accessible editable field).
+        scrollTap(app.descendants(matching: .any)["tarotStartNewReading"], in: app)
+        reachReviewAndBegin()
+        XCTAssertTrue(app.staticTexts["這次解讀要使用 AI 嗎？"].waitForExistence(timeout: 8),
+                      "Declined consent was not persisted — asked again")
+        settleTap(app.buttons["繼續，使用 AI 解讀"])
+        completeDrawToResult()
+
+        let reframe = app.descendants(matching: .any)["tarotReframeSection"]
+        XCTAssertTrue(reframe.waitForExistence(timeout: 10),
+                      "Restricted category offers a user-approved reframe")
+        XCTAssertFalse(app.descendants(matching: .any)["tarotGuidanceAccept"].exists,
+                       "Guidance Card unavailable before reframe approval")
+        XCTAssertFalse(app.descendants(matching: .any)["tarotLiveBadge"].exists,
+                       "The prohibited interpretation is never rendered")
+        // Correction 4: the editor carries a stable identifier and a
+        // localized label (element type may surface as a text view or
+        // generic element depending on OS).
+        XCTAssertTrue(app.descendants(matching: .any)["tarotReframeField"]
+            .waitForExistence(timeout: 4),
+                      "Reframe question is editable and accessible")
+        saveScreenshot(name: "audit-2-reframe-state")
+
+        settleTap(app.descendants(matching: .any)["tarotReframeCancel"])
+        XCTAssertTrue(app.descendants(matching: .any)["tarotFallbackLabel"]
+            .waitForExistence(timeout: 5),
+                      "Declined reframe → labeled mock, no bypass")
+    }
+
+    /// Writes an audit screenshot PNG to a stable host path (the
+    /// bounded audit reports these paths; separate from result-bundle
+    /// attachments).
+    private func saveScreenshot(name: String) {
+        let directory = URL(fileURLWithPath: "/private/tmp/twinko-audit-screens",
+                            isDirectory: true)
+        try? FileManager.default.createDirectory(at: directory,
+                                                 withIntermediateDirectories: true)
+        try? XCUIScreen.main.screenshot().pngRepresentation
+            .write(to: directory.appendingPathComponent("\(name).png"))
+    }
+
     private func settleTap(_ element: XCUIElement) {
         Thread.sleep(forTimeInterval: 1.2)
         element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()

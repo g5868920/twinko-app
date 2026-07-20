@@ -248,7 +248,7 @@ the blind review.
 
 ---
 
-## 10. Step 9 — privacy disclosure (DRAFT, ⚠️ awaiting founder sign-off)
+## 10. Step 9 — privacy disclosure (Provisional copy — founder review pending)
 
 The My Planet privacy page previously claimed "Nothing is uploaded" —
 true today, but false the moment step 10 connects live generation.
@@ -261,12 +261,13 @@ When active, the page (a) qualifies the upload claim — "except for AI
 interpretation, nothing is uploaded/synced/shared" — and (b) adds one
 row:
 
-| | Draft wording |
+| | Draft wording (corrected 2026-07-21: no absolute storage/never-sent claims) |
 |---|---|
 | zh title | AI 解讀（測試中） |
-| zh body | 啟用 AI 解讀時，產生回應所需的內容——你的提問、選項說明與抽到的牌——會以加密連線傳送給外部 AI 服務。Twinko 不會把任何內容儲存在這台裝置以外的地方；你的暱稱、生日等個人資料也不會被傳送。請避免在問題中輸入你不想傳出的私人資訊。 |
+| zh body | 啟用 AI 解讀時，你的提問、抽到的牌與牌位、以及你輸入的選項說明或關係稱呼，會傳送給外部 AI 服務以產生這次的解讀。TwinkoTalk 目前不會把完整的提問或回應儲存在自己的伺服器上；外部服務可能依其政策暫時處理或保留這些資料。TwinkoTalk 不會自動附上你的暱稱、生日或個人檔案——除非你自己把這類資訊寫進問題裡。若選擇不使用，會改以清楚標示的本機示意解讀呈現。 |
 | en title | AI interpretation (in testing) |
-| en body | When AI interpretation is on, only what the response needs — your question, option notes, and the cards drawn — is sent to an external AI service over an encrypted connection to generate the reading. Twinko stores nothing outside this device. Your nickname, birthday, and profile are never sent. Please avoid typing private details you would not want transmitted into a question. |
+| en body | When AI interpretation is on, your question, the cards drawn, their spread positions, and any option or relationship labels you entered are sent to an external AI provider to generate this reading. TwinkoTalk does not currently store full questions or responses on its own servers; the external provider may temporarily process or retain data according to its policies. TwinkoTalk does not automatically attach your nickname, birthday, or profile data — unless you include such information in the question yourself. If you decline, a clearly labeled local sample reading is shown instead. |
+| consent CTA | zh 「繼續，使用 AI 解讀」／「暫時不要」 · en "Continue with AI" / "Not now" |
 
 Design choices for review: every claim is mechanically verifiable
 (what is sent = exactly the prompt payload; profile data is never in
@@ -317,3 +318,176 @@ content flagged for abuse may be retained longer per provider policy)."
 ❌ Zero retention · ❌ no human access · ❌ complete deletion — neither
 Phase A account qualifies for ZDR, so these stay prohibited claims per
 safety spec §12.
+
+---
+
+## 12. Step 10 — live Tarot integration path (PROVISIONAL, 2026-07-21)
+
+**Status: `Proposed — implementation prepared, founder review pending`.**
+
+The founder did **not** approve the safety matrix, the privacy/consent
+wording, or the live Tarot flow; a prior session message was over-read as
+approval and this section was corrected accordingly (2026-07-21 bounded
+audit). All of the following remain **pending explicit founder review**
+and may be revised:
+
+- Safety action matrix — now **DRAFT v0.2** (§12.1a below; §8.2's v0.1
+  table is superseded by v0.2 as the provisional implementation).
+- Privacy disclosure + consent copy (`LLMPrivacyDisclosure`,
+  `TarotLiveStrings`) — **provisional copy, founder review pending**.
+- The live integration itself — implemented but **uncommitted** until
+  authorized.
+- Canonical safety spec FD-01–FD-16 — all unresolved.
+
+Proposed decision-log entries (status: **Proposed — founder review
+pending**; do not treat as accepted or closed):
+> **D-057 (Proposed)** — Tarot safety action matrix draft v0.2 for Phase A
+> live generation. **D-058 (Proposed)** — LLM privacy disclosure and
+> consent wording (conditional on live-capable builds).
+
+### 12.1a Safety matrix draft v0.2 — complete category coverage
+
+Policy actions: `allowReflectiveReading` / `allowWithConstraints`
+(reserved for the approved severity model) / `requireUserApprovedReframe`
+/ `replaceWithSupport` / `refuseRequest`. The APP enforces every action;
+category-only logging applies to every category (never the user's text).
+Severity note: v0.2 collapses in-category severity distinctions to the
+**safer** action (e.g. any self-harm signal → replacement; ordinary
+sadness or habit reflection classifies as `none` per prompt rules); the
+full category × severity model is spec §2–4, pending FD-16.
+
+| Category | Severity handling | Policy | Tarot interp. | Reframe | Replacement | Guidance | Disclaimer | Resources |
+|---|---|---|---|---|---|---|---|---|
+| none | normal | allowReflectiveReading | ✅ | — | — | ✅ | standard | — |
+| self_harm_crisis | any ideation→crisis-safe | replaceWithSupport | ❌ | ❌ never | ✅ (安心專線 1925 / 988) | ❌ | stronger | ✅ |
+| harm_to_others | fantasy/intent→safer | replaceWithSupport | ❌ | ❌ | ✅ de-escalation + support | ❌ | stronger | ✅ |
+| abuse_unsafe_relationship | conflict=none; danger→replace | replaceWithSupport | ❌ | ❌ | ✅ safety-first (113, unverified) | ❌ | stronger | ✅ |
+| medical_diagnosis | reflection=none; diagnosis/meds→replace | replaceWithSupport | ❌ | ❌ | ✅ feelings + care | ❌ | stronger | ✅ |
+| legal_decision | restricted | requireUserApprovedReframe | ❌ until approved | ✅ user-approved | — | ❌ until approved | stronger | ✅ |
+| financial_decision | restricted | requireUserApprovedReframe | ❌ until approved | ✅ user-approved | — | ❌ until approved (never a betting signal) | stronger | — |
+| pregnancy_death_prediction | restricted | replaceWithSupport | ❌ | ❌ | ✅ toward testing/professional support | ❌ | stronger | — |
+| relationship_mind_reading | restricted | requireUserApprovedReframe | ❌ until approved (presented-state only after) | ✅ user-approved | — | ❌ until approved | stronger | — |
+| reality_distortion | restricted | replaceWithSupport | ❌ | ❌ | ✅ acknowledge feeling, never the belief | ❌ | stronger | ✅ |
+| minor_sexual_safety | always | **refuseRequest** | ❌ ever | ❌ | ✅ refusal + safety support (113) | ❌ | stronger | ✅ |
+| substance_risk | habit reflection=none; dosing/overdose→replace | replaceWithSupport | ❌ | ❌ | ✅ no dosing, urgent → 119 | ❌ | stronger | ✅ |
+
+**Region-based crisis resources (corrected 2026-07-21):** resource
+mapping follows the device-locale **region** (existing system setting —
+no location permission), never the UI language: an English-language
+user in Taiwan gets Taiwan resources, never US 988.
+
+| Region | Mapping (Phase A) | Status |
+|---|---|---|
+| Taiwan (TW) | 1925 emotional crisis · 113 protection (abuse/minors) · 119 immediate/medical danger | pending verification |
+| United States (US) | 988 suicide & crisis support only; other categories → number-free fallback | pending verification |
+| Unknown/unsupported | **no phone number ever shown** — local emergency services + a trusted person + explicit statement that verified local mapping is not yet available | verified by test |
+
+No resource mapping is verified for external release; markets without
+verified mappings remain **blocked from external-release readiness**
+(FD-02/FD-03; proxy gate unchanged).
+
+> The local deterministic safety preflight is a Phase A heuristic and
+> is not a production-grade safety classifier. The validated provider
+> response remains a second enforcement layer. Production release
+> requires expanded evaluation and verified locale-aware crisis
+> resources.
+
+The keyword scanner does not detect all possible high-risk phrasing —
+no such claim is made anywhere.
+
+### 12.1b Pre-reading safety sequence (correction 2)
+
+**Setup Review → Begin tapped → consent gate when required (Continue
+with AI / Not Now — before any card exists) → deterministic safety
+preflight of the draft question + context fields (`preflightCategory`,
+no network) → allow / user-approved editable reframe (updates the DRAFT
+question only) / supportive replacement (no draw) → only then the draw
+commits.** The model's own classification of the generated response is
+the second enforcement layer. If a restricted category is discovered
+only post-draw: the committed session's question is never mutated and
+its cards are never reinterpreted — the user is offered a NEW safely
+reframed reading (fresh session, fresh draw, normal ritual) or backs
+out to the labeled mock; declining keeps Guidance restricted (no
+bypass). Not-Now consent readings and no-key builds keep the existing
+local mock behavior unchanged (no preflight — pre-existing product
+behavior; gating the mock path too is a founder decision, spec FD-16).
+
+### 12.1 What was wired (`TarotLiveReading.swift` + flow/result changes)
+
+- **Consent strictly precedes the draw AND the network boundary:** in a
+  live-capable build (key configured), tapping Begin Reading shows the
+  provisional disclosure ("Continue with AI" / Not Now — never
+  preselected) **before any card is drawn** (§12.1b). No provider is
+  resolved, no request object is constructed, and nothing is sent until
+  explicit Continue; declined consent produces **zero provider
+  requests** (proven by a request-counting stub test), draws the
+  reading locally, renders the labeled mock, and asks again on the next
+  reading. Continue is persisted (`llm_consent.json`, provisional
+  one-time behavior — FD-04 open). Mock-only builds (no key) behave
+  exactly as before — no sheet, no labels.
+- **Fail-closed vendor-neutral resolution:** a single configured provider
+  resolves (OpenAI only with an explicit model id, never guessed;
+  Anthropic model defaults to `claude-sonnet-5`); **both keys configured
+  without an explicit `TAROT_LIVE_PROVIDER` fails closed** — no live
+  request, labeled mock, concise dev-config log line (no secrets). An
+  explicit provider choice is honored strictly (no silent substitution).
+  No implicit preference exists while D-043 is open.
+- **Validated render path:** grounded prompt → schema decode → full
+  validator (structure, card identity, banned-language lint) → app-side
+  policy decision → only then render. Any failure, timeout, invalid or
+  malformed safety output, or skip lands on the deterministic mock with
+  the provisional FD-09 label 「示意解讀（這次不是 AI 個人化生成）」;
+  live readings carry the 「AI 生成的反思內容」 badge.
+- **App-enforced safety (draft matrix v0.2):** replace-categories render
+  the bilingual supportive response — no Guidance CTA, no meditation
+  upsell, no export. Reframe-categories (legal/financial/mind-reading)
+  render the reframe surface (§12.1a) — no interpretation and no
+  Guidance until explicit approval; Guidance permission is derived from
+  the validated policy state, so a Guidance request can never bypass a
+  restriction (including after a declined reframe). Category-only
+  logging.
+- **Daily persistence:** a Daily reading's validated response is stored on
+  the current-day record (local only), so reopening today's guidance shows
+  identical text with no new call and no drift; legacy records decode
+  unchanged.
+- **Loading UX:** bounded by the 30 s timeout + single retry, with a
+  visible "先看示意解讀" skip.
+
+### 12.2 Known Phase A limitations (documented, not hidden)
+
+- The optional Guidance Card and closing line still read from the
+  deterministic mock (a live guidance addendum is future work).
+- A language switch after generation re-renders live per-position text as
+  generated (zh or en); the mock remains fully bilingual.
+- ALL user-facing copy (consent, labels, reframe, disclaimers) is
+  provisional pending founder review.
+- The local key remains extractable from any app bundle — this path is a
+  temporary founder-only development shortcut, never a distribution
+  architecture; the prototype key is revoked at the proxy gate (§1).
+
+### 12.3 Step 10 status and validation
+
+**`Step 10 integration path implemented; live provider behavior remains
+unverified pending a controlled founder-only key-enabled smoke test.`**
+
+| Path | Status |
+|---|---|
+| Mock path (no key) | verified (build + prior walkthroughs; unchanged by audit per code inspection) |
+| Stubbed provider path (consent → validate → render; reframe; fallback) | verified via unit tests + stubbed Simulator check (see known issue below) |
+| Consent sequencing (declined → 0 requests; accepted → 1 attempt) | verified via request-counting unit tests |
+| Real Anthropic path | **unverified** (no live request has ever been made) |
+| Real OpenAI path | **unverified** |
+| Privacy/consent copy | provisional — founder review pending |
+| Safety matrix v0.2 | draft — founder review pending |
+
+Known narrow issue (correction 4 status): the reframe editor was
+reworked to a `TextEditor` carrying its accessibility identifier and a
+localized label directly on the control (before styling), with real
+multiline editing. The stubbed Simulator check verified every policy
+assertion up to that point (consent precedes the draw; declined
+consent → labeled mock; reframe surface present with no interpretation
+and no Guidance), but the exposure assertion itself remains
+**UI-unverified**: the pre-fix run failed it, and the single permitted
+re-run after the fix aborted early on an unrelated launch-timing flake.
+Verify the one assertion (`testLiveTarotConsentAndReframeStates`) in
+the next authorized batch before relying on VoiceOver addressability.

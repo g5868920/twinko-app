@@ -189,6 +189,11 @@ struct DailyTarotCompletionRecord: Codable, Equatable {
     let localDayKey: String
     let completedAt: Date
     var readingSnapshot: TarotReadingSnapshot
+    /// Phase A step 10: the validated live reading, stored locally so
+    /// reopening today's guidance shows the same text with no new
+    /// call, no cost, no drift. Optional — records written before this
+    /// field (or mock-only completions) keep decoding unchanged.
+    var liveReading: TarotLLMResponse?
 }
 
 /// Current-day Daily Tarot completion state, persisted through the
@@ -256,6 +261,19 @@ final class DailyTarotStore: ObservableObject {
               var current = todayRecord,
               current.readingSnapshot.sessionID == session.id else { return }
         current.readingSnapshot = TarotReadingSnapshot(session: session)
+        record = current
+        store.save(current, as: Self.fileName)
+    }
+
+    /// Stores the validated live reading on the same current-day
+    /// record (local only), so today's reopen renders identical text
+    /// without a new provider call.
+    func attachLiveReading(_ response: TarotLLMResponse,
+                           for session: TarotReadingSession) {
+        guard session.contextKind == .dailyCheckIn,
+              var current = todayRecord,
+              current.readingSnapshot.sessionID == session.id else { return }
+        current.liveReading = response
         record = current
         store.save(current, as: Self.fileName)
     }

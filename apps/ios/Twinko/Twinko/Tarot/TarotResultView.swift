@@ -14,6 +14,12 @@ import SwiftUI
 struct TarotResultStage: View {
     @Binding var session: TarotReadingSession
     let provider: TarotInterpretationProviding
+    /// Phase A step 10: live-generation lifecycle for this reading.
+    @ObservedObject var liveModel: TarotLiveReadingModel
+    let onResultAppear: () -> Void
+    let onConsentContinue: () -> Void
+    /// User explicitly approved (possibly edited) the safe reframe.
+    let onReframeContinue: (String) -> Void
     let onDrawGuidance: () -> Void
     let onRestart: () -> Void
     let onHome: () -> Void
@@ -25,10 +31,39 @@ struct TarotResultStage: View {
 
     private var lang: AppLanguage { prefs.language }
 
+    // MARK: Live state (the app, not the model, enforces policy)
+
+    /// Interpretation source for every section: the validated live
+    /// response when present, otherwise the deterministic mock.
+    private var activeProvider: TarotInterpretationProviding {
+        if case .live(let response) = liveModel.state {
+            return LiveTarotInterpretationProvider(response: response,
+                                                   fallback: provider)
+        }
+        return provider
+    }
+
+    /// App-side safety enforcement from the draft matrix (v0.2,
+    /// founder review pending): the model only classified.
+    private var liveSafety: (category: TarotLLMSafetyCategory,
+                             action: TarotSafetyAction)? {
+        guard case .live(let response) = liveModel.state else { return nil }
+        return (response.safetyCategory,
+                TarotSafetyMatrix.action(for: response.safetyCategory))
+    }
+
+    /// Matrix says the normal interpretation is withheld — the
+    /// supportive replacement renders instead.
+    private var isReplacedBySafety: Bool {
+        liveSafety.map { !$0.action.allowNormalInterpretation } ?? false
+    }
+
+    private var isLoadingLive: Bool { liveModel.state == .loading }
+
     /// Compact Meditation handoff context built by the shared adapter
     /// (question + adapted focus, recommendations — never raw text).
     private var meditationContext: MeditationSourceContext {
-        TarotMeditationContextAdapter.context(for: session, provider: provider, lang: lang)
+        TarotMeditationContextAdapter.context(for: session, provider: activeProvider, lang: lang)
     }
 
     var body: some View {
@@ -39,57 +74,36 @@ struct TarotResultStage: View {
                 // the selected spread (Task 2 §23.1–6).
                 contextSection
 
-                // Group 1 — the reading starts here, in canonical
-                // position order, grouped semantically for the
-                // five-card spreads. Once a Guidance Card is drawn it
-                // joins the reading right after the base cards, whose
-                // interpretations are never regenerated.
-                baseCardSections
-                if let guidance = session.guidanceCard {
-                    cardSection(guidance)
-                        .id("tarotGuidanceSection")
-                        .shadow(color: Color.twinkoGold.opacity(guidanceHighlight ? 0.55 : 0),
-                                radius: 12)
-                        .animation(.easeInOut(duration: 0.6), value: guidanceHighlight)
+                sourceLabel
+
+                if isLoadingLive {
+                    // Live generation in flight: interpretations wait
+                    // (bounded by the transport timeout + one retry);
+                    // the user can skip to the labeled mock anytime.
+                    loadingSection
+                    exitActions
+                } else if case .awaitingReframe(let category) = liveModel.state {
+                    // Post-draw discovery (second safety layer): no
+                    // interpretation, no Guidance, no export. Continue
+                    // offers a NEW safely reframed reading with new
+                    // cards — the committed draw is never
+                    // reinterpreted; Not Now backs out to the labeled
+                    // mock.
+                    TarotReframeCard(category: category, lang: lang,
+                                     onContinue: { onReframeContinue($0) },
+                                     onCancel: { liveModel.declineReframe() })
+                    strongerDisclaimerSection
+                    exitActions
+                } else if isReplacedBySafety {
+                    // Safety matrix withheld the interpretation:
+                    // supportive replacement only — no reading, no
+                    // Guidance CTA, no meditation upsell, no export.
+                    supportiveReplacementSection
+                    strongerDisclaimerSection
+                    exitActions
+                } else {
+                    normalReadingGroups(proxy: proxy)
                 }
-
-                // Group 2 — 整體來看: every completed reading carries
-                // one integrated summary (§26); once a Guidance Card
-                // exists it expands to read the whole current state.
-                synthesisSection
-
-                TarotMagicalDivider()
-
-                // Group 3 — Twinko's emotional closing (reflects the
-                // expanded reading once guidance is drawn).
-                twinkoMessageSection
-
-                TarotMagicalDivider()
-
-                // Group 4 — one optional Guidance Card draw.
-                if session.canDrawGuidance {
-                    guidancePromptSection
-                    TarotMagicalDivider()
-                }
-
-                // Group 5 — Save Guidance Card (single export entry).
-                Button {
-                    showingSummaryCard = true
-                } label: {
-                    Label(TarotStrings.saveCard(lang), systemImage: "photo.on.rectangle.angled")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.tarotMagicSecondary)
-                .padding(.horizontal, TwinkoSpacing.m)
-                .accessibilityIdentifier("tarotSaveCardButton")
-
-                TarotMagicalDivider()
-
-                // Group 6 — one merged Personalized Meditation section.
-                meditationSection
-
-                // Group 7 — quiet exit actions + single disclaimer.
-                exitActions
 
                 Text(TarotDisclaimer.text(lang))
                     .font(.system(.caption2, design: .rounded))
@@ -101,12 +115,38 @@ struct TarotResultStage: View {
             .padding(.top, TwinkoSpacing.s)
         }
         .sheet(isPresented: $showingSummaryCard) {
-            TarotSummaryCardSheet(session: session, provider: provider)
+            TarotSummaryCardSheet(session: session, provider: activeProvider)
         }
         .navigationDestination(isPresented: $goToMeditation) {
             MeditationFlowView(sourceContext: meditationContext)
         }
+        .overlay {
+            // First-live-call consent (provisional copy, founder
+            // review pending), never preselected; Not Now keeps the
+            // labeled mock — zero provider requests — and asks again
+            // next reading. No provider request exists until Continue.
+            if liveModel.state == .awaitingConsent {
+                BrandedModal(
+                    icon: "sparkles",
+                    iconColor: .brandPurpleDeep,
+                    title: TarotLiveStrings.consentTitle(lang),
+                    content: {
+                        Text(LLMPrivacyDisclosure.body(lang))
+                            .font(.system(.footnote, design: .rounded))
+                            .foregroundStyle(Color.textSecondaryToken)
+                            .multilineTextAlignment(.leading)
+                    },
+                    cancelTitle: TarotLiveStrings.consentNotNow(lang),
+                    confirmTitle: TarotLiveStrings.consentContinue(lang),
+                    isDestructive: false,
+                    onCancel: { liveModel.consentDeclined() },
+                    onConfirm: { onConsentContinue() }
+                )
+                .transition(.opacity)
+            }
+        }
         .onAppear {
+            onResultAppear()
             // Returning from the Guidance reveal: bring the newly
             // inserted 指引 section into view with a brief glow — never
             // jump the reader back to the top.
@@ -122,6 +162,158 @@ struct TarotResultStage: View {
             }
         }
         }
+    }
+
+    /// Groups 1–6 of the normal reading, from the active provider.
+    @ViewBuilder
+    private func normalReadingGroups(proxy: ScrollViewProxy) -> some View {
+        // Group 1 — the reading starts here, in canonical position
+        // order, grouped semantically for the five-card spreads. Once
+        // a Guidance Card is drawn it joins the reading right after
+        // the base cards, whose interpretations are never regenerated.
+        baseCardSections
+        if let guidance = session.guidanceCard {
+            cardSection(guidance)
+                .id("tarotGuidanceSection")
+                .shadow(color: Color.twinkoGold.opacity(guidanceHighlight ? 0.55 : 0),
+                        radius: 12)
+                .animation(.easeInOut(duration: 0.6), value: guidanceHighlight)
+        }
+
+        // Group 2 — 整體來看: every completed reading carries one
+        // integrated summary (§26); once a Guidance Card exists it
+        // expands to read the whole current state.
+        synthesisSection
+
+        TarotMagicalDivider()
+
+        // Group 3 — Twinko's emotional closing (reflects the expanded
+        // reading once guidance is drawn).
+        twinkoMessageSection
+
+        TarotMagicalDivider()
+
+        // Group 4 — one optional Guidance Card draw. Availability is
+        // derived from the validated, app-enforced policy — a Guidance
+        // Card can never bypass a restricted question (unresolved or
+        // declined reframes stay restricted even on the mock).
+        if session.canDrawGuidance && !liveModel.restrictsGuidance {
+            guidancePromptSection
+            TarotMagicalDivider()
+        }
+
+        // Group 5 — Save Guidance Card (single export entry).
+        Button {
+            showingSummaryCard = true
+        } label: {
+            Label(TarotStrings.saveCard(lang), systemImage: "photo.on.rectangle.angled")
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.tarotMagicSecondary)
+        .padding(.horizontal, TwinkoSpacing.m)
+        .accessibilityIdentifier("tarotSaveCardButton")
+
+        TarotMagicalDivider()
+
+        // Group 6 — one merged Personalized Meditation section.
+        meditationSection
+
+        if liveSafety?.action.showStrongerDisclaimer == true {
+            strongerDisclaimerSection
+        }
+
+        // Group 7 — quiet exit actions + single disclaimer.
+        exitActions
+    }
+
+    // MARK: Live-state sections (Phase A step 10)
+
+    /// Honest source labeling: live readings carry the AI badge;
+    /// in live-capable builds the mock substitute is labeled (FD-09
+    /// draft copy). Builds that were never live-capable stay unlabeled
+    /// (their whole experience is the prototype mock, unchanged).
+    @ViewBuilder
+    private var sourceLabel: some View {
+        switch liveModel.state {
+        case .live:
+            labelRow(icon: "sparkles", text: TarotLiveStrings.liveBadge(lang))
+                .accessibilityIdentifier("tarotLiveBadge")
+        case .fallback:
+            labelRow(icon: "info.circle", text: TarotLiveStrings.fallbackLabel(lang))
+                .accessibilityIdentifier("tarotFallbackLabel")
+        case .idle, .awaitingConsent, .loading, .awaitingReframe:
+            EmptyView()
+        }
+    }
+
+    private func labelRow(icon: String, text: String) -> some View {
+        HStack(spacing: 5) {
+            Image(systemName: icon)
+                .font(.system(size: 10))
+            Text(text)
+                .font(.system(.caption2, design: .rounded))
+        }
+        .foregroundStyle(Color.textInverseToken.opacity(0.75))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, TwinkoSpacing.l)
+    }
+
+    private var loadingSection: some View {
+        VStack(spacing: TwinkoSpacing.s) {
+            ProgressView()
+                .tint(Color.brandPurpleDeep)
+            Text(TarotLiveStrings.loadingTitle(lang))
+                .font(.system(.headline, design: .rounded))
+                .foregroundStyle(Color.deepPlum)
+            Text(TarotLiveStrings.loadingBody(lang))
+                .font(.system(.footnote, design: .rounded))
+                .foregroundStyle(Color.textSecondaryToken)
+                .multilineTextAlignment(.center)
+            Button {
+                liveModel.skipWaiting()
+            } label: {
+                Text(TarotLiveStrings.skipWaiting(lang))
+            }
+            .buttonStyle(.tarotMagicSecondary)
+            .accessibilityIdentifier("tarotSkipLiveButton")
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, TwinkoSpacing.m)
+        .tarotReadingCard()
+        .accessibilityIdentifier("tarotLiveLoading")
+    }
+
+    /// Safety-matrix replacement (draft v0.2, founder review pending):
+    /// the supportive copy carries its own resource pointers; only the
+    /// category was ever logged.
+    private var supportiveReplacementSection: some View {
+        VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
+            HStack(spacing: 7) {
+                Image(systemName: "heart.fill")
+                    .foregroundStyle(Color.accentGold)
+                Text(TarotStrings.finalSummaryTitle(lang))
+                    .foregroundStyle(Color.deepPlum)
+            }
+            .font(.system(.headline, design: .rounded))
+            Text(liveSafety.flatMap {
+                TarotSafetyMatrix.supportiveResponse(for: $0.category, lang: lang)
+            } ?? TarotLiveStrings.strongerDisclaimer(lang))
+                .font(.system(.body, design: .rounded))
+                .foregroundStyle(Color.textPrimaryToken)
+                .lineSpacing(6)
+        }
+        .tarotReadingCard(.companion)
+        .accessibilityIdentifier("tarotSupportiveReplacement")
+    }
+
+    private var strongerDisclaimerSection: some View {
+        Text(TarotLiveStrings.strongerDisclaimer(lang))
+            .font(.system(.caption, design: .rounded))
+            .foregroundStyle(Color.textInverseToken.opacity(0.75))
+            .multilineTextAlignment(.leading)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, TwinkoSpacing.l)
+            .accessibilityIdentifier("tarotStrongerDisclaimer")
     }
 
     // MARK: Group 0 — reading context
@@ -239,7 +431,7 @@ struct TarotResultStage: View {
     /// (§24). The Guidance Card carries its distinct role label —
     /// never a numbered position.
     private func cardSection(_ drawn: TarotDrawnCard) -> some View {
-        let interp = provider.interpretation(for: drawn, in: session, lang: lang)
+        let interp = activeProvider.interpretation(for: drawn, in: session, lang: lang)
         return VStack(alignment: .leading, spacing: TwinkoSpacing.s) {
             HStack(alignment: .top, spacing: TwinkoSpacing.m) {
                 TarotCardFace(drawn: drawn, width: 76)
@@ -281,10 +473,15 @@ struct TarotResultStage: View {
                 .foregroundStyle(Color.textPrimaryToken)
                 .lineSpacing(5)
 
-            Text(interp.detail)
-                .font(.system(.body, design: .rounded))
-                .foregroundStyle(Color.textPrimaryToken.opacity(0.88))
-                .lineSpacing(5)
+            // Live interpretations arrive as one complete passage in
+            // `core`; the mock's separate detail paragraph renders
+            // only when present.
+            if !interp.detail.isEmpty {
+                Text(interp.detail)
+                    .font(.system(.body, design: .rounded))
+                    .foregroundStyle(Color.textPrimaryToken.opacity(0.88))
+                    .lineSpacing(5)
+            }
 
             // One reflection sentence per position (§23.13).
             HStack(alignment: .top, spacing: 6) {
@@ -320,8 +517,8 @@ struct TarotResultStage: View {
             }
             .font(.system(.title3, design: .rounded).weight(.semibold))
             Text(session.guidanceCard == nil && session.cards.count > 1
-                 ? provider.synthesis(for: session, lang: lang)
-                 : provider.combinedSummary(for: session, lang: lang))
+                 ? activeProvider.synthesis(for: session, lang: lang)
+                 : activeProvider.combinedSummary(for: session, lang: lang))
                 .font(.system(.body, design: .rounded))
                 .foregroundStyle(Color.textPrimaryToken)
                 .lineSpacing(5)
@@ -352,11 +549,11 @@ struct TarotResultStage: View {
                     .foregroundStyle(Color.deepPlum)
             }
             .font(.system(.headline, design: .rounded))
-            Text(provider.twinkoMessage(for: session, lang: lang))
+            Text(activeProvider.twinkoMessage(for: session, lang: lang))
                 .font(.system(.body, design: .rounded))
                 .foregroundStyle(Color.textPrimaryToken)
                 .lineSpacing(7)
-            Text(provider.closingLine(lang: lang))
+            Text(activeProvider.closingLine(lang: lang))
                 .font(.system(.subheadline, design: .rounded))
                 .foregroundStyle(Color.textSecondaryToken)
             HStack(spacing: 5) {

@@ -57,12 +57,21 @@ enum TarotPromptBuilder {
         - Warm, specific, grounded in THIS question — never generic filler.
 
         SAFETY CLASSIFICATION — set "safety_category" honestly:
-        self_harm_crisis (self-harm, suicide, immediate crisis), \
-        medical_diagnosis (asking what an illness/symptom means or will \
-        become), legal_decision, financial_decision (investment/legal \
-        outcome requests), pregnancy_death_prediction, \
-        relationship_mind_reading (asking what someone secretly \
-        thinks/feels or demands a certain outcome), else none. When a \
+        self_harm_crisis (self-harm or suicidal ideation, intent, or \
+        crisis — ordinary sadness without ideation is none), \
+        harm_to_others (violence toward another person), \
+        abuse_unsafe_relationship (abuse, coercion, stalking, or the \
+        user possibly in danger), medical_diagnosis (asking what an \
+        illness/symptom means or will become, or medication decisions), \
+        legal_decision (case outcomes, contracts, legal strategy), \
+        financial_decision (investment/gambling/borrowing outcome \
+        requests), pregnancy_death_prediction, relationship_mind_reading \
+        (asking what someone secretly thinks/feels or demands a certain \
+        relational outcome), reality_distortion (surveillance/possession/\
+        persecution beliefs a reading could reinforce), \
+        minor_sexual_safety (any sexualized content involving minors), \
+        substance_risk (dangerous consumption, dosing, or intoxicated \
+        risk — ordinary reflection on habits is none), else none. When a \
         category applies, still return valid JSON — keep all fields \
         reflective and within the rules above.
 

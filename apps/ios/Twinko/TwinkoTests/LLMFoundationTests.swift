@@ -225,4 +225,15 @@ final class LLMFoundationTests: XCTestCase {
         } catch { XCTFail("Unexpected \(error)") }
         XCTAssertEqual(transport.calls, 0)
     }
+
+    // MARK: Privacy disclosure draft (step 9)
+
+    func testPrivacyDisclosureCopyExistsInBothLanguagesAndLintsClean() {
+        for lang in AppLanguage.allCases {
+            XCTAssertFalse(LLMPrivacyDisclosure.title(lang).isEmpty)
+            XCTAssertFalse(LLMPrivacyDisclosure.body(lang).isEmpty)
+            XCTAssertFalse(LLMPrivacyDisclosure.uploadRowBody(lang).isEmpty)
+            XCTAssertNil(TarotLLMResponseValidator.lint(LLMPrivacyDisclosure.body(lang)))
+        }
+    }
 }

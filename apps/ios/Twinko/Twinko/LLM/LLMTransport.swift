@@ -241,3 +241,40 @@ final class LLMUsageLedger {
         store.save(current, as: Self.fileName)
     }
 }
+
+// MARK: - Privacy disclosure (Phase A step 9 — DRAFT wording)
+//
+// ⚠️ DRAFT — wording requires founder sign-off before live Tarot
+// generation reaches the user flow (step 10). Single source for the
+// LLM disclosure shown on the My Planet privacy page. The disclosure
+// activates only in builds where a prototype key is actually
+// configured; unconfigured builds keep the original local-only
+// wording, which remains true for them. Claims here are deliberately
+// verifiable: what is sent, what is not, and that the user controls
+// what goes into a question.
+
+enum LLMPrivacyDisclosure {
+    /// True when this build can make live LLM calls at all.
+    static var isActive: Bool {
+        LLMProvider.allCases.contains { LLMSecrets.apiKey(for: $0) != nil }
+    }
+
+    static func title(_ lang: AppLanguage) -> String {
+        lang == .english ? "AI interpretation (in testing)" : "AI 解讀（測試中）"
+    }
+
+    static func body(_ lang: AppLanguage) -> String {
+        lang == .english
+        ? "When AI interpretation is on, only what the response needs — your question, option notes, and the cards drawn — is sent to an external AI service over an encrypted connection to generate the reading. Twinko stores nothing outside this device. Your nickname, birthday, and profile are never sent. Please avoid typing private details you would not want transmitted into a question."
+        : "啟用 AI 解讀時，產生回應所需的內容——你的提問、選項說明與抽到的牌——會以加密連線傳送給外部 AI 服務。Twinko 不會把任何內容儲存在這台裝置以外的地方；你的暱稱、生日等個人資料也不會被傳送。請避免在問題中輸入你不想傳出的私人資訊。"
+    }
+
+    /// Replaces the absolute "nothing is uploaded" claim when live
+    /// calls are possible — the original wording stays in
+    /// unconfigured builds.
+    static func uploadRowBody(_ lang: AppLanguage) -> String {
+        lang == .english
+        ? "Outside of AI interpretation, nothing is uploaded, synced, or shared — and there is no account."
+        : "除了 AI 解讀之外，沒有任何內容會被上傳、同步或分享，也沒有帳號。"
+    }
+}

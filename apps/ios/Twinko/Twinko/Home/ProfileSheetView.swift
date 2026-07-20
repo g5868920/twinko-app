@@ -423,12 +423,25 @@ struct MyPlanetContentView: View {
                                body: lang == .english
                                ? "Your profile and chats are stored only on this device, as plain files you can inspect and delete."
                                : "你的個人資料與聊天紀錄，都只以可檢視、可刪除的檔案存在這台裝置上。")
+                    // Phase A step 9: in builds where live AI calls
+                    // are possible, the absolute "nothing is uploaded"
+                    // claim would be false — swap in the qualified
+                    // wording and disclose exactly what is sent.
+                    // Unconfigured builds keep the original claims,
+                    // which remain true for them.
                     privacyRow(icon: "icloud.slash",
                                title: lang == .english ? "Nothing is uploaded"
                                                        : "沒有上傳、沒有同步",
-                               body: lang == .english
-                               ? "Nothing is uploaded, synced, or shared — and there is no account."
-                               : "沒有任何內容會被上傳、同步或分享，也沒有帳號。")
+                               body: LLMPrivacyDisclosure.isActive
+                               ? LLMPrivacyDisclosure.uploadRowBody(lang)
+                               : (lang == .english
+                                  ? "Nothing is uploaded, synced, or shared — and there is no account."
+                                  : "沒有任何內容會被上傳、同步或分享，也沒有帳號。"))
+                    if LLMPrivacyDisclosure.isActive {
+                        privacyRow(icon: "sparkles",
+                                   title: LLMPrivacyDisclosure.title(lang),
+                                   body: LLMPrivacyDisclosure.body(lang))
+                    }
                     Text(lang == .english
                          ? "This describes the prototype only; it is not a production privacy policy."
                          : "以上僅描述此原型的行為，不是正式產品的隱私權政策。")

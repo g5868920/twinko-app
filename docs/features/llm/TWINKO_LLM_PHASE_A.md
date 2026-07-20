@@ -124,3 +124,59 @@ server-side proxy · streaming · analytics.
 > the canonical registry; server-side proxy is a hard gate before
 > TestFlight or any external distribution, at which point prototype keys
 > are revoked. Implemented per `docs/features/llm/TWINKO_LLM_PHASE_A.md`.
+
+---
+
+## 8. Phase A Task 2 — schema, safety matrix (draft), grounded prompt (2026-07-20)
+
+**Implements approved steps 3–5.** Still not wired into any user flow.
+
+### 8.1 Structured response schema (`TarotLLMSchema.swift`)
+
+Provider-neutral wire contract `TarotLLMResponse`: `positions[]`
+(`position_id` = canonical TarotPositionID raw value, `card_id`,
+`interpretation`, `reflection_prompt`), `cross_card_patterns`,
+`integrated_summary`, `gentle_next_step`, `safety_category`. The app
+validates every response **before rendering** via
+`TarotLLMResponseValidator`: position count/order against the canonical
+spread, card-to-position identity match against the actual draw, non-empty
+fields, and a deterministic prohibited-language lint (zh+en deterministic/
+destiny/mind-reading/winner phrases). Free-form text is never the contract.
+
+### 8.2 Safety action matrix — DRAFT v0.1, ⚠️ awaiting founder sign-off
+
+| Category | Normal interp. | Supportive replacement | Guidance CTA | Stronger disclaimer | Professional resources |
+|---|---|---|---|---|---|
+| none | ✅ | — | ✅ | — | — |
+| self_harm_crisis | ❌ | ✅ (incl. 安心專線 1925 / 988) | ❌ | ✅ | ✅ |
+| medical_diagnosis | ❌ | ✅ (reframe to feelings + care) | ❌ | ✅ | ✅ |
+| legal_decision | ✅ (reflective only) | — | ✅ | ✅ | ✅ |
+| financial_decision | ✅ (reflective only) | — | ✅ | ✅ | — |
+| pregnancy_death_prediction | ❌ | ✅ | ❌ | ✅ | — |
+| relationship_mind_reading | ✅ (presented-state only) | — | ✅ | ✅ | — |
+
+Universal rule: when a category triggers, **only the category may be
+logged — never the user's original content**. This matrix is DRAFT and is
+a hard gate: it must be founder-approved before live Tarot generation
+reaches the normal user flow (step 10). Chat integration additionally
+waits for D-037.
+
+### 8.3 Grounded prompt (`TarotPromptBuilder.swift`)
+
+One prompt for both vendors (what makes the blind benchmark fair):
+professional RWS reflective-reading standards **without invented
+personas/credentials**; per-card synthesis of grounded registry data ×
+orientation × position × question; required cross-card analysis (majors
+concentration, repeated suits/numbers, elemental balance, reinforcement/
+tension, narrative); full usage-spec safety language rules; honest
+self-classification into the safety categories; zh-Hant/EN language rule;
+exact JSON output schema per spread. User content carries the validated
+session inputs plus each drawn card's canonical knowledge (keywords for
+the actual orientation, core sentence, symbols, element). Deterministic —
+no transcripts, no fabrication.
+
+### 8.4 Next
+
+Step 6 (10–12-case golden evaluation harness) → step 7 (blind benchmark)
+→ step 8 (founder provider decision). Matrix sign-off and privacy
+disclosure (step 9) remain founder gates before step 10 wiring.

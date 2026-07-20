@@ -236,8 +236,19 @@ struct TarotResultStage: View {
     private var sourceLabel: some View {
         switch liveModel.state {
         case .live:
-            labelRow(icon: "sparkles", text: TarotLiveStrings.liveBadge(lang))
-                .accessibilityIdentifier("tarotLiveBadge")
+            VStack(alignment: .leading, spacing: 2) {
+                labelRow(icon: "sparkles", text: TarotLiveStrings.liveBadge(lang))
+                    .accessibilityIdentifier("tarotLiveBadge")
+                #if DEBUG
+                // Debug-only provenance diagnostic: real provider ·
+                // model, "Debug Stub", or "stored live reading" —
+                // never compiled into Release.
+                if let source = liveModel.liveSourceDescription {
+                    labelRow(icon: "wrench.and.screwdriver", text: source)
+                        .accessibilityIdentifier("tarotLiveSourceDiagnostic")
+                }
+                #endif
+            }
         case .fallback:
             labelRow(icon: "info.circle", text: TarotLiveStrings.fallbackLabel(lang))
                 .accessibilityIdentifier("tarotFallbackLabel")

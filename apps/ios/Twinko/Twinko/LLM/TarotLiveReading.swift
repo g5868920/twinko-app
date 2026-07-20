@@ -208,9 +208,19 @@ final class TarotLiveReadingModel: ObservableObject {
 
     @Published private(set) var state: State = .idle
 
+    /// Debug-only provenance for the diagnostic row (e.g.
+    /// "OpenAI · gpt-…", "Debug Stub · stub-model", "stored live
+    /// reading"). Non-nil only while `state == .live`, so a fallback
+    /// can never keep displaying a provider as though the live
+    /// request succeeded. Never rendered in Release builds.
+    @Published private(set) var liveSourceDescription: String?
+
     private let consent: LLMConsentStore
     /// Injectable for tests; `nil` falls back to runtime resolution.
     private let serviceOverride: (service: LLMServing, model: String)?
+    /// True only for the launch-env UI stub, so the diagnostic row can
+    /// never present stub output as a real provider response.
+    private let isStubOverride: Bool
     private let liveCapable: () -> Bool
     private var preparedSessionID: UUID?
     private var task: Task<Void, Never>?
@@ -234,9 +244,11 @@ final class TarotLiveReadingModel: ObservableObject {
 
     init(consent: LLMConsentStore = LLMConsentStore(),
          serviceOverride: (service: LLMServing, model: String)? = nil,
+         isStubOverride: Bool = false,
          liveCapable: @escaping () -> Bool = { LLMPrivacyDisclosure.isActive }) {
         self.consent = consent
         self.serviceOverride = serviceOverride
+        self.isStubOverride = isStubOverride
         self.liveCapable = liveCapable
     }
 
@@ -251,8 +263,10 @@ final class TarotLiveReadingModel: ObservableObject {
                  onLiveResponse: @escaping (TarotLLMResponse) -> Void = { _ in }) {
         guard preparedSessionID != session.id else { return }
         preparedSessionID = session.id
+        liveSourceDescription = nil
 
         if let restoredResponse {
+            liveSourceDescription = "stored live reading (today)"
             state = .live(restoredResponse)
             return
         }
@@ -310,7 +324,12 @@ final class TarotLiveReadingModel: ObservableObject {
             state = .fallback("notConfigured")
             return
         }
+        liveSourceDescription = nil
         state = .loading
+        let providerName = resolved.service.provider == .openai ? "OpenAI" : "Anthropic"
+        let sourceDescription = isStubOverride
+            ? "Debug Stub · \(resolved.model)"
+            : "\(providerName) · \(resolved.model)"
         let request = TarotPromptBuilder.request(for: session, lang: lang,
                                                  model: resolved.model)
         task = Task { [weak self] in
@@ -342,6 +361,7 @@ final class TarotLiveReadingModel: ObservableObject {
                     self?.state = .awaitingReframe(response.safetyCategory)
                     return
                 }
+                self?.liveSourceDescription = sourceDescription
                 self?.state = .live(response)
                 onLiveResponse(response)
             } catch let error as LLMError {
@@ -568,6 +588,7 @@ extension TarotLiveReadingModel {
             return TarotLiveReadingModel(
                 consent: freshConsent,
                 serviceOverride: (UITestStubLLMService(mode: mode), "stub-model"),
+                isStubOverride: true,
                 liveCapable: { true })
         }
         #endif
